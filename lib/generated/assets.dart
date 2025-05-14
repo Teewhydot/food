@@ -5,6 +5,11 @@ class Assets {
   static const String assetsLogo = 'assets/logo.png';
   static const String assetsSplashFoodLogo = 'assets/splash_food_logo.png';
   static const String assetsSplashLogo = 'assets/splash_logo.png';
+  static const String svgsAuthBg = 'assets/svgs/auth_bg.svg';
+  static const String svgsFacebook = 'assets/svgs/facebook.svg';
+  static const String svgsLineDesign = 'assets/svgs/line_design.svg';
+  static const String svgsLocationIcon = 'assets/svgs/location_icon.svg';
   static const String svgsLogo = 'assets/svgs/logo.svg';
+  static const String svgsSpiralDesign = 'assets/svgs/spiral_design.svg';
   static const String svgsSplashDesign = 'assets/svgs/splash_design.svg';
 }

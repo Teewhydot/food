@@ -4,18 +4,20 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class FScaffold extends StatelessWidget {
   final Widget body;
   final double padding;
-  final bool showNavBar;
+  final bool showNavBar, resizeToAvoidBottomInset;
 
   const FScaffold({
     super.key,
     required this.body,
     this.padding = 0.0,
     this.showNavBar = false,
+    this.resizeToAvoidBottomInset = true,
   });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: resizeToAvoidBottomInset,
       body: Stack(
         clipBehavior: Clip.none,
         children: [

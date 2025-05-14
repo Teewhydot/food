@@ -1,0 +1,42 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:food/food/features/auth/presentation/widgets/auth_template.dart';
+import 'package:get/get.dart';
+
+import '../../../../components/buttons/buttons.dart';
+import '../../../../components/textfields.dart';
+
+class ForgotPassword extends StatefulWidget {
+  const ForgotPassword({super.key});
+
+  @override
+  State<ForgotPassword> createState() => _LoginState();
+}
+
+class _LoginState extends State<ForgotPassword> {
+  @override
+  Widget build(BuildContext context) {
+    return AuthTemplate(
+      title: "Forgot Password",
+      subtitle: "Please enter your email to reset your password",
+      hasBackButton: true,
+      hasSvg: true,
+      containerTopHeight: 233,
+      child: Column(
+        children: [
+          FTextField(
+            height: 63,
+            hintText: "Enter your email",
+            onChanged: (value) {},
+            onTap: () {},
+            keyboardType: TextInputType.emailAddress,
+            label: 'EMAIL',
+            action: TextInputAction.next,
+          ),
+          24.verticalSpace,
+          FButton(buttonText: "Send code", width: 1.sw),
+        ],
+      ).paddingOnly(left: 24, top: 24, right: 24),
+    );
+  }
+}

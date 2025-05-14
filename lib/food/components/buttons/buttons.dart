@@ -28,8 +28,8 @@ class FButton extends StatefulWidget {
     this.icon,
     this.onPressed,
     this.height = 50.0,
-    this.width = 200.0,
-    this.borderRadius = 20.0,
+    this.width = 300,
+    this.borderRadius = 12.0,
     this.iconSize = 24.0,
     this.borderColor = kPrimaryColor,
   });
@@ -54,11 +54,6 @@ class _FButtonState extends State<FButton> {
         child: Row(
           mainAxisAlignment: widget.alignment,
           children: [
-            if (widget.icon != null)
-              Padding(
-                padding: const EdgeInsets.only(right: 8.0),
-                child: widget.icon!,
-              ),
             Text(
               widget.buttonText,
               style: TextStyle(
@@ -67,6 +62,11 @@ class _FButtonState extends State<FButton> {
                 fontWeight: widget.fontWeight,
               ),
             ),
+            if (widget.icon != null)
+              Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: widget.icon!,
+              ),
           ],
         ),
       ),

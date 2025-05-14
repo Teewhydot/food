@@ -6,18 +6,20 @@ import 'package:flutter_svg/svg.dart';
 enum FoodImageType { asset, network, svg }
 
 class FImage extends StatelessWidget {
-  final String imagePath;
+  final String assetPath;
   final double width, height, borderRadius;
   final BoxFit fit;
   final FoodImageType imageType;
+  final Color? svgAssetColor;
   final MainAxisAlignment imageAlignment = MainAxisAlignment.center;
 
   const FImage({
     super.key,
-    required this.imagePath,
+    required this.assetPath,
     this.width = 100.0,
     this.height = 100.0,
     this.borderRadius = 0.0,
+    this.svgAssetColor,
     this.fit = BoxFit.cover,
     this.imageType = FoodImageType.asset,
   });
@@ -27,13 +29,13 @@ class FImage extends StatelessWidget {
       borderRadius: BorderRadius.circular(borderRadius),
       child: switch (imageType) {
         FoodImageType.asset => Image.asset(
-          imagePath,
+          assetPath,
           width: width.w,
           height: height.h,
           fit: fit,
         ),
         FoodImageType.network => CachedNetworkImage(
-          imageUrl: imagePath,
+          imageUrl: assetPath,
           width: width.w,
           height: height.h,
           fit: fit,
@@ -43,10 +45,11 @@ class FImage extends StatelessWidget {
                   const Center(child: CircularProgressIndicator.adaptive()),
         ),
         FoodImageType.svg => SvgPicture.asset(
-          imagePath,
+          assetPath,
           width: width.w,
           height: height.h,
           fit: fit,
+          color: svgAssetColor,
         ),
       },
     );

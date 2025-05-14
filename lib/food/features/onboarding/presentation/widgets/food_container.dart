@@ -57,6 +57,7 @@ class FoodContainer extends StatelessWidget {
                   ? Border.all(color: borderColor, width: borderWidth.w)
                   : null,
         ),
+        child: child,
       ),
     );
   }
