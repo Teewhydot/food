@@ -49,9 +49,8 @@ class _FButtonState extends State<FButton> {
         borderRadius: BorderRadius.circular(widget.borderRadius),
         border: Border.all(color: widget.borderColor),
       ),
-      child: CupertinoButton(
-        onPressed: widget.onPressed,
-        padding: EdgeInsets.zero,
+      child: GestureDetector(
+        onTap: widget.onPressed,
         child: Row(
           mainAxisAlignment: widget.alignment,
           children: [

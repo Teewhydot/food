@@ -1,11 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:food/food/components/image.dart';
+import 'package:get_it/get_it.dart';
 
 import '../../../../../generated/assets.dart';
 import '../../../../components/scaffold.dart';
+import '../../../../core/routes/routes.dart';
+import '../../../../core/services/navigation_service/nav_config.dart';
 
-class SplashScreen extends StatelessWidget {
+class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
+
+  @override
+  State<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  final nav = GetIt.instance<NavigationService>();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    Future.delayed(const Duration(seconds: 5), () {
+      nav.navigateTo(Routes.onboarding);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

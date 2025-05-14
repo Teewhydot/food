@@ -27,7 +27,7 @@ class FText extends StatelessWidget {
       children: [
         Text(
           text,
-          style: GoogleFonts.abel(
+          style: GoogleFonts.sen(
             fontSize: fontSize.sp,
             color: color,
             fontWeight: fontWeight,
@@ -63,7 +63,7 @@ class FRichText extends StatelessWidget {
       children: [
         Text(
           text,
-          style: GoogleFonts.abel(
+          style: GoogleFonts.sen(
             fontSize: fontSize.sp,
             color: color,
             fontWeight: fontWeight,
@@ -82,12 +82,12 @@ class FRichText extends StatelessWidget {
   }
 }
 
-class HavenWrapText extends StatelessWidget {
+class FWrapText extends StatelessWidget {
   final String text;
   final double fontSize;
   final Color color;
   final FontWeight fontWeight;
-  const HavenWrapText({
+  const FWrapText({
     super.key,
     required this.text,
     this.fontSize = 16.0,
@@ -104,7 +104,9 @@ class HavenWrapText extends StatelessWidget {
         children: [
           Text(
             text,
-            style: GoogleFonts.galada(
+            textAlign: TextAlign.center, // Ensures text is centered
+
+            style: GoogleFonts.sen(
               fontSize: fontSize.sp,
               color: color,
               fontWeight: fontWeight,
