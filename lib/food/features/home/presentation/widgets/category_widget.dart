@@ -45,9 +45,9 @@ class CategoryWidget extends StatelessWidget {
               FText(
                 text: text,
                 color: isSelected ? kWhiteColor : kTextColorDark,
-              ).paddingOnly(right: 5),
+              ),
             ],
-          ),
+          ).paddingOnly(right: 15),
         ).paddingAll(5),
       ),
     );

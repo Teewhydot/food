@@ -9,6 +9,7 @@ import 'package:get/get.dart';
 
 import '../widgets/cart_widget.dart';
 import '../widgets/category_widget.dart';
+import '../widgets/restaurant_widget.dart';
 import '../widgets/search_widget.dart';
 
 class Home extends StatefulWidget {
@@ -122,6 +123,43 @@ class _HomeState extends State<Home> {
             ),
             32.verticalSpace,
             SectionHead(title: "Open Restaurants").paddingOnly(right: 24.w),
+            20.verticalSpace,
+            SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: Column(
+                spacing: 16,
+                children: [
+                  RestaurantWidget(
+                    name: "Burger King",
+                    rating: "4.5",
+                    distance: "2.5 km",
+                    time: "30 min",
+                    categories: ["Burger", "Fast Food"],
+                  ),
+                  RestaurantWidget(
+                    name: "Pizza Hut",
+                    rating: "4.8",
+                    distance: "3.0 km",
+                    time: "25 min",
+                    categories: ["Pizza", "Italian"],
+                  ),
+                  RestaurantWidget(
+                    name: "Pizza Hut",
+                    rating: "4.8",
+                    distance: "3.0 km",
+                    time: "25 min",
+                    categories: ["Pizza", "Italian"],
+                  ),
+                  RestaurantWidget(
+                    name: "Pizza Hut",
+                    rating: "4.8",
+                    distance: "3.0 km",
+                    time: "25 min",
+                    categories: ["Pizza", "Italian"],
+                  ),
+                ],
+              ),
+            ).paddingOnly(right: 24.w),
           ],
         ).paddingOnly(left: 24.w),
       ),
