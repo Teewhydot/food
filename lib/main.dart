@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/app/init.dart';
 import 'package:food/food/core/routes/getx_route_module.dart';
 import 'package:food/food/core/theme/theme.dart';
-import 'package:food/food/features/auth/presentation/screens/location.dart';
+import 'package:food/food/features/home/presentation/screens/home.dart';
 import 'package:get/get.dart';
 
 void main() {
@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
         theme: FoodTheme.lightTheme,
         darkTheme: FoodTheme.darkTheme,
         themeMode: ThemeMode.light,
-        home: const Location(),
+        home: const Home(),
       ),
     );
   }

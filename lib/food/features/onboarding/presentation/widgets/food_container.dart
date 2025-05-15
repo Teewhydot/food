@@ -48,7 +48,6 @@ class FoodContainer extends StatelessWidget {
       child: Container(
         width: width.w,
         height: height.h,
-
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(borderRadius).r,

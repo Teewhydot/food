@@ -5,11 +5,19 @@ class Assets {
   static const String assetsLogo = 'assets/logo.png';
   static const String assetsSplashFoodLogo = 'assets/splash_food_logo.png';
   static const String assetsSplashLogo = 'assets/splash_logo.png';
+  static const String svgsArrowDown = 'assets/svgs/arrow_down.svg';
+  static const String svgsArrowRight = 'assets/svgs/arrow_right.svg';
   static const String svgsAuthBg = 'assets/svgs/auth_bg.svg';
+  static const String svgsCartIcon = 'assets/svgs/cart_icon.svg';
+  static const String svgsClock = 'assets/svgs/clock.svg';
+  static const String svgsDelivery = 'assets/svgs/delivery.svg';
   static const String svgsFacebook = 'assets/svgs/facebook.svg';
   static const String svgsLineDesign = 'assets/svgs/line_design.svg';
   static const String svgsLocationIcon = 'assets/svgs/location_icon.svg';
   static const String svgsLogo = 'assets/svgs/logo.svg';
+  static const String svgsOfferBg = 'assets/svgs/offer_bg.svg';
+  static const String svgsRating = 'assets/svgs/rating.svg';
   static const String svgsSpiralDesign = 'assets/svgs/spiral_design.svg';
   static const String svgsSplashDesign = 'assets/svgs/splash_design.svg';
+  static const String svgsTruck = 'assets/svgs/truck.svg';
 }

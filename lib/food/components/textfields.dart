@@ -6,7 +6,7 @@ import 'package:food/food/core/theme/colors.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class FTextField extends StatelessWidget {
-  final String label;
+  final String? label;
   final String hintText;
   final TextInputType? keyboardType;
   final ValueChanged<String>? onChanged;
@@ -43,7 +43,7 @@ class FTextField extends StatelessWidget {
   final TextCapitalization textCapitalization;
   const FTextField({
     super.key,
-    required this.label,
+    this.label,
     required this.hintText,
     this.opacity,
     this.textCapitalization = TextCapitalization.none,
@@ -85,7 +85,7 @@ class FTextField extends StatelessWidget {
       children: [
         hasLabel
             ? FText(
-              text: label,
+              text: label ?? "",
               fontSize: 13,
               alignment: MainAxisAlignment.start,
               fontWeight: FontWeight.w400,
@@ -95,7 +95,7 @@ class FTextField extends StatelessWidget {
         Container(
           height: height.h,
           decoration: BoxDecoration(
-            color: kGreyColor,
+            color: kTextFieldColor,
             borderRadius: BorderRadius.circular(10),
           ),
           child: Center(
@@ -133,7 +133,7 @@ class FTextField extends StatelessWidget {
                 hintStyle: GoogleFonts.sen(
                   fontSize: labelSize.sp,
                   fontWeight: FontWeight.w200,
-                  color: Colors.grey.withOpacity(0.6),
+                  color: kAddressColor,
                 ),
                 suffixIcon:
                     isPassword
