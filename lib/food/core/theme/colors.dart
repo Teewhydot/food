@@ -18,3 +18,6 @@ const Color kFbColor = Color(0xff395998);
 const Color kGoogleColor = Color(0xffDB4437);
 const Color kAppleColor = Color(0xff000000);
 const Color kTwitterColor = Color(0xff1DA1F2);
+const Color kGradientColor1 = Color(0xffE76F00);
+const Color kGradientColor2 = Color(0xffFFEB34);
+const Color kCloseColor = Color(0xffFFE194);

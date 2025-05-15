@@ -4,9 +4,11 @@ import 'package:food/food/components/image.dart';
 import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/components/texts/texts.dart';
 import 'package:food/food/core/theme/colors.dart';
+import 'package:food/food/core/utils/app_utils.dart';
 import 'package:food/generated/assets.dart';
 import 'package:get/get.dart';
 
+import '../../../../components/buttons/buttons.dart';
 import '../widgets/cart_widget.dart';
 import '../widgets/category_widget.dart';
 import '../widgets/restaurant_widget.dart';
@@ -31,52 +33,141 @@ class _HomeState extends State<Home> {
         child: Column(
           children: [
             50.verticalSpace,
-            Row(
-              children: [
-                Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 22.5,
-                      backgroundColor: kGreyColor,
-                      child: FImage(
-                        assetPath: Assets.svgsDelivery,
-                        imageType: FoodImageType.svg,
-                        width: 12,
-                        height: 16,
+            GestureDetector(
+              onTap: () {
+                DFoodUtils.showDialogContainer(
+                  pop: true,
+                  context: context,
+                  contentPadding: EdgeInsets.zero,
+                  child: Container(
+                    height: 395.h,
+                    width: 382.w,
+                    decoration: BoxDecoration(
+                      color: kWhiteColor,
+                      borderRadius: BorderRadius.circular(35).r,
+                      gradient: const LinearGradient(
+                        colors: [kGradientColor2, kGradientColor1],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomCenter,
+                        stops: [0.1, 0.9],
                       ),
                     ),
-                    18.horizontalSpace,
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Stack(
+                      clipBehavior: Clip.none,
                       children: [
-                        FText(
-                          text: "Deliver to",
-                          fontSize: 14,
-                          color: kTextColorDark,
-                        ),
-                        Row(
+                        Column(
                           children: [
-                            FText(
-                              text: "Lagos, Nigeria",
-                              fontSize: 14,
-                              color: kAddressColor,
-                            ),
-                            8.horizontalSpace,
+                            37.verticalSpace,
                             FImage(
-                              assetPath: Assets.svgsArrowDown,
+                              assetPath: Assets.svgsOfferBg,
                               imageType: FoodImageType.svg,
-                              width: 10,
-                              height: 10,
+                              width: 270,
+                              height: 190,
                             ),
                           ],
                         ),
+                        Positioned(
+                          top: -15,
+                          right: -15,
+                          child: CircleAvatar(
+                            radius: 22,
+                            backgroundColor: kCloseColor,
+                            child: Icon(Icons.close, size: 10),
+                          ),
+                        ),
+                        Positioned(
+                          top: 85,
+                          left: 0,
+                          right: 0,
+                          child: Column(
+                            children: [
+                              FText(
+                                text: "Hurry now",
+                                fontSize: 41,
+                                color: kWhiteColor,
+                                fontWeight: FontWeight.w800,
+                              ),
+                              50.verticalSpace,
+                              FText(
+                                text: "#1234CD2",
+                                fontSize: 24,
+                                color: kWhiteColor,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              40.verticalSpace,
+                              FText(
+                                text: "Use the coupon to get 50% off",
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                color: kWhiteColor,
+                              ),
+                              50.verticalSpace,
+                              FButton(
+                                buttonText: "GOT IT",
+                                onPressed: () {
+                                  Get.back();
+                                },
+                                borderColor: kWhiteColor,
+                                color: Colors.transparent,
+                                textColor: kWhiteColor,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
-                  ],
-                ),
-                Spacer(),
-                CartWidget().paddingOnly(right: 24.w),
-              ],
+                  ),
+                );
+              },
+              child: Row(
+                children: [
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 22.5,
+                        backgroundColor: kGreyColor,
+                        child: FImage(
+                          assetPath: Assets.svgsDelivery,
+                          imageType: FoodImageType.svg,
+                          width: 12,
+                          height: 16,
+                        ),
+                      ),
+                      18.horizontalSpace,
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          FText(
+                            text: "Deliver to",
+                            fontSize: 14,
+                            color: kTextColorDark,
+                          ),
+                          Row(
+                            children: [
+                              FText(
+                                text: "Lagos, Nigeria",
+                                fontSize: 14,
+                                color: kAddressColor,
+                              ),
+                              8.horizontalSpace,
+                              FImage(
+                                assetPath: Assets.svgsArrowDown,
+                                imageType: FoodImageType.svg,
+                                width: 10,
+                                height: 10,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  Spacer(),
+                  CartWidget().paddingOnly(right: 24.w),
+                ],
+              ),
             ),
             24.verticalSpace,
             Row(
