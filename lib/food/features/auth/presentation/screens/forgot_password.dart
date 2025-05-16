@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 
 import '../../../../components/buttons/buttons.dart';
 import '../../../../components/textfields.dart';
+import '../../../../core/constants/app_constants.dart';
 
 class ForgotPassword extends StatefulWidget {
   const ForgotPassword({super.key});
@@ -36,7 +37,11 @@ class _LoginState extends State<ForgotPassword> {
           24.verticalSpace,
           FButton(buttonText: "Send code", width: 1.sw),
         ],
-      ).paddingOnly(left: 24, top: 24, right: 24),
+      ).paddingOnly(
+        left: AppConstants.defaultPadding,
+        top: AppConstants.defaultPadding,
+        right: AppConstants.defaultPadding,
+      ),
     );
   }
 }

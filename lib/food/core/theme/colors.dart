@@ -21,3 +21,4 @@ const Color kTwitterColor = Color(0xff1DA1F2);
 const Color kGradientColor1 = Color(0xffE76F00);
 const Color kGradientColor2 = Color(0xffFFEB34);
 const Color kCloseColor = Color(0xffFFE194);
+const Color kBackWidgetColor = Color(0xffECF0F4);

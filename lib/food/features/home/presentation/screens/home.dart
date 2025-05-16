@@ -9,6 +9,7 @@ import 'package:food/generated/assets.dart';
 import 'package:get/get.dart';
 
 import '../../../../components/buttons/buttons.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../widgets/cart_widget.dart';
 import '../widgets/category_widget.dart';
 import '../widgets/restaurant_widget.dart';
@@ -165,7 +166,9 @@ class _HomeState extends State<Home> {
                     ],
                   ),
                   Spacer(),
-                  CartWidget().paddingOnly(right: 24.w),
+                  CartWidget().paddingOnly(
+                    right: AppConstants.defaultPadding.w,
+                  ),
                 ],
               ),
             ),
@@ -192,7 +195,7 @@ class _HomeState extends State<Home> {
             16.verticalSpace,
             SearchWidget(),
             32.verticalSpace,
-            SectionHead().paddingOnly(right: 24.w),
+            SectionHead().paddingOnly(right: AppConstants.defaultPadding.w),
             20.verticalSpace,
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
@@ -213,7 +216,9 @@ class _HomeState extends State<Home> {
               ),
             ),
             32.verticalSpace,
-            SectionHead(title: "Open Restaurants").paddingOnly(right: 24.w),
+            SectionHead(
+              title: "Open Restaurants",
+            ).paddingOnly(right: AppConstants.defaultPadding.w),
             20.verticalSpace,
             SingleChildScrollView(
               scrollDirection: Axis.vertical,
@@ -250,9 +255,9 @@ class _HomeState extends State<Home> {
                   ),
                 ],
               ),
-            ).paddingOnly(right: 24.w),
+            ).paddingOnly(right: AppConstants.defaultPadding.w),
           ],
-        ).paddingOnly(left: 24.w),
+        ).paddingOnly(left: AppConstants.defaultPadding.w),
       ),
     );
   }

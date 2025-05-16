@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/buttons/buttons.dart';
 import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/components/texts/texts.dart';
+import 'package:food/food/core/constants/app_constants.dart';
 import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/features/onboarding/presentation/widgets/food_container.dart';
 import 'package:get/get.dart';
@@ -46,7 +47,10 @@ class _LocationState extends State<Location> {
             FWrapText(
               text: "DFOOD WILL ACCESS YOUR LOCATION ONLY WHILE USING THE APP",
               color: kTextColorDark,
-            ).paddingOnly(left: 26.w, right: 26.w),
+            ).paddingOnly(
+              left: AppConstants.defaultPadding.w,
+              right: AppConstants.defaultPadding.w,
+            ),
           ],
         ),
       ),

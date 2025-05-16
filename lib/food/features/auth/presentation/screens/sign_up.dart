@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 
 import '../../../../components/buttons/buttons.dart';
 import '../../../../components/textfields.dart';
+import '../../../../core/constants/app_constants.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -64,7 +65,11 @@ class _LoginState extends State<SignUp> {
           24.verticalSpace,
           FButton(buttonText: "SIGN UP", width: 1.sw),
         ],
-      ).paddingOnly(left: 24, top: 24, right: 24),
+      ).paddingOnly(
+        left: AppConstants.defaultPadding,
+        top: AppConstants.defaultPadding,
+        right: AppConstants.defaultPadding,
+      ),
     );
   }
 }

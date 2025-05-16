@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:pinput/pinput.dart';
 
 import '../../../../components/buttons/buttons.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/colors.dart';
 
 class Verification extends StatefulWidget {
@@ -69,7 +70,11 @@ class _LoginState extends State<Verification> {
           ).paddingOnly(top: 8, bottom: 30),
           FButton(buttonText: "Verify", width: 1.sw),
         ],
-      ).paddingOnly(left: 24, top: 24, right: 24),
+      ).paddingOnly(
+        left: AppConstants.defaultPadding,
+        top: AppConstants.defaultPadding,
+        right: AppConstants.defaultPadding,
+      ),
     );
   }
 }

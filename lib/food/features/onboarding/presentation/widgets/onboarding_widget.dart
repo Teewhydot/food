@@ -6,6 +6,8 @@ import "package:food/food/core/theme/colors.dart";
 import "package:food/food/features/onboarding/presentation/widgets/food_container.dart";
 import "package:get/get.dart";
 
+import "../../../../core/constants/app_constants.dart";
+
 class OnboardingWidget extends StatelessWidget {
   final String title, description, imagePath;
   final PageController controller;
@@ -47,7 +49,10 @@ class OnboardingWidget extends StatelessWidget {
             fontSize: 16,
             fontWeight: FontWeight.w400,
             color: kGreyColor,
-          ).paddingOnly(left: 24, right: 24),
+          ).paddingOnly(
+            left: AppConstants.defaultPadding,
+            right: AppConstants.defaultPadding,
+          ),
         ],
       ),
     );

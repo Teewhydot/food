@@ -9,6 +9,7 @@ import 'package:ionicons/ionicons.dart';
 import '../../../../components/buttons/buttons.dart';
 import '../../../../components/textfields.dart';
 import '../../../../components/texts/texts.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/colors.dart';
 import '../../../onboarding/presentation/widgets/food_container.dart';
 
@@ -156,7 +157,11 @@ class _LoginState extends State<Login> {
             ],
           ),
         ],
-      ).paddingOnly(left: 24, top: 24, right: 24),
+      ).paddingOnly(
+        left: AppConstants.defaultPadding,
+        top: AppConstants.defaultPadding,
+        right: AppConstants.defaultPadding,
+      ),
     );
   }
 }

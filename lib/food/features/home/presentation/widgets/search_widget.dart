@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/textfields.dart';
 import 'package:get/get.dart';
+
+import '../../../../core/constants/app_constants.dart';
 
 class SearchWidget extends StatefulWidget {
   const SearchWidget({super.key});
@@ -17,6 +20,6 @@ class _SearchWidgetState extends State<SearchWidget> {
       hasLabel: false,
       hintText: "Search dishes, restaurants",
       action: TextInputAction.search,
-    ).paddingOnly(right: 24);
+    ).paddingOnly(right: AppConstants.defaultPadding.w);
   }
 }

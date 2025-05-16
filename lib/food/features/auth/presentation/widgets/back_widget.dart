@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:food/food/core/theme/colors.dart';
 
 class BackWidget extends StatelessWidget {
-  const BackWidget({super.key});
+  final Color color;
+  const BackWidget({super.key, this.color = kWhiteColor});
 
   @override
   Widget build(BuildContext context) {
@@ -10,7 +11,7 @@ class BackWidget extends StatelessWidget {
       width: 45,
       height: 45,
       decoration: BoxDecoration(
-        color: kWhiteColor,
+        color: color,
         borderRadius: BorderRadius.circular(45),
       ),
       child: IconButton(

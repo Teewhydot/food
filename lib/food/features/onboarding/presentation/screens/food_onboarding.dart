@@ -8,6 +8,8 @@ import 'package:food/food/features/onboarding/presentation/widgets/onboarding_wi
 import 'package:get/get.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
+import '../../../../core/constants/app_constants.dart';
+
 class FoodOnboarding extends StatefulWidget {
   const FoodOnboarding({super.key});
 
@@ -83,7 +85,10 @@ class _FoodOnboardingState extends State<FoodOnboarding> {
             buttonText: isLastPage ? "Get Started" : "Next",
             width: 1.sw,
             borderRadius: 12,
-          ).paddingOnly(left: 24, right: 24),
+          ).paddingOnly(
+            left: AppConstants.defaultPadding,
+            right: AppConstants.defaultPadding,
+          ),
           if (!isLastPage)
             TextButton(
               onPressed: () {},
@@ -93,7 +98,10 @@ class _FoodOnboardingState extends State<FoodOnboarding> {
                 color: kGreyColor,
                 text: 'Skip',
               ),
-            ).paddingOnly(left: 24, right: 24),
+            ).paddingOnly(
+              left: AppConstants.defaultPadding,
+              right: AppConstants.defaultPadding,
+            ),
         ],
       ),
     );

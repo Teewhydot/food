@@ -8,14 +8,10 @@ class FirebaseService {
   final Duration _timeoutDuration = const Duration(seconds: 10);
 
   // Pre-call interceptor (e.g., logging)
-  void _onRequest(String operation) {
-    print('Starting Firebase operation: $operation');
-  }
+  void _onRequest(String operation) {}
 
   // Post-call interceptor (e.g., logging)
-  void _onResponse(String operation, dynamic result) {
-    print('Completed Firebase operation: $operation with result: $result');
-  }
+  void _onResponse(String operation, dynamic result) {}
 
   // Generic method to handle Firebase operations with timeout, interceptors, and error handling
   Future<T> runWithConfig<T>(
