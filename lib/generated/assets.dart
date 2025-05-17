@@ -13,6 +13,7 @@ class Assets {
   static const String svgsCloseIcon = 'assets/svgs/close_icon.svg';
   static const String svgsDelivery = 'assets/svgs/delivery.svg';
   static const String svgsFacebook = 'assets/svgs/facebook.svg';
+  static const String svgsFilter = 'assets/svgs/filter.svg';
   static const String svgsLineDesign = 'assets/svgs/line_design.svg';
   static const String svgsLocationIcon = 'assets/svgs/location_icon.svg';
   static const String svgsLogo = 'assets/svgs/logo.svg';

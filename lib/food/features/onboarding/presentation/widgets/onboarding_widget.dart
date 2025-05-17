@@ -29,13 +29,10 @@ class OnboardingWidget extends StatelessWidget {
           FoodContainer(
             height: 292,
             width: 1.sw,
-            hasUniquePadding: true,
-            topPadding: 0,
             borderRadius: 12,
-            leftPadding: 68,
-            rightPadding: 68,
+
             child: Container(),
-          ),
+          ).paddingOnly(top: 0, left: 68, right: 68),
           67.verticalSpace,
           FText(
             text: title,
