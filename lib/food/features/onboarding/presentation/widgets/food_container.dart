@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/core/theme/colors.dart';
 
 class FoodContainer extends StatelessWidget {
-  final Widget child;
+  final Widget? child;
   final double padding,
       height,
       width,
@@ -17,7 +17,7 @@ class FoodContainer extends StatelessWidget {
   final bool hasBorder, hasUniquePadding;
   const FoodContainer({
     super.key,
-    required this.child,
+    this.child,
     this.padding = 0.0,
     this.height = 0.0,
     this.width = 0.0,

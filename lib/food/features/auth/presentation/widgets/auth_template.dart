@@ -38,7 +38,7 @@ class _AuthTemplateState extends State<AuthTemplate> {
           Container(width: 1.sw, color: kAuthBgColorDark),
           FImage(
             assetPath: Assets.svgsSpiralDesign,
-            imageType: FoodImageType.svg,
+            assetType: FoodAssetType.svg,
             width: 177,
             height: 177,
           ),
@@ -46,7 +46,7 @@ class _AuthTemplateState extends State<AuthTemplate> {
             right: 0,
             child: FImage(
               assetPath: Assets.svgsLineDesign,
-              imageType: FoodImageType.svg,
+              assetType: FoodAssetType.svg,
               width: 201,
               height: 444,
               svgAssetColor: widget.lineDesignColor,

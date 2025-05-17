@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/app/init.dart';
 import 'package:food/food/core/routes/getx_route_module.dart';
@@ -7,7 +8,7 @@ import 'package:food/food/features/home/presentation/screens/search.dart';
 import 'package:get/get.dart';
 
 void main() {
-  // debugPaintSizeEnabled = true;
+  debugPaintSizeEnabled = true;
   AppConfig.init();
   runApp(const MyApp());
 }
@@ -27,7 +28,7 @@ class MyApp extends StatelessWidget {
         theme: FoodTheme.lightTheme,
         darkTheme: FoodTheme.darkTheme,
         themeMode: ThemeMode.light,
-        home: const Search(),
+        home: Search(),
       ),
     );
   }

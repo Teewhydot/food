@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 
-enum FoodImageType { asset, network, svg }
+enum FoodAssetType { asset, network, svg }
 
 class FImage extends StatelessWidget {
   final String assetPath;
   final double width, height, borderRadius;
   final BoxFit fit;
-  final FoodImageType imageType;
+  final FoodAssetType assetType;
   final Color? svgAssetColor;
   final MainAxisAlignment imageAlignment = MainAxisAlignment.center;
 
@@ -21,20 +21,20 @@ class FImage extends StatelessWidget {
     this.borderRadius = 0.0,
     this.svgAssetColor,
     this.fit = BoxFit.cover,
-    this.imageType = FoodImageType.asset,
+    this.assetType = FoodAssetType.asset,
   });
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(borderRadius),
-      child: switch (imageType) {
-        FoodImageType.asset => Image.asset(
+      child: switch (assetType) {
+        FoodAssetType.asset => Image.asset(
           assetPath,
           width: width.w,
           height: height.h,
           fit: fit,
         ),
-        FoodImageType.network => CachedNetworkImage(
+        FoodAssetType.network => CachedNetworkImage(
           imageUrl: assetPath,
           width: width.w,
           height: height.h,
@@ -44,11 +44,10 @@ class FImage extends StatelessWidget {
               (context, url) =>
                   const Center(child: CircularProgressIndicator.adaptive()),
         ),
-        FoodImageType.svg => SvgPicture.asset(
+        FoodAssetType.svg => SvgPicture.asset(
           assetPath,
           width: width.w,
           height: height.h,
-          fit: fit,
           color: svgAssetColor,
         ),
       },

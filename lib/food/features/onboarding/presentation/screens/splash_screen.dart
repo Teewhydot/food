@@ -33,7 +33,7 @@ class _SplashScreenState extends State<SplashScreen> {
         children: [
           Center(
             child: FImage(
-              imageType: FoodImageType.svg,
+              assetType: FoodAssetType.svg,
               assetPath: Assets.svgsLogo,
               width: 121,
               height: 60,
@@ -43,7 +43,7 @@ class _SplashScreenState extends State<SplashScreen> {
             bottom: 0,
             right: 0,
             child: FImage(
-              imageType: FoodImageType.svg,
+              assetType: FoodAssetType.svg,
               assetPath: Assets.svgsSplashDesign,
               width: 295,
               height: 295,

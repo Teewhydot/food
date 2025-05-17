@@ -17,7 +17,7 @@ class CartWidget extends StatelessWidget {
           backgroundColor: kAuthBgColor,
           child: FImage(
             assetPath: Assets.svgsCartIcon,
-            imageType: FoodImageType.svg,
+            assetType: FoodAssetType.svg,
             svgAssetColor: kWhiteColor,
             width: 18,
             height: 20,

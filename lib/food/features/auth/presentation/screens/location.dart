@@ -37,7 +37,7 @@ class _LocationState extends State<Location> {
             FButton(
               buttonText: "ACCESS LOCATION",
               icon: FImage(
-                imageType: FoodImageType.svg,
+                assetType: FoodAssetType.svg,
                 assetPath: Assets.svgsLocationIcon,
                 width: 32,
                 height: 32,

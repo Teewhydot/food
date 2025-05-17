@@ -61,7 +61,7 @@ class _HomeState extends State<Home> {
                             37.verticalSpace,
                             FImage(
                               assetPath: Assets.svgsOfferBg,
-                              imageType: FoodImageType.svg,
+                              assetType: FoodAssetType.svg,
                               width: 270,
                               height: 190,
                             ),
@@ -131,7 +131,7 @@ class _HomeState extends State<Home> {
                         backgroundColor: kGreyColor,
                         child: FImage(
                           assetPath: Assets.svgsDelivery,
-                          imageType: FoodImageType.svg,
+                          assetType: FoodAssetType.svg,
                           width: 12,
                           height: 16,
                         ),
@@ -155,7 +155,7 @@ class _HomeState extends State<Home> {
                               8.horizontalSpace,
                               FImage(
                                 assetPath: Assets.svgsArrowDown,
-                                imageType: FoodImageType.svg,
+                                assetType: FoodAssetType.svg,
                                 width: 10,
                                 height: 10,
                               ),
@@ -299,7 +299,7 @@ class SectionHead extends StatelessWidget {
               8.horizontalSpace,
               FImage(
                 assetPath: Assets.svgsArrowRight,
-                imageType: FoodImageType.svg,
+                assetType: FoodAssetType.svg,
                 width: 10,
                 height: 10,
               ),

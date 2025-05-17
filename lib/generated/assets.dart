@@ -10,6 +10,7 @@ class Assets {
   static const String svgsAuthBg = 'assets/svgs/auth_bg.svg';
   static const String svgsCartIcon = 'assets/svgs/cart_icon.svg';
   static const String svgsClock = 'assets/svgs/clock.svg';
+  static const String svgsCloseIcon = 'assets/svgs/close_icon.svg';
   static const String svgsDelivery = 'assets/svgs/delivery.svg';
   static const String svgsFacebook = 'assets/svgs/facebook.svg';
   static const String svgsLineDesign = 'assets/svgs/line_design.svg';
@@ -19,5 +20,7 @@ class Assets {
   static const String svgsRating = 'assets/svgs/rating.svg';
   static const String svgsSpiralDesign = 'assets/svgs/spiral_design.svg';
   static const String svgsSplashDesign = 'assets/svgs/splash_design.svg';
+  static const String svgsTrapezoidContainer =
+      'assets/svgs/trapezoid_container.svg';
   static const String svgsTruck = 'assets/svgs/truck.svg';
 }

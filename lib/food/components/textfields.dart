@@ -39,7 +39,7 @@ class FTextField extends StatelessWidget {
   final VoidCallback? dropDownPressed;
   final bool hasLabel;
   final double height;
-  final Widget? prefix;
+  final Widget? prefix, suffix;
   final TextCapitalization textCapitalization;
   const FTextField({
     super.key,
@@ -77,6 +77,7 @@ class FTextField extends StatelessWidget {
     this.hasLabel = true,
     this.height = 62,
     this.prefix,
+    this.suffix,
   });
 
   @override
@@ -145,9 +146,14 @@ class FTextField extends StatelessWidget {
                             size: 20.sp,
                           ),
                         )
-                        : isDropDown == null
-                        ? const SizedBox.shrink()
-                        : Container(child: isDropDown),
+                        : Padding(
+                          padding: const EdgeInsetsDirectional.only(
+                            end: 16,
+                            // top: 21,
+                            // bottom: 21,
+                          ),
+                          child: suffix,
+                        ),
                 errorStyle: TextStyle(
                   height: 1.2.sp,
                   color: Colors.red,

@@ -54,7 +54,7 @@ class RestaurantWidget extends StatelessWidget {
               children: [
                 FImage(
                   assetPath: Assets.svgsRating,
-                  imageType: FoodImageType.svg,
+                  assetType: FoodAssetType.svg,
                   width: 20,
                   height: 20,
                 ),
@@ -71,7 +71,7 @@ class RestaurantWidget extends StatelessWidget {
               children: [
                 FImage(
                   assetPath: Assets.svgsTruck,
-                  imageType: FoodImageType.svg,
+                  assetType: FoodAssetType.svg,
                   width: 20,
                   height: 20,
                 ),
@@ -88,7 +88,7 @@ class RestaurantWidget extends StatelessWidget {
               children: [
                 FImage(
                   assetPath: Assets.svgsClock,
-                  imageType: FoodImageType.svg,
+                  assetType: FoodAssetType.svg,
                   width: 20,
                   height: 20,
                 ),
@@ -104,6 +104,66 @@ class RestaurantWidget extends StatelessWidget {
           ],
         ),
         30.verticalSpace,
+      ],
+    );
+  }
+}
+
+class SuggestedRestaurant extends StatelessWidget {
+  final String name, rating;
+
+  const SuggestedRestaurant({
+    super.key,
+    required this.name,
+    required this.rating,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            FoodContainer(
+              width: 60,
+              height: 50,
+              borderRadius: 10,
+              child: Container(),
+            ),
+            10.horizontalSpace,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                FText(
+                  text: name,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w400,
+                  color: kTextColorDark,
+                ),
+                4.verticalSpace,
+                Row(
+                  children: [
+                    FImage(
+                      assetPath: Assets.svgsRating,
+                      assetType: FoodAssetType.svg,
+                      width: 20,
+                      height: 20,
+                    ),
+                    4.horizontalSpace,
+                    FText(
+                      text: rating,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: kTextColorDark,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
+        10.verticalSpace,
+        Divider(color: kGreyColor, height: 1, thickness: 1),
       ],
     );
   }
