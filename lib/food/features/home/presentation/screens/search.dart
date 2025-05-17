@@ -82,9 +82,46 @@ class _SearchState extends State<Search> {
             20.verticalSpace,
             SectionHead(title: "Popular Fast Food", isActionVisible: false),
             40.verticalSpace,
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                spacing: 10.w,
+                children: [
+                  PopularFastFood(
+                    image: "assets/images/food1.png",
+                    name: "Pizza",
+                    restaurantName: "4.5",
+                    price: "\$10.00",
+                  ),
+                  PopularFastFood(
+                    image: "assets/images/food1.png",
+                    name: "Pizza",
+                    restaurantName: "4.5",
+                    price: "\$10.00",
+                  ),
+                  PopularFastFood(
+                    image: "assets/images/food1.png",
+                    name: "Pizza",
+                    restaurantName: "4.5",
+                    price: "\$10.00",
+                  ),
+                  PopularFastFood(
+                    image: "assets/images/food1.png",
+                    name: "Pizza",
+                    restaurantName: "4.5",
+                    price: "\$10.00",
+                  ),
+                ],
+              ),
+            ),
+            80.verticalSpace,
             Wrap(
-              spacing: 20.w,
-              runSpacing: 20.h,
+              direction: Axis.horizontal,
+              spacing: 10,
+              crossAxisAlignment: WrapCrossAlignment.start,
+              alignment: WrapAlignment.center,
+              runAlignment: WrapAlignment.center,
+              runSpacing: 50,
               children: [
                 PopularFastFood(
                   image: "assets/images/food1.png",
@@ -111,7 +148,7 @@ class _SearchState extends State<Search> {
                   price: "\$10.00",
                 ),
               ],
-            ),
+            ).paddingOnly(right: AppConstants.defaultPadding),
           ],
         ).paddingOnly(left: AppConstants.defaultPadding.w),
       ),
@@ -140,14 +177,12 @@ class KeywordWidget extends StatelessWidget {
             ),
           ],
         ),
-        child: Center(
-          child: FText(
-            text: keyword,
-            fontSize: 14,
-            fontWeight: FontWeight.w400,
-            color: kTextColorDark,
-          ).paddingSymmetric(horizontal: 25.w),
-        ),
+        child: FText(
+          text: keyword,
+          fontSize: 14,
+          fontWeight: FontWeight.w400,
+          color: kTextColorDark,
+        ).paddingSymmetric(horizontal: 20.w),
       ),
     );
   }
