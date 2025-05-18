@@ -10,6 +10,7 @@ import 'package:food/food/features/onboarding/presentation/widgets/food_containe
 import 'package:food/generated/assets.dart';
 import 'package:get/get.dart';
 
+import '../widgets/circle_widget.dart';
 import '../widgets/food_widget.dart';
 import '../widgets/restaurant_widget.dart';
 import 'home.dart';
@@ -69,9 +70,9 @@ class Food extends StatelessWidget {
                       borderRadius: 46,
                       child: Icon(Icons.search, color: kWhiteColor),
                     ),
-                    CircleAvatar(
+                    CircleWidget(
                       radius: 23,
-                      backgroundColor: kGreyColor,
+                      color: kGreyColor,
                       child: FImage(
                         assetPath: Assets.svgsFilter,
                         assetType: FoodAssetType.svg,

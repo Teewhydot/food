@@ -5,6 +5,7 @@ import 'package:food/food/core/theme/colors.dart';
 import 'package:get/get.dart';
 
 import '../../../../core/constants/app_constants.dart';
+import 'circle_widget.dart';
 
 class SearchWidget extends StatefulWidget {
   const SearchWidget({super.key});
@@ -24,9 +25,9 @@ class _SearchWidgetState extends State<SearchWidget> {
       prefix: Icon(Icons.search),
       suffix: GestureDetector(
         onTap: () {},
-        child: CircleAvatar(
+        child: CircleWidget(
           radius: 1,
-          backgroundColor: kGreyColor,
+          color: kGreyColor,
           child: Icon(Icons.close_outlined, color: kWhiteColor),
         ),
       ),

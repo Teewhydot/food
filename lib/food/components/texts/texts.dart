@@ -87,12 +87,14 @@ class FWrapText extends StatelessWidget {
   final double fontSize;
   final Color color;
   final FontWeight fontWeight;
+  final TextAlign textAlign;
   const FWrapText({
     super.key,
     required this.text,
     this.fontSize = 16.0,
     this.color = kBlackColor,
     this.fontWeight = FontWeight.bold,
+    this.textAlign = TextAlign.center,
   });
 
   @override
@@ -104,7 +106,7 @@ class FWrapText extends StatelessWidget {
         children: [
           Text(
             text,
-            textAlign: TextAlign.center, // Ensures text is centered
+            textAlign: textAlign, // Ensures text is centered
 
             style: GoogleFonts.sen(
               fontSize: fontSize.sp,

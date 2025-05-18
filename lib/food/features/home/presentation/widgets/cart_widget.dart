@@ -4,6 +4,7 @@ import '../../../../../generated/assets.dart';
 import '../../../../components/image.dart';
 import '../../../../components/texts/texts.dart';
 import '../../../../core/theme/colors.dart';
+import 'circle_widget.dart';
 
 class CartWidget extends StatelessWidget {
   const CartWidget({super.key});
@@ -12,9 +13,9 @@ class CartWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        CircleAvatar(
+        CircleWidget(
           radius: 22.5,
-          backgroundColor: kAuthBgColor,
+          color: kAuthBgColor,
           child: FImage(
             assetPath: Assets.svgsCartIcon,
             assetType: FoodAssetType.svg,
@@ -26,9 +27,9 @@ class CartWidget extends StatelessWidget {
         Positioned(
           top: 0,
           right: 0,
-          child: CircleAvatar(
+          child: CircleWidget(
             radius: 10,
-            backgroundColor: kPrimaryColor,
+            color: kPrimaryColor,
             child: FText(text: "2", fontSize: 10, color: kWhiteColor),
           ),
         ),

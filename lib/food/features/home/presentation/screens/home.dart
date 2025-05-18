@@ -12,6 +12,7 @@ import '../../../../components/buttons/buttons.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../widgets/cart_widget.dart';
 import '../widgets/category_widget.dart';
+import '../widgets/circle_widget.dart';
 import '../widgets/restaurant_widget.dart';
 import '../widgets/search_widget.dart';
 
@@ -70,9 +71,9 @@ class _HomeState extends State<Home> {
                         Positioned(
                           top: -15,
                           right: -15,
-                          child: CircleAvatar(
+                          child: CircleWidget(
                             radius: 22,
-                            backgroundColor: kCloseColor,
+                            color: kCloseColor,
                             child: Icon(Icons.close, size: 10),
                           ),
                         ),
@@ -126,9 +127,9 @@ class _HomeState extends State<Home> {
                 children: [
                   Row(
                     children: [
-                      CircleAvatar(
+                      CircleWidget(
                         radius: 22.5,
-                        backgroundColor: kGreyColor,
+                        color: kGreyColor,
                         child: FImage(
                           assetPath: Assets.svgsDelivery,
                           assetType: FoodAssetType.svg,

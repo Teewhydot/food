@@ -37,7 +37,7 @@ class CategoryWidget extends StatelessWidget {
           ),
           child: Row(
             children: [
-              CircleAvatar(
+              CircleWidget(
                 radius: 22,
                 backgroundColor: kGreyColor,
                 child: Container(),
