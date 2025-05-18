@@ -16,8 +16,8 @@ class FoodDetails extends StatelessWidget {
   Widget build(BuildContext context) {
     return DetailsSkeletonWidget(
       hasBottomWidget: true,
-      hasIndicator: true,
-      isRestaurant: true,
+      hasIndicator: false,
+      isRestaurant: false,
       icon: Icons.favorite,
       bodyWidget: Column(
         children: [

@@ -117,7 +117,7 @@ class _SearchState extends State<Search> {
             80.verticalSpace,
             Wrap(
               direction: Axis.horizontal,
-              spacing: 10,
+              spacing: 20,
               crossAxisAlignment: WrapCrossAlignment.start,
               alignment: WrapAlignment.center,
               runAlignment: WrapAlignment.center,

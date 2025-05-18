@@ -36,6 +36,11 @@ class _DetailsSkeletonWidgetState extends State<DetailsSkeletonWidget> {
   final CarouselSliderController carouselController =
       CarouselSliderController();
   int currentPage = 0;
+  @override
+  void dispose() {
+    super.dispose();
+    controller.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -106,68 +111,68 @@ class _DetailsSkeletonWidgetState extends State<DetailsSkeletonWidget> {
             ),
           ),
           widget.isRestaurant
-              ? SafeArea(
-                child: CarouselSlider(
-                  items: [
-                    FoodContainer(
-                      height: 341,
-                      width: 1.sw,
-                      borderRadius: 30,
-                      color: kContainerColor,
-                    ),
-                    FoodContainer(
-                      height: 321,
-                      width: 1.sw,
-                      borderRadius: 30,
-                      color: kContainerColor,
-                    ),
-                    FoodContainer(
-                      height: 321,
-                      width: 1.sw,
-                      borderRadius: 30,
-                      color: kContainerColor,
-                    ),
-                    FoodContainer(
-                      height: 321,
-                      width: 1.sw,
-                      borderRadius: 30,
-                      color: kContainerColor,
-                    ),
-                    FoodContainer(
-                      height: 321,
-                      width: 1.sw,
-                      borderRadius: 30,
-                      color: kContainerColor,
-                    ),
-                    FoodContainer(
-                      height: 321,
-                      width: 1.sw,
-                      borderRadius: 30,
-                      color: kContainerColor,
-                    ),
-                  ],
-                  carouselController: carouselController,
-                  options: CarouselOptions(
+              ? CarouselSlider(
+                items: [
+                  FoodContainer(
                     height: 321,
-                    initialPage: 0,
-                    enableInfiniteScroll: false,
-                    reverse: false,
-                    autoPlay: true,
-                    autoPlayInterval: Duration(seconds: 3),
-                    autoPlayAnimationDuration: Duration(milliseconds: 800),
-                    autoPlayCurve: Curves.fastOutSlowIn,
-                    enlargeCenterPage: false,
-                    onPageChanged: (index, reason) {
-                      setState(() {
-                        currentPage = index;
-                      });
-                    },
-                    scrollDirection: Axis.horizontal,
-                    viewportFraction: 1.0,
+                    width: 1.sw,
+                    borderRadius: 30,
+                    color: kContainerColor,
                   ),
+                  FoodContainer(
+                    height: 321,
+                    width: 1.sw,
+                    borderRadius: 30,
+                    color: kContainerColor,
+                  ),
+                  FoodContainer(
+                    height: 321,
+                    width: 1.sw,
+                    borderRadius: 30,
+                    color: kContainerColor,
+                  ),
+                  FoodContainer(
+                    height: 321,
+                    width: 1.sw,
+                    borderRadius: 30,
+                    color: kContainerColor,
+                  ),
+                  FoodContainer(
+                    height: 321,
+                    width: 1.sw,
+                    borderRadius: 30,
+                    color: kContainerColor,
+                  ),
+                  FoodContainer(
+                    height: 321,
+                    width: 1.sw,
+                    borderRadius: 30,
+                    color: kContainerColor,
+                  ),
+                ],
+                carouselController: carouselController,
+                options: CarouselOptions(
+                  height: 341,
+                  pauseAutoPlayOnManualNavigate: true,
+                  pauseAutoPlayOnTouch: true,
+                  initialPage: 0,
+                  enableInfiniteScroll: false,
+                  reverse: false,
+                  autoPlay: true,
+                  autoPlayInterval: Duration(seconds: 3),
+                  autoPlayAnimationDuration: Duration(milliseconds: 800),
+                  autoPlayCurve: Curves.fastOutSlowIn,
+                  enlargeCenterPage: false,
+                  onPageChanged: (index, reason) {
+                    setState(() {
+                      currentPage = index;
+                    });
+                  },
+                  scrollDirection: Axis.horizontal,
+                  viewportFraction: 1.0,
                 ),
               )
-              : FoodContainer(width: 1.sw, height: 321, borderRadius: 30),
+              : FoodContainer(width: 1.sw, height: 301, borderRadius: 30),
           Positioned(top: 50, left: 24, child: BackWidget()),
           if (widget.hasIndicator)
             Positioned(

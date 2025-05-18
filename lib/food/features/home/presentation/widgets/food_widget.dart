@@ -17,7 +17,7 @@ class PopularFastFood extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 153.w,
+      width: 130.w,
       height: 250.h,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

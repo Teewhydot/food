@@ -26,7 +26,7 @@ class DFoodUtils {
             insetPadding: insetPadding,
             backgroundColor: kWhiteColor,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(35).r,
+              borderRadius: BorderRadius.circular(12).r,
             ),
             child: Container(
               width: width.w,

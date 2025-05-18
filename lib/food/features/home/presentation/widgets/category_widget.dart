@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../components/texts/texts.dart';
 import '../../../../core/theme/colors.dart';
+import 'circle_widget.dart';
 
 class CategoryWidget extends StatelessWidget {
   final String text;
-  final bool isSelected;
+  final bool isSelected, showImage;
   final VoidCallback onTap;
 
   const CategoryWidget({
@@ -14,6 +16,7 @@ class CategoryWidget extends StatelessWidget {
     required this.text,
     this.isSelected = false,
     required this.onTap,
+    this.showImage = true,
   });
 
   @override
@@ -36,15 +39,19 @@ class CategoryWidget extends StatelessWidget {
             ],
           ),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              CircleWidget(
-                radius: 22,
-                backgroundColor: kGreyColor,
-                child: Container(),
-              ).paddingAll(8),
-              FText(
-                text: text,
-                color: isSelected ? kWhiteColor : kTextColorDark,
+              if (showImage)
+                CircleWidget(
+                  radius: 22,
+                  color: kGreyColor,
+                  child: Container(),
+                ).paddingOnly(left: 8),
+              Center(
+                child: FText(
+                  text: text,
+                  color: isSelected ? kWhiteColor : kTextColorDark,
+                ).paddingSymmetric(horizontal: 15.w, vertical: 10.h),
               ),
             ],
           ).paddingOnly(right: 15),
