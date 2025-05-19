@@ -29,4 +29,5 @@ class Assets {
   static const String svgsTruck = 'assets/svgs/truck.svg';
   static const String svgsVisa = 'assets/svgs/visa.svg';
   static const String svgsEmptyCard = 'assets/svgs/empty_card.svg';
+  static const String svgsSuccess = 'assets/svgs/successful.svg';
 }

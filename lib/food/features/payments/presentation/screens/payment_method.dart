@@ -10,7 +10,6 @@ import 'package:food/food/features/onboarding/presentation/widgets/food_containe
 import 'package:food/food/features/payments/domain/entities/payment_method_entity.dart';
 import 'package:food/food/features/payments/presentation/widgets/payment_type_widget.dart';
 import 'package:food/generated/assets.dart';
-import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:get/utils.dart';
 
 import '../../../../components/texts/texts.dart';

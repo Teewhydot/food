@@ -62,7 +62,8 @@ class AddCard extends StatelessWidget {
             ),
           ],
         ),
-Spacer(),        FButton(
+        const Spacer(),
+        FButton(
           buttonText: "Add Card",
           onPressed: () {},
         ),
