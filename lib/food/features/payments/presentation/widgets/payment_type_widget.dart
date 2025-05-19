@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/image.dart';
 import 'package:food/food/components/texts/texts.dart';
 import 'package:food/food/core/theme/colors.dart';
+import 'package:food/food/features/onboarding/presentation/widgets/food_container.dart';
 
 class PaymentTypeWidget extends StatelessWidget {
   final String image;
@@ -22,10 +23,13 @@ class PaymentTypeWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Container(
-          height: 72.h,
+        FoodContainer(
+          height: 82.h,
           width: 85.w,
-          color: kGreyColor,
+          hasBorder: isSelected,
+          borderWidth: 1,
+          borderColor: kPrimaryColor,
+          color: isSelected ? kWhiteColor : kGreyColor,
           child: SizedBox(
             width: width,
             height: height,

@@ -28,4 +28,5 @@ class Assets {
       'assets/svgs/trapezoid_container.svg';
   static const String svgsTruck = 'assets/svgs/truck.svg';
   static const String svgsVisa = 'assets/svgs/visa.svg';
+  static const String svgsEmptyCard = 'assets/svgs/empty_card.svg';
 }
