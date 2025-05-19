@@ -7,17 +7,20 @@ import '../../core/theme/colors.dart';
 class FText extends StatelessWidget {
   final String text;
   final double fontSize;
-  final Color color;
+  final Color color, decorationColor;
   final FontWeight fontWeight;
   final MainAxisAlignment alignment;
+  final List<TextDecoration> decorations;
 
   const FText({
     super.key,
     required this.text,
     this.fontSize = 16.0,
     this.color = Colors.black,
+    this.decorationColor = kPrimaryColor,
     this.fontWeight = FontWeight.bold,
     this.alignment = MainAxisAlignment.center,
+    this.decorations = const [],
   });
 
   @override
@@ -31,6 +34,8 @@ class FText extends StatelessWidget {
             fontSize: fontSize.sp,
             color: color,
             fontWeight: fontWeight,
+            decoration: TextDecoration.combine([...decorations]),
+            decorationColor: decorationColor,
           ),
         ),
       ],

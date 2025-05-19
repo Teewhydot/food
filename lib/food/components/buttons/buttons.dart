@@ -20,10 +20,10 @@ class FButton extends StatefulWidget {
   const FButton({
     super.key,
     required this.buttonText,
-    this.fontSize = 16.0,
+    this.fontSize = 14.0,
     this.color = kPrimaryColor,
     this.textColor = kWhiteColor,
-    this.fontWeight = FontWeight.bold,
+    this.fontWeight = FontWeight.w700,
     this.alignment = MainAxisAlignment.center,
     this.icon,
     this.onPressed,
@@ -55,7 +55,7 @@ class _FButtonState extends State<FButton> {
           mainAxisAlignment: widget.alignment,
           children: [
             Text(
-              widget.buttonText,
+              widget.buttonText.toUpperCase(),
               style: TextStyle(
                 fontSize: widget.fontSize,
                 color: widget.textColor,

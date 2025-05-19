@@ -6,6 +6,7 @@ import 'package:food/food/components/image.dart';
 import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/components/texts/texts.dart';
 import 'package:food/food/core/constants/app_constants.dart';
+import 'package:food/food/core/services/navigation_service/nav_config.dart';
 import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/core/utils/app_utils.dart';
 import 'package:food/food/features/auth/presentation/widgets/back_widget.dart';
@@ -13,6 +14,7 @@ import 'package:food/food/features/home/presentation/screens/search.dart';
 import 'package:food/food/features/onboarding/presentation/widgets/food_container.dart';
 import 'package:food/generated/assets.dart';
 import 'package:get/get.dart';
+import 'package:get_it/get_it.dart';
 
 import '../widgets/circle_widget.dart';
 import '../widgets/food_widget.dart';
@@ -24,6 +26,7 @@ class Food extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final nav = GetIt.instance<NavigationService>();
     return FScaffold(
       body: SingleChildScrollView(
         child: Column(
@@ -92,6 +95,9 @@ class Food extends StatelessWidget {
                                   FText(text: "Filter your search"),
                                   CircleWidget(
                                     color: kGreyColor,
+                                    onTap: () {
+                                      nav.goBack();
+                                    },
                                     radius: 22.5,
                                     child: Icon(Icons.close_outlined),
                                   ),

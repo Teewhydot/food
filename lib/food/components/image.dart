@@ -44,11 +44,14 @@ class FImage extends StatelessWidget {
               (context, url) =>
                   const Center(child: CircularProgressIndicator.adaptive()),
         ),
-        FoodAssetType.svg => SvgPicture.asset(
-          assetPath,
-          width: width.w,
-          height: height.h,
-          color: svgAssetColor,
+        FoodAssetType.svg => Align(
+          alignment: Alignment.center,
+          child: SvgPicture.asset(
+            assetPath,
+            width: width.w,
+            height: height.h,
+            color: svgAssetColor,
+          ),
         ),
       },
     );
