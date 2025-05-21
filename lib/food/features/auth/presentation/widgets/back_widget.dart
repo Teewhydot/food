@@ -2,8 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:food/food/core/theme/colors.dart';
 
 class BackWidget extends StatelessWidget {
-  final Color color;
-  const BackWidget({super.key, this.color = kWhiteColor});
+  final Color color, iconColor;
+  const BackWidget({
+    super.key,
+    this.color = kWhiteColor,
+    this.iconColor = kBlackColor,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -18,11 +22,7 @@ class BackWidget extends StatelessWidget {
         onPressed: () {
           Navigator.pop(context);
         },
-        icon: const Icon(
-          Icons.arrow_back_ios_new,
-          color: kBlackColor,
-          size: 15,
-        ),
+        icon: Icon(Icons.arrow_back_ios_new, color: iconColor, size: 15),
       ),
     );
   }

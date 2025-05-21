@@ -1,15 +1,19 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_sliding_box/flutter_sliding_box.dart';
 import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/core/theme/colors.dart';
-import 'package:food/food/features/auth/presentation/widgets/back_widget.dart';
 import 'package:food/food/features/home/presentation/widgets/circle_widget.dart';
 import 'package:get/get.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ionicons/ionicons.dart';
 
 import '../../../../components/texts/texts.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../auth/presentation/widgets/back_widget.dart';
 import '../../../onboarding/presentation/widgets/food_container.dart';
 
 enum TrackingStatus { orderPlaced, restaurant, outForDelivery, delivered }
@@ -24,46 +28,62 @@ class TrackingOrder extends StatefulWidget {
 }
 
 class _TrackingOrderState extends State<TrackingOrder> {
-  double _calculateChildSize(double height, double maxHeight) {
-    // Calculate what fraction of the screen height the given pixel height represents
-    return height / maxHeight;
-  }
+  final Completer<GoogleMapController> _controller =
+      Completer<GoogleMapController>();
 
-  final DraggableScrollableController _sheetController =
-      DraggableScrollableController();
+  static const CameraPosition _kGooglePlex = CameraPosition(
+    target: LatLng(37.42796133580664, -122.085749655962),
+    zoom: 14.4746,
+  );
 
+  static const CameraPosition _kLake = CameraPosition(
+    bearing: 192.8334901395799,
+    target: LatLng(37.43296265331129, -122.08832357078792),
+    tilt: 59.440717697143555,
+    zoom: 19.151926040649414,
+  );
   @override
   Widget build(BuildContext context) {
     return FScaffold(
       body: Stack(
         children: [
           Positioned.fill(
-            child: FoodContainer(
-              color: kGreyColor,
-              child: Column(
-                children: [
-                  50.verticalSpace,
-                  Row(
-                    children: [
-                      BackWidget(color: kContainerColor),
-                      10.horizontalSpace,
-                      FText(
-                        text: "Track Order",
-                        fontSize: 17,
-                        fontWeight: FontWeight.w400,
-                        color: kTextColorDark,
-                      ),
-                    ],
+            child: GoogleMap(
+              initialCameraPosition: _kGooglePlex,
+              mapType: MapType.normal,
+              markers: {
+                Marker(
+                  markerId: const MarkerId("marker_1"),
+                  position: const LatLng(37.42796133580664, -122.085749655962),
+                  infoWindow: const InfoWindow(
+                    title: "Marker 1",
+                    snippet: "This is marker 1",
                   ),
-                ],
-              ).paddingOnly(left: AppConstants.defaultPadding),
+                ),
+                Marker(
+                  markerId: const MarkerId("marker_2"),
+                  position: const LatLng(
+                    37.43296265331129,
+                    -122.08832357078792,
+                  ),
+                  infoWindow: const InfoWindow(
+                    title: "Marker 2",
+                    snippet: "This is marker 2",
+                  ),
+                ),
+              },
+              onMapCreated: (GoogleMapController controller) {
+                _controller.complete(controller);
+              },
             ),
           ),
+
           SlidingBox(
             width: 1.sw,
             minHeight: 1.sh * 0.2,
             maxHeight: 1.sh * 0.8,
             style: BoxStyle.none,
+            collapsed: true,
             draggableIconBackColor: kWhiteColor,
             body: Column(
               children: [
@@ -115,6 +135,25 @@ class _TrackingOrderState extends State<TrackingOrder> {
                   ],
                 ).paddingOnly(left: AppConstants.defaultPadding),
               ],
+            ),
+          ),
+          Positioned(
+            top: 50,
+            left: AppConstants.defaultPadding,
+            child: Container(
+              color: Colors.transparent,
+              child: Row(
+                children: [
+                  BackWidget(color: kBlackColor, iconColor: kWhiteColor),
+                  10.horizontalSpace,
+                  FText(
+                    text: "Track Order",
+                    fontSize: 17,
+                    fontWeight: FontWeight.w400,
+                    color: kTextColorDark,
+                  ),
+                ],
+              ),
             ),
           ),
         ],
