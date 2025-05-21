@@ -27,9 +27,7 @@ class MyApp extends StatelessWidget {
         theme: FoodTheme.lightTheme,
         darkTheme: FoodTheme.darkTheme,
         themeMode: ThemeMode.light,
-        home: Scaffold(
-          body: TrackingOrder(),
-        )
+        home: Scaffold(body: TrackingOrder()),
       ),
     );
   }

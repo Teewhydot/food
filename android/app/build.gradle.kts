@@ -4,7 +4,17 @@ plugins {
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
-
+//val dartDefines = mutableMapOf<String, String>()
+//if (project.hasProperty("dart-defines")) {
+//    val encodedDefines = project.property("dart-defines") as String
+//    encodedDefines.split(",").forEach { entry ->
+//        val decodedEntry = String(Base64.getDecoder().decode(entry), Charsets.UTF_8)
+//        val pair = decodedEntry.split("=")
+//        if (pair.size == 2) {
+//            dartDefines[pair[0]] = pair[1]
+//        }
+//    }
+//}
 android {
     namespace = "com.sirteefyapps.food"
     compileSdk = flutter.compileSdkVersion
@@ -28,6 +38,8 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+//        resValue("string", "google_maps_api_key", dartDefines.get("GOOGLE_MAPS_API_KEY")!!)
+
     }
 
     buildTypes {

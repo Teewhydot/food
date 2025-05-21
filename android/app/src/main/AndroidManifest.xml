@@ -3,6 +3,8 @@
         android:label="food"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <meta-data android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyDf0L_bmNJRjbKHiayyhiix3G6FIQ4r0Qk"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"

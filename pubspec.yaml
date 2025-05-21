@@ -35,6 +35,9 @@ dependencies:
   pinput: ^5.0.1
   carousel_slider: ^5.0.0
   flutter_rating_bar: ^4.0.1
+  flutter_sliding_box: ^1.1.5
+  google_maps_flutter: ^2.12.2
+  flutter_dotenv: ^5.2.1
 
 
 dev_dependencies:
