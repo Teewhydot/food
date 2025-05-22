@@ -97,7 +97,7 @@ class FTextField extends StatelessWidget {
           height: height.h,
           decoration: BoxDecoration(
             color: kTextFieldColor,
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(12).r,
           ),
           child: Center(
             child: TextFormField(
