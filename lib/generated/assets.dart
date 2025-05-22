@@ -3,7 +3,6 @@ class Assets {
   Assets._();
 
   static const String assetsLogo = 'assets/logo.png';
-  static const String assetsPencil = 'assets/pencil.svg';
   static const String assetsSplashFoodLogo = 'assets/splash_food_logo.png';
   static const String assetsSplashLogo = 'assets/splash_logo.png';
   static const String svgsAddress = 'assets/svgs/address.svg';
@@ -34,6 +33,7 @@ class Assets {
   static const String svgsOfferBg = 'assets/svgs/offer_bg.svg';
   static const String svgsPaymentMethod = 'assets/svgs/payment_method.svg';
   static const String svgsPaypal = 'assets/svgs/paypal.svg';
+  static const String svgsPencil = 'assets/svgs/pencil.svg';
   static const String svgsPersonalInfo = 'assets/svgs/personal_info.svg';
   static const String svgsPhoneNum = 'assets/svgs/phone_num.svg';
   static const String svgsRating = 'assets/svgs/rating.svg';

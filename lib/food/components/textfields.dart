@@ -86,7 +86,7 @@ class FTextField extends StatelessWidget {
       children: [
         hasLabel
             ? FText(
-              text: label ?? "",
+              text: label?.toUpperCase() ?? "",
               fontSize: 13,
               alignment: MainAxisAlignment.start,
               fontWeight: FontWeight.w400,
