@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/image.dart';
 import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/components/textfields.dart';
@@ -8,6 +9,9 @@ import 'package:food/food/features/home/presentation/widgets/circle_widget.dart'
 import 'package:food/food/features/tracking/presentation/widgets/chat_bubble.dart';
 import 'package:food/generated/assets.dart';
 import 'package:get/get.dart';
+
+import '../../../../components/texts/texts.dart';
+import '../../../auth/presentation/widgets/back_widget.dart';
 
 enum ChatType { text, image, video }
 
@@ -24,6 +28,86 @@ class ChatScreen extends StatelessWidget {
           Positioned.fill(
             child: ListView(
               children: [
+                CustomChatBubble(
+                  message: "Hello, how are you?",
+                  time: "8:23PM",
+                  isSender: true,
+                ),
+                CustomChatBubble(
+                  message: "Hello, how are you?",
+                  time: "8:23PM",
+                  isSender: false,
+                ),
+                CustomChatBubble(
+                  message: "Hello, how are you?",
+                  time: "8:23PM",
+                  isSender: false,
+                ),
+                CustomChatBubble(
+                  message: "Hello, how are you?",
+                  time: "8:23PM",
+                  isSender: true,
+                ),
+                CustomChatBubble(
+                  message: "Hello, how are you?",
+                  time: "8:23PM",
+                  isSender: true,
+                ),
+                CustomChatBubble(
+                  message: "Hello, how are you?",
+                  time: "8:23PM",
+                  isSender: false,
+                ),
+                CustomChatBubble(
+                  message: "Hello, how are you?",
+                  time: "8:23PM",
+                  isSender: false,
+                ),
+                CustomChatBubble(
+                  message: "Hello, how are you?",
+                  time: "8:23PM",
+                  isSender: true,
+                ),
+                CustomChatBubble(
+                  message: "Hello, how are you?",
+                  time: "8:23PM",
+                  isSender: true,
+                ),
+                CustomChatBubble(
+                  message: "Hello, how are you?",
+                  time: "8:23PM",
+                  isSender: false,
+                ),
+                CustomChatBubble(
+                  message: "Hello, how are you?",
+                  time: "8:23PM",
+                  isSender: false,
+                ),
+                CustomChatBubble(
+                  message: "Hello, how are you?",
+                  time: "8:23PM",
+                  isSender: true,
+                ),
+                CustomChatBubble(
+                  message: "Hello, how are you?",
+                  time: "8:23PM",
+                  isSender: true,
+                ),
+                CustomChatBubble(
+                  message: "Hello, how are you?",
+                  time: "8:23PM",
+                  isSender: false,
+                ),
+                CustomChatBubble(
+                  message: "Hello, how are you?",
+                  time: "8:23PM",
+                  isSender: false,
+                ),
+                CustomChatBubble(
+                  message: "Hello, how are you?",
+                  time: "8:23PM",
+                  isSender: true,
+                ),
                 CustomChatBubble(
                   message: "Hello, how are you?",
                   time: "8:23PM",
@@ -73,25 +157,27 @@ class ChatScreen extends StatelessWidget {
               keyboardType: TextInputType.text,
             ),
           ),
-          // Positioned(
-          //   top: 50,
-          //   left: AppConstants.defaultPadding,
-          //   child: Container(
-          //     color: Colors.transparent,
-          //     child: Row(
-          //       children: [
-          //         BackWidget(color: kGreyColor, iconColor: kBlackColor),
-          //         10.horizontalSpace,
-          //         FText(
-          //           text: "Robert Fox",
-          //           fontSize: 17,
-          //           fontWeight: FontWeight.w400,
-          //           color: kTextColorDark,
-          //         ),
-          //       ],
-          //     ),
-          //   ),
-          // ),
+          Positioned(
+            top: 0,
+            left: AppConstants.defaultPadding,
+            child: Container(
+              height: 95,
+              width: 1.sw,
+              color: kWhiteColor,
+              child: Row(
+                children: [
+                  BackWidget(color: kGreyColor, iconColor: kBlackColor),
+                  10.horizontalSpace,
+                  FText(
+                    text: "Robert Fox",
+                    fontSize: 17,
+                    fontWeight: FontWeight.w400,
+                    color: kTextColorDark,
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
