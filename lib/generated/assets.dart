@@ -6,7 +6,6 @@ class Assets {
   static const String assetsPencil = 'assets/pencil.svg';
   static const String assetsSplashFoodLogo = 'assets/splash_food_logo.png';
   static const String assetsSplashLogo = 'assets/splash_logo.png';
-  static const String assetsUserReview = 'assets/user_review.svg';
   static const String svgsAddress = 'assets/svgs/address.svg';
   static const String svgsArrowDown = 'assets/svgs/arrow_down.svg';
   static const String svgsArrowRight = 'assets/svgs/arrow_right.svg';
@@ -46,6 +45,7 @@ class Assets {
   static const String svgsTrapezoidContainer =
       'assets/svgs/trapezoid_container.svg';
   static const String svgsTruck = 'assets/svgs/truck.svg';
+  static const String svgsUserReview = 'assets/svgs/user_review.svg';
   static const String svgsVisa = 'assets/svgs/visa.svg';
   static const String svgsWorkAddress = 'assets/svgs/work_address.svg';
 }
