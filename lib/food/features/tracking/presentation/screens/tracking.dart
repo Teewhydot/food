@@ -282,10 +282,11 @@ class StepWidget extends StatelessWidget {
 
 class Line extends StatelessWidget {
   final Color color;
-  const Line({super.key, required this.color});
+  final double height;
+  const Line({super.key, required this.color, this.height = 50});
 
   @override
   Widget build(BuildContext context) {
-    return Container(width: 2, height: 50, color: color);
+    return Container(width: 2, height: height, color: color);
   }
 }
