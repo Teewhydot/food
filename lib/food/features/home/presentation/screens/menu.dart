@@ -8,7 +8,6 @@ import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/features/auth/presentation/widgets/back_widget.dart';
 import 'package:food/food/features/home/presentation/widgets/circle_widget.dart';
 import 'package:food/food/features/home/presentation/widgets/menu_section_widget.dart';
-import 'package:food/food/features/onboarding/presentation/widgets/food_container.dart';
 import 'package:food/generated/assets.dart';
 import 'package:get/get.dart';
 
@@ -33,6 +32,7 @@ class Menu extends StatelessWidget {
               ),
             ],
           ),
+          10.verticalSpace,
           Expanded(
             child: ListView(
               children: [
@@ -61,12 +61,14 @@ class Menu extends StatelessWidget {
                   ],
                 ),
                 32.verticalSpace,
-                FoodContainer(
-                  height: 136,
+                Container(
                   width: 1.sw,
-                  color: kLightGreyColor,
-
+                  decoration: BoxDecoration(
+                    color: kLightGreyColor,
+                    borderRadius: BorderRadius.all(Radius.circular(16)),
+                  ),
                   child: Column(
+                    spacing: 16,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       MenuSectionWidget(
@@ -78,7 +80,6 @@ class Menu extends StatelessWidget {
                           height: 14,
                         ),
                       ),
-                      16.verticalSpace,
                       MenuSectionWidget(
                         title: "Addresses",
                         child: FImage(
@@ -92,10 +93,12 @@ class Menu extends StatelessWidget {
                   ).paddingAll(20),
                 ),
                 20.verticalSpace,
-                FoodContainer(
-                  color: kLightGreyColor,
-                  height: 248,
+                Container(
                   width: 1.sw,
+                  decoration: BoxDecoration(
+                    color: kLightGreyColor,
+                    borderRadius: BorderRadius.all(Radius.circular(16)),
+                  ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -142,10 +145,12 @@ class Menu extends StatelessWidget {
                   ).paddingAll(20),
                 ),
                 20.verticalSpace,
-                FoodContainer(
-                  color: kLightGreyColor,
-                  height: 192,
+                Container(
                   width: 1.sw,
+                  decoration: BoxDecoration(
+                    color: kLightGreyColor,
+                    borderRadius: BorderRadius.all(Radius.circular(16)),
+                  ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -182,10 +187,12 @@ class Menu extends StatelessWidget {
                   ).paddingAll(20),
                 ),
                 20.verticalSpace,
-                FoodContainer(
-                  color: kLightGreyColor,
-                  height: 80,
+                Container(
                   width: 1.sw,
+                  decoration: BoxDecoration(
+                    color: kLightGreyColor,
+                    borderRadius: BorderRadius.all(Radius.circular(16)),
+                  ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

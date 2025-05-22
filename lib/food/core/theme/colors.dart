@@ -6,6 +6,7 @@ const Color kContainerColor = Color(0xff98A8B8);
 const Color kTextFieldColor = Color(0xffF0F5FA);
 const Color kAddressColor = Color(0xff676767);
 const Color kTextColorDark = Color(0xff32343E);
+const Color kTextColorValue = Color(0xff6B6E82);
 const Color kWhiteColor = Color(0xffFFFFFF);
 const Color kBlackColor = Color(0xff000000);
 const Color kGreyColor = Color(0xffB7C9D9);
