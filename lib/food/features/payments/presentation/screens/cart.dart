@@ -71,7 +71,6 @@ class Cart extends StatelessWidget {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              50.verticalSpace,
               Row(
                 children: [
                   BackWidget(),

@@ -28,7 +28,6 @@ class _SearchState extends State<Search> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            50.verticalSpace,
             Row(
               children: [
                 Row(

@@ -34,7 +34,6 @@ class _HomeState extends State<Home> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            50.verticalSpace,
             GestureDetector(
               onTap: () {
                 DFoodUtils.showDialogContainer(

@@ -19,7 +19,6 @@ class PersonalInfo extends StatelessWidget {
     return FScaffold(
       body: Column(
         children: [
-          50.verticalSpace,
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [

@@ -19,7 +19,6 @@ class Orders extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        50.verticalSpace,
         Row(
           children: [
             BackWidget(color: kGreyColor),

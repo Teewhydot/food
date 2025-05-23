@@ -55,12 +55,9 @@ class _PaymentMethodState extends State<PaymentMethod> {
     return FScaffold(
       body: Column(
         children: [
-          50.verticalSpace,
           Row(
             children: [
-              BackWidget(
-                color: kGreyColor,
-              ),
+              BackWidget(color: kGreyColor),
               20.horizontalSpace,
               FText(
                 text: "Payment Method",
@@ -71,8 +68,9 @@ class _PaymentMethodState extends State<PaymentMethod> {
           ),
           30.verticalSpace,
 
-          SingleChildScrollView(scrollDirection: Axis.horizontal,
-      
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+
             child: Row(
               spacing: 10,
               children: [
@@ -103,40 +101,53 @@ class _PaymentMethodState extends State<PaymentMethod> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  FText(
-                    text: "Mastercard",
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                  ),
-                  5.verticalSpace,
-                 Row(
-                   children: [
-                     FImage(assetPath: Assets.svgsMastercard, width: 28, height: 17, assetType: FoodAssetType.svg),
-                      10.horizontalSpace,
-                       FText(
-                    text: "**** **** **** 1234",
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
-                    color: kBlackColor,
-                  ),
-                   ],
-                 ),
-                 
-                ],
-              ),
-              FImage(
-                assetPath: Assets.svgsArrowDown,
-                width: 10,
-                height: 10,
-                assetType: FoodAssetType.svg,
-              ),
-            ],).paddingAll(10),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    FText(
+                      text: "Mastercard",
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    5.verticalSpace,
+                    Row(
+                      children: [
+                        FImage(
+                          assetPath: Assets.svgsMastercard,
+                          width: 28,
+                          height: 17,
+                          assetType: FoodAssetType.svg,
+                        ),
+                        10.horizontalSpace,
+                        FText(
+                          text: "**** **** **** 1234",
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          color: kBlackColor,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                FImage(
+                  assetPath: Assets.svgsArrowDown,
+                  width: 10,
+                  height: 10,
+                  assetType: FoodAssetType.svg,
+                ),
+              ],
+            ).paddingAll(10),
           ).paddingOnly(right: AppConstants.defaultPadding),
           20.verticalSpace,
-          FButton(buttonText: "Add New Card",textColor: kPrimaryColor, onPressed: () {},borderColor: kGreyColor, width: 1.sw, height: 50, color: kWhiteColor).paddingOnly(right: AppConstants.defaultPadding),
+          FButton(
+            buttonText: "Add New Card",
+            textColor: kPrimaryColor,
+            onPressed: () {},
+            borderColor: kGreyColor,
+            width: 1.sw,
+            height: 50,
+            color: kWhiteColor,
+          ).paddingOnly(right: AppConstants.defaultPadding),
           20.verticalSpace,
           FoodContainer(
             height: 257,
@@ -164,10 +175,8 @@ class _PaymentMethodState extends State<PaymentMethod> {
                   fontWeight: FontWeight.w400,
                 ),
               ],
-          )).paddingOnly(
-            right: AppConstants.defaultPadding,
-        
-          ),
+            ),
+          ).paddingOnly(right: AppConstants.defaultPadding),
         ],
       ).paddingOnly(left: AppConstants.defaultPadding),
     );

@@ -31,7 +31,6 @@ class Food extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            50.verticalSpace,
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

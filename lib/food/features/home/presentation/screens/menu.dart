@@ -19,7 +19,6 @@ class Menu extends StatelessWidget {
     return FScaffold(
       body: Column(
         children: [
-          50.verticalSpace,
           Row(
             children: [
               BackWidget(color: kGreyColor),

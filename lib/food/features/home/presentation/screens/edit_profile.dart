@@ -27,7 +27,6 @@ class _EditProfileState extends State<EditProfile> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            50.verticalSpace,
             Row(
               children: [
                 BackWidget(color: kGreyColor),
