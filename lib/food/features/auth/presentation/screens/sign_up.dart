@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:food/food/core/routes/routes.dart';
 import 'package:food/food/features/auth/presentation/widgets/auth_template.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
@@ -67,7 +68,13 @@ class _LoginState extends State<SignUp> {
             action: TextInputAction.next,
           ),
           24.verticalSpace,
-          FButton(buttonText: "SIGN UP", width: 1.sw),
+          FButton(
+            buttonText: "SIGN UP",
+            width: 1.sw,
+            onPressed: () {
+              nav.navigateAndReplace(Routes.login);
+            },
+          ),
         ],
       ).paddingOnly(
         left: AppConstants.defaultPadding,

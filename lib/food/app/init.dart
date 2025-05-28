@@ -1,6 +1,8 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+import '../../firebase_options.dart';
 import '../dependency_injection/set_up.dart';
 
 class AppConfig {
@@ -10,9 +12,8 @@ class AppConfig {
     WidgetsFlutterBinding.ensureInitialized();
     setupDIService();
     await dotenv.load(fileName: ".env");
-
-    // await Firebase.initializeApp(
-    //   options: DefaultFirebaseOptions.currentPlatform,
-    // );
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
   }
 }

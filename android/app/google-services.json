@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "522247830688",
+    "project_id": "dfood-5aaf3",
+    "storage_bucket": "dfood-5aaf3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:522247830688:android:c2c72e2f94bc0f5323ddc5",
+        "android_client_info": {
+          "package_name": "com.sirteefyapps.food"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBywoO46WQTbfFaUOLUWU5ErdmdvN6b05g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
