@@ -243,7 +243,7 @@ class _HomeState extends State<Home> {
                     name: "Pizza Hut",
                     rating: "4.8",
                     distance: "3.0 km",
-                    time: "25 min",
+                      time: "25 min",
                     categories: ["Pizza", "Italian"],
                   ),
                   RestaurantWidget(
