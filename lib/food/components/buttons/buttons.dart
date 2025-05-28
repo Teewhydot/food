@@ -41,16 +41,16 @@ class FButton extends StatefulWidget {
 class _FButtonState extends State<FButton> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: widget.height,
-      width: widget.width,
-      decoration: BoxDecoration(
-        color: widget.color,
-        borderRadius: BorderRadius.circular(widget.borderRadius),
-        border: Border.all(color: widget.borderColor),
-      ),
-      child: GestureDetector(
-        onTap: widget.onPressed,
+    return GestureDetector(
+      onTap: widget.onPressed,
+      child: Container(
+        height: widget.height,
+        width: widget.width,
+        decoration: BoxDecoration(
+          color: widget.color,
+          borderRadius: BorderRadius.circular(widget.borderRadius),
+          border: Border.all(color: widget.borderColor),
+        ),
         child: Row(
           mainAxisAlignment: widget.alignment,
           children: [

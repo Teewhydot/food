@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:food/food/core/helpers/extensions.dart';
+import 'package:food/food/core/routes/routes.dart';
 import 'package:food/food/features/auth/presentation/widgets/auth_template.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
@@ -81,11 +83,19 @@ class _LoginState extends State<Login> {
                 fontSize: 13,
                 fontWeight: FontWeight.w400,
                 color: kPrimaryColor,
-              ),
+              ).onTap(() {
+                nav.navigateAndReplace(Routes.register);
+              }),
             ],
           ),
           31.verticalSpace,
-          FButton(buttonText: "Login", width: 1.sw),
+          FButton(
+            buttonText: "Login",
+            width: 1.sw,
+            onPressed: () {
+              nav.navigateAndReplace(Routes.home);
+            },
+          ),
           38.verticalSpace,
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -104,7 +114,9 @@ class _LoginState extends State<Login> {
                 color: kPrimaryColor,
               ),
             ],
-          ),
+          ).onTap(() {
+            nav.navigateAndReplace(Routes.register);
+          }),
           27.verticalSpace,
           FText(
             text: "Or",

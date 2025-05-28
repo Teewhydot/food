@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 extension NigerianPhoneNumber on String {
@@ -49,5 +48,15 @@ extension WidgetStyling on Widget {
 
   Widget withMargin(EdgeInsetsGeometry margin) {
     return Container(margin: margin, child: this);
+  }
+}
+
+extension Tappable on Widget {
+  Widget onTap(VoidCallback? onTap, {Key? key}) {
+    return InkWell(key: key, onTap: onTap, child: this);
+  }
+
+  Widget onLongPress(VoidCallback? onLongPress, {Key? key}) {
+    return InkWell(key: key, onLongPress: onLongPress, child: this);
   }
 }
