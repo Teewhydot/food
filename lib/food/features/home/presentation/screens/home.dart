@@ -7,9 +7,11 @@ import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/core/utils/app_utils.dart';
 import 'package:food/generated/assets.dart';
 import 'package:get/get.dart';
+import 'package:get_it/get_it.dart';
 
 import '../../../../components/buttons/buttons.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/services/navigation_service/nav_config.dart';
 import '../widgets/cart_widget.dart';
 import '../widgets/category_widget.dart';
 import '../widgets/circle_widget.dart';
@@ -25,6 +27,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   String selectedCategory = "All";
+  final nav = GetIt.instance<NavigationService>();
 
   final List<String> categories = ["All", "Hot Dog", "Burger", "Pizza"];
 
@@ -243,7 +246,7 @@ class _HomeState extends State<Home> {
                     name: "Pizza Hut",
                     rating: "4.8",
                     distance: "3.0 km",
-                      time: "25 min",
+                    time: "25 min",
                     categories: ["Pizza", "Italian"],
                   ),
                   RestaurantWidget(

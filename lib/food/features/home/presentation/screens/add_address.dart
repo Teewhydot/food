@@ -9,12 +9,17 @@ import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/features/auth/presentation/widgets/back_widget.dart';
 import 'package:food/food/features/onboarding/presentation/widgets/food_container.dart';
 import 'package:get/get.dart';
+import 'package:get_it/get_it.dart';
+
+import '../../../../core/services/navigation_service/nav_config.dart';
 
 class AddAddress extends StatelessWidget {
   const AddAddress({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final nav = GetIt.instance<NavigationService>();
+
     return FScaffold(
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -8,7 +8,10 @@ import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/features/auth/presentation/widgets/back_widget.dart';
 import 'package:food/food/features/tracking/presentation/screens/tracking.dart';
 import 'package:get/get.dart';
+import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+import '../../../../core/services/navigation_service/nav_config.dart';
 
 enum OrderCategory { ongoing, history }
 
@@ -17,6 +20,8 @@ class Orders extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final nav = GetIt.instance<NavigationService>();
+
     return Column(
       children: [
         Row(

@@ -4,9 +4,11 @@ import 'package:food/food/components/texts/texts.dart';
 import 'package:food/food/features/home/presentation/widgets/circle_widget.dart';
 import 'package:food/food/features/home/presentation/widgets/details_skeleton_widget.dart';
 import 'package:food/food/features/onboarding/presentation/widgets/food_container.dart';
+import 'package:get_it/get_it.dart';
 
 import '../../../../../generated/assets.dart';
 import '../../../../components/image.dart';
+import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../core/theme/colors.dart';
 
 class FoodDetails extends StatelessWidget {
@@ -14,6 +16,8 @@ class FoodDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final nav = GetIt.instance<NavigationService>();
+
     return DetailsSkeletonWidget(
       hasBottomWidget: true,
       hasIndicator: false,

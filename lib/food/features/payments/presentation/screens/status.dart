@@ -7,6 +7,9 @@ import 'package:food/food/core/constants/app_constants.dart';
 import 'package:food/food/core/theme/colors.dart';
 import 'package:food/generated/assets.dart';
 import 'package:get/get.dart';
+import 'package:get_it/get_it.dart';
+
+import '../../../../core/services/navigation_service/nav_config.dart';
 
 enum PaymentStatusEnum { success, failure, pending }
 
@@ -16,6 +19,8 @@ class PaymentStatus extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final nav = GetIt.instance<NavigationService>();
+
     return FScaffold(
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,

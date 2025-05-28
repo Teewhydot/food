@@ -8,8 +8,10 @@ import 'package:food/food/features/home/presentation/screens/home.dart';
 import 'package:food/food/features/home/presentation/widgets/cart_widget.dart';
 import 'package:food/food/features/home/presentation/widgets/search_widget.dart';
 import 'package:get/get.dart';
+import 'package:get_it/get_it.dart';
 
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/services/navigation_service/nav_config.dart';
 import '../widgets/food_widget.dart';
 import '../widgets/restaurant_widget.dart';
 
@@ -21,6 +23,8 @@ class Search extends StatefulWidget {
 }
 
 class _SearchState extends State<Search> {
+  final nav = GetIt.instance<NavigationService>();
+
   List<String> recentKeywords = ["Jello", "Pizza", "Burger", "Pasta", "Salad"];
   @override
   Widget build(BuildContext context) {

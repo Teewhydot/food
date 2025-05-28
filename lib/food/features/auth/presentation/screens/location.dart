@@ -7,9 +7,11 @@ import 'package:food/food/core/constants/app_constants.dart';
 import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/features/onboarding/presentation/widgets/food_container.dart';
 import 'package:get/get.dart';
+import 'package:get_it/get_it.dart';
 
 import '../../../../../generated/assets.dart';
 import '../../../../components/image.dart';
+import '../../../../core/services/navigation_service/nav_config.dart';
 
 class Location extends StatefulWidget {
   const Location({super.key});
@@ -19,6 +21,8 @@ class Location extends StatefulWidget {
 }
 
 class _LocationState extends State<Location> {
+  final nav = GetIt.instance<NavigationService>();
+
   @override
   Widget build(BuildContext context) {
     return FScaffold(

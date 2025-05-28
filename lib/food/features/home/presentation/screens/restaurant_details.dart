@@ -4,11 +4,13 @@ import 'package:food/food/components/texts/texts.dart';
 import 'package:food/food/features/home/presentation/screens/home.dart';
 import 'package:food/food/features/home/presentation/widgets/details_skeleton_widget.dart';
 import 'package:get/get.dart';
+import 'package:get_it/get_it.dart';
 import 'package:ionicons/ionicons.dart';
 
 import '../../../../../generated/assets.dart';
 import '../../../../components/image.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../core/theme/colors.dart';
 import '../widgets/category_widget.dart';
 import '../widgets/food_widget.dart';
@@ -30,6 +32,7 @@ class _RestaurantDetailsState extends State<RestaurantDetails> {
     "Salad",
   ];
   String selectedCategory = "All";
+  final nav = GetIt.instance<NavigationService>();
 
   @override
   Widget build(BuildContext context) {

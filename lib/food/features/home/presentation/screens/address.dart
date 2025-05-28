@@ -7,8 +7,10 @@ import 'package:food/food/features/home/presentation/widgets/circle_widget.dart'
 import 'package:food/food/features/onboarding/presentation/widgets/food_container.dart';
 import 'package:food/generated/assets.dart';
 import 'package:get/get.dart';
+import 'package:get_it/get_it.dart';
 
 import '../../../../components/texts/texts.dart';
+import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../core/theme/colors.dart';
 import '../../../auth/presentation/widgets/back_widget.dart';
 
@@ -19,6 +21,8 @@ class Address extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final nav = GetIt.instance<NavigationService>();
+
     return Stack(
       children: [
         Positioned.fill(

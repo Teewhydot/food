@@ -11,8 +11,10 @@ import 'package:food/food/features/payments/domain/entities/payment_method_entit
 import 'package:food/food/features/payments/presentation/widgets/payment_type_widget.dart';
 import 'package:food/generated/assets.dart';
 import 'package:get/utils.dart';
+import 'package:get_it/get_it.dart';
 
 import '../../../../components/texts/texts.dart';
+import '../../../../core/services/navigation_service/nav_config.dart';
 
 class PaymentMethod extends StatefulWidget {
   const PaymentMethod({super.key});
@@ -22,6 +24,8 @@ class PaymentMethod extends StatefulWidget {
 }
 
 class _PaymentMethodState extends State<PaymentMethod> {
+  final nav = GetIt.instance<NavigationService>();
+
   List<PaymentMethodEntity> methods = [
     PaymentMethodEntity(
       id: '1',

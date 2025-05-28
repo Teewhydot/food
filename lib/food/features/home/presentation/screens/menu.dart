@@ -10,12 +10,17 @@ import 'package:food/food/features/home/presentation/widgets/circle_widget.dart'
 import 'package:food/food/features/home/presentation/widgets/menu_section_widget.dart';
 import 'package:food/generated/assets.dart';
 import 'package:get/get.dart';
+import 'package:get_it/get_it.dart';
+
+import '../../../../core/services/navigation_service/nav_config.dart';
 
 class Menu extends StatelessWidget {
   const Menu({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final nav = GetIt.instance<NavigationService>();
+
     return FScaffold(
       body: Column(
         children: [

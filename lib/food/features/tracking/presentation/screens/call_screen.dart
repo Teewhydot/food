@@ -6,15 +6,19 @@ import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/features/home/presentation/widgets/circle_widget.dart';
 import 'package:food/food/features/onboarding/presentation/widgets/food_container.dart';
 import 'package:get/get.dart';
+import 'package:get_it/get_it.dart';
 
 import '../../../../components/texts/texts.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/services/navigation_service/nav_config.dart';
 
 class CallScreen extends StatelessWidget {
   const CallScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final nav = GetIt.instance<NavigationService>();
+
     return FScaffold(
       body: FoodContainer(width: 1.sw, height: 1.sh, color: kContainerColor),
       bottomWidget: FoodContainer(

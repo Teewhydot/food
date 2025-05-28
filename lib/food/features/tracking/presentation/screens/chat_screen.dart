@@ -9,8 +9,10 @@ import 'package:food/food/features/home/presentation/widgets/circle_widget.dart'
 import 'package:food/food/features/tracking/presentation/widgets/chat_bubble.dart';
 import 'package:food/generated/assets.dart';
 import 'package:get/get.dart';
+import 'package:get_it/get_it.dart';
 
 import '../../../../components/texts/texts.dart';
+import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../auth/presentation/widgets/back_widget.dart';
 
 enum ChatType { text, image, video }
@@ -22,6 +24,8 @@ class ChatScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final nav = GetIt.instance<NavigationService>();
+
     return FScaffold(
       body: Stack(
         children: [

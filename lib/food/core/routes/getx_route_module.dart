@@ -32,77 +32,24 @@ class GetXRouteModule {
     GetPage(name: Routes.register, page: () => const SignUp()),
     GetPage(name: Routes.forgotPassword, page: () => const ForgotPassword()),
     GetPage(name: Routes.home, page: () => const Home()),
-    GetPage(
-      name: Routes.search,
-      page: () => const Search(), // Replace with actual search screen
-    ),
-    GetPage(
-      name: Routes.food,
-      page: () => const Food(), // Replace with actual food screen
-    ),
-    GetPage(
-      name: Routes.foodDetails,
-      page:
-          () => const FoodDetails(), // Replace with actual food details screen
-    ),
+    GetPage(name: Routes.search, page: () => const Search()),
+    GetPage(name: Routes.food, page: () => const Food()),
+    GetPage(name: Routes.foodDetails, page: () => const FoodDetails()),
     GetPage(
       name: Routes.restaurantDetails,
-      page:
-          () =>
-              const RestaurantDetails(), // Replace with actual restaurant details screen
+      page: () => const RestaurantDetails(),
     ),
-    GetPage(
-      name: Routes.cart,
-      page: () => const Cart(), // Replace with actual cart screen
-    ),
-    GetPage(
-      name: Routes.paymentMethod,
-      page:
-          () =>
-              const PaymentMethod(), // Replace with actual payment method screen
-    ),
-    GetPage(
-      name: Routes.addCard,
-      page: () => const AddCard(), //R Replace with actual add card screen
-    ),
-    GetPage(
-      name: Routes.statusScreen,
-      page: () => const PaymentStatus(), // Replace with actual status screen
-    ),
-    GetPage(
-      name: Routes.tracking,
-      page: () => const TrackingOrder(), // Replace with actual tracking screen
-    ),
-    GetPage(
-      name: Routes.callScreen,
-      page: () => const CallScreen(), // Replace with actual call screen
-    ),
-    GetPage(
-      name: Routes.chatScreen,
-      page: () => const ChatScreen(), // Replace with actual chat screen
-    ),
-    GetPage(
-      name: Routes.profile,
-      page: () => const PersonalInfo(), // Replace with actual profile screen
-    ),
-    GetPage(
-      name: Routes.editProfile,
-      page:
-          () => const EditProfile(), // Replace with actual edit profile screen
-    ),
-    GetPage(
-      name: Routes.address,
-      page: () => const Address(), // Replace with actual address screen
-    ),
-    GetPage(
-      name: Routes.addAddress,
-      page: () => const AddAddress(), // Replace with actual add address screen
-    ),
-    GetPage(
-      name: Routes.notifications,
-      page:
-          () =>
-              const Notifications(), // Replace with actual notifications screen
-    ),
+    GetPage(name: Routes.cart, page: () => const Cart()),
+    GetPage(name: Routes.paymentMethod, page: () => const PaymentMethod()),
+    GetPage(name: Routes.addCard, page: () => const AddCard()),
+    GetPage(name: Routes.statusScreen, page: () => const PaymentStatus()),
+    GetPage(name: Routes.tracking, page: () => const TrackingOrder()),
+    GetPage(name: Routes.callScreen, page: () => const CallScreen()),
+    GetPage(name: Routes.chatScreen, page: () => const ChatScreen()),
+    GetPage(name: Routes.profile, page: () => const PersonalInfo()),
+    GetPage(name: Routes.editProfile, page: () => const EditProfile()),
+    GetPage(name: Routes.address, page: () => const Address()),
+    GetPage(name: Routes.addAddress, page: () => const AddAddress()),
+    GetPage(name: Routes.notifications, page: () => const Notifications()),
   ];
 }

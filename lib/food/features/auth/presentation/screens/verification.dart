@@ -3,10 +3,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/texts/texts.dart';
 import 'package:food/food/features/auth/presentation/widgets/auth_template.dart';
 import 'package:get/get.dart';
+import 'package:get_it/get_it.dart';
 import 'package:pinput/pinput.dart';
 
 import '../../../../components/buttons/buttons.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../core/theme/colors.dart';
 
 class Verification extends StatefulWidget {
@@ -17,6 +19,8 @@ class Verification extends StatefulWidget {
 }
 
 class _LoginState extends State<Verification> {
+  final nav = GetIt.instance<NavigationService>();
+
   @override
   Widget build(BuildContext context) {
     return AuthTemplate(

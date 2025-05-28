@@ -8,11 +8,13 @@ import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/features/home/presentation/widgets/circle_widget.dart';
 import 'package:get/get.dart';
+import 'package:get_it/get_it.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ionicons/ionicons.dart';
 
 import '../../../../components/texts/texts.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../auth/presentation/widgets/back_widget.dart';
 import '../../../onboarding/presentation/widgets/food_container.dart';
 
@@ -28,6 +30,8 @@ class TrackingOrder extends StatefulWidget {
 }
 
 class _TrackingOrderState extends State<TrackingOrder> {
+  final nav = GetIt.instance<NavigationService>();
+
   final Completer<GoogleMapController> _controller =
       Completer<GoogleMapController>();
 

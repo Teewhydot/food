@@ -10,12 +10,17 @@ import 'package:food/food/features/auth/presentation/widgets/back_widget.dart';
 import 'package:food/food/features/onboarding/presentation/widgets/food_container.dart';
 import 'package:food/food/features/tracking/presentation/widgets/cart_widget.dart';
 import 'package:get/get.dart';
+import 'package:get_it/get_it.dart';
+
+import '../../../../core/services/navigation_service/nav_config.dart';
 
 class Cart extends StatelessWidget {
   const Cart({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final nav = GetIt.instance<NavigationService>();
+
     return FScaffold(
       bottomWidget: FoodContainer(
         width: 1.sw,

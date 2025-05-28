@@ -8,66 +8,63 @@ import 'package:food/food/core/constants/app_constants.dart';
 import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/features/auth/presentation/widgets/back_widget.dart';
 import 'package:get/get_utils/get_utils.dart';
+import 'package:get_it/get_it.dart';
+
+import '../../../../core/services/navigation_service/nav_config.dart';
 
 class AddCard extends StatelessWidget {
   const AddCard({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return FScaffold(body: Column(
-      children: [
-        Row(
-          children: [
-            const BackWidget(
-              color: kGreyColor,
-            ),
-    
-          ],
-        ),
-        FText(
-          text: "Add New Card",
-          fontSize: 20,
-          fontWeight: FontWeight.w700,
-        ),
-        20.verticalSpace,
-        FTextField(
-          hintText: "Card Number",
-          keyboardType: TextInputType.number,
-          action: TextInputAction.next,
-        ),
-        20.verticalSpace,
-        FTextField(
-          hintText: "Cardholder Name",
-          keyboardType: TextInputType.name,
-          action: TextInputAction.next,
-        ),
-        20.verticalSpace,
-        Row(
-          spacing: 10,
-          children: [
-            Expanded(
-              child: FTextField(
-                hintText: "Expiry Date",
-                keyboardType: TextInputType.datetime,
-                action: TextInputAction.next,
+    final nav = GetIt.instance<NavigationService>();
+
+    return FScaffold(
+      body: Column(
+        children: [
+          Row(children: [const BackWidget(color: kGreyColor)]),
+          FText(
+            text: "Add New Card",
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+          ),
+          20.verticalSpace,
+          FTextField(
+            hintText: "Card Number",
+            keyboardType: TextInputType.number,
+            action: TextInputAction.next,
+          ),
+          20.verticalSpace,
+          FTextField(
+            hintText: "Cardholder Name",
+            keyboardType: TextInputType.name,
+            action: TextInputAction.next,
+          ),
+          20.verticalSpace,
+          Row(
+            spacing: 10,
+            children: [
+              Expanded(
+                child: FTextField(
+                  hintText: "Expiry Date",
+                  keyboardType: TextInputType.datetime,
+                  action: TextInputAction.next,
+                ),
               ),
-            ),
-            20.verticalSpace,
-            Expanded(
-              child: FTextField(
-                hintText: "CVV",
-                keyboardType: TextInputType.number,
-                action: TextInputAction.done,
+              20.verticalSpace,
+              Expanded(
+                child: FTextField(
+                  hintText: "CVV",
+                  keyboardType: TextInputType.number,
+                  action: TextInputAction.done,
+                ),
               ),
-            ),
-          ],
-        ),
-        const Spacer(),
-        FButton(
-          buttonText: "Add Card",
-          onPressed: () {},
-        ),
-      ],
-    ).paddingAll(AppConstants.defaultPadding));
+            ],
+          ),
+          const Spacer(),
+          FButton(buttonText: "Add Card", onPressed: () {}),
+        ],
+      ).paddingAll(AppConstants.defaultPadding),
+    );
   }
 }

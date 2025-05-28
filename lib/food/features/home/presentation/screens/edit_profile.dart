@@ -8,8 +8,10 @@ import 'package:food/food/core/constants/app_constants.dart';
 import 'package:food/food/features/home/presentation/widgets/circle_widget.dart';
 import 'package:food/generated/assets.dart';
 import 'package:get/get.dart';
+import 'package:get_it/get_it.dart';
 
 import '../../../../components/texts/texts.dart';
+import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../core/theme/colors.dart';
 import '../../../auth/presentation/widgets/back_widget.dart';
 
@@ -21,6 +23,8 @@ class EditProfile extends StatefulWidget {
 }
 
 class _EditProfileState extends State<EditProfile> {
+  final nav = GetIt.instance<NavigationService>();
+
   @override
   Widget build(BuildContext context) {
     return FScaffold(

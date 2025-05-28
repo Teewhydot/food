@@ -24,8 +24,8 @@ class OnboardingWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return FScaffold(
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          114.verticalSpace,
           FoodContainer(
             height: 292,
             width: 1.sw,
@@ -33,7 +33,7 @@ class OnboardingWidget extends StatelessWidget {
 
             child: Container(),
           ).paddingOnly(top: 0, left: 68, right: 68),
-          67.verticalSpace,
+          63.verticalSpace,
           FText(
             text: title,
             fontSize: 24,
