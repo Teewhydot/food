@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/core/helpers/extensions.dart';
 import 'package:food/food/core/routes/routes.dart';
 import 'package:food/food/core/utils/app_utils.dart';
+import 'package:food/food/core/utils/validators.dart';
 import 'package:food/food/features/auth/presentation/manager/auth_bloc/auth_bloc.dart';
 import 'package:food/food/features/auth/presentation/widgets/auth_template.dart';
 import 'package:food/food/features/auth/presentation/widgets/custom_overlay.dart';
@@ -28,7 +29,17 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  bool isPasswordVisible = false;
+  bool isRememberMe = false;
   final nav = GetIt.instance<NavigationService>();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,6 +64,9 @@ class _LoginState extends State<Login> {
           child: Column(
             children: [
               FTextField(
+                controller: emailController,
+                validationMode: AutovalidateMode.onUserInteraction,
+                validate: emailValidator.call,
                 height: 63,
                 hintText: "Enter your email",
                 onChanged: (value) {},
@@ -65,7 +79,9 @@ class _LoginState extends State<Login> {
               FTextField(
                 height: 63,
                 isPassword: true,
-                hintText: "Enter your email",
+                hintText: "Enter your password",
+                validationMode: AutovalidateMode.onUserInteraction,
+                validate: passwordValidator.call,
                 onChanged: (value) {},
                 onTap: () {},
                 keyboardType: TextInputType.emailAddress,
@@ -75,15 +91,22 @@ class _LoginState extends State<Login> {
               24.verticalSpace,
               Row(
                 children: [
-                  FoodContainer(
-                    height: 20,
-                    width: 20,
-                    borderRadius: 5,
-                    hasBorder: true,
-                    borderWidth: 2,
-                    borderColor: kGreyColor,
-                    color: kWhiteColor,
-                    child: Icon(Ionicons.checkbox),
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        isRememberMe = !isRememberMe;
+                      });
+                    },
+                    child: FoodContainer(
+                      height: 25,
+                      width: 20,
+                      borderRadius: 5,
+                      hasBorder: true,
+                      borderWidth: 2,
+                      borderColor: kGreyColor,
+                      color: isRememberMe ? kPrimaryColor : kWhiteColor,
+                      child: Icon(Icons.check, color: kWhiteColor, size: 15),
+                    ),
                   ),
                   10.horizontalSpace,
                   FText(
