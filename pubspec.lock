@@ -406,6 +406,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.5"
+  flutter_spinkit:
+    dependency: "direct main"
+    description:
+      name: flutter_spinkit
+      sha256: d2696eed13732831414595b98863260e33e8882fc069ee80ec35d4ac9ddb0472
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.2.1"
   flutter_svg:
     dependency: "direct main"
     description:
@@ -640,14 +648,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.1.1"
-  loading_indicator:
+  loading_overlay:
     dependency: "direct main"
     description:
-      name: loading_indicator
-      sha256: a101ffb2aa3e646137d7810bfa90b50525dd3f72c01235b6df7491cf6af6f284
+      name: loading_overlay
+      sha256: c51341550b297e048ac95549bd7ecbe746754130102ea1e36da2a5fdb09f5fab
       url: "https://pub.dev"
     source: hosted
-    version: "3.1.1"
+    version: "0.4.2"
   logging:
     dependency: transitive
     description:

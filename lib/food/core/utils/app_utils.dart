@@ -1,8 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/core/theme/colors.dart';
+import 'package:get/get.dart';
 
 class DFoodUtils {
+  static showSnackBar(String message,Color color) {
+     Get.snackbar(
+            "Error",
+            message,
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: color,
+            colorText: kWhiteColor,
+          );
+  }
   static showDialogContainer({
     required BuildContext context,
     required Widget child,
