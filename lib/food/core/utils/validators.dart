@@ -16,6 +16,14 @@ final passwordValidator = MultiValidator([
   MinLengthValidator(6, errorText: 'Too short'),
   MaxLengthValidator(30, errorText: 'Too long'),
   PatternValidator(
+    r'(?=.*?[A-Z])',
+    errorText: 'Passwords must have at least one uppercase letter',
+  ),
+  PatternValidator(
+    r'(?=.*?[a-z])',
+    errorText: 'Passwords must have at least one lowercase letter',
+  ),
+  PatternValidator(
     r'(?=.*?[#?+.,<>?!@$%,^&*-])',
     errorText: 'Passwords must have at least one special character',
   ),

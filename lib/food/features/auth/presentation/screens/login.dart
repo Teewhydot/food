@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -29,6 +30,7 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  String? emailError, passwordError;
   bool isPasswordVisible = false;
   bool isRememberMe = false;
   final nav = GetIt.instance<NavigationService>();
@@ -66,28 +68,84 @@ class _LoginState extends State<Login> {
               FTextField(
                 controller: emailController,
                 validationMode: AutovalidateMode.onUserInteraction,
-                validate: emailValidator.call,
                 height: 63,
+                borderColor: emailError != null ? kErrorColor : kContainerColor,
                 hintText: "Enter your email",
-                onChanged: (value) {},
+                onChanged: (value) {
+                  if (value.isEmpty) {
+                    setState(() {
+                      emailError = "Email cannot be empty";
+                    });
+                  } else if (!GetUtils.isEmail(value)) {
+                    setState(() {
+                      emailError = "Please enter a valid email";
+                    });
+                  } else {
+                    setState(() {
+                      emailError = null;
+                    });
+                  }
+                },
                 onTap: () {},
                 keyboardType: TextInputType.emailAddress,
                 label: 'EMAIL',
                 action: TextInputAction.next,
               ),
+              if (emailError != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4.0),
+                  child: FText(
+                    text: emailError!,
+                    fontSize: 12,
+                    color: Colors.red,
+                    alignment: MainAxisAlignment.start,
+                  ),
+                ),
               24.verticalSpace,
               FTextField(
                 height: 63,
                 isPassword: true,
                 hintText: "Enter your password",
                 validationMode: AutovalidateMode.onUserInteraction,
-                validate: passwordValidator.call,
-                onChanged: (value) {},
+                borderColor:
+                    passwordError != null ? kErrorColor : kContainerColor,
+                controller: passwordController,
+
+                onChanged: (value) {
+                  if (value.isEmpty) {
+                    setState(() {
+                      passwordError = "Password cannot be empty";
+                    });
+                  } else if (value.length < 6) {
+                    setState(() {
+                      passwordError = "Password must be at least 6 characters";
+                    });
+                  } else if (passwordValidator.call(value) != null) {
+                    setState(() {
+                      passwordError =
+                          "Password must contain a mix of characters";
+                    });
+                  } else {
+                    setState(() {
+                      passwordError = null;
+                    });
+                  }
+                },
                 onTap: () {},
                 keyboardType: TextInputType.emailAddress,
                 label: 'PASSWORD',
                 action: TextInputAction.next,
               ),
+              if (passwordError != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4.0),
+                  child: FText(
+                    text: passwordError!,
+                    fontSize: 12,
+                    color: Colors.red,
+                    alignment: MainAxisAlignment.start,
+                  ),
+                ),
               24.verticalSpace,
               Row(
                 children: [
@@ -98,7 +156,7 @@ class _LoginState extends State<Login> {
                       });
                     },
                     child: FoodContainer(
-                      height: 25,
+                      height: 20,
                       width: 20,
                       borderRadius: 5,
                       hasBorder: true,
@@ -131,7 +189,9 @@ class _LoginState extends State<Login> {
                 buttonText: "Login",
                 width: 1.sw,
                 onPressed: () {
-                  // nav.navigateAndReplace(Routes.home);
+                  if (emailError != null || passwordError != null) {
+                    return;
+                  }
                   context.read<AuthBloc>().add(
                     AuthLoginEvent(email: '', password: ''),
                   );

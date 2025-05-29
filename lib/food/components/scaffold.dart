@@ -4,13 +4,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class FScaffold extends StatelessWidget {
   final Widget body, bottomWidget;
   final double padding;
-  final bool showNavBar, resizeToAvoidBottomInset;
+  final bool showNavBar, resizeToAvoidBottomInset, useSafeArea;
 
   const FScaffold({
     super.key,
     required this.body,
     this.padding = 0.0,
     this.showNavBar = false,
+    this.useSafeArea = false,
     this.resizeToAvoidBottomInset = true,
     this.bottomWidget = const SizedBox(),
   });
@@ -22,7 +23,7 @@ class FScaffold extends StatelessWidget {
       resizeToAvoidBottomInset: resizeToAvoidBottomInset,
       body: Padding(
         padding: EdgeInsets.all(padding).r,
-        child: SafeArea(child: body),
+        child: useSafeArea ? SafeArea(child: body) : body,
       ),
       bottomNavigationBar: bottomWidget,
     );

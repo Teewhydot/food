@@ -3,9 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/texts/texts.dart';
 import 'package:food/food/core/theme/colors.dart';
+import 'package:food/food/core/utils/validators.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class FTextField extends StatelessWidget {
+class FTextField extends StatefulWidget {
   final String? label;
   final String hintText;
   final TextInputType? keyboardType;
@@ -36,6 +37,7 @@ class FTextField extends StatelessWidget {
   final Color enabledColor;
   final Color focusedColor;
   final Color fillColor;
+  final Color borderColor;
   final VoidCallback? dropDownPressed;
   final bool hasLabel;
   final double height;
@@ -69,6 +71,7 @@ class FTextField extends StatelessWidget {
     this.focusedColor = kPrimaryColor,
     this.enabledColor = Colors.grey,
     this.fillColor = kContainerColor,
+    this.borderColor = kContainerColor,
     this.isDropDown,
     this.maxLine = 1,
     this.maxLength,
@@ -81,63 +84,69 @@ class FTextField extends StatelessWidget {
   });
 
   @override
+  State<FTextField> createState() => _FTextFieldState();
+}
+
+class _FTextFieldState extends State<FTextField> {
+  @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start, // So error aligns left
       children: [
-        hasLabel
+        widget.hasLabel
             ? FText(
-              text: label?.toUpperCase() ?? "",
+              text: widget.label?.toUpperCase() ?? "",
               fontSize: 13,
               alignment: MainAxisAlignment.start,
               fontWeight: FontWeight.w400,
             )
             : const SizedBox.shrink(),
-        hasLabel ? 8.verticalSpace : const SizedBox.shrink(),
+        widget.hasLabel ? 8.verticalSpace : const SizedBox.shrink(),
         Container(
-          height: height.h,
+          height: widget.height.h,
           decoration: BoxDecoration(
             color: kTextFieldColor,
             borderRadius: BorderRadius.circular(12).r,
+            border: Border.all(color: widget.borderColor, width: 1.5),
           ),
           child: Center(
             child: TextFormField(
-              textCapitalization: textCapitalization,
-              autofocus: autoFocus,
-              autovalidateMode: validationMode,
-              readOnly: isReadOnly ?? false,
-              showCursor: showCursor,
-              textInputAction: action,
-              obscureText: !isPassword ? false : true,
+              textCapitalization: widget.textCapitalization,
+              autofocus: widget.autoFocus,
+              autovalidateMode: widget.validationMode,
+              readOnly: widget.isReadOnly ?? false,
+              showCursor: widget.showCursor,
+              textInputAction: widget.action,
+              obscureText: !widget.isPassword ? false : true,
               cursorWidth: 1.2.sp,
               cursorColor: kPrimaryColor,
-              onChanged: onChanged,
-              focusNode: node,
-              onSaved: onSaved,
-              onTap: onTap,
-              validator: validate,
-              maxLines: maxLine,
-              maxLength: maxLength,
+              onChanged: widget.onChanged,
+              focusNode: widget.node,
+              onSaved: widget.onSaved,
+              onTap: widget.onTap,
+              maxLines: widget.maxLine,
+              maxLength: widget.maxLength,
               onTapOutside: (event) {
                 FocusScope.of(context).unfocus();
               },
-              controller: controller,
-              keyboardType: keyboardType,
-              inputFormatters: inputFormatters,
+              controller: widget.controller,
+              keyboardType: widget.keyboardType,
+              inputFormatters: widget.inputFormatters,
               style: GoogleFonts.sen(
-                fontSize: labelSize.sp,
-                fontWeight: fontWeight,
+                fontSize: widget.labelSize.sp,
+                fontWeight: widget.fontWeight,
                 color: kTextColorDark,
               ),
               decoration: InputDecoration(
-                prefixIcon: prefix,
-                hintText: hintText,
+                prefixIcon: widget.prefix,
+                hintText: widget.hintText,
                 hintStyle: GoogleFonts.sen(
-                  fontSize: labelSize.sp,
+                  fontSize: widget.labelSize.sp,
                   fontWeight: FontWeight.w200,
                   color: kAddressColor,
                 ),
                 suffixIcon:
-                    isPassword
+                    widget.isPassword
                         ? GestureDetector(
                           onTap: () {},
                           child: Icon(
@@ -147,36 +156,18 @@ class FTextField extends StatelessWidget {
                           ),
                         )
                         : Padding(
-                          padding: const EdgeInsetsDirectional.only(
-                            end: 16,
-                            // top: 21,
-                            // bottom: 21,
-                          ),
-                          child: suffix,
+                          padding: const EdgeInsetsDirectional.only(end: 16),
+                          child: widget.suffix,
                         ),
-                errorStyle: TextStyle(
-                  height: 1.2.sp,
-                  color: Colors.red,
-                  fontSize: 12.sp,
-                ),
-                errorText: errorText,
+
                 contentPadding: const EdgeInsets.symmetric(
                   vertical: 12.0,
                   horizontal: 10,
                 ),
-                // focusedBorder: OutlineInputBorder(
-                //   borderRadius: BorderRadius.circular(8.sp),
-                //   borderSide: BorderSide(color: focusedColor),
-                // ),
-                errorBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.sp),
-                  borderSide: const BorderSide(color: Colors.red),
-                ),
+                // Remove error borders from InputDecoration
+                errorBorder: InputBorder.none,
+                focusedErrorBorder: InputBorder.none,
                 border: InputBorder.none,
-                focusedErrorBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.sp),
-                  borderSide: const BorderSide(color: Colors.red),
-                ),
               ),
             ),
           ),
