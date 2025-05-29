@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:food/food/components/texts/texts.dart';
 import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/features/home/presentation/widgets/circle_widget.dart';
 import 'package:get/get.dart';
