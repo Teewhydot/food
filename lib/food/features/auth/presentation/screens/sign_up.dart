@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/core/routes/routes.dart';
 import 'package:food/food/core/utils/app_utils.dart';
+import 'package:food/food/features/auth/presentation/manager/auth_bloc/register/register_bloc.dart';
 import 'package:food/food/features/auth/presentation/widgets/auth_template.dart';
 import 'package:food/food/features/auth/presentation/widgets/custom_overlay.dart';
 import 'package:get/get.dart';
@@ -13,7 +14,6 @@ import '../../../../components/textfields.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../core/theme/colors.dart';
-import '../manager/auth_bloc/login/login_bloc.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -27,19 +27,19 @@ class _LoginState extends State<SignUp> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<LoginBloc, LoginState>(
-      bloc: context.read<LoginBloc>(),
+    return BlocListener<RegisterBloc, RegisterState>(
+      bloc: context.read<RegisterBloc>(),
       listener: (context, state) {
-        if (state is LoginSuccessState) {
+        if (state is RegisterSuccess) {
           DFoodUtils.showSnackBar("Registration was successful", kSuccessColor);
           nav.navigateAndReplace(Routes.login);
-        } else if (state is LoginFailureState) {
+        } else if (state is RegisterFailure) {
           DFoodUtils.showSnackBar(state.error, kErrorColor);
         }
       },
       child: CustomOverlay(
         isLoading:
-            context.watch<LoginBloc>().state is LoginLoadingState
+            context.watch<RegisterBloc>().state is RegisterLoading
                 ? true
                 : false,
         child: AuthTemplate(
@@ -97,8 +97,8 @@ class _LoginState extends State<SignUp> {
                 buttonText: "SIGN UP",
                 width: 1.sw,
                 onPressed: () {
-                  context.read<LoginBloc>().add(
-                    AuthSignUpEvent(fullName: '', email: '', password: ''),
+                  context.read<RegisterBloc>().add(
+                    RegisterInitialEvent(fullName: '', email: '', password: ''),
                   );
                   // nav.navigateAndReplace(Routes.login);
                 },
