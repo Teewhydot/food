@@ -4,15 +4,16 @@ import 'package:food/food/core/theme/colors.dart';
 import 'package:get/get.dart';
 
 class DFoodUtils {
-  static showSnackBar(String message,Color color) {
-     Get.snackbar(
-            "Error",
-            message,
-            snackPosition: SnackPosition.TOP,
-            backgroundColor: color,
-            colorText: kWhiteColor,
-          );
+  static showSnackBar(String message, Color color) {
+    Get.snackbar(
+      color == kSuccessColor ? "Success" : "Error",
+      message,
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: color,
+      colorText: kWhiteColor,
+    );
   }
+
   static showDialogContainer({
     required BuildContext context,
     required Widget child,

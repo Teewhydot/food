@@ -1,4 +1,4 @@
-import 'dart:ui';
+import 'package:flutter/material.dart';
 
 const Color kPrimaryColor = Color(0xffFF7622);
 const Color kSecondaryColor = Color(0xffFFE1CE);
@@ -24,4 +24,5 @@ const Color kGradientColor2 = Color(0xffFFEB34);
 const Color kCloseColor = Color(0xffFFE194);
 const Color kBackWidgetColor = Color(0xffECF0F4);
 const Color kInactive = Color(0xffBFBCBA);
-const Color kErrorColor= Color(0xffFF0000);
+const Color kErrorColor = Color(0xffFF0000);
+Color kSuccessColor = Colors.green.withOpacity(0.8);

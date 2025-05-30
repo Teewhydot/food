@@ -7,24 +7,22 @@ part 'auth_state.dart';
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc() : super(AuthInitialState()) {
     // For login
-    on<AuthLoginEvent>((event, emit)async {
+    on<AuthLoginEvent>((event, emit) async {
       emit(AuthLoadingState());
       // Simulate a network call
 
-     await Future.delayed(const Duration(seconds: 5), () {
-        emit(AuthFailureState(
-          error: "Login failed. Please try again.",
-        ));
+      await Future.delayed(const Duration(seconds: 5), () {
+        emit(AuthFailureState(error: "Login failed. Please try again."));
       });
     });
 
     // For SignUp
-    on<AuthSignUpEvent>((event, emit) async{
+    on<AuthSignUpEvent>((event, emit) async {
       emit(AuthLoadingState());
       // Simulate a network call
 
-    await  Future.delayed(const Duration(seconds: 2), () {
-        emit(AuthSuccessState());
+      await Future.delayed(const Duration(seconds: 2), () {
+        emit(AuthFailureState(error: "Your are not welcome"));
       });
     });
 
@@ -33,7 +31,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(AuthLoadingState());
       // Simulate a network call
 
-    await  Future.delayed(const Duration(seconds: 2), () {
+      await Future.delayed(const Duration(seconds: 2), () {
         emit(AuthSuccessState());
       });
     });
