@@ -13,7 +13,7 @@ import '../../../../components/textfields.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../core/theme/colors.dart';
-import '../manager/auth_bloc/auth_bloc.dart';
+import '../manager/auth_bloc/login/login_bloc.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -27,19 +27,21 @@ class _LoginState extends State<SignUp> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AuthBloc, AuthState>(
-      bloc: context.read<AuthBloc>(),
+    return BlocListener<LoginBloc, LoginState>(
+      bloc: context.read<LoginBloc>(),
       listener: (context, state) {
-        if (state is AuthSuccessState) {
+        if (state is LoginSuccessState) {
           DFoodUtils.showSnackBar("Registration was successful", kSuccessColor);
           nav.navigateAndReplace(Routes.login);
-        } else if (state is AuthFailureState) {
+        } else if (state is LoginFailureState) {
           DFoodUtils.showSnackBar(state.error, kErrorColor);
         }
       },
       child: CustomOverlay(
         isLoading:
-            context.watch<AuthBloc>().state is AuthLoadingState ? true : false,
+            context.watch<LoginBloc>().state is LoginLoadingState
+                ? true
+                : false,
         child: AuthTemplate(
           title: "Sign Up",
           subtitle: "Please sign up to get started",
@@ -95,7 +97,7 @@ class _LoginState extends State<SignUp> {
                 buttonText: "SIGN UP",
                 width: 1.sw,
                 onPressed: () {
-                  context.read<AuthBloc>().add(
+                  context.read<LoginBloc>().add(
                     AuthSignUpEvent(fullName: '', email: '', password: ''),
                   );
                   // nav.navigateAndReplace(Routes.login);

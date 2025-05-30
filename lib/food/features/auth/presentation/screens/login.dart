@@ -7,7 +7,7 @@ import 'package:food/food/core/helpers/extensions.dart';
 import 'package:food/food/core/routes/routes.dart';
 import 'package:food/food/core/utils/app_utils.dart';
 import 'package:food/food/core/utils/validators.dart';
-import 'package:food/food/features/auth/presentation/manager/auth_bloc/auth_bloc.dart';
+import 'package:food/food/features/auth/presentation/manager/auth_bloc/login/login_bloc.dart';
 import 'package:food/food/features/auth/presentation/widgets/auth_template.dart';
 import 'package:food/food/features/auth/presentation/widgets/custom_overlay.dart';
 import 'package:get/get.dart';
@@ -45,18 +45,20 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AuthBloc, AuthState>(
-      bloc: context.read<AuthBloc>(),
+    return BlocListener<LoginBloc, LoginState>(
+      bloc: context.read<LoginBloc>(),
       listener: (context, state) {
-        if (state is AuthSuccessState) {
+        if (state is LoginSuccessState) {
           nav.navigateAndReplace(Routes.home);
-        } else if (state is AuthFailureState) {
+        } else if (state is LoginFailureState) {
           DFoodUtils.showSnackBar(state.error, kErrorColor);
         }
       },
       child: CustomOverlay(
         isLoading:
-            context.watch<AuthBloc>().state is AuthLoadingState ? true : false,
+            context.watch<LoginBloc>().state is LoginLoadingState
+                ? true
+                : false,
         child: AuthTemplate(
           title: "Login",
           subtitle: "Please sign in to your existing account",
@@ -192,7 +194,7 @@ class _LoginState extends State<Login> {
                   if (emailError != null || passwordError != null) {
                     return;
                   }
-                  context.read<AuthBloc>().add(
+                  context.read<LoginBloc>().add(
                     AuthLoginEvent(email: '', password: ''),
                   );
                 },
