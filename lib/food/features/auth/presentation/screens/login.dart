@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,6 +13,7 @@ import 'package:food/food/features/auth/presentation/widgets/custom_overlay.dart
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:ionicons/ionicons.dart';
+
 import '../../../../components/buttons/buttons.dart';
 import '../../../../components/textfields.dart';
 import '../../../../components/texts/texts.dart';
@@ -180,7 +180,7 @@ class _LoginState extends State<Login> {
                     fontWeight: FontWeight.w400,
                     color: kPrimaryColor,
                   ).onTap(() {
-                    nav.navigateAndReplace(Routes.register);
+                    nav.navigateTo(Routes.forgotPassword);
                   }),
                 ],
               ),
@@ -216,7 +216,7 @@ class _LoginState extends State<Login> {
                   ),
                 ],
               ).onTap(() {
-                nav.navigateAndReplace(Routes.register);
+                nav.navigateTo(Routes.register);
               }),
               27.verticalSpace,
               FText(
