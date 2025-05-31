@@ -53,10 +53,10 @@ extension WidgetStyling on Widget {
 
 extension Tappable on Widget {
   Widget onTap(VoidCallback? onTap, {Key? key}) {
-    return InkWell(key: key, onTap: onTap, child: this);
+    return GestureDetector(key: key, onTap: onTap, child: this);
   }
 
   Widget onLongPress(VoidCallback? onLongPress, {Key? key}) {
-    return InkWell(key: key, onLongPress: onLongPress, child: this);
+    return GestureDetector(key: key, onLongPress: onLongPress, child: this);
   }
 }

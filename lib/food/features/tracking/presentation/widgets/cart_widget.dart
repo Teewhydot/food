@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/texts/texts.dart';
 import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/features/onboarding/presentation/widgets/food_container.dart';
+import 'package:get/get.dart';
 import 'package:ionicons/ionicons.dart';
 
 import '../../../home/presentation/widgets/circle_widget.dart';
@@ -86,6 +87,6 @@ class DFoodCartWidget extends StatelessWidget {
           ),
         ),
       ],
-    );
+    ).paddingOnly(bottom: 20);
   }
 }

@@ -5,6 +5,7 @@ class FScaffold extends StatelessWidget {
   final Widget body, bottomWidget;
   final double padding;
   final bool showNavBar, resizeToAvoidBottomInset, useSafeArea;
+  final Color? backgroundColor;
 
   const FScaffold({
     super.key,
@@ -14,12 +15,15 @@ class FScaffold extends StatelessWidget {
     this.useSafeArea = false,
     this.resizeToAvoidBottomInset = true,
     this.bottomWidget = const SizedBox(),
+    this.backgroundColor,
   });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       extendBody: true,
+      backgroundColor:
+          backgroundColor ?? Theme.of(context).scaffoldBackgroundColor,
       resizeToAvoidBottomInset: resizeToAvoidBottomInset,
       body: Padding(
         padding: EdgeInsets.all(padding).r,
