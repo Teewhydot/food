@@ -9,7 +9,6 @@ import 'package:food/food/core/theme/theme.dart';
 import 'package:get/get.dart';
 
 void main() {
-  // debugPaintSizeEnabled = true;
   AppConfig.init();
   runApp(MultiBlocProvider(providers: blocs, child: const MyApp()));
 }

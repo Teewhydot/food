@@ -28,12 +28,12 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   String selectedCategory = "All";
   final nav = GetIt.instance<NavigationService>();
-
   final List<String> categories = ["All", "Hot Dog", "Burger", "Pizza"];
 
   @override
   Widget build(BuildContext context) {
     return FScaffold(
+      useSafeArea: true,
       body: SingleChildScrollView(
         child: Column(
           children: [

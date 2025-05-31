@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:food/food/core/routes/routes.dart';
 import 'package:food/food/features/auth/presentation/manager/auth_bloc/forgot_password/forgot_password_bloc.dart';
 import 'package:food/food/features/auth/presentation/widgets/auth_template.dart';
 import 'package:food/food/features/auth/presentation/widgets/custom_overlay.dart';
@@ -31,6 +32,7 @@ class _LoginState extends State<ForgotPassword> {
       listener: (context, state) {
         if (state is ForgotPasswordSuccess) {
           DFoodUtils.showSnackBar("Code sent successfully", kSuccessColor);
+          nav.navigateTo(Routes.otpVerification);
         } else if (state is ForgotPasswordFailure) {
           DFoodUtils.showSnackBar(state.error, kErrorColor);
         }

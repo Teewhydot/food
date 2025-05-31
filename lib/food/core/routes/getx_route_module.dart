@@ -2,6 +2,7 @@ import 'package:food/food/core/routes/routes.dart';
 import 'package:food/food/features/auth/presentation/screens/forgot_password.dart';
 import 'package:food/food/features/auth/presentation/screens/login.dart';
 import 'package:food/food/features/auth/presentation/screens/sign_up.dart';
+import 'package:food/food/features/auth/presentation/screens/verification.dart';
 import 'package:food/food/features/home/presentation/screens/add_address.dart';
 import 'package:food/food/features/home/presentation/screens/address.dart';
 import 'package:food/food/features/home/presentation/screens/edit_profile.dart';
@@ -39,6 +40,7 @@ class GetXRouteModule {
       name: Routes.restaurantDetails,
       page: () => const RestaurantDetails(),
     ),
+    GetPage(name: Routes.otpVerification, page: () => const Verification()),
     GetPage(name: Routes.cart, page: () => const Cart()),
     GetPage(name: Routes.paymentMethod, page: () => const PaymentMethod()),
     GetPage(name: Routes.addCard, page: () => const AddCard()),

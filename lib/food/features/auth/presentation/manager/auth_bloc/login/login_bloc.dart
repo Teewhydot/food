@@ -12,7 +12,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       // Simulate a network call
 
       await Future.delayed(const Duration(seconds: 5), () {
-        emit(LoginFailureState(error: "Login failed. Please try again."));
+        emit(LoginSuccessState());
       });
     });
   }
