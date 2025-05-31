@@ -7,6 +7,7 @@ import 'package:food/food/features/auth/presentation/widgets/custom_overlay.dart
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pinput/pinput.dart';
+import 'package:timer_count_down/timer_count_down.dart';
 
 import '../../../../components/buttons/buttons.dart';
 import '../../../../core/constants/app_constants.dart';
@@ -54,10 +55,23 @@ class _LoginState extends State<Verification> {
                 children: [
                   FText(text: "CODE", fontSize: 13),
                   Spacer(),
-                  FText(
-                    text: "Resend in 50secs",
-                    fontSize: 13,
-                    color: kTextColorDark,
+                  Countdown(
+                    seconds: 50,
+                    build: (context, double time) {
+                      return time.toInt() == 0
+                          ? FText(
+                            text: "Resend",
+                            fontSize: 13,
+                            color: kPrimaryColor,
+                            decorations: [TextDecoration.underline],
+                          )
+                          : FText(
+                            text: "Resend in ${time.toInt()}s",
+                            fontSize: 13,
+                            color: kTextColorDark,
+                          );
+                    },
+                    interval: Duration(seconds: 1),
                   ),
                 ],
               ),
