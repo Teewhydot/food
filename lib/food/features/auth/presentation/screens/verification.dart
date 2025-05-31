@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/texts/texts.dart';
+import 'package:food/food/core/helpers/extensions.dart';
 import 'package:food/food/features/auth/presentation/widgets/auth_template.dart';
 import 'package:food/food/features/auth/presentation/widgets/custom_overlay.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pinput/pinput.dart';
+import 'package:timer_count_down/timer_controller.dart';
 import 'package:timer_count_down/timer_count_down.dart';
 
 import '../../../../components/buttons/buttons.dart';
@@ -27,6 +29,22 @@ class Verification extends StatefulWidget {
 class _LoginState extends State<Verification> {
   final nav = GetIt.instance<NavigationService>();
   final TextEditingController _otpController = TextEditingController();
+  final CountdownController _countdownController = CountdownController(
+    autoStart: true,
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    _countdownController.start();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _otpController.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<VerificationBloc, VerificationState>(
@@ -57,6 +75,7 @@ class _LoginState extends State<Verification> {
                   Spacer(),
                   Countdown(
                     seconds: 50,
+                    controller: _countdownController,
                     build: (context, double time) {
                       return time.toInt() == 0
                           ? FText(
@@ -64,7 +83,9 @@ class _LoginState extends State<Verification> {
                             fontSize: 13,
                             color: kPrimaryColor,
                             decorations: [TextDecoration.underline],
-                          )
+                          ).onTap(() {
+                            _countdownController.restart();
+                          })
                           : FText(
                             text: "Resend in ${time.toInt()}s",
                             fontSize: 13,
