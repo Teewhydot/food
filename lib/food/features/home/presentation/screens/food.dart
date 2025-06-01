@@ -19,7 +19,7 @@ import 'package:get_it/get_it.dart';
 import '../widgets/circle_widget.dart';
 import '../widgets/food_widget.dart';
 import '../widgets/restaurant_widget.dart';
-import 'home.dart';
+import '../widgets/section_head.dart';
 
 class Food extends StatelessWidget {
   const Food({super.key});
@@ -28,6 +28,7 @@ class Food extends StatelessWidget {
   Widget build(BuildContext context) {
     final nav = GetIt.instance<NavigationService>();
     return FScaffold(
+      useSafeArea: true,
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -36,7 +37,7 @@ class Food extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    BackWidget(),
+                    BackWidget(color: kContainerColor),
                     17.horizontalSpace,
                     FoodContainer(
                       width: 102,
@@ -255,25 +256,25 @@ class Food extends StatelessWidget {
                 FoodWidget(
                   image: "assets/images/food1.png",
                   name: "Pizza",
-                  restaurantName: "4.5",
+                  rating: "4.5",
                   price: "\$10.00",
                 ),
                 FoodWidget(
                   image: "assets/images/food1.png",
                   name: "Pizza",
-                  restaurantName: "4.5",
+                  rating: "4.5",
                   price: "\$10.00",
                 ),
                 FoodWidget(
                   image: "assets/images/food1.png",
                   name: "Pizza",
-                  restaurantName: "4.5",
+                  rating: "4.5",
                   price: "\$10.00",
                 ),
                 FoodWidget(
                   image: "assets/images/food1.png",
                   name: "Pizza",
-                  restaurantName: "4.5",
+                  rating: "4.5",
                   price: "\$10.00",
                 ),
               ],

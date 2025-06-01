@@ -3,21 +3,25 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/image.dart';
 import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/components/texts/texts.dart';
+import 'package:food/food/core/routes/routes.dart';
 import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/core/utils/app_utils.dart';
 import 'package:food/generated/assets.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../../components/buttons/buttons.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
+import '../../domain/entities/food.dart';
 import '../widgets/cart_widget.dart';
 import '../widgets/category_widget.dart';
 import '../widgets/circle_widget.dart';
 import '../widgets/food_widget.dart';
 import '../widgets/restaurant_widget.dart';
 import '../widgets/search_widget.dart';
+import '../widgets/section_head.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -29,7 +33,406 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   String selectedCategory = "All";
   final nav = GetIt.instance<NavigationService>();
-  final List<String> categories = ["All", "Hot Dog", "Burger", "Pizza"];
+  final List<String> categories = [
+    "All",
+    "Hot Dog",
+    "Burger",
+    "Pizza",
+    "Salad",
+    "Pasta",
+    "Sushi",
+    "Tacos",
+    "Sandwich",
+    "Ice Cream",
+    "Coffee",
+    "Tea",
+    "Juice",
+    "Smoothie",
+    "Steak",
+    "Seafood",
+    "Chicken Wings",
+    "Fries",
+    "Soup",
+    "Dessert",
+  ];
+  final List<FoodEntity> foodList = [
+    FoodEntity(
+      imageUrl: "assets/images/food1.png",
+      name: "Pizza",
+      restaurantName: "Pizza Place",
+      price: 10,
+      rating: 4.6,
+      category: "Pizza",
+      id: Uuid().v4(),
+      description: "Delicious cheese pizza with fresh toppings",
+    ),
+    FoodEntity(
+      imageUrl: "assets/images/food1.png",
+      name: "Hot Dog",
+      restaurantName: "Hot Dog Stand",
+      price: 10,
+      category: "Hot Dog",
+      rating: 4.2,
+
+      id: Uuid().v4(),
+      description: "Tasty hot dog with mustard and ketchup",
+    ),
+    FoodEntity(
+      imageUrl: "assets/images/food1.png",
+      name: "Burger",
+      restaurantName: "Burger Joint",
+      price: 10,
+      category: "Burger",
+      rating: 4.1,
+
+      id: Uuid().v4(),
+      description: "Juicy beef burger with lettuce and tomato",
+    ),
+    FoodEntity(
+      imageUrl: "assets/images/food2.png",
+      name: "Salad",
+      restaurantName: "Green Bowl",
+      price: 8,
+      category: "Salad",
+      rating: 4.5,
+      id: Uuid().v4(),
+      description: "Fresh garden salad with a variety of vegetables",
+    ),
+    FoodEntity(
+      imageUrl: "assets/images/food3.png",
+      name: "Pasta",
+      restaurantName: "Italiano",
+      price: 12,
+      category: "Pasta",
+      rating: 4.3,
+      id: Uuid().v4(),
+      description: "Creamy Alfredo pasta with chicken",
+    ),
+    FoodEntity(
+      imageUrl: "assets/images/food4.png",
+      name: "Sushi",
+      restaurantName: "Sushi Place",
+      price: 15,
+      rating: 4.8,
+      category: "Sushi",
+      id: Uuid().v4(),
+      description: "Assorted sushi rolls with soy sauce and wasabi",
+    ),
+    FoodEntity(
+      imageUrl: "assets/images/food1.png",
+      name: "Tacos",
+      restaurantName: "Taco Bell",
+      price: 9,
+      category: "Tacos",
+      rating: 4.0,
+      id: Uuid().v4(),
+      description: "Crunchy tacos with seasoned beef and cheese",
+    ),
+    FoodEntity(
+      imageUrl: "assets/images/food2.png",
+      name: "Sandwich",
+      restaurantName: "Subway",
+      price: 7,
+      category: "Sandwich",
+      rating: 4.4,
+      id: Uuid().v4(),
+      description: "Customizable sandwich with fresh ingredients",
+    ),
+    FoodEntity(
+      imageUrl: "assets/images/food3.png",
+      name: "Ice Cream",
+      restaurantName: "Baskin Robbins",
+      price: 5,
+      category: "Ice Cream",
+      rating: 4.7,
+      id: Uuid().v4(),
+      description: "Variety of ice cream flavors and toppings",
+    ),
+    FoodEntity(
+      imageUrl: "assets/images/food4.png",
+      name: "Coffee",
+      restaurantName: "Starbucks",
+      price: 4,
+      category: "Coffee",
+      rating: 4.6,
+      id: Uuid().v4(),
+      description: "Freshly brewed coffee, hot or iced",
+    ),
+    FoodEntity(
+      imageUrl: "assets/images/food1.png",
+      name: "Pizza",
+      restaurantName: "Pizza Place",
+      price: 10,
+      rating: 4.6,
+      category: "Pizza",
+      id: Uuid().v4(),
+      description: "Delicious cheese pizza with fresh toppings",
+    ),
+    FoodEntity(
+      imageUrl: "assets/images/food1.png",
+      name: "Hot Dog",
+      restaurantName: "Hot Dog Stand",
+      price: 10,
+      category: "Hot Dog",
+      rating: 4.2,
+
+      id: Uuid().v4(),
+      description: "Tasty hot dog with mustard and ketchup",
+    ),
+    FoodEntity(
+      imageUrl: "assets/images/food1.png",
+      name: "Burger",
+      restaurantName: "Burger Joint",
+      price: 10,
+      category: "Burger",
+      rating: 4.1,
+
+      id: Uuid().v4(),
+      description: "Juicy beef burger with lettuce and tomato",
+    ),
+    FoodEntity(
+      imageUrl: "assets/images/food2.png",
+      name: "Salad",
+      restaurantName: "Green Bowl",
+      price: 8,
+      category: "Salad",
+      rating: 4.5,
+      id: Uuid().v4(),
+      description: "Fresh garden salad with a variety of vegetables",
+    ),
+    FoodEntity(
+      imageUrl: "assets/images/food3.png",
+      name: "Pasta",
+      restaurantName: "Italiano",
+      price: 12,
+      category: "Pasta",
+      rating: 4.3,
+      id: Uuid().v4(),
+      description: "Creamy Alfredo pasta with chicken",
+    ),
+    FoodEntity(
+      imageUrl: "assets/images/food4.png",
+      name: "Sushi",
+      restaurantName: "Sushi Place",
+      price: 15,
+      rating: 4.8,
+      category: "Sushi",
+      id: Uuid().v4(),
+      description: "Assorted sushi rolls with soy sauce and wasabi",
+    ),
+    FoodEntity(
+      imageUrl: "assets/images/food1.png",
+      name: "Tacos",
+      restaurantName: "Taco Bell",
+      price: 9,
+      category: "Tacos",
+      rating: 4.0,
+      id: Uuid().v4(),
+      description: "Crunchy tacos with seasoned beef and cheese",
+    ),
+    FoodEntity(
+      imageUrl: "assets/images/food2.png",
+      name: "Sandwich",
+      restaurantName: "Subway",
+      price: 7,
+      category: "Sandwich",
+      rating: 4.4,
+      id: Uuid().v4(),
+      description: "Customizable sandwich with fresh ingredients",
+    ),
+    FoodEntity(
+      imageUrl: "assets/images/food3.png",
+      name: "Ice Cream",
+      restaurantName: "Baskin Robbins",
+      price: 5,
+      category: "Ice Cream",
+      rating: 4.7,
+      id: Uuid().v4(),
+      description: "Variety of ice cream flavors and toppings",
+    ),
+    FoodEntity(
+      imageUrl: "assets/images/food4.png",
+      name: "Coffee",
+      restaurantName: "Starbucks",
+      price: 4,
+      category: "Coffee",
+      rating: 4.6,
+      id: Uuid().v4(),
+      description: "Freshly brewed coffee, hot or iced",
+    ),
+    FoodEntity(
+      imageUrl: "assets/images/food1.png",
+      name: "Pizza",
+      restaurantName: "Pizza Place",
+      price: 10,
+      rating: 4.6,
+      category: "Pizza",
+      id: Uuid().v4(),
+      description: "Delicious cheese pizza with fresh toppings",
+    ),
+    FoodEntity(
+      imageUrl: "assets/images/food1.png",
+      name: "Hot Dog",
+      restaurantName: "Hot Dog Stand",
+      price: 10,
+      category: "Hot Dog",
+      rating: 4.2,
+
+      id: Uuid().v4(),
+      description: "Tasty hot dog with mustard and ketchup",
+    ),
+    FoodEntity(
+      imageUrl: "assets/images/food1.png",
+      name: "Burger",
+      restaurantName: "Burger Joint",
+      price: 10,
+      category: "Burger",
+      rating: 4.1,
+
+      id: Uuid().v4(),
+      description: "Juicy beef burger with lettuce and tomato",
+    ),
+    FoodEntity(
+      imageUrl: "assets/images/food2.png",
+      name: "Salad",
+      restaurantName: "Green Bowl",
+      price: 8,
+      category: "Salad",
+      rating: 4.5,
+      id: Uuid().v4(),
+      description: "Fresh garden salad with a variety of vegetables",
+    ),
+    FoodEntity(
+      imageUrl: "assets/images/food3.png",
+      name: "Pasta",
+      restaurantName: "Italiano",
+      price: 12,
+      category: "Pasta",
+      rating: 4.3,
+      id: Uuid().v4(),
+      description: "Creamy Alfredo pasta with chicken",
+    ),
+    FoodEntity(
+      imageUrl: "assets/images/food4.png",
+      name: "Sushi",
+      restaurantName: "Sushi Place",
+      price: 15,
+      rating: 4.8,
+      category: "Sushi",
+      id: Uuid().v4(),
+      description: "Assorted sushi rolls with soy sauce and wasabi",
+    ),
+    FoodEntity(
+      imageUrl: "assets/images/food1.png",
+      name: "Tacos",
+      restaurantName: "Taco Bell",
+      price: 9,
+      category: "Tacos",
+      rating: 4.0,
+      id: Uuid().v4(),
+      description: "Crunchy tacos with seasoned beef and cheese",
+    ),
+    FoodEntity(
+      imageUrl: "assets/images/food2.png",
+      name: "Sandwich",
+      restaurantName: "Subway",
+      price: 7,
+      category: "Sandwich",
+      rating: 4.4,
+      id: Uuid().v4(),
+      description: "Customizable sandwich with fresh ingredients",
+    ),
+    FoodEntity(
+      imageUrl: "assets/images/food3.png",
+      name: "Ice Cream",
+      restaurantName: "Baskin Robbins",
+      price: 5,
+      category: "Ice Cream",
+      rating: 4.7,
+      id: Uuid().v4(),
+      description: "Variety of ice cream flavors and toppings",
+    ),
+    FoodEntity(
+      imageUrl: "assets/images/food4.png",
+      name: "Coffee",
+      restaurantName: "Starbucks",
+      price: 4,
+      category: "Coffee",
+      rating: 4.6,
+      id: Uuid().v4(),
+      description: "Freshly brewed coffee, hot or iced",
+    ),
+    FoodEntity(
+      imageUrl: "assets/images/food1.png",
+      name: "Tea",
+      restaurantName: "Tea House",
+      price: 3,
+      category: "Tea",
+      rating: 4.3,
+      id: Uuid().v4(),
+      description: "Aromatic and soothing tea selection",
+    ),
+    FoodEntity(
+      imageUrl: "assets/images/food2.png",
+      name: "Juice",
+      restaurantName: "Jamba Juice",
+      price: 6,
+      category: "Juice",
+      rating: 4.5,
+      id: Uuid().v4(),
+      description: "Freshly squeezed fruit and vegetable juices",
+    ),
+    FoodEntity(
+      imageUrl: "assets/images/food3.png",
+      name: "Smoothie",
+      restaurantName: "Smoothie King",
+      price: 7,
+      category: "Smoothie",
+      rating: 4.4,
+      id: Uuid().v4(),
+      description: "Healthy and delicious fruit smoothies",
+    ),
+    FoodEntity(
+      imageUrl: "assets/images/food4.png",
+      name: "Steak",
+      restaurantName: "Outback Steakhouse",
+      price: 25,
+      category: "Steak",
+      rating: 4.7,
+      id: Uuid().v4(),
+      description: "Grilled steak cooked to perfection",
+    ),
+    FoodEntity(
+      imageUrl: "assets/images/food1.png",
+      name: "Seafood",
+      restaurantName: "Red Lobster",
+      price: 30,
+      category: "Seafood",
+      rating: 4.6,
+      id: Uuid().v4(),
+      description: "Fresh seafood platter with various options",
+    ),
+    FoodEntity(
+      imageUrl: "assets/images/food2.png",
+      name: "Chicken Wings",
+      restaurantName: "Buffalo Wild Wings",
+      price: 12,
+      category: "Chicken Wings",
+      rating: 4.2,
+      id: Uuid().v4(),
+      description: "Spicy and flavorful chicken wings",
+    ),
+    FoodEntity(
+      imageUrl: "assets/images/food3.png",
+      name: "Fries",
+      restaurantName: "McDonald's",
+      price: 3,
+      category: "Fries",
+      rating: 4.0,
+      id: Uuid().v4(),
+      description: "Crispy golden French fries",
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -199,7 +602,11 @@ class _HomeState extends State<Home> {
             16.verticalSpace,
             SearchWidget(),
             32.verticalSpace,
-            SectionHead().paddingOnly(right: AppConstants.defaultPadding.w),
+            SectionHead(
+              action: () {
+                nav.navigateTo(Routes.food);
+              },
+            ).paddingOnly(right: AppConstants.defaultPadding.w),
             20.verticalSpace,
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
@@ -220,42 +627,10 @@ class _HomeState extends State<Home> {
               ),
             ),
             32.verticalSpace,
-            Wrap(
-              direction: Axis.horizontal,
-              spacing: 20,
-              crossAxisAlignment: WrapCrossAlignment.start,
-              alignment: WrapAlignment.center,
-              runAlignment: WrapAlignment.center,
-              runSpacing: 20,
-              children: [
-                FoodWidget(
-                  image: "assets/images/food1.png",
-                  name: "Pizza",
-                  restaurantName: "4.5",
-                  price: "\$10.00",
-                ),
-                FoodWidget(
-                  image: "assets/images/food1.png",
-                  name: "Pizza",
-                  restaurantName: "4.5",
-                  price: "\$10.00",
-                ),
-                FoodWidget(
-                  image: "assets/images/food1.png",
-                  name: "Pizza",
-                  restaurantName: "4.5",
-                  price: "\$10.00",
-                ),
-                FoodWidget(
-                  image: "assets/images/food1.png",
-                  name: "Pizza",
-                  restaurantName: "4.5",
-                  price: "\$10.00",
-                ),
-              ],
+            _buildFoodWidget(
+              selectedCategory,
             ).paddingOnly(right: AppConstants.defaultPadding),
             32.verticalSpace,
-
             SectionHead(
               title: "Open Restaurants",
             ).paddingOnly(right: AppConstants.defaultPadding.w),
@@ -301,51 +676,48 @@ class _HomeState extends State<Home> {
       ),
     );
   }
-}
 
-class SectionHead extends StatelessWidget {
-  final String title;
-  final String actionText;
-  final VoidCallback? action;
-  final bool isActionVisible;
-  const SectionHead({
-    super.key,
-    this.title = "All categories",
-    this.actionText = "See All",
-    this.action,
-    this.isActionVisible = true,
-  });
+  Widget _buildFoodWidget(String category) {
+    Widget foodWidget;
+    List<FoodEntity> filteredFoodList;
 
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        FText(
-          text: title,
-          fontSize: 20,
-          fontWeight: FontWeight.w400,
-          color: kTextColorDark,
+    if (category == "All") {
+      filteredFoodList = foodList;
+    } else {
+      filteredFoodList =
+          foodList.where((food) => food.category == category).toList();
+    }
+
+    if (filteredFoodList.isEmpty) {
+      return Center(
+        child: FText(
+          text: "No food available in this category.",
+          fontSize: 16,
+          color: kPrimaryColor,
         ),
-        if (isActionVisible)
-          Row(
-            children: [
-              FText(
-                text: actionText,
-                fontSize: 14,
-                fontWeight: FontWeight.w400,
-                color: kTextColorDark,
-              ),
-              8.horizontalSpace,
-              FImage(
-                assetPath: Assets.svgsArrowRight,
-                assetType: FoodAssetType.svg,
-                width: 10,
-                height: 10,
-              ),
-            ],
-          ),
-      ],
+      );
+    }
+
+    foodWidget = SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Expanded(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          spacing: 20,
+          children:
+              filteredFoodList.map((food) {
+                return FoodWidget(
+                  image: food.imageUrl,
+                  name: food.name,
+                  rating: food.rating.toStringAsFixed(
+                    2,
+                  ), // Assuming a default rating for now
+                  price: "\$${food.price.toStringAsFixed(2)}",
+                );
+              }).toList(),
+        ),
+      ),
     );
+    return foodWidget;
   }
 }

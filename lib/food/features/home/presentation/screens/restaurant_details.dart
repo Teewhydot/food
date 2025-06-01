@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/texts/texts.dart';
-import 'package:food/food/features/home/presentation/screens/home.dart';
 import 'package:food/food/features/home/presentation/widgets/details_skeleton_widget.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
@@ -14,6 +13,7 @@ import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../core/theme/colors.dart';
 import '../widgets/category_widget.dart';
 import '../widgets/food_widget.dart';
+import '../widgets/section_head.dart';
 
 class RestaurantDetails extends StatefulWidget {
   const RestaurantDetails({super.key});
@@ -205,25 +205,25 @@ class _RestaurantDetailsState extends State<RestaurantDetails> {
               FoodWidget(
                 image: "assets/images/food1.png",
                 name: "Pizza",
-                restaurantName: "4.5",
+                rating: "4.5",
                 price: "\$10.00",
               ),
               FoodWidget(
                 image: "assets/images/food1.png",
                 name: "Pizza",
-                restaurantName: "4.5",
+                rating: "4.5",
                 price: "\$10.00",
               ),
               FoodWidget(
                 image: "assets/images/food1.png",
                 name: "Pizza",
-                restaurantName: "4.5",
+                rating: "4.5",
                 price: "\$10.00",
               ),
               FoodWidget(
                 image: "assets/images/food1.png",
                 name: "Pizza",
-                restaurantName: "4.5",
+                rating: "4.5",
                 price: "\$10.00",
               ),
             ],

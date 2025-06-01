@@ -5,13 +5,13 @@ import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/features/onboarding/presentation/widgets/food_container.dart';
 
 class FoodWidget extends StatelessWidget {
-  final String image, name, restaurantName, price;
+  final String image, name, price, rating;
   const FoodWidget({
     super.key,
     required this.image,
     required this.name,
-    required this.restaurantName,
     required this.price,
+    required this.rating,
   });
 
   @override
@@ -31,7 +31,7 @@ class FoodWidget extends StatelessWidget {
           ),
           5.verticalSpace,
           FText(
-            text: restaurantName,
+            text: rating,
             fontSize: 15,
             fontWeight: FontWeight.w700,
             alignment: MainAxisAlignment.start,

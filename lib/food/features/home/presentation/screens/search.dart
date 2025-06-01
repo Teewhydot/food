@@ -4,7 +4,6 @@ import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/components/texts/texts.dart';
 import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/features/auth/presentation/widgets/back_widget.dart';
-import 'package:food/food/features/home/presentation/screens/home.dart';
 import 'package:food/food/features/home/presentation/widgets/cart_widget.dart';
 import 'package:food/food/features/home/presentation/widgets/search_widget.dart';
 import 'package:get/get.dart';
@@ -14,6 +13,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../widgets/food_widget.dart';
 import '../widgets/restaurant_widget.dart';
+import '../widgets/section_head.dart';
 
 class Search extends StatefulWidget {
   const Search({super.key});
@@ -93,25 +93,25 @@ class _SearchState extends State<Search> {
                   FoodWidget(
                     image: "assets/images/food1.png",
                     name: "Pizza",
-                    restaurantName: "4.5",
+                    rating: "4.5",
                     price: "\$10.00",
                   ),
                   FoodWidget(
                     image: "assets/images/food1.png",
                     name: "Pizza",
-                    restaurantName: "4.5",
+                    rating: "4.5",
                     price: "\$10.00",
                   ),
                   FoodWidget(
                     image: "assets/images/food1.png",
                     name: "Pizza",
-                    restaurantName: "4.5",
+                    rating: "4.5",
                     price: "\$10.00",
                   ),
                   FoodWidget(
                     image: "assets/images/food1.png",
                     name: "Pizza",
-                    restaurantName: "4.5",
+                    rating: "4.5",
                     price: "\$10.00",
                   ),
                 ],
@@ -129,25 +129,25 @@ class _SearchState extends State<Search> {
                 FoodWidget(
                   image: "assets/images/food1.png",
                   name: "Pizza",
-                  restaurantName: "4.5",
+                  rating: "4.5",
                   price: "\$10.00",
                 ),
                 FoodWidget(
                   image: "assets/images/food1.png",
                   name: "Pizza",
-                  restaurantName: "4.5",
+                  rating: "4.5",
                   price: "\$10.00",
                 ),
                 FoodWidget(
                   image: "assets/images/food1.png",
                   name: "Pizza",
-                  restaurantName: "4.5",
+                  rating: "4.5",
                   price: "\$10.00",
                 ),
                 FoodWidget(
                   image: "assets/images/food1.png",
                   name: "Pizza",
-                  restaurantName: "4.5",
+                  rating: "4.5",
                   price: "\$10.00",
                 ),
               ],
