@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/components/texts/texts.dart';
+import 'package:food/food/core/routes/routes.dart';
 import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/features/auth/presentation/widgets/back_widget.dart';
 import 'package:food/food/features/tracking/presentation/widgets/cart_widget.dart';
@@ -70,7 +71,13 @@ class Cart extends StatelessWidget {
                 ],
               ),
               30.verticalSpace,
-              FButton(buttonText: "Place order", width: 1.sw),
+              FButton(
+                buttonText: "Place order",
+                width: 1.sw,
+                onPressed: () {
+                  nav.navigateTo(Routes.paymentMethod);
+                },
+              ),
             ],
           ).paddingAll(AppConstants.defaultPadding),
         ),

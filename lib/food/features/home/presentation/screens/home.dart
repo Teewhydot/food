@@ -933,25 +933,23 @@ class _HomeState extends State<Home> {
 
     foodWidget = SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      child: Expanded(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          spacing: 20,
-          children:
-              filteredFoodList.map((food) {
-                return FoodWidget(
-                  image: food.imageUrl,
-                  name: food.name,
-                  onTap: () {
-                    nav.navigateTo(Routes.foodDetails, arguments: food);
-                  },
-                  rating: food.rating.toStringAsFixed(
-                    2,
-                  ), // Assuming a default rating for now
-                  price: "\$${food.price.toStringAsFixed(2)}",
-                );
-              }).toList(),
-        ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        spacing: 20,
+        children:
+            filteredFoodList.map((food) {
+              return FoodWidget(
+                image: food.imageUrl,
+                name: food.name,
+                onTap: () {
+                  nav.navigateTo(Routes.foodDetails, arguments: food);
+                },
+                rating: food.rating.toStringAsFixed(
+                  2,
+                ), // Assuming a default rating for now
+                price: "\$${food.price.toStringAsFixed(2)}",
+              );
+            }).toList(),
       ),
     );
     return foodWidget;

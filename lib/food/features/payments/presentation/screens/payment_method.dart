@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:food/food/components/buttons/buttons.dart';
 import 'package:food/food/components/image.dart';
 import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/core/constants/app_constants.dart';
@@ -15,6 +14,7 @@ import 'package:get_it/get_it.dart';
 
 import '../../../../components/texts/texts.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
+import '../../domain/entities/card_entity.dart';
 
 class PaymentMethod extends StatefulWidget {
   const PaymentMethod({super.key});
@@ -50,6 +50,45 @@ class _PaymentMethodState extends State<PaymentMethod> {
       name: 'Paypal',
       type: 'paypal',
       iconUrl: Assets.svgsPaypal,
+    ),
+  ];
+  List<CardEntity> cards = [
+    // CardEntity(
+    //   paymentMethodEntity: PaymentMethodEntity(
+    //     id: '2',
+    //     name: 'Visa',
+    //     type: 'card',
+    //     iconUrl: Assets.svgsVisa,
+    //   ),
+    //   pan: 1234567812345678,
+    //   cvv: 123,
+    //   mExp: 12,
+    //   yExp: 25,
+    // ),
+    // Add more cards if needed
+    CardEntity(
+      paymentMethodEntity: PaymentMethodEntity(
+        id: '3',
+        name: 'Mastercard',
+        type: 'card',
+        iconUrl: Assets.svgsMastercard,
+      ),
+      pan: 8765432187654321,
+      cvv: 456,
+      mExp: 11,
+      yExp: 24,
+    ),
+    CardEntity(
+      paymentMethodEntity: PaymentMethodEntity(
+        id: '3',
+        name: 'Mastercard',
+        type: 'card',
+        iconUrl: Assets.svgsMastercard,
+      ),
+      pan: 8777228377654321,
+      cvv: 436,
+      mExp: 11,
+      yExp: 24,
     ),
   ];
   String selectedMethod = "Cash";
@@ -99,61 +138,30 @@ class _PaymentMethodState extends State<PaymentMethod> {
             ),
           ),
           30.verticalSpace,
-          FoodContainer(
-            height: 82,
-            width: 1.sw,
-            color: kGreyColor,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    FText(
-                      text: "Mastercard",
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                    ),
-                    5.verticalSpace,
-                    Row(
-                      children: [
-                        FImage(
-                          assetPath: Assets.svgsMastercard,
-                          width: 28,
-                          height: 17,
-                          assetType: FoodAssetType.svg,
-                        ),
-                        10.horizontalSpace,
-                        FText(
-                          text: "**** **** **** 1234",
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                          color: kBlackColor,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                FImage(
-                  assetPath: Assets.svgsArrowDown,
-                  width: 10,
-                  height: 10,
-                  assetType: FoodAssetType.svg,
-                ),
-              ],
-            ).paddingAll(10),
-          ).paddingOnly(right: AppConstants.defaultPadding),
-          20.verticalSpace,
-          FButton(
-            buttonText: "Add New Card",
-            textColor: kPrimaryColor,
-            onPressed: () {},
-            borderColor: kGreyColor,
-            width: 1.sw,
-            height: 50,
-            color: kWhiteColor,
-          ).paddingOnly(right: AppConstants.defaultPadding),
-          20.verticalSpace,
+          _buildPaymentDetails(),
+        ],
+      ).paddingOnly(left: AppConstants.defaultPadding),
+    );
+  }
+
+  Widget _buildPaymentDetails() {
+    // Filter cards based on selectedMethod
+    List<CardEntity> filteredCards =
+        cards
+            .where((card) => card.paymentMethodEntity.name == selectedMethod)
+            .toList();
+
+    if (selectedMethod == "Cash" || selectedMethod == "Paypal") {
+      return Center(
+        child: FText(
+          text: "Selected: $selectedMethod",
+          fontSize: 18,
+          fontWeight: FontWeight.w500,
+        ),
+      );
+    } else if (filteredCards.isEmpty) {
+      return Column(
+        children: [
           FoodContainer(
             height: 257,
             width: 1.sw,
@@ -169,7 +177,7 @@ class _PaymentMethodState extends State<PaymentMethod> {
                 ),
                 20.verticalSpace,
                 FText(
-                  text: "No Cards Added",
+                  text: "No Cards Added for $selectedMethod",
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
                 ),
@@ -183,7 +191,75 @@ class _PaymentMethodState extends State<PaymentMethod> {
             ),
           ).paddingOnly(right: AppConstants.defaultPadding),
         ],
-      ).paddingOnly(left: AppConstants.defaultPadding),
+      );
+    } else {
+      return Column(
+        children: [
+          ...filteredCards.map(
+            (card) => PaymentCardWidget(
+              card: card,
+            ).paddingOnly(right: AppConstants.defaultPadding, bottom: 20.h),
+          ),
+          20.verticalSpace,
+        ],
+      );
+    }
+  }
+}
+
+class PaymentCardWidget extends StatelessWidget {
+  final CardEntity card;
+  const PaymentCardWidget({super.key, required this.card});
+
+  @override
+  Widget build(BuildContext context) {
+    return FoodContainer(
+      height: 82,
+      width: 1.sw,
+      color: kGreyColor,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              FText(
+                text: card.paymentMethodEntity.name,
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+              ),
+              5.verticalSpace,
+              Row(
+                children: [
+                  FImage(
+                    assetPath:
+                        card.paymentMethodEntity.name == "Mastercard"
+                            ? Assets.svgsMastercard
+                            : Assets.svgsVisa,
+                    width: 28,
+                    height: 17,
+                    assetType: FoodAssetType.svg,
+                  ),
+                  10.horizontalSpace,
+                  FText(
+                    text:
+                        "**** ${card.pan.toString().substring(card.pan.toString().length - 4)}",
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                    color: kBlackColor,
+                  ),
+                ],
+              ),
+            ],
+          ),
+          FImage(
+            assetPath: Assets.svgsArrowDown,
+            width: 10,
+            height: 10,
+            assetType: FoodAssetType.svg,
+          ),
+        ],
+      ).paddingAll(10),
     );
   }
 }
