@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/buttons/buttons.dart';
 import 'package:food/food/components/image.dart';
+import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/core/constants/app_constants.dart';
 import 'package:food/food/features/home/presentation/widgets/circle_widget.dart';
 import 'package:food/food/features/onboarding/presentation/widgets/food_container.dart';
@@ -23,44 +24,47 @@ class Address extends StatelessWidget {
   Widget build(BuildContext context) {
     final nav = GetIt.instance<NavigationService>();
 
-    return Stack(
-      children: [
-        Positioned.fill(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    BackWidget(color: kGreyColor),
-                    20.horizontalSpace,
-                    FText(
-                      text: "My Addresses",
-                      fontSize: 17.sp,
-                      fontWeight: FontWeight.w400,
-                      color: kBlackColor,
-                    ),
-                  ],
-                ),
-                24.verticalSpace,
-                AddressWidget(addressType: AddressType.home, address: ""),
-                AddressWidget(
-                  addressType: AddressType.home,
-                  address: "Car park from buggatti veyron farreri la ferrari",
-                ),
-              ],
+    return FScaffold(
+      useSafeArea: true,
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      BackWidget(color: kGreyColor),
+                      20.horizontalSpace,
+                      FText(
+                        text: "My Addresses",
+                        fontSize: 17.sp,
+                        fontWeight: FontWeight.w400,
+                        color: kBlackColor,
+                      ),
+                    ],
+                  ),
+                  24.verticalSpace,
+                  AddressWidget(addressType: AddressType.home, address: ""),
+                  AddressWidget(
+                    addressType: AddressType.home,
+                    address: "Car park from buggatti veyron farreri la ferrari",
+                  ),
+                ],
+              ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
+            ),
+          ),
+          Positioned(
+            bottom: 20,
+            left: 0,
+            right: 0,
+            child: FButton(
+              buttonText: "Add new address",
+              width: 1.sw,
             ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
           ),
-        ),
-        Positioned(
-          bottom: 20,
-          left: 0,
-          right: 0,
-          child: FButton(
-            buttonText: "Add new address",
-            width: 1.sw,
-          ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

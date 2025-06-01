@@ -3,7 +3,7 @@ import 'package:food/food/features/home/domain/entities/restaurant.dart';
 class FoodEntity {
   final String id, name, description, imageUrl, category, restaurantName;
   final double price, rating;
-  final Restaurant restaurant;
+  final Restaurant? restaurant;
 
   FoodEntity({
     required this.id,
@@ -14,6 +14,6 @@ class FoodEntity {
     required this.rating,
     required this.category,
     required this.restaurantName,
-    required this.restaurant,
+    this.restaurant,
   });
 }

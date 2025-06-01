@@ -45,7 +45,7 @@ class FoodDetails extends StatelessWidget {
               ),
               10.horizontalSpace,
               FText(
-                text: foodEntity.restaurant.name,
+                text: foodEntity.restaurant?.name ?? "Unknown Restaurant",
                 fontSize: 16,
                 fontWeight: FontWeight.w400,
                 alignment: MainAxisAlignment.start,
@@ -83,7 +83,9 @@ class FoodDetails extends StatelessWidget {
                   ),
                   4.horizontalSpace,
                   FText(
-                    text: foodEntity.restaurant.distance.toString(),
+                    text:
+                        foodEntity.restaurant?.distance.toString() ??
+                        "Unknown Distance",
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
                     color: kTextColorDark,
@@ -100,7 +102,9 @@ class FoodDetails extends StatelessWidget {
                   ),
                   4.horizontalSpace,
                   FText(
-                    text: foodEntity.restaurant.deliveryTime.toString(),
+                    text:
+                        foodEntity.restaurant?.deliveryTime.toString() ??
+                        "Unknown Delivery Time",
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
                     color: kTextColorDark,

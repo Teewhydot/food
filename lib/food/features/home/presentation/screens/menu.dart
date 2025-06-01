@@ -4,6 +4,7 @@ import 'package:food/food/components/image.dart';
 import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/components/texts/texts.dart';
 import 'package:food/food/core/constants/app_constants.dart';
+import 'package:food/food/core/routes/routes.dart';
 import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/features/auth/presentation/widgets/back_widget.dart';
 import 'package:food/food/features/home/presentation/widgets/circle_widget.dart';
@@ -22,6 +23,7 @@ class Menu extends StatelessWidget {
     final nav = GetIt.instance<NavigationService>();
 
     return FScaffold(
+      useSafeArea: true,
       body: Column(
         children: [
           Row(
@@ -36,7 +38,7 @@ class Menu extends StatelessWidget {
               ),
             ],
           ),
-          10.verticalSpace,
+          30.verticalSpace,
           Expanded(
             child: ListView(
               children: [
@@ -83,6 +85,9 @@ class Menu extends StatelessWidget {
                           width: 12,
                           height: 14,
                         ),
+                        onTap: () {
+                          nav.navigateTo(Routes.personalInfo);
+                        },
                       ),
                       MenuSectionWidget(
                         title: "Addresses",
@@ -92,6 +97,9 @@ class Menu extends StatelessWidget {
                           width: 12,
                           height: 14,
                         ),
+                        onTap: () {
+                          nav.navigateTo(Routes.address);
+                        },
                       ),
                     ],
                   ).paddingAll(20),
@@ -114,6 +122,9 @@ class Menu extends StatelessWidget {
                           width: 12,
                           height: 14,
                         ),
+                        onTap: () {
+                          nav.navigateTo(Routes.cart);
+                        },
                       ),
                       16.verticalSpace,
                       MenuSectionWidget(
@@ -134,6 +145,9 @@ class Menu extends StatelessWidget {
                           width: 12,
                           height: 14,
                         ),
+                        onTap: () {
+                          nav.navigateTo(Routes.notifications);
+                        },
                       ),
                       16.verticalSpace,
                       MenuSectionWidget(
@@ -144,6 +158,9 @@ class Menu extends StatelessWidget {
                           width: 12,
                           height: 14,
                         ),
+                        onTap: () {
+                          nav.navigateTo(Routes.paymentMethod);
+                        },
                       ),
                     ],
                   ).paddingAll(20),
@@ -169,16 +186,6 @@ class Menu extends StatelessWidget {
                       ),
                       16.verticalSpace,
                       MenuSectionWidget(
-                        title: "User review",
-                        child: FImage(
-                          assetPath: Assets.svgsUserReview,
-                          assetType: FoodAssetType.svg,
-                          width: 12,
-                          height: 14,
-                        ),
-                      ),
-                      16.verticalSpace,
-                      MenuSectionWidget(
                         title: "Settings",
                         child: FImage(
                           assetPath: Assets.svgsSettings,
@@ -186,6 +193,9 @@ class Menu extends StatelessWidget {
                           width: 12,
                           height: 14,
                         ),
+                        onTap: () {
+                          nav.navigateTo(Routes.settings);
+                        },
                       ),
                     ],
                   ).paddingAll(20),
@@ -208,6 +218,9 @@ class Menu extends StatelessWidget {
                           width: 12,
                           height: 14,
                         ),
+                        onTap: () {
+                          nav.navigateAndReplaceAll(Routes.login);
+                        },
                       ),
                     ],
                   ).paddingAll(20),

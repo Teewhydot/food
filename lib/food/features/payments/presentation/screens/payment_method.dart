@@ -57,6 +57,7 @@ class _PaymentMethodState extends State<PaymentMethod> {
   @override
   Widget build(BuildContext context) {
     return FScaffold(
+      useSafeArea: true,
       body: Column(
         children: [
           Row(

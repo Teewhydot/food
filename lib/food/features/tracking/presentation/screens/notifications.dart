@@ -26,7 +26,7 @@ class Notifications extends StatelessWidget {
         children: [
           Row(
             children: [
-              BackWidget(),
+              BackWidget(color: kContainerColor),
               10.horizontalSpace,
               FText(
                 text: "Notifications",

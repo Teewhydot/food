@@ -11,6 +11,7 @@ class FText extends StatelessWidget {
   final FontWeight fontWeight;
   final MainAxisAlignment alignment;
   final List<TextDecoration> decorations;
+  final TextOverflow textOverflow;
 
   const FText({
     super.key,
@@ -21,6 +22,7 @@ class FText extends StatelessWidget {
     this.fontWeight = FontWeight.bold,
     this.alignment = MainAxisAlignment.center,
     this.decorations = const [],
+    this.textOverflow = TextOverflow.ellipsis,
   });
 
   @override
@@ -30,6 +32,7 @@ class FText extends StatelessWidget {
       children: [
         Text(
           text,
+          overflow: textOverflow,
           style: GoogleFonts.sen(
             fontSize: fontSize.sp,
             color: color,

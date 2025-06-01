@@ -6,6 +6,7 @@ import 'package:food/food/components/texts/texts.dart';
 import 'package:food/food/core/routes/routes.dart';
 import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/core/utils/app_utils.dart';
+import 'package:food/food/features/home/domain/entities/restaurant_food_category.dart';
 import 'package:food/generated/assets.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
@@ -71,7 +72,18 @@ class _HomeState extends State<Home> {
         name: "Pizza Place",
         imageUrl: "assets/images/restaurant1.png",
         description: "Best pizza in town with fresh ingredients",
-        categories: ["Pizza", "Italian"],
+        categories: [
+          RestaurantFoodCategory(
+            category: "Pizza",
+            imageUrl: "imageUrl",
+            foods: [],
+          ),
+          RestaurantFoodCategory(
+            category: "Italian",
+            imageUrl: "imageUrl",
+            foods: [],
+          ),
+        ],
         rating: 4.6,
         reviewCount: 120,
         deliveryTime: 30,
@@ -92,7 +104,18 @@ class _HomeState extends State<Home> {
         name: "Hot Dog Stand",
         imageUrl: "assets/images/restaurant2.png",
         description: "Famous for its delicious hot dogs",
-        categories: ["Fast Food", "Street Food"],
+        categories: [
+          RestaurantFoodCategory(
+            category: "Hot Dog",
+            imageUrl: "imageUrl",
+            foods: [],
+          ),
+          RestaurantFoodCategory(
+            category: "Fast Food",
+            imageUrl: "imageUrl",
+            foods: [],
+          ),
+        ],
         rating: 4.2,
         reviewCount: 80,
         deliveryTime: 20,
@@ -114,7 +137,18 @@ class _HomeState extends State<Home> {
         name: "Burger Joint",
         imageUrl: "assets/images/restaurant3.png",
         description: "Famous for its juicy burgers and fries",
-        categories: ["Burger", "Fast Food"],
+        categories: [
+          RestaurantFoodCategory(
+            category: "Burger",
+            imageUrl: "imageUrl",
+            foods: [],
+          ),
+          RestaurantFoodCategory(
+            category: "Fast Food",
+            imageUrl: "imageUrl",
+            foods: [],
+          ),
+        ],
         rating: 4.1,
         reviewCount: 150,
         deliveryTime: 25,
@@ -135,7 +169,18 @@ class _HomeState extends State<Home> {
         name: "Green Bowl",
         imageUrl: "assets/images/restaurant4.png",
         description: "Healthy salads made with fresh ingredients",
-        categories: ["Salad", "Healthy"],
+        categories: [
+          RestaurantFoodCategory(
+            category: "Salad",
+            imageUrl: "imageUrl",
+            foods: [],
+          ),
+          RestaurantFoodCategory(
+            category: "Healthy",
+            imageUrl: "imageUrl",
+            foods: [],
+          ),
+        ],
         rating: 4.5,
         reviewCount: 90,
         deliveryTime: 15,
@@ -156,7 +201,18 @@ class _HomeState extends State<Home> {
         name: "Italiano",
         imageUrl: "assets/images/restaurant5.png",
         description: "Authentic Italian pasta dishes",
-        categories: ["Pasta", "Italian"],
+        categories: [
+          RestaurantFoodCategory(
+            category: "Pasta",
+            imageUrl: "imageUrl",
+            foods: [],
+          ),
+          RestaurantFoodCategory(
+            category: "Italian",
+            imageUrl: "imageUrl",
+            foods: [],
+          ),
+        ],
         rating: 4.3,
         reviewCount: 110,
         deliveryTime: 35,
@@ -177,7 +233,18 @@ class _HomeState extends State<Home> {
         name: "Sushi Place",
         imageUrl: "assets/images/restaurant6.png",
         description: "Fresh sushi made with the finest ingredients",
-        categories: ["Sushi", "Japanese"],
+        categories: [
+          RestaurantFoodCategory(
+            category: "Sushi",
+            imageUrl: "imageUrl",
+            foods: [],
+          ),
+          RestaurantFoodCategory(
+            category: "Japanese",
+            imageUrl: "imageUrl",
+            foods: [],
+          ),
+        ],
         rating: 4.8,
         reviewCount: 200,
         deliveryTime: 40,
@@ -199,7 +266,18 @@ class _HomeState extends State<Home> {
         name: "Taco Bell",
         imageUrl: "assets/images/restaurant7.png",
         description: "Famous for its delicious tacos and burritos",
-        categories: ["Tacos", "Mexican"],
+        categories: [
+          RestaurantFoodCategory(
+            category: "Tacos",
+            imageUrl: "imageUrl",
+            foods: [],
+          ),
+          RestaurantFoodCategory(
+            category: "Mexican",
+            imageUrl: "imageUrl",
+            foods: [],
+          ),
+        ],
         rating: 4.0,
         reviewCount: 100,
         deliveryTime: 30,
@@ -220,7 +298,18 @@ class _HomeState extends State<Home> {
         name: "Subway",
         imageUrl: "assets/images/restaurant8.png",
         description: "Build your own sandwich with fresh ingredients",
-        categories: ["Sandwich", "Fast Food"],
+        categories: [
+          RestaurantFoodCategory(
+            category: "Sandwich",
+            imageUrl: "imageUrl",
+            foods: [],
+          ),
+          RestaurantFoodCategory(
+            category: "Fast Food",
+            imageUrl: "imageUrl",
+            foods: [],
+          ),
+        ],
         rating: 4.4,
         reviewCount: 130,
         deliveryTime: 20,
@@ -241,7 +330,18 @@ class _HomeState extends State<Home> {
         name: "Baskin Robbins",
         imageUrl: "assets/images/restaurant9.png",
         description: "Delicious ice cream with a variety of flavors",
-        categories: ["Ice Cream", "Dessert"],
+        categories: [
+          RestaurantFoodCategory(
+            category: "Ice Cream",
+            imageUrl: "imageUrl",
+            foods: [],
+          ),
+          RestaurantFoodCategory(
+            category: "Dessert",
+            imageUrl: "imageUrl",
+            foods: [],
+          ),
+        ],
         rating: 4.7,
         reviewCount: 180,
         deliveryTime: 15,
@@ -263,7 +363,7 @@ class _HomeState extends State<Home> {
         name: "Outback Steakhouse",
         imageUrl: "assets/images/restaurant10.png",
         description: "Famous for its juicy steaks and Australian cuisine",
-        categories: ["Steak", "Australian"],
+        categories: [],
         rating: 4.7,
         reviewCount: 150,
         deliveryTime: 45,
@@ -284,7 +384,18 @@ class _HomeState extends State<Home> {
         name: "Red Lobster",
         imageUrl: "assets/images/restaurant11.png",
         description: "Specializes in fresh seafood dishes",
-        categories: ["Seafood", "American"],
+        categories: [
+          RestaurantFoodCategory(
+            category: "Seafood",
+            imageUrl: "imageUrl",
+            foods: [],
+          ),
+          RestaurantFoodCategory(
+            category: "American",
+            imageUrl: "imageUrl",
+            foods: [],
+          ),
+        ],
         rating: 4.6,
         reviewCount: 200,
         deliveryTime: 50,
@@ -306,7 +417,18 @@ class _HomeState extends State<Home> {
         imageUrl: "assets/images/restaurant12.png",
         description:
             "Known for its spicy chicken wings and sports bar atmosphere",
-        categories: ["Chicken Wings", "American"],
+        categories: [
+          RestaurantFoodCategory(
+            category: "Chicken Wings",
+            imageUrl: "imageUrl",
+            foods: [],
+          ),
+          RestaurantFoodCategory(
+            category: "American",
+            imageUrl: "imageUrl",
+            foods: [],
+          ),
+        ],
         rating: 4.2,
         reviewCount: 160,
         deliveryTime: 35,
@@ -328,12 +450,234 @@ class _HomeState extends State<Home> {
         imageUrl: "assets/images/restaurant13.png",
         description:
             "World-famous fast food chain known for its fries and burgers",
-        categories: ["Fast Food", "American"],
+        categories: [
+          RestaurantFoodCategory(
+            category: "Fries",
+            imageUrl: "imageUrl",
+            foods: [],
+          ),
+          RestaurantFoodCategory(
+            category: "Fast Food",
+            imageUrl: "imageUrl",
+            foods: [],
+          ),
+        ],
         rating: 4.0,
         reviewCount: 300,
         deliveryTime: 20,
         distance: 1, // Distance in km
       ),
+    ),
+  ];
+  final List<Restaurant> restaurantList = [
+    Restaurant(
+      id: Uuid().v4(),
+      name: "Burger King",
+      imageUrl: "assets/images/restaurant1.png",
+      description: "Best burger in town with fresh ingredients",
+      categories: [
+        RestaurantFoodCategory(
+          category: "Burger",
+          imageUrl: "imageUrl",
+          foods: [
+            FoodEntity(
+              imageUrl: "assets/images/food2.png",
+              name: "Cucumber Chips",
+              restaurantName: "Burger King",
+              price: 8,
+              rating: 4.0,
+              category: "Burger",
+              id: Uuid().v4(),
+              description: "Crispy cucumber chips with a hint of salt",
+            ),
+            FoodEntity(
+              imageUrl: "assets/images/food2.png",
+              name: "Samosa",
+              restaurantName: "Burger",
+              price: 8,
+              rating: 4.0,
+              category: "Burger",
+              id: Uuid().v4(),
+              description: "Delicious samosa with a crispy outer layer",
+            ),
+            FoodEntity(
+              imageUrl: "assets/images/food1.png",
+              name: "Fabburger",
+              restaurantName: "Burger King",
+              price: 10,
+              rating: 4.5,
+              category: "Burger",
+              id: Uuid().v4(),
+              description: "Fabburger with milkshake and fries",
+            ),
+            FoodEntity(
+              imageUrl: "assets/images/food2.png",
+              name: "Shake",
+              restaurantName: "Burger King",
+              price: 8,
+              rating: 4.0,
+              category: "Burger",
+              id: Uuid().v4(),
+              description: "Refreshing milkshake with a hint of chocolate",
+            ),
+            FoodEntity(
+              imageUrl: "assets/images/food2.png",
+              name: "Chips",
+              restaurantName: "Burger King",
+              price: 8,
+              rating: 4.0,
+              category: "Burger",
+              id: Uuid().v4(),
+              description: "Crispy chips with a hint of salt",
+            ),
+            FoodEntity(
+              imageUrl: "assets/images/food2.png",
+              name: "Burger",
+              restaurantName: "Burger",
+              price: 8,
+              rating: 4.0,
+              category: "Fries",
+              id: Uuid().v4(),
+              description: "Delicious puff puff with a soft texture",
+            ),
+          ],
+        ),
+        RestaurantFoodCategory(
+          category: "Fast Food",
+          imageUrl: "imageUrl",
+          foods: [
+            // Generate some sample foods for the Fast Food category
+            FoodEntity(
+              imageUrl: "assets/images/food1.png",
+              name: "French Fries",
+              restaurantName: "Burger King",
+              price: 5,
+              rating: 4.2,
+              category: "Fast Food",
+              id: Uuid().v4(),
+              description: "Crispy golden French fries",
+            ),
+            FoodEntity(
+              imageUrl: "assets/images/food2.png",
+              name: "Chicken Nuggets",
+              restaurantName: "Burger King",
+              price: 6,
+              rating: 4.1,
+              category: "Fast Food",
+              id: Uuid().v4(),
+              description: "Crispy chicken nuggets with dipping sauce",
+            ),
+            FoodEntity(
+              imageUrl: "assets/images/food2.png",
+              name: "Onion Rings",
+              restaurantName: "Burger King",
+              price: 4,
+              rating: 4.0,
+              category: "Fast Food",
+              id: Uuid().v4(),
+              description: "Crispy onion rings with a hint of spice",
+            ),
+            FoodEntity(
+              imageUrl: "assets/images/food2.png",
+              name: "Mozzarella Sticks",
+              restaurantName: "Burger King",
+              price: 7,
+              rating: 4.3,
+              category: "Fast Food",
+              id: Uuid().v4(),
+              description: "Crispy mozzarella sticks with marinara sauce",
+            ),
+            FoodEntity(
+              imageUrl: "assets/images/food1.png",
+              name: "Chicken Sandwich",
+              restaurantName: "Burger King",
+              price: 8,
+              rating: 4.4,
+              category: "Fast Food",
+              id: Uuid().v4(),
+              description: "Grilled chicken sandwich with lettuce and mayo",
+            ),
+            FoodEntity(
+              imageUrl: "assets/images/food2.png",
+              name: "Fish Sandwich",
+              restaurantName: "Burger King",
+              price: 9,
+              rating: 4.5,
+              category: "Fast Food",
+              id: Uuid().v4(),
+              description: "Crispy fish sandwich with tartar sauce",
+            ),
+            FoodEntity(
+              imageUrl: "assets/images/food2.png",
+              name: "Veggie Burger",
+              restaurantName: "Burger King",
+              price: 7,
+              rating: 4.0,
+              category: "Fast Food",
+              id: Uuid().v4(),
+              description: "Grilled veggie burger with fresh toppings",
+            ),
+            FoodEntity(
+              imageUrl: "assets/images/food2.png",
+              name: "Chicken Fries",
+              restaurantName: "Burger King",
+              price: 6,
+              rating: 4.1,
+              category: "Fast Food",
+              id: Uuid().v4(),
+              description: "Crispy chicken fries with dipping sauce",
+            ),
+          ],
+        ),
+      ],
+      rating: 4.5,
+      reviewCount: 120,
+      deliveryTime: 30,
+      distance: 2, // Distance in km
+    ),
+    Restaurant(
+      id: Uuid().v4(),
+      name: "Pizza Hut",
+      imageUrl: "assets/images/restaurant2.png",
+      description: "Famous for its delicious pizza and pasta",
+      categories: [
+        RestaurantFoodCategory(
+          category: "Pizza",
+          imageUrl: "imageUrl",
+          foods: [],
+        ),
+        RestaurantFoodCategory(
+          category: "Italian",
+          imageUrl: "imageUrl",
+          foods: [],
+        ),
+      ],
+      rating: 4.8,
+      reviewCount: 200,
+      deliveryTime: 25,
+      distance: 3, // Distance in km
+    ),
+    Restaurant(
+      id: Uuid().v4(),
+      name: "KFC",
+      imageUrl: "assets/images/restaurant3.png",
+      description: "Crispy fried chicken with secret recipe",
+      categories: [
+        RestaurantFoodCategory(
+          category: "Chicken",
+          imageUrl: "imageUrl",
+          foods: [],
+        ),
+        RestaurantFoodCategory(
+          category: "Fast Food",
+          imageUrl: "imageUrl",
+          foods: [],
+        ),
+      ],
+      rating: 4.3,
+      reviewCount: 150,
+      deliveryTime: 20,
+      distance: 1.5, // Distance in km
     ),
   ];
 
@@ -445,6 +789,9 @@ class _HomeState extends State<Home> {
                           width: 12,
                           height: 16,
                         ),
+                        onTap: () {
+                          nav.navigateTo(Routes.menu);
+                        },
                       ),
                       18.horizontalSpace,
                       Column(
@@ -530,57 +877,40 @@ class _HomeState extends State<Home> {
               ),
             ),
             32.verticalSpace,
-            _buildFoodWidget(
+            buildFoodWidget(
               selectedCategory,
             ).paddingOnly(right: AppConstants.defaultPadding),
             32.verticalSpace,
             SectionHead(
-              title: "Open Restaurants",
+              title: "Restaurants",
+              isActionVisible: false,
             ).paddingOnly(right: AppConstants.defaultPadding.w),
             20.verticalSpace,
             SingleChildScrollView(
               scrollDirection: Axis.vertical,
               child: Column(
                 spacing: 16,
-                children: [
-                  RestaurantWidget(
-                    name: "Burger King",
-                    rating: "4.5",
-                    distance: "2.5 km",
-                    time: "30 min",
-                    categories: ["Burger", "Fast Food"],
-                  ),
-                  RestaurantWidget(
-                    name: "Pizza Hut",
-                    rating: "4.8",
-                    distance: "3.0 km",
-                    time: "25 min",
-                    categories: ["Pizza", "Italian"],
-                  ),
-                  RestaurantWidget(
-                    name: "Pizza Hut",
-                    rating: "4.8",
-                    distance: "3.0 km",
-                    time: "25 min",
-                    categories: ["Pizza", "Italian"],
-                  ),
-                  RestaurantWidget(
-                    name: "Pizza Hut",
-                    rating: "4.8",
-                    distance: "3.0 km",
-                    time: "25 min",
-                    categories: ["Pizza", "Italian"],
-                  ),
-                ],
-              ),
-            ).paddingOnly(right: AppConstants.defaultPadding.w),
+                children:
+                    restaurantList.map((restaurant) {
+                      return RestaurantWidget(
+                        restaurant: restaurant,
+                        onTap: () {
+                          nav.navigateTo(
+                            Routes.restaurantDetails,
+                            arguments: restaurant,
+                          );
+                        },
+                      );
+                    }).toList(),
+              ).paddingOnly(right: AppConstants.defaultPadding.w),
+            ),
           ],
         ).paddingOnly(left: AppConstants.defaultPadding.w),
       ),
     );
   }
 
-  Widget _buildFoodWidget(String category) {
+  Widget buildFoodWidget(String category) {
     Widget foodWidget;
     List<FoodEntity> filteredFoodList;
 

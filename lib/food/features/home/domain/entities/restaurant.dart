@@ -1,9 +1,11 @@
+import 'package:food/food/features/home/domain/entities/restaurant_food_category.dart';
+
 class Restaurant {
   final String id;
   final String name;
   final String imageUrl;
   final String description;
-  final List<String> categories;
+  final List<RestaurantFoodCategory> categories;
   final double rating, distance;
   final int reviewCount, deliveryTime;
 

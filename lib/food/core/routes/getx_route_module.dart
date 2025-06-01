@@ -8,6 +8,7 @@ import 'package:food/food/features/home/presentation/screens/address.dart';
 import 'package:food/food/features/home/presentation/screens/edit_profile.dart';
 import 'package:food/food/features/home/presentation/screens/food.dart';
 import 'package:food/food/features/home/presentation/screens/food_details.dart';
+import 'package:food/food/features/home/presentation/screens/menu.dart';
 import 'package:food/food/features/home/presentation/screens/personal_info.dart';
 import 'package:food/food/features/home/presentation/screens/restaurant_details.dart';
 import 'package:food/food/features/home/presentation/screens/search.dart';
@@ -21,6 +22,7 @@ import 'package:food/food/features/tracking/presentation/screens/tracking.dart';
 import 'package:get/get.dart';
 
 import '../../features/home/domain/entities/food.dart';
+import '../../features/home/domain/entities/restaurant.dart';
 import '../../features/home/presentation/screens/home.dart';
 import '../../features/payments/presentation/screens/cart.dart';
 import '../../features/tracking/presentation/screens/call_screen.dart';
@@ -91,7 +93,12 @@ class GetXRouteModule {
     ),
     GetPage(
       name: Routes.restaurantDetails,
-      page: () => const RestaurantDetails(),
+      arguments: Restaurant, // Specify the type of argument expected,
+      page:
+          () => RestaurantDetails(
+            restaurant:
+                Get.arguments as Restaurant, // Cast the argument to Restaurant
+          ),
       transition: _transition,
       transitionDuration: _transitionDuration,
     ),
@@ -144,7 +151,7 @@ class GetXRouteModule {
       transitionDuration: _transitionDuration,
     ),
     GetPage(
-      name: Routes.profile,
+      name: Routes.personalInfo,
       page: () => const PersonalInfo(),
       transition: _transition,
       transitionDuration: _transitionDuration,
@@ -170,6 +177,12 @@ class GetXRouteModule {
     GetPage(
       name: Routes.notifications,
       page: () => const Notifications(),
+      transition: _transition,
+      transitionDuration: _transitionDuration,
+    ),
+    GetPage(
+      name: Routes.menu,
+      page: () => const Menu(),
       transition: _transition,
       transitionDuration: _transitionDuration,
     ),

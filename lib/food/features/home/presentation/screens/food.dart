@@ -17,7 +17,6 @@ import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 
 import '../widgets/circle_widget.dart';
-import '../widgets/restaurant_widget.dart';
 import '../widgets/section_head.dart';
 
 class Food extends StatelessWidget {
@@ -287,36 +286,36 @@ class Food extends StatelessWidget {
               scrollDirection: Axis.vertical,
               child: Column(
                 spacing: 16,
-                children: [
-                  RestaurantWidget(
-                    name: "Burger King",
-                    rating: "4.5",
-                    distance: "2.5 km",
-                    time: "30 min",
-                    categories: ["Burger", "Fast Food"],
-                  ),
-                  RestaurantWidget(
-                    name: "Pizza Hut",
-                    rating: "4.8",
-                    distance: "3.0 km",
-                    time: "25 min",
-                    categories: ["Pizza", "Italian"],
-                  ),
-                  RestaurantWidget(
-                    name: "Pizza Hut",
-                    rating: "4.8",
-                    distance: "3.0 km",
-                    time: "25 min",
-                    categories: ["Pizza", "Italian"],
-                  ),
-                  RestaurantWidget(
-                    name: "Pizza Hut",
-                    rating: "4.8",
-                    distance: "3.0 km",
-                    time: "25 min",
-                    categories: ["Pizza", "Italian"],
-                  ),
-                ],
+                // children: [
+                //   RestaurantWidget(
+                //     name: "Burger King",
+                //     rating: "4.5",
+                //     distance: "2.5 km",
+                //     time: "30 min",
+                //     categories: ["Burger", "Fast Food"],
+                //   ),
+                //   RestaurantWidget(
+                //     name: "Pizza Hut",
+                //     rating: "4.8",
+                //     distance: "3.0 km",
+                //     time: "25 min",
+                //     categories: ["Pizza", "Italian"],
+                //   ),
+                //   RestaurantWidget(
+                //     name: "Pizza Hut",
+                //     rating: "4.8",
+                //     distance: "3.0 km",
+                //     time: "25 min",
+                //     categories: ["Pizza", "Italian"],
+                //   ),
+                //   RestaurantWidget(
+                //     name: "Pizza Hut",
+                //     rating: "4.8",
+                //     distance: "3.0 km",
+                //     time: "25 min",
+                //     categories: ["Pizza", "Italian"],
+                //   ),
+                // ],
               ),
             ).paddingOnly(right: AppConstants.defaultPadding.w),
           ],

@@ -22,6 +22,7 @@ class PersonalInfo extends StatelessWidget {
     final nav = GetIt.instance<NavigationService>();
 
     return FScaffold(
+      useSafeArea: true,
       body: Column(
         children: [
           Row(
@@ -48,7 +49,7 @@ class PersonalInfo extends StatelessWidget {
               ),
             ],
           ),
-          10.verticalSpace,
+          30.verticalSpace,
           Expanded(
             child: ListView(
               children: [

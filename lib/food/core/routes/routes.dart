@@ -18,7 +18,7 @@ class Routes {
   static const String tracking = '/tracking';
   static const String callScreen = '/callScreen';
   static const String chatScreen = '/chatScreen';
-  static const String profile = '/profile';
+  static const String personalInfo = '/profile';
   static const String editProfile = '/editProfile';
   static const String address = '/address';
   static const String addAddress = '/addAddress';

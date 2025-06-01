@@ -123,46 +123,71 @@ class _DetailsSkeletonWidgetState extends State<DetailsSkeletonWidget> {
           widget.isRestaurant
               ? CarouselSlider(
                 items: [
-                  FoodContainer(
-                    height: 321,
+                  Container(
+                    height: 301,
                     width: 1.sw,
-                    borderRadius: 30,
-                    color: kContainerColor,
+                    decoration: BoxDecoration(
+                      color: kContainerColor,
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(30.r),
+                        bottomRight: Radius.circular(30.r),
+                      ),
+                    ),
                   ),
-                  FoodContainer(
-                    height: 321,
+                  Container(
                     width: 1.sw,
-                    borderRadius: 30,
-                    color: kContainerColor,
+                    decoration: BoxDecoration(
+                      color: kContainerColor,
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(30.r),
+                        bottomRight: Radius.circular(30.r),
+                      ),
+                    ),
                   ),
-                  FoodContainer(
-                    height: 321,
+                  Container(
                     width: 1.sw,
-                    borderRadius: 30,
-                    color: kContainerColor,
+                    decoration: BoxDecoration(
+                      color: kContainerColor,
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(30.r),
+                        bottomRight: Radius.circular(30.r),
+                      ),
+                    ),
                   ),
-                  FoodContainer(
-                    height: 321,
+                  Container(
                     width: 1.sw,
-                    borderRadius: 30,
-                    color: kContainerColor,
+                    decoration: BoxDecoration(
+                      color: kContainerColor,
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(30.r),
+                        bottomRight: Radius.circular(30.r),
+                      ),
+                    ),
                   ),
-                  FoodContainer(
-                    height: 321,
+                  Container(
                     width: 1.sw,
-                    borderRadius: 30,
-                    color: kContainerColor,
+                    decoration: BoxDecoration(
+                      color: kContainerColor,
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(30.r),
+                        bottomRight: Radius.circular(30.r),
+                      ),
+                    ),
                   ),
-                  FoodContainer(
-                    height: 321,
+                  Container(
                     width: 1.sw,
-                    borderRadius: 30,
-                    color: kContainerColor,
+                    decoration: BoxDecoration(
+                      color: kContainerColor,
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(30.r),
+                        bottomRight: Radius.circular(30.r),
+                      ),
+                    ),
                   ),
                 ],
                 carouselController: carouselController,
                 options: CarouselOptions(
-                  height: 341,
+                  height: 300,
                   pauseAutoPlayOnManualNavigate: true,
                   pauseAutoPlayOnTouch: true,
                   initialPage: 0,

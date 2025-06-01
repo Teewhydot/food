@@ -22,51 +22,53 @@ class FoodWidget extends StatelessWidget {
     return SizedBox(
       width: 130.w,
       height: 250.h,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Column(
-            children: [
-              FoodContainer(width: 153, height: 130),
-              FText(
-                text: name,
-                fontSize: 15,
-                fontWeight: FontWeight.w700,
-                alignment: MainAxisAlignment.start,
-              ),
-              5.verticalSpace,
-              FText(
-                text: rating,
-                fontSize: 15,
-                fontWeight: FontWeight.w700,
-                alignment: MainAxisAlignment.start,
-                color: kGreyColor,
-              ),
-              5.verticalSpace,
-            ],
-          ).onTap(() {
-            onTap();
-          }),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              FText(
-                text: price,
-                fontSize: 15,
-                fontWeight: FontWeight.w700,
-                alignment: MainAxisAlignment.start,
-                color: kTextColorDark,
-              ),
-              FoodContainer(
-                width: 40,
-                height: 40,
-                borderRadius: 20,
-                color: kPrimaryColor,
-                child: Icon(Icons.add, color: kWhiteColor),
-              ),
-            ],
-          ),
-        ],
+      child: Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Column(
+              children: [
+                FoodContainer(width: 153, height: 130),
+                FText(
+                  text: name,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  alignment: MainAxisAlignment.start,
+                ),
+                5.verticalSpace,
+                FText(
+                  text: rating,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  alignment: MainAxisAlignment.start,
+                  color: kGreyColor,
+                ),
+                5.verticalSpace,
+              ],
+            ).onTap(() {
+              onTap();
+            }),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                FText(
+                  text: price,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  alignment: MainAxisAlignment.start,
+                  color: kTextColorDark,
+                ),
+                FoodContainer(
+                  width: 40,
+                  height: 40,
+                  borderRadius: 20,
+                  color: kPrimaryColor,
+                  child: Icon(Icons.add, color: kWhiteColor),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

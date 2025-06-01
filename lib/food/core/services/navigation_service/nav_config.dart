@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 abstract class NavigationService {
   Future<void> navigateTo(String routeName, {Object? arguments});
   Future<void> navigateAndReplace(String routeName, {Object? arguments});
-  Future<void> navigateAndRemoveUntil(String routeName, {Object? arguments});
+  Future<void> navigateAndReplaceAll(String routeName, {Object? arguments});
   Future<void> goBack();
   Future<void> goBackUntil(String routeName);
 }
@@ -21,7 +21,7 @@ class GetxNavigationService implements NavigationService {
   }
 
   @override
-  Future<void> navigateAndRemoveUntil(
+  Future<void> navigateAndReplaceAll(
     String routeName, {
     Object? arguments,
   }) async {
@@ -56,7 +56,7 @@ class GoRouterNavigationService implements NavigationService {
   }
 
   @override
-  Future<void> navigateAndRemoveUntil(
+  Future<void> navigateAndReplaceAll(
     String routeName, {
     Object? arguments,
   }) async {
