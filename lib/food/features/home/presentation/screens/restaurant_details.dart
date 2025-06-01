@@ -202,25 +202,25 @@ class _RestaurantDetailsState extends State<RestaurantDetails> {
             runAlignment: WrapAlignment.center,
             runSpacing: 50,
             children: [
-              PopularFastFood(
+              FoodWidget(
                 image: "assets/images/food1.png",
                 name: "Pizza",
                 restaurantName: "4.5",
                 price: "\$10.00",
               ),
-              PopularFastFood(
+              FoodWidget(
                 image: "assets/images/food1.png",
                 name: "Pizza",
                 restaurantName: "4.5",
                 price: "\$10.00",
               ),
-              PopularFastFood(
+              FoodWidget(
                 image: "assets/images/food1.png",
                 name: "Pizza",
                 restaurantName: "4.5",
                 price: "\$10.00",
               ),
-              PopularFastFood(
+              FoodWidget(
                 image: "assets/images/food1.png",
                 name: "Pizza",
                 restaurantName: "4.5",

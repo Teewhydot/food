@@ -4,9 +4,9 @@ import 'package:food/food/components/texts/texts.dart';
 import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/features/onboarding/presentation/widgets/food_container.dart';
 
-class PopularFastFood extends StatelessWidget {
+class FoodWidget extends StatelessWidget {
   final String image, name, restaurantName, price;
-  const PopularFastFood({
+  const FoodWidget({
     super.key,
     required this.image,
     required this.name,

@@ -90,25 +90,25 @@ class _SearchState extends State<Search> {
               child: Row(
                 spacing: 10.w,
                 children: [
-                  PopularFastFood(
+                  FoodWidget(
                     image: "assets/images/food1.png",
                     name: "Pizza",
                     restaurantName: "4.5",
                     price: "\$10.00",
                   ),
-                  PopularFastFood(
+                  FoodWidget(
                     image: "assets/images/food1.png",
                     name: "Pizza",
                     restaurantName: "4.5",
                     price: "\$10.00",
                   ),
-                  PopularFastFood(
+                  FoodWidget(
                     image: "assets/images/food1.png",
                     name: "Pizza",
                     restaurantName: "4.5",
                     price: "\$10.00",
                   ),
-                  PopularFastFood(
+                  FoodWidget(
                     image: "assets/images/food1.png",
                     name: "Pizza",
                     restaurantName: "4.5",
@@ -126,25 +126,25 @@ class _SearchState extends State<Search> {
               runAlignment: WrapAlignment.center,
               runSpacing: 50,
               children: [
-                PopularFastFood(
+                FoodWidget(
                   image: "assets/images/food1.png",
                   name: "Pizza",
                   restaurantName: "4.5",
                   price: "\$10.00",
                 ),
-                PopularFastFood(
+                FoodWidget(
                   image: "assets/images/food1.png",
                   name: "Pizza",
                   restaurantName: "4.5",
                   price: "\$10.00",
                 ),
-                PopularFastFood(
+                FoodWidget(
                   image: "assets/images/food1.png",
                   name: "Pizza",
                   restaurantName: "4.5",
                   price: "\$10.00",
                 ),
-                PopularFastFood(
+                FoodWidget(
                   image: "assets/images/food1.png",
                   name: "Pizza",
                   restaurantName: "4.5",

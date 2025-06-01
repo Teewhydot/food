@@ -15,6 +15,7 @@ import '../../../../core/services/navigation_service/nav_config.dart';
 import '../widgets/cart_widget.dart';
 import '../widgets/category_widget.dart';
 import '../widgets/circle_widget.dart';
+import '../widgets/food_widget.dart';
 import '../widgets/restaurant_widget.dart';
 import '../widgets/search_widget.dart';
 
@@ -219,6 +220,42 @@ class _HomeState extends State<Home> {
               ),
             ),
             32.verticalSpace,
+            Wrap(
+              direction: Axis.horizontal,
+              spacing: 20,
+              crossAxisAlignment: WrapCrossAlignment.start,
+              alignment: WrapAlignment.center,
+              runAlignment: WrapAlignment.center,
+              runSpacing: 20,
+              children: [
+                FoodWidget(
+                  image: "assets/images/food1.png",
+                  name: "Pizza",
+                  restaurantName: "4.5",
+                  price: "\$10.00",
+                ),
+                FoodWidget(
+                  image: "assets/images/food1.png",
+                  name: "Pizza",
+                  restaurantName: "4.5",
+                  price: "\$10.00",
+                ),
+                FoodWidget(
+                  image: "assets/images/food1.png",
+                  name: "Pizza",
+                  restaurantName: "4.5",
+                  price: "\$10.00",
+                ),
+                FoodWidget(
+                  image: "assets/images/food1.png",
+                  name: "Pizza",
+                  restaurantName: "4.5",
+                  price: "\$10.00",
+                ),
+              ],
+            ).paddingOnly(right: AppConstants.defaultPadding),
+            32.verticalSpace,
+
             SectionHead(
               title: "Open Restaurants",
             ).paddingOnly(right: AppConstants.defaultPadding.w),
