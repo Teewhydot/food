@@ -17,7 +17,6 @@ import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 
 import '../widgets/circle_widget.dart';
-import '../widgets/food_widget.dart';
 import '../widgets/restaurant_widget.dart';
 import '../widgets/section_head.dart';
 
@@ -252,32 +251,32 @@ class Food extends StatelessWidget {
               alignment: WrapAlignment.center,
               runAlignment: WrapAlignment.center,
               runSpacing: 50,
-              children: [
-                FoodWidget(
-                  image: "assets/images/food1.png",
-                  name: "Pizza",
-                  rating: "4.5",
-                  price: "\$10.00",
-                ),
-                FoodWidget(
-                  image: "assets/images/food1.png",
-                  name: "Pizza",
-                  rating: "4.5",
-                  price: "\$10.00",
-                ),
-                FoodWidget(
-                  image: "assets/images/food1.png",
-                  name: "Pizza",
-                  rating: "4.5",
-                  price: "\$10.00",
-                ),
-                FoodWidget(
-                  image: "assets/images/food1.png",
-                  name: "Pizza",
-                  rating: "4.5",
-                  price: "\$10.00",
-                ),
-              ],
+              // children: [
+              //   FoodWidget(
+              //     image: "assets/images/food1.png",
+              //     name: "Pizza",
+              //     rating: "4.5",
+              //     price: "\$10.00",
+              //   ),
+              //   FoodWidget(
+              //     image: "assets/images/food1.png",
+              //     name: "Pizza",
+              //     rating: "4.5",
+              //     price: "\$10.00",
+              //   ),
+              //   FoodWidget(
+              //     image: "assets/images/food1.png",
+              //     name: "Pizza",
+              //     rating: "4.5",
+              //     price: "\$10.00",
+              //   ),
+              //   FoodWidget(
+              //     image: "assets/images/food1.png",
+              //     name: "Pizza",
+              //     rating: "4.5",
+              //     price: "\$10.00",
+              //   ),
+              // ],
             ).paddingOnly(right: AppConstants.defaultPadding),
             40.verticalSpace,
             SectionHead(

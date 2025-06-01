@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/texts/texts.dart';
+import 'package:food/food/features/home/domain/entities/food.dart';
 import 'package:food/food/features/home/presentation/widgets/circle_widget.dart';
 import 'package:food/food/features/home/presentation/widgets/details_skeleton_widget.dart';
 import 'package:food/food/features/onboarding/presentation/widgets/food_container.dart';
@@ -12,7 +13,8 @@ import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../core/theme/colors.dart';
 
 class FoodDetails extends StatelessWidget {
-  const FoodDetails({super.key});
+  final FoodEntity foodEntity;
+  const FoodDetails({super.key, required this.foodEntity});
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +29,7 @@ class FoodDetails extends StatelessWidget {
         children: [
           // Add your body widget here
           FText(
-            text: "Burger Bistro",
+            text: foodEntity.name,
             fontSize: 20,
             fontWeight: FontWeight.w700,
             alignment: MainAxisAlignment.start,
@@ -43,7 +45,7 @@ class FoodDetails extends StatelessWidget {
               ),
               10.horizontalSpace,
               FText(
-                text: "Rose Garden",
+                text: foodEntity.restaurant.name,
                 fontSize: 16,
                 fontWeight: FontWeight.w400,
                 alignment: MainAxisAlignment.start,
@@ -64,7 +66,7 @@ class FoodDetails extends StatelessWidget {
                   ),
                   4.horizontalSpace,
                   FText(
-                    text: "4.9",
+                    text: foodEntity.rating.toString(),
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
                     color: kTextColorDark,
@@ -81,7 +83,7 @@ class FoodDetails extends StatelessWidget {
                   ),
                   4.horizontalSpace,
                   FText(
-                    text: "20m",
+                    text: foodEntity.restaurant.distance.toString(),
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
                     color: kTextColorDark,
@@ -98,7 +100,7 @@ class FoodDetails extends StatelessWidget {
                   ),
                   4.horizontalSpace,
                   FText(
-                    text: "10",
+                    text: foodEntity.restaurant.deliveryTime.toString(),
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
                     color: kTextColorDark,
@@ -111,8 +113,7 @@ class FoodDetails extends StatelessWidget {
           FWrapText(
             textAlign: TextAlign.start,
             color: kContainerColor,
-            text:
-                "Maecenas sed diam eget risus varius blandit sit amet non magna. Integer posuere erat a ante venenatis dapibus posuere velit aliquet.",
+            text: foodEntity.description,
           ),
           20.verticalSpace,
           Row(

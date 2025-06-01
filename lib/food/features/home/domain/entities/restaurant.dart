@@ -4,8 +4,8 @@ class Restaurant {
   final String imageUrl;
   final String description;
   final List<String> categories;
-  final double rating;
-  final int reviewCount;
+  final double rating, distance;
+  final int reviewCount, deliveryTime;
 
   Restaurant({
     required this.id,
@@ -15,5 +15,7 @@ class Restaurant {
     required this.categories,
     required this.rating,
     required this.reviewCount,
+    required this.deliveryTime,
+    required this.distance,
   });
 }

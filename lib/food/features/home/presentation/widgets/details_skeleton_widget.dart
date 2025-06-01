@@ -47,54 +47,64 @@ class _DetailsSkeletonWidgetState extends State<DetailsSkeletonWidget> {
     return Scaffold(
       bottomNavigationBar:
           widget.hasBottomWidget
-              ? FoodContainer(
-                height: 184,
-                width: 1.sw,
-                borderRadius: 30,
-                color: kTextFieldColor,
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        FText(
-                          text: "\$32",
-                          fontSize: 28,
-                          fontWeight: FontWeight.w400,
-                        ),
-                        FoodContainer(
-                          width: 125,
-                          height: 50,
-                          borderRadius: 30,
-                          color: kBlackColor,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              CircleWidget(
-                                radius: 12,
-                                color: kGreyColor,
-                                child: Icon(Ionicons.remove),
-                              ),
-                              FText(
-                                text: "2",
-                                fontSize: 16,
-                                fontWeight: FontWeight.w400,
-                                color: kWhiteColor,
-                              ),
-                              CircleWidget(
-                                radius: 12,
-                                color: kGreyColor,
-                                child: Icon(Ionicons.add),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+              ? IntrinsicHeight(
+                child: Container(
+                  width: 1.sw,
+                  decoration: BoxDecoration(
+                    color: kTextFieldColor,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(30.r),
+                      topRight: Radius.circular(30.r),
                     ),
-                    24.verticalSpace,
-                    FButton(buttonText: "ADD TO CART", width: 1.sw, height: 62),
-                  ],
-                ).paddingAll(AppConstants.defaultPadding),
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          FText(
+                            text: "\$32",
+                            fontSize: 28,
+                            fontWeight: FontWeight.w400,
+                          ),
+                          FoodContainer(
+                            width: 125,
+                            height: 50,
+                            borderRadius: 30,
+                            color: kBlackColor,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                CircleWidget(
+                                  radius: 12,
+                                  color: kGreyColor,
+                                  child: Icon(Ionicons.remove),
+                                ),
+                                FText(
+                                  text: "2",
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w400,
+                                  color: kWhiteColor,
+                                ),
+                                CircleWidget(
+                                  radius: 12,
+                                  color: kGreyColor,
+                                  child: Icon(Ionicons.add),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      24.verticalSpace,
+                      FButton(
+                        buttonText: "ADD TO CART",
+                        width: 1.sw,
+                        height: 62,
+                      ),
+                    ],
+                  ).paddingAll(AppConstants.defaultPadding),
+                ),
               )
               : SizedBox.shrink(),
       body: Stack(
@@ -172,7 +182,18 @@ class _DetailsSkeletonWidgetState extends State<DetailsSkeletonWidget> {
                   viewportFraction: 1.0,
                 ),
               )
-              : FoodContainer(width: 1.sw, height: 301, borderRadius: 30),
+              : Container(
+                width: 1.sw,
+                height: 301,
+                decoration: BoxDecoration(
+                  color: kContainerColor,
+
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(30.r),
+                    bottomRight: Radius.circular(30.r),
+                  ),
+                ),
+              ),
           Positioned(top: 50, left: 24, child: BackWidget()),
           if (widget.hasIndicator)
             Positioned(

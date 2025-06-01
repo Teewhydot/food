@@ -18,9 +18,9 @@ import 'package:food/food/features/payments/presentation/screens/payment_method.
 import 'package:food/food/features/payments/presentation/screens/status.dart';
 import 'package:food/food/features/tracking/presentation/screens/notifications.dart';
 import 'package:food/food/features/tracking/presentation/screens/tracking.dart';
-import 'package:get/get_navigation/src/routes/get_route.dart';
-import 'package:get/get_navigation/src/routes/transitions_type.dart';
+import 'package:get/get.dart';
 
+import '../../features/home/domain/entities/food.dart';
 import '../../features/home/presentation/screens/home.dart';
 import '../../features/payments/presentation/screens/cart.dart';
 import '../../features/tracking/presentation/screens/call_screen.dart';
@@ -80,7 +80,12 @@ class GetXRouteModule {
     ),
     GetPage(
       name: Routes.foodDetails,
-      page: () => const FoodDetails(),
+      arguments: FoodEntity, // Specify the type of argument expected
+      page:
+          () => FoodDetails(
+            foodEntity:
+                Get.arguments as FoodEntity, // Cast the argument to FoodEntity
+          ),
       transition: _transition,
       transitionDuration: _transitionDuration,
     ),

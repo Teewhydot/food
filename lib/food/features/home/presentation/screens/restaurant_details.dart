@@ -12,7 +12,6 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../core/theme/colors.dart';
 import '../widgets/category_widget.dart';
-import '../widgets/food_widget.dart';
 import '../widgets/section_head.dart';
 
 class RestaurantDetails extends StatefulWidget {
@@ -201,32 +200,32 @@ class _RestaurantDetailsState extends State<RestaurantDetails> {
             alignment: WrapAlignment.center,
             runAlignment: WrapAlignment.center,
             runSpacing: 50,
-            children: [
-              FoodWidget(
-                image: "assets/images/food1.png",
-                name: "Pizza",
-                rating: "4.5",
-                price: "\$10.00",
-              ),
-              FoodWidget(
-                image: "assets/images/food1.png",
-                name: "Pizza",
-                rating: "4.5",
-                price: "\$10.00",
-              ),
-              FoodWidget(
-                image: "assets/images/food1.png",
-                name: "Pizza",
-                rating: "4.5",
-                price: "\$10.00",
-              ),
-              FoodWidget(
-                image: "assets/images/food1.png",
-                name: "Pizza",
-                rating: "4.5",
-                price: "\$10.00",
-              ),
-            ],
+            // children: [
+            //   FoodWidget(
+            //     image: "assets/images/food1.png",
+            //     name: "Pizza",
+            //     rating: "4.5",
+            //     price: "\$10.00",
+            //   ),
+            //   FoodWidget(
+            //     image: "assets/images/food1.png",
+            //     name: "Pizza",
+            //     rating: "4.5",
+            //     price: "\$10.00",
+            //   ),
+            //   FoodWidget(
+            //     image: "assets/images/food1.png",
+            //     name: "Pizza",
+            //     rating: "4.5",
+            //     price: "\$10.00",
+            //   ),
+            //   FoodWidget(
+            //     image: "assets/images/food1.png",
+            //     name: "Pizza",
+            //     rating: "4.5",
+            //     price: "\$10.00",
+            //   ),
+            // ],
           ).paddingOnly(right: AppConstants.defaultPadding),
 
           // Add more widgets as needed
