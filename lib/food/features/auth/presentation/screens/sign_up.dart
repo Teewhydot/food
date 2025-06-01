@@ -32,7 +32,7 @@ class _LoginState extends State<SignUp> {
       listener: (context, state) {
         if (state is RegisterSuccess) {
           DFoodUtils.showSnackBar("Registration was successful", kSuccessColor);
-          nav.navigateAndReplace(Routes.login);
+          nav.navigateTo(Routes.location);
         } else if (state is RegisterFailure) {
           DFoodUtils.showSnackBar(state.error, kErrorColor);
         }
@@ -100,7 +100,6 @@ class _LoginState extends State<SignUp> {
                   context.read<RegisterBloc>().add(
                     RegisterInitialEvent(fullName: '', email: '', password: ''),
                   );
-                  // nav.navigateAndReplace(Routes.login);
                 },
               ),
               24.verticalSpace,

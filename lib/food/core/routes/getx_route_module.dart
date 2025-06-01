@@ -1,5 +1,6 @@
 import 'package:food/food/core/routes/routes.dart';
 import 'package:food/food/features/auth/presentation/screens/forgot_password.dart';
+import 'package:food/food/features/auth/presentation/screens/location.dart';
 import 'package:food/food/features/auth/presentation/screens/login.dart';
 import 'package:food/food/features/auth/presentation/screens/sign_up.dart';
 import 'package:food/food/features/auth/presentation/screens/verification.dart';
@@ -183,6 +184,12 @@ class GetXRouteModule {
     GetPage(
       name: Routes.menu,
       page: () => const Menu(),
+      transition: _transition,
+      transitionDuration: _transitionDuration,
+    ),
+    GetPage(
+      name: Routes.location,
+      page: () => const Location(),
       transition: _transition,
       transitionDuration: _transitionDuration,
     ),

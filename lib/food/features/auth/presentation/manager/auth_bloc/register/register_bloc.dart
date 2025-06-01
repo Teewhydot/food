@@ -10,8 +10,8 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
       emit(RegisterLoading());
       // Simulate a network call
 
-      await Future.delayed(const Duration(seconds: 5), () {
-        emit(RegisterFailure(error: "Registration error!"));
+      await Future.delayed(const Duration(seconds: 1), () {
+        emit(RegisterSuccess(message: "Registration successful"));
       });
     });
   }
