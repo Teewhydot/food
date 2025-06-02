@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/image.dart';
 import 'package:food/food/components/texts/texts.dart';
+import 'package:food/food/core/helpers/extensions.dart';
 import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/features/onboarding/presentation/widgets/food_container.dart';
 import 'package:food/generated/assets.dart';
@@ -115,8 +116,13 @@ class RestaurantWidget extends StatelessWidget {
 
 class SuggestedRestaurant extends StatelessWidget {
   final Restaurant restaurant;
+  final Function onTap;
 
-  const SuggestedRestaurant({super.key, required this.restaurant});
+  const SuggestedRestaurant({
+    super.key,
+    required this.restaurant,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -165,6 +171,8 @@ class SuggestedRestaurant extends StatelessWidget {
         10.verticalSpace,
         Divider(color: kGreyColor, height: 1, thickness: 1),
       ],
-    );
+    ).onTap(() {
+      onTap();
+    });
   }
 }

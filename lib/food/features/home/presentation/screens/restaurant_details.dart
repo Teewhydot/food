@@ -4,13 +4,11 @@ import 'package:food/food/components/texts/texts.dart';
 import 'package:food/food/features/home/domain/entities/restaurant.dart';
 import 'package:food/food/features/home/domain/entities/restaurant_food_category.dart';
 import 'package:food/food/features/home/presentation/widgets/details_skeleton_widget.dart';
-import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:ionicons/ionicons.dart';
 
 import '../../../../../generated/assets.dart';
 import '../../../../components/image.dart';
-import '../../../../core/constants/app_constants.dart';
 import '../../../../core/routes/routes.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../core/theme/colors.dart';
@@ -145,9 +143,7 @@ class _RestaurantDetailsState extends State<RestaurantDetails> {
           20.verticalSpace,
           SectionHead(title: selectedCategory, isActionVisible: false),
           40.verticalSpace,
-          buildFoodWidget(
-            selectedCategory,
-          ).paddingOnly(right: AppConstants.defaultPadding),
+          buildFoodWidget(selectedCategory),
 
           // Add more widgets as needed
         ],
@@ -184,25 +180,23 @@ class _RestaurantDetailsState extends State<RestaurantDetails> {
 
     foodWidget = SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      child: Expanded(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          spacing: 20,
-          children:
-              filteredFoodList.map((food) {
-                return FoodWidget(
-                  image: food.imageUrl,
-                  name: food.name,
-                  onTap: () {
-                    nav.navigateTo(Routes.foodDetails, arguments: food);
-                  },
-                  rating: food.rating.toStringAsFixed(
-                    2,
-                  ), // Assuming a default rating for now
-                  price: "\$${food.price.toStringAsFixed(2)}",
-                );
-              }).toList(),
-        ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        spacing: 20,
+        children:
+            filteredFoodList.map((food) {
+              return FoodWidget(
+                image: food.imageUrl,
+                name: food.name,
+                onTap: () {
+                  nav.navigateTo(Routes.foodDetails, arguments: food);
+                },
+                rating: food.rating.toStringAsFixed(
+                  2,
+                ), // Assuming a default rating for now
+                price: "\$${food.price.toStringAsFixed(2)}",
+              );
+            }).toList(),
       ),
     );
     return foodWidget;

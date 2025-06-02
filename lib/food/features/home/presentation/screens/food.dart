@@ -10,13 +10,13 @@ import 'package:food/food/core/services/navigation_service/nav_config.dart';
 import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/core/utils/app_utils.dart';
 import 'package:food/food/features/auth/presentation/widgets/back_widget.dart';
-import 'package:food/food/features/home/presentation/screens/search.dart';
 import 'package:food/food/features/onboarding/presentation/widgets/food_container.dart';
 import 'package:food/generated/assets.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 
 import '../widgets/circle_widget.dart';
+import '../widgets/keyword_widget.dart';
 import '../widgets/section_head.dart';
 
 class Food extends StatelessWidget {

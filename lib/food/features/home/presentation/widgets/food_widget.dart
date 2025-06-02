@@ -4,6 +4,7 @@ import 'package:food/food/components/texts/texts.dart';
 import 'package:food/food/core/helpers/extensions.dart';
 import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/features/onboarding/presentation/widgets/food_container.dart';
+import 'package:get/get.dart';
 
 class FoodWidget extends StatelessWidget {
   final String image, name, price, rating;
@@ -68,6 +69,6 @@ class FoodWidget extends StatelessWidget {
           ),
         ],
       ),
-    );
+    ).paddingSymmetric(horizontal: 10);
   }
 }

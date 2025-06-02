@@ -8,20 +8,29 @@ import 'package:get/get.dart';
 import '../../../../core/constants/app_constants.dart';
 import 'circle_widget.dart';
 
-class SearchWidget<T> extends StatefulWidget {
-  void Function(String) onchanged;
-  SearchWidget({super.key, required this.onchanged});
+class SearchWidget extends StatefulWidget {
+  void Function(String) onValueChanged;
+  void Function() onSuffixTap;
+  final TextEditingController controller;
+
+  SearchWidget({
+    super.key,
+    required this.onValueChanged,
+    required this.onSuffixTap,
+    required this.controller,
+  });
 
   @override
   State<SearchWidget> createState() => _SearchWidgetState();
 }
 
 class _SearchWidgetState<T> extends State<SearchWidget> {
-  List<T> filteredResult = [];
-
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      FocusScope.of(context).unfocus();
+    });
   }
 
   @override
@@ -29,17 +38,18 @@ class _SearchWidgetState<T> extends State<SearchWidget> {
     return FTextField(
       height: 63,
       hasLabel: false,
+      controller: widget.controller,
       hintText: "Search dishes, restaurants",
-      onChanged: widget.onchanged,
+      onChanged: widget.onValueChanged,
       action: TextInputAction.search,
       prefix: Icon(Icons.search),
-      suffix: GestureDetector(
-        onTap: () {},
-        child: CircleWidget(
-          radius: 1,
-          color: kGreyColor,
-          child: Icon(Icons.close_outlined, color: kWhiteColor),
-        ),
+      suffix: CircleWidget(
+        radius: 1,
+        color: kGreyColor,
+        onTap: () {
+          widget.onSuffixTap();
+        },
+        child: Icon(Icons.close_outlined, color: kWhiteColor),
       ),
       keyboardType: TextInputType.text,
     ).paddingOnly(right: AppConstants.defaultPadding.w).onTap(() {});
