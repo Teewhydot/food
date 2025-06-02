@@ -22,7 +22,6 @@ import '../widgets/category_widget.dart';
 import '../widgets/circle_widget.dart';
 import '../widgets/food_widget.dart';
 import '../widgets/restaurant_widget.dart';
-import '../widgets/search_widget.dart';
 import '../widgets/section_head.dart';
 
 class Home extends StatefulWidget {
@@ -849,12 +848,13 @@ class _HomeState extends State<Home> {
                 ),
               ],
             ),
-            16.verticalSpace,
-            SearchWidget(),
+            // 16.verticalSpace,
+            // SearchWidget(),
             32.verticalSpace,
             SectionHead(
+              actionText: "Search",
               action: () {
-                nav.navigateTo(Routes.food);
+                nav.navigateTo(Routes.search);
               },
             ).paddingOnly(right: AppConstants.defaultPadding.w),
             20.verticalSpace,

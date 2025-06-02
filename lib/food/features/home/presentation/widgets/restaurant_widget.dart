@@ -114,13 +114,9 @@ class RestaurantWidget extends StatelessWidget {
 }
 
 class SuggestedRestaurant extends StatelessWidget {
-  final String name, rating;
+  final Restaurant restaurant;
 
-  const SuggestedRestaurant({
-    super.key,
-    required this.name,
-    required this.rating,
-  });
+  const SuggestedRestaurant({super.key, required this.restaurant});
 
   @override
   Widget build(BuildContext context) {
@@ -139,7 +135,7 @@ class SuggestedRestaurant extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 FText(
-                  text: name,
+                  text: restaurant.name,
                   fontSize: 16,
                   fontWeight: FontWeight.w400,
                   color: kTextColorDark,
@@ -155,7 +151,7 @@ class SuggestedRestaurant extends StatelessWidget {
                     ),
                     4.horizontalSpace,
                     FText(
-                      text: rating,
+                      text: restaurant.rating.toString(),
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
                       color: kTextColorDark,
