@@ -129,7 +129,7 @@ class GetXRouteModule {
     ),
     GetPage(
       name: Routes.statusScreen,
-      page: () => const PaymentStatus(),
+      page: () => PaymentStatus(status: Get.arguments as PaymentStatusEnum),
       transition: _transition,
       transitionDuration: _transitionDuration,
     ),

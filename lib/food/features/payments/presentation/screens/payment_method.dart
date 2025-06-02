@@ -3,10 +3,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/image.dart';
 import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/core/constants/app_constants.dart';
+import 'package:food/food/core/helpers/extensions.dart';
+import 'package:food/food/core/routes/routes.dart';
 import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/features/auth/presentation/widgets/back_widget.dart';
 import 'package:food/food/features/onboarding/presentation/widgets/food_container.dart';
 import 'package:food/food/features/payments/domain/entities/payment_method_entity.dart';
+import 'package:food/food/features/payments/presentation/screens/status.dart';
 import 'package:food/food/features/payments/presentation/widgets/payment_type_widget.dart';
 import 'package:food/generated/assets.dart';
 import 'package:get/utils.dart';
@@ -198,6 +201,12 @@ class _PaymentMethodState extends State<PaymentMethod> {
           ...filteredCards.map(
             (card) => PaymentCardWidget(
               card: card,
+              onTap: () {
+                nav.navigateAndReplace(
+                  Routes.statusScreen,
+                  arguments: PaymentStatusEnum.success,
+                );
+              },
             ).paddingOnly(right: AppConstants.defaultPadding, bottom: 20.h),
           ),
           20.verticalSpace,
@@ -209,7 +218,8 @@ class _PaymentMethodState extends State<PaymentMethod> {
 
 class PaymentCardWidget extends StatelessWidget {
   final CardEntity card;
-  const PaymentCardWidget({super.key, required this.card});
+  final Function onTap;
+  const PaymentCardWidget({super.key, required this.card, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -260,6 +270,8 @@ class PaymentCardWidget extends StatelessWidget {
           ),
         ],
       ).paddingAll(10),
-    );
+    ).onTap(() {
+      onTap();
+    });
   }
 }
