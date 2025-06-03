@@ -30,13 +30,35 @@ class Cart extends StatelessWidget {
             return FScaffold(
               useSafeArea: true,
               backgroundColor: kScaffoldColorDark,
-              body: Center(
-                child: FText(
-                  text: "Your cart is empty",
-                  color: kWhiteColor,
-                  fontSize: 18,
-                ),
-              ),
+              body: Stack(
+                children: [
+                  Row(
+                    children: [
+                      BackWidget(),
+                      18.horizontalSpace,
+                      FText(text: "Cart", color: kWhiteColor),
+                      Spacer(),
+                      FText(
+                        text: "Edit cart".toUpperCase(),
+                        color: kPrimaryColor,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        decorations: [TextDecoration.underline],
+                      ),
+                    ],
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      FText(
+                        text: "Your cart is empty",
+                        color: kWhiteColor,
+                        fontSize: 18,
+                      ),
+                    ],
+                  ),
+                ],
+              ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
             );
           }
           return FScaffold(
@@ -131,7 +153,7 @@ class Cart extends StatelessWidget {
                     );
                   }),
                 ],
-              ).paddingOnly(left: 24, right: 24),
+              ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
             ),
           );
         } else if (state is CartLoading) {

@@ -3,10 +3,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/texts/texts.dart';
 import 'package:food/food/core/helpers/extensions.dart';
 import 'package:food/food/core/theme/colors.dart';
+import 'package:food/food/features/home/presentation/widgets/circle_widget.dart';
 import 'package:food/food/features/onboarding/presentation/widgets/food_container.dart';
 import 'package:get/get.dart';
 
-class FoodWidget extends StatelessWidget {
+class FoodWidget extends StatefulWidget {
   final String image, name, price, rating;
   final Function onTap, onAddTapped;
   const FoodWidget({
@@ -20,6 +21,12 @@ class FoodWidget extends StatelessWidget {
   });
 
   @override
+  State<FoodWidget> createState() => _FoodWidgetState();
+}
+
+class _FoodWidgetState extends State<FoodWidget> {
+  bool tapped = false;
+  @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: 130.w,
@@ -31,14 +38,14 @@ class FoodWidget extends StatelessWidget {
             children: [
               FoodContainer(width: 153, height: 130),
               FText(
-                text: name,
+                text: widget.name,
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
                 alignment: MainAxisAlignment.start,
               ),
               5.verticalSpace,
               FText(
-                text: rating,
+                text: widget.rating,
                 fontSize: 15,
                 fontWeight: FontWeight.w700,
                 alignment: MainAxisAlignment.start,
@@ -47,27 +54,43 @@ class FoodWidget extends StatelessWidget {
               5.verticalSpace,
             ],
           ).onTap(() {
-            onTap();
+            widget.onTap();
           }),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               FText(
-                text: price,
+                text: widget.price,
                 fontSize: 15,
                 fontWeight: FontWeight.w700,
                 alignment: MainAxisAlignment.start,
                 color: kTextColorDark,
               ),
-              FoodContainer(
-                width: 40,
-                height: 40,
-                borderRadius: 20,
-                color: kPrimaryColor,
-                child: Icon(Icons.add, color: kWhiteColor),
-              ).onTap(() {
-                onAddTapped();
-              }),
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                child:
+                    !tapped
+                        ? CircleWidget(
+                          radius: 20,
+                          color: kPrimaryColor,
+                          onTap: () async {
+                            widget.onAddTapped();
+                            setState(() {
+                              tapped = true;
+                            });
+                            await Future.delayed(const Duration(seconds: 1));
+                            setState(() {
+                              tapped = false;
+                            });
+                          },
+                          child: Icon(Icons.add, color: kWhiteColor),
+                        )
+                        : CircleWidget(
+                          radius: 20,
+                          color: kSuccessColor,
+                          child: Icon(Icons.check, color: kWhiteColor),
+                        ),
+              ),
             ],
           ),
         ],
