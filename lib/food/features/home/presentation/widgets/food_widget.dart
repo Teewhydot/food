@@ -8,7 +8,7 @@ import 'package:get/get.dart';
 
 class FoodWidget extends StatelessWidget {
   final String image, name, price, rating;
-  final Function onTap;
+  final Function onTap, onAddTapped;
   const FoodWidget({
     super.key,
     required this.image,
@@ -16,6 +16,7 @@ class FoodWidget extends StatelessWidget {
     required this.price,
     required this.rating,
     required this.onTap,
+    required this.onAddTapped,
   });
 
   @override
@@ -64,7 +65,9 @@ class FoodWidget extends StatelessWidget {
                 borderRadius: 20,
                 color: kPrimaryColor,
                 child: Icon(Icons.add, color: kWhiteColor),
-              ),
+              ).onTap(() {
+                onAddTapped();
+              }),
             ],
           ),
         ],

@@ -12,10 +12,12 @@ import '../../../home/presentation/widgets/circle_widget.dart';
 class DFoodCartWidget extends StatelessWidget {
   final FoodEntity foodEntity;
   final int size;
+  final bool editMode;
   const DFoodCartWidget({
     super.key,
     required this.foodEntity,
     required this.size,
+    this.editMode = false,
   });
 
   @override
@@ -31,7 +33,6 @@ class DFoodCartWidget extends StatelessWidget {
         20.horizontalSpace,
         Expanded(
           child: Column(
-            mainAxisSize: MainAxisSize.max,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               FWrapText(
@@ -39,6 +40,7 @@ class DFoodCartWidget extends StatelessWidget {
                 fontSize: 18,
                 fontWeight: FontWeight.w400,
                 color: kWhiteColor,
+                alignment: Alignment.centerLeft,
               ),
               10.verticalSpace,
               FWrapText(
@@ -46,6 +48,7 @@ class DFoodCartWidget extends StatelessWidget {
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
                 color: kWhiteColor,
+                alignment: Alignment.centerLeft,
               ),
               17.verticalSpace,
               Row(
@@ -57,32 +60,33 @@ class DFoodCartWidget extends StatelessWidget {
                     fontWeight: FontWeight.w400,
                     color: kWhiteColor,
                   ),
-                  Row(
-                    children: [
-                      CircleWidget(
-                        radius: 12,
-                        color: kGreyColor,
-                        child: Icon(Ionicons.remove),
-                        onTap: () {},
-                      ),
-                      17.horizontalSpace,
-                      FText(
-                        text: foodEntity.quantity.toString(),
-                        fontSize: 16,
-                        fontWeight: FontWeight.w400,
-                        color: kWhiteColor,
-                      ),
-                      17.horizontalSpace,
-                      CircleWidget(
-                        radius: 12,
-                        color: kGreyColor,
-                        child: Icon(Ionicons.add),
-                        onTap: () {
-                          // Add logic to increase quantity
-                        },
-                      ),
-                    ],
-                  ),
+                  if (editMode)
+                    Row(
+                      children: [
+                        CircleWidget(
+                          radius: 12,
+                          color: kGreyColor,
+                          child: Icon(Ionicons.remove),
+                          onTap: () {},
+                        ),
+                        17.horizontalSpace,
+                        FText(
+                          text: foodEntity.quantity.toString(),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w400,
+                          color: kWhiteColor,
+                        ),
+                        17.horizontalSpace,
+                        CircleWidget(
+                          radius: 12,
+                          color: kGreyColor,
+                          child: Icon(Ionicons.add),
+                          onTap: () {
+                            // Add logic to increase quantity
+                          },
+                        ),
+                      ],
+                    ),
                 ],
               ),
             ],

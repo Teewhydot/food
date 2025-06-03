@@ -17,6 +17,7 @@ import 'package:uuid/uuid.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/routes/routes.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
+import '../../../payments/presentation/manager/cart/cart_cubit.dart';
 import '../../domain/entities/food.dart';
 import '../../domain/entities/restaurant.dart';
 import '../../domain/entities/restaurant_food_category.dart';
@@ -719,6 +720,9 @@ class _SearchState extends State<Search> {
                   rating: food.rating.toString(),
                   price: food.price.toString(),
                   image: food.imageUrl,
+                  onAddTapped: () {
+                    context.read<CartCubit>().addFood(food);
+                  },
                   onTap: () {
                     nav.navigateTo(Routes.foodDetails, arguments: food);
                   },

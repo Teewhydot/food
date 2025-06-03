@@ -96,6 +96,7 @@ class FWrapText extends StatelessWidget {
   final Color color;
   final FontWeight fontWeight;
   final TextAlign textAlign;
+  final Alignment alignment;
   final TextOverflow? textOverflow;
   const FWrapText({
     super.key,
@@ -104,13 +105,14 @@ class FWrapText extends StatelessWidget {
     this.color = kBlackColor,
     this.fontWeight = FontWeight.bold,
     this.textAlign = TextAlign.center,
+    this.alignment = Alignment.center,
     this.textOverflow,
   });
 
   @override
   Widget build(BuildContext context) {
     return Align(
-      alignment: Alignment.center, // Adjust alignment as needed
+      alignment: alignment, // Adjust alignment as needed
       child: Wrap(
         alignment: WrapAlignment.center, // Aligns the text within the Wrap
         children: [

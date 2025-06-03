@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/image.dart';
 import 'package:food/food/components/scaffold.dart';
@@ -15,6 +16,7 @@ import 'package:uuid/uuid.dart';
 import '../../../../components/buttons/buttons.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
+import '../../../payments/presentation/manager/cart/cart_cubit.dart';
 import '../../domain/entities/food.dart';
 import '../../domain/entities/restaurant.dart';
 import '../widgets/cart_widget.dart';
@@ -941,6 +943,9 @@ class _HomeState extends State<Home> {
               return FoodWidget(
                 image: food.imageUrl,
                 name: food.name,
+                onAddTapped: () {
+                  context.read<CartCubit>().addFood(food);
+                },
                 onTap: () {
                   nav.navigateTo(Routes.foodDetails, arguments: food);
                 },
