@@ -12,12 +12,14 @@ class SearchWidget extends StatefulWidget {
   void Function(String) onValueChanged;
   void Function() onSuffixTap;
   final TextEditingController controller;
+  final VoidCallback? onEditingComplete;
 
   SearchWidget({
     super.key,
     required this.onValueChanged,
     required this.onSuffixTap,
     required this.controller,
+    required this.onEditingComplete,
   });
 
   @override
@@ -38,6 +40,7 @@ class _SearchWidgetState<T> extends State<SearchWidget> {
     return FTextField(
       height: 63,
       hasLabel: false,
+      onEditingComplete: widget.onEditingComplete,
       controller: widget.controller,
       hintText: "Search dishes, restaurants",
       onChanged: widget.onValueChanged,

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/components/texts/texts.dart';
+import 'package:food/food/core/helpers/extensions.dart';
 import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/features/auth/presentation/widgets/back_widget.dart';
+import 'package:food/food/features/home/manager/recent_keywords/recent_keywords_cubit.dart';
 import 'package:food/food/features/home/presentation/widgets/cart_widget.dart';
 import 'package:food/food/features/home/presentation/widgets/food_widget.dart';
 import 'package:food/food/features/home/presentation/widgets/search_widget.dart';
@@ -30,8 +33,6 @@ class Search extends StatefulWidget {
 
 class _SearchState extends State<Search> {
   final nav = GetIt.instance<NavigationService>();
-
-  List<String> recentKeywords = ["Jello", "Pizza", "Burger"];
   final List<Restaurant> restaurantList = [
     Restaurant(
       id: Uuid().v4(),
@@ -663,6 +664,7 @@ class _SearchState extends State<Search> {
   @override
   void initState() {
     super.initState();
+    context.read<RecentKeywordsCubit>().loadRecentKeywords();
     filteredRestaurants = restaurantList;
     filteredFoods = foodList;
   }
@@ -698,6 +700,8 @@ class _SearchState extends State<Search> {
             child: FText(
               text: "No foods matches your search query",
               color: kPrimaryColor,
+              fontSize: 12.sp,
+              fontWeight: FontWeight.normal,
             ),
           )
         else ...[
@@ -737,6 +741,8 @@ class _SearchState extends State<Search> {
             child: FText(
               text: "No Restaurants matches your search query",
               color: kPrimaryColor,
+              fontSize: 12.sp,
+              fontWeight: FontWeight.normal,
             ),
           )
         else ...[
@@ -800,20 +806,67 @@ class _SearchState extends State<Search> {
                   filteredFoods = foodList;
                 });
               },
+              onEditingComplete: () {
+                if (searchQuery.isNotEmpty) {
+                  final keyword = searchQuery.trim();
+                  context.read<RecentKeywordsCubit>().addKeyword(keyword);
+                }
+              },
             ),
             25.verticalSpace,
             SectionHead(title: "Recent Keywords", isActionVisible: false),
             20.verticalSpace,
-            SizedBox(
-              height: 56.h,
-              child: ListView.separated(
-                separatorBuilder: (context, index) => 10.horizontalSpace,
-                scrollDirection: Axis.horizontal,
-                itemCount: recentKeywords.length,
-                itemBuilder: (context, index) {
-                  return KeywordWidget(keyword: recentKeywords[index]);
-                },
-              ),
+            BlocBuilder<RecentKeywordsCubit, RecentKeywordsState>(
+              builder: (context, state) {
+                if (state is RecentKeywordsLoading) {
+                  return SizedBox(
+                    height: 56.h,
+                    child: ListView.separated(
+                      separatorBuilder: (context, index) => 10.horizontalSpace,
+                      scrollDirection: Axis.horizontal,
+                      itemCount: 5,
+                      itemBuilder: (context, index) {
+                        return KeywordWidget(keyword: "Hope", onTap: () {});
+                      },
+                    ),
+                  ).skeletonize();
+                } else if (state is RecentKeywordsError) {
+                  return Center(
+                    child: FText(text: state.message, color: kPrimaryColor),
+                  );
+                } else if (state is RecentKeywordsLoaded) {
+                  if (state.keywords.isEmpty) {
+                    return Center(
+                      child: FText(
+                        text: "No recent keywords found",
+                        color: kPrimaryColor,
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.normal,
+                      ),
+                    );
+                  }
+                  return SizedBox(
+                    height: 56.h,
+                    child: ListView.separated(
+                      separatorBuilder: (context, index) => 10.horizontalSpace,
+                      scrollDirection: Axis.horizontal,
+                      itemCount: state.keywords.length,
+                      itemBuilder: (context, index) {
+                        return KeywordWidget(
+                          keyword: state.keywords[index].keyword,
+                          onTap: () {
+                            searchController.text =
+                                state.keywords[index].keyword;
+                            updateSearchQuery(state.keywords[index].keyword);
+                          },
+                        );
+                      },
+                    ),
+                  );
+                } else {
+                  return SizedBox();
+                }
+              },
             ),
             30.verticalSpace,
             SectionHead(title: "Suggested Restaurants", isActionVisible: false),

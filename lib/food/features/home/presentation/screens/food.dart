@@ -16,7 +16,6 @@ import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 
 import '../widgets/circle_widget.dart';
-import '../widgets/keyword_widget.dart';
 import '../widgets/section_head.dart';
 
 class Food extends StatelessWidget {
@@ -112,10 +111,10 @@ class Food extends StatelessWidget {
                                 direction: Axis.horizontal,
                                 runSpacing: 10,
                                 children: [
-                                  KeywordWidget(keyword: "Delivery"),
-                                  KeywordWidget(keyword: "Pick-up"),
-                                  KeywordWidget(keyword: "Cash"),
-                                  KeywordWidget(keyword: "Online Payment"),
+                                  // KeywordWidget(keyword: "Delivery"),
+                                  // KeywordWidget(keyword: "Pick-up"),
+                                  // KeywordWidget(keyword: "Cash"),
+                                  // KeywordWidget(keyword: "Online Payment"),
                                 ],
                               ),
                               20.verticalSpace,
@@ -129,9 +128,9 @@ class Food extends StatelessWidget {
                                 direction: Axis.horizontal,
                                 runSpacing: 10,
                                 children: [
-                                  KeywordWidget(keyword: "10-20m"),
-                                  KeywordWidget(keyword: "30-50m"),
-                                  KeywordWidget(keyword: "1-2h"),
+                                  // KeywordWidget(keyword: "10-20m"),
+                                  // KeywordWidget(keyword: "30-50m"),
+                                  // KeywordWidget(keyword: "1-2h"),
                                 ],
                               ),
                               20.verticalSpace,

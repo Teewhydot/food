@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 extension NigerianPhoneNumber on String {
   String formatNigerianPhoneNumber() {
@@ -58,5 +59,12 @@ extension Tappable on Widget {
 
   Widget onLongPress(VoidCallback? onLongPress, {Key? key}) {
     return GestureDetector(key: key, onLongPress: onLongPress, child: this);
+  }
+}
+
+// skeletonizer extension for widgets
+extension Skeletonizer on Widget {
+  Widget skeletonize() {
+    return Skeleton.leaf(child: this);
   }
 }

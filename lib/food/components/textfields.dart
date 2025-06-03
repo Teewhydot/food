@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/texts/texts.dart';
 import 'package:food/food/core/theme/colors.dart';
-import 'package:food/food/core/utils/validators.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class FTextField extends StatefulWidget {
@@ -38,7 +37,7 @@ class FTextField extends StatefulWidget {
   final Color focusedColor;
   final Color fillColor;
   final Color borderColor;
-  final VoidCallback? dropDownPressed;
+  final VoidCallback? dropDownPressed, onEditingComplete;
   final bool hasLabel;
   final double height;
   final Widget? prefix, suffix;
@@ -51,6 +50,7 @@ class FTextField extends StatefulWidget {
     this.textCapitalization = TextCapitalization.none,
     this.keyboardType,
     this.onChanged,
+    this.onEditingComplete,
     this.onSaved,
     this.controller,
     this.validate,
@@ -111,6 +111,7 @@ class _FTextFieldState extends State<FTextField> {
           ),
           child: Center(
             child: TextFormField(
+              onEditingComplete: widget.onEditingComplete,
               textCapitalization: widget.textCapitalization,
               autofocus: widget.autoFocus,
               autovalidateMode: widget.validationMode,

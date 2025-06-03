@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/texts/texts.dart';
+import 'package:food/food/core/helpers/extensions.dart';
 import 'package:food/food/core/theme/colors.dart';
 import 'package:get/get.dart';
 
 class KeywordWidget extends StatelessWidget {
   final String keyword;
-  const KeywordWidget({super.key, required this.keyword});
+  final Function onTap;
+  const KeywordWidget({super.key, required this.keyword, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +33,9 @@ class KeywordWidget extends StatelessWidget {
           fontWeight: FontWeight.w400,
           color: kTextColorDark,
         ).paddingSymmetric(horizontal: 20.w),
-      ),
+      ).onTap(() {
+        onTap();
+      }),
     );
   }
 }

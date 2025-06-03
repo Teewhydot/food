@@ -3,6 +3,7 @@ import 'package:food/food/features/auth/presentation/manager/auth_bloc/login/log
 import 'package:food/food/features/auth/presentation/manager/auth_bloc/otp_verification/verification_bloc.dart';
 import 'package:food/food/features/auth/presentation/manager/auth_bloc/register/register_bloc.dart';
 import 'package:food/food/features/auth/presentation/manager/location_bloc/location_bloc.dart';
+import 'package:food/food/features/home/manager/recent_keywords/recent_keywords_cubit.dart';
 
 import '../features/auth/presentation/manager/auth_bloc/forgot_password/forgot_password_bloc.dart';
 
@@ -12,4 +13,5 @@ final List<BlocProvider> blocs = [
   BlocProvider<RegisterBloc>(create: (context) => RegisterBloc()),
   BlocProvider<VerificationBloc>(create: (context) => VerificationBloc()),
   BlocProvider<LocationBloc>(create: (context) => LocationBloc()),
+  BlocProvider<RecentKeywordsCubit>(create: (context) => RecentKeywordsCubit()),
 ];
