@@ -6,18 +6,16 @@ import 'package:food/food/features/onboarding/presentation/widgets/food_containe
 import 'package:get/get.dart';
 import 'package:ionicons/ionicons.dart';
 
+import '../../../home/domain/entities/food.dart';
 import '../../../home/presentation/widgets/circle_widget.dart';
 
 class DFoodCartWidget extends StatelessWidget {
-  final String imagePath, foodName, price, size, quantity, restaurantName;
+  final FoodEntity foodEntity;
+  final int size;
   const DFoodCartWidget({
     super.key,
-    this.imagePath = "",
-    this.foodName = "Pixzza Carribean",
-    this.price = "\$900",
-    this.size = "14",
-    this.quantity = "2",
-    this.restaurantName = "Restaurant Name",
+    required this.foodEntity,
+    required this.size,
   });
 
   @override
@@ -37,14 +35,14 @@ class DFoodCartWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               FWrapText(
-                text: foodName,
+                text: foodEntity.name,
                 fontSize: 18,
                 fontWeight: FontWeight.w400,
                 color: kWhiteColor,
               ),
               10.verticalSpace,
               FWrapText(
-                text: "Total: $price",
+                text: "Total: ${foodEntity.price * foodEntity.quantity}",
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
                 color: kWhiteColor,
@@ -65,10 +63,11 @@ class DFoodCartWidget extends StatelessWidget {
                         radius: 12,
                         color: kGreyColor,
                         child: Icon(Ionicons.remove),
+                        onTap: () {},
                       ),
                       17.horizontalSpace,
                       FText(
-                        text: quantity,
+                        text: foodEntity.quantity.toString(),
                         fontSize: 16,
                         fontWeight: FontWeight.w400,
                         color: kWhiteColor,
@@ -78,6 +77,9 @@ class DFoodCartWidget extends StatelessWidget {
                         radius: 12,
                         color: kGreyColor,
                         child: Icon(Ionicons.add),
+                        onTap: () {
+                          // Add logic to increase quantity
+                        },
                       ),
                     ],
                   ),
