@@ -17,8 +17,15 @@ import '../../../../components/textfields.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 
-class Cart extends StatelessWidget {
+class Cart extends StatefulWidget {
   const Cart({super.key});
+
+  @override
+  State<Cart> createState() => _CartState();
+}
+
+class _CartState extends State<Cart> {
+  bool editMode = false;
 
   @override
   Widget build(BuildContext context) {
@@ -63,6 +70,28 @@ class Cart extends StatelessWidget {
           }
           return FScaffold(
             useSafeArea: true,
+            appBarWidget: Row(
+              children: [
+                BackWidget(),
+                18.horizontalSpace,
+                FText(text: "Cart", color: kWhiteColor),
+                Spacer(),
+                FText(
+                  text:
+                      editMode
+                          ? "Save".toUpperCase()
+                          : "Edit cart".toUpperCase(),
+                  color: kPrimaryColor,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                  decorations: [TextDecoration.underline],
+                ).onTap(() {
+                  setState(() {
+                    editMode = !editMode;
+                  });
+                }),
+              ],
+            ).paddingOnly(right: AppConstants.defaultPadding),
             backgroundColor: kScaffoldColorDark,
             bottomWidget: IntrinsicHeight(
               child: Container(
@@ -130,26 +159,12 @@ class Cart extends StatelessWidget {
             body: SingleChildScrollView(
               child: Column(
                 children: [
-                  Row(
-                    children: [
-                      BackWidget(),
-                      18.horizontalSpace,
-                      FText(text: "Cart", color: kWhiteColor),
-                      Spacer(),
-                      FText(
-                        text: "Edit cart".toUpperCase(),
-                        color: kPrimaryColor,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        decorations: [TextDecoration.underline],
-                      ),
-                    ],
-                  ),
                   30.verticalSpace,
                   ...state.items.map((cartItem) {
                     return DFoodCartWidget(
                       foodEntity: cartItem,
                       size: cartItem.quantity,
+                      editMode: editMode,
                     );
                   }),
                 ],

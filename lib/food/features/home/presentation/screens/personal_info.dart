@@ -4,6 +4,8 @@ import 'package:food/food/components/image.dart';
 import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/components/texts/texts.dart';
 import 'package:food/food/core/constants/app_constants.dart';
+import 'package:food/food/core/helpers/extensions.dart';
+import 'package:food/food/core/routes/routes.dart';
 import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/features/auth/presentation/widgets/back_widget.dart';
 import 'package:food/food/features/home/presentation/widgets/circle_widget.dart';
@@ -20,33 +22,35 @@ class PersonalInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final nav = GetIt.instance<NavigationService>();
-
+    // done
     return FScaffold(
       useSafeArea: true,
+      appBarWidget: Row(
+        children: [
+          BackWidget(color: kGreyColor),
+          20.horizontalSpace,
+          FText(
+            text: "Personal Info",
+            fontSize: 17.sp,
+            fontWeight: FontWeight.w400,
+            color: kBlackColor,
+          ),
+        ],
+      ),
       body: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  BackWidget(color: kGreyColor),
-                  20.horizontalSpace,
-                  FText(
-                    text: "Personal Info",
-                    fontSize: 17.sp,
-                    fontWeight: FontWeight.w400,
-                    color: kBlackColor,
-                  ),
-                ],
-              ),
               FText(
                 text: "Edit".toUpperCase(),
                 fontSize: 17.sp,
                 fontWeight: FontWeight.w400,
                 color: kPrimaryColor,
                 decorations: [TextDecoration.underline],
-              ),
+              ).onTap(() {
+                nav.navigateTo(Routes.editProfile);
+              }),
             ],
           ),
           30.verticalSpace,

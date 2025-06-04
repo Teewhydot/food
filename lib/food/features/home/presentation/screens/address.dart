@@ -25,6 +25,18 @@ class Address extends StatelessWidget {
     final nav = GetIt.instance<NavigationService>();
 
     return FScaffold(
+      appBarWidget: Row(
+        children: [
+          BackWidget(color: kGreyColor),
+          20.horizontalSpace,
+          FText(
+            text: "My Addresses",
+            fontSize: 17.sp,
+            fontWeight: FontWeight.w400,
+            color: kBlackColor,
+          ),
+        ],
+      ),
       useSafeArea: true,
       body: Stack(
         children: [
@@ -32,18 +44,6 @@ class Address extends StatelessWidget {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  Row(
-                    children: [
-                      BackWidget(color: kGreyColor),
-                      20.horizontalSpace,
-                      FText(
-                        text: "My Addresses",
-                        fontSize: 17.sp,
-                        fontWeight: FontWeight.w400,
-                        color: kBlackColor,
-                      ),
-                    ],
-                  ),
                   24.verticalSpace,
                   AddressWidget(addressType: AddressType.home, address: ""),
                   AddressWidget(

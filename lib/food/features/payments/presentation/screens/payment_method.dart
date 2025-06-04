@@ -99,20 +99,20 @@ class _PaymentMethodState extends State<PaymentMethod> {
   @override
   Widget build(BuildContext context) {
     return FScaffold(
+      appBarWidget: Row(
+        children: [
+          BackWidget(color: kGreyColor),
+          20.horizontalSpace,
+          FText(
+            text: "Payment Method",
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+          ),
+        ],
+      ),
       useSafeArea: true,
       body: Column(
         children: [
-          Row(
-            children: [
-              BackWidget(color: kGreyColor),
-              20.horizontalSpace,
-              FText(
-                text: "Payment Method",
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-              ),
-            ],
-          ),
           30.verticalSpace,
 
           SingleChildScrollView(

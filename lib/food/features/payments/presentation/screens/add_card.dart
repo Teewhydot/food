@@ -20,9 +20,9 @@ class AddCard extends StatelessWidget {
     final nav = GetIt.instance<NavigationService>();
 
     return FScaffold(
+      appBarWidget: Row(children: [const BackWidget(color: kGreyColor)]),
       body: Column(
         children: [
-          Row(children: [const BackWidget(color: kGreyColor)]),
           FText(
             text: "Add New Card",
             fontSize: 20,

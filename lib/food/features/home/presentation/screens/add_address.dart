@@ -21,22 +21,22 @@ class AddAddress extends StatelessWidget {
     final nav = GetIt.instance<NavigationService>();
 
     return FScaffold(
+      appBarWidget: Row(
+        children: [
+          BackWidget(color: kGreyColor),
+          10.horizontalSpace,
+          FText(
+            text: "Add new address",
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+          ),
+        ],
+      ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Column(
             children: [
-              Row(
-                children: [
-                  BackWidget(color: kGreyColor),
-                  10.horizontalSpace,
-                  FText(
-                    text: "Add new address",
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ],
-              ),
               30.verticalSpace,
               FTextField(hintText: "Address", action: TextInputAction.next),
               10.verticalSpace,

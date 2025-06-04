@@ -776,28 +776,28 @@ class _SearchState extends State<Search> {
   @override
   Widget build(BuildContext context) {
     return FScaffold(
+      appBarWidget: Row(
+        children: [
+          Row(
+            children: [
+              BackWidget(color: kBackWidgetColor),
+              20.horizontalSpace,
+              FText(
+                text: "Search",
+                fontSize: 17,
+                fontWeight: FontWeight.w400,
+                color: kTextColorDark,
+              ),
+            ],
+          ),
+          Spacer(),
+          CartWidget().paddingOnly(right: AppConstants.defaultPadding.w),
+        ],
+      ),
       useSafeArea: true,
       body: SingleChildScrollView(
         child: Column(
           children: [
-            Row(
-              children: [
-                Row(
-                  children: [
-                    BackWidget(color: kBackWidgetColor),
-                    20.horizontalSpace,
-                    FText(
-                      text: "Search",
-                      fontSize: 17,
-                      fontWeight: FontWeight.w400,
-                      color: kTextColorDark,
-                    ),
-                  ],
-                ),
-                Spacer(),
-                CartWidget().paddingOnly(right: AppConstants.defaultPadding.w),
-              ],
-            ),
             25.verticalSpace,
             SearchWidget(
               controller: searchController,

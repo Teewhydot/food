@@ -22,19 +22,19 @@ class Notifications extends StatelessWidget {
     final nav = GetIt.instance<NavigationService>();
 
     return FScaffold(
+      appBarWidget: Row(
+        children: [
+          BackWidget(color: kContainerColor),
+          10.horizontalSpace,
+          FText(
+            text: "Notifications",
+            fontWeight: FontWeight.w400,
+            fontSize: 17,
+          ),
+        ],
+      ),
       body: Column(
         children: [
-          Row(
-            children: [
-              BackWidget(color: kContainerColor),
-              10.horizontalSpace,
-              FText(
-                text: "Notifications",
-                fontWeight: FontWeight.w400,
-                fontSize: 17,
-              ),
-            ],
-          ),
           24.verticalSpace,
           Expanded(
             child: ContainedTabBarView(

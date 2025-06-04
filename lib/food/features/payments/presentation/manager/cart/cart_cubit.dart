@@ -74,19 +74,35 @@ class CartCubit extends Cubit<CartState> {
     if (state is CartLoaded) {
       final currentState = state as CartLoaded;
       final newItems = List<FoodEntity>.from(currentState.items);
-      double newTotalPrice =
-          currentState.totalPrice - (food.price * food.quantity);
-      int newItemCount = currentState.itemCount - 1;
+      final index = newItems.indexWhere((item) => item.id == food.id);
 
-      newItems.remove(food);
-
-      emit(
-        CartLoaded(
-          items: newItems,
-          totalPrice: newTotalPrice,
-          itemCount: newItemCount,
-        ),
-      );
+      if (index != -1) {
+        final existingFood = newItems[index];
+        if (existingFood.quantity > 1) {
+          // Decrease quantity
+          newItems[index].quantity -= 1;
+          double newTotalPrice = currentState.totalPrice - existingFood.price;
+          emit(
+            CartLoaded(
+              items: newItems,
+              totalPrice: newTotalPrice,
+              itemCount: currentState.itemCount,
+            ),
+          );
+        } else {
+          // Remove item completely
+          double newTotalPrice = currentState.totalPrice - existingFood.price;
+          newItems.removeAt(index);
+          int newItemCount = currentState.itemCount - 1;
+          emit(
+            CartLoaded(
+              items: newItems,
+              totalPrice: newTotalPrice,
+              itemCount: newItemCount,
+            ),
+          );
+        }
+      }
     }
   }
 }

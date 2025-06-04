@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+
+import '../core/constants/app_constants.dart';
 
 class FScaffold extends StatelessWidget {
-  final Widget body, bottomWidget;
+  final Widget body, bottomWidget, appBarWidget;
   final double padding;
   final bool showNavBar, resizeToAvoidBottomInset, useSafeArea;
   final Color? backgroundColor;
@@ -15,6 +18,7 @@ class FScaffold extends StatelessWidget {
     this.useSafeArea = false,
     this.resizeToAvoidBottomInset = true,
     this.bottomWidget = const SizedBox(),
+    this.appBarWidget = const SizedBox(),
     this.backgroundColor,
   });
 
@@ -25,10 +29,16 @@ class FScaffold extends StatelessWidget {
       backgroundColor:
           backgroundColor ?? Theme.of(context).scaffoldBackgroundColor,
       resizeToAvoidBottomInset: resizeToAvoidBottomInset,
-      body: Padding(
-        padding: EdgeInsets.all(padding).r,
-        child: useSafeArea ? SafeArea(child: body) : body,
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(60.h),
+        child:
+            useSafeArea
+                ? SafeArea(
+                  child: appBarWidget,
+                ).paddingOnly(left: AppConstants.defaultPadding)
+                : appBarWidget.paddingOnly(left: AppConstants.defaultPadding),
       ),
+      body: Padding(padding: EdgeInsets.all(padding).r, child: body),
       bottomNavigationBar: bottomWidget,
     );
   }

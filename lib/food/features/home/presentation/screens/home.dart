@@ -686,150 +686,148 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return FScaffold(
       useSafeArea: true,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            GestureDetector(
-              onTap: () {
-                DFoodUtils.showDialogContainer(
-                  pop: true,
-                  context: context,
-                  contentPadding: EdgeInsets.zero,
-                  child: Container(
-                    height: 395.h,
-                    width: 382.w,
-                    decoration: BoxDecoration(
-                      color: kWhiteColor,
-                      borderRadius: BorderRadius.circular(35).r,
-                      gradient: const LinearGradient(
-                        colors: [kGradientColor2, kGradientColor1],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomCenter,
-                        stops: [0.1, 0.9],
+      appBarWidget: GestureDetector(
+        onTap: () {
+          DFoodUtils.showDialogContainer(
+            pop: true,
+            context: context,
+            contentPadding: EdgeInsets.zero,
+            child: Container(
+              height: 395.h,
+              width: 382.w,
+              decoration: BoxDecoration(
+                color: kWhiteColor,
+                borderRadius: BorderRadius.circular(35).r,
+                gradient: const LinearGradient(
+                  colors: [kGradientColor2, kGradientColor1],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomCenter,
+                  stops: [0.1, 0.9],
+                ),
+              ),
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Column(
+                    children: [
+                      37.verticalSpace,
+                      FImage(
+                        assetPath: Assets.svgsOfferBg,
+                        assetType: FoodAssetType.svg,
+                        width: 270,
+                        height: 190,
                       ),
+                    ],
+                  ),
+                  Positioned(
+                    top: -15,
+                    right: -15,
+                    child: CircleWidget(
+                      radius: 22,
+                      color: kCloseColor,
+                      child: Icon(Icons.close, size: 10),
                     ),
-                    child: Stack(
-                      clipBehavior: Clip.none,
+                  ),
+                  Positioned(
+                    top: 85,
+                    left: 0,
+                    right: 0,
+                    child: Column(
                       children: [
-                        Column(
-                          children: [
-                            37.verticalSpace,
-                            FImage(
-                              assetPath: Assets.svgsOfferBg,
-                              assetType: FoodAssetType.svg,
-                              width: 270,
-                              height: 190,
-                            ),
-                          ],
+                        FText(
+                          text: "Hurry now",
+                          fontSize: 41,
+                          color: kWhiteColor,
+                          fontWeight: FontWeight.w800,
                         ),
-                        Positioned(
-                          top: -15,
-                          right: -15,
-                          child: CircleWidget(
-                            radius: 22,
-                            color: kCloseColor,
-                            child: Icon(Icons.close, size: 10),
-                          ),
+                        50.verticalSpace,
+                        FText(
+                          text: "#1234CD2",
+                          fontSize: 24,
+                          color: kWhiteColor,
+                          fontWeight: FontWeight.w600,
                         ),
-                        Positioned(
-                          top: 85,
-                          left: 0,
-                          right: 0,
-                          child: Column(
-                            children: [
-                              FText(
-                                text: "Hurry now",
-                                fontSize: 41,
-                                color: kWhiteColor,
-                                fontWeight: FontWeight.w800,
-                              ),
-                              50.verticalSpace,
-                              FText(
-                                text: "#1234CD2",
-                                fontSize: 24,
-                                color: kWhiteColor,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              40.verticalSpace,
-                              FText(
-                                text: "Use the coupon to get 50% off",
-                                fontSize: 15,
-                                fontWeight: FontWeight.w700,
-                                color: kWhiteColor,
-                              ),
-                              50.verticalSpace,
-                              FButton(
-                                buttonText: "GOT IT",
-                                onPressed: () {
-                                  Get.back();
-                                },
-                                borderColor: kWhiteColor,
-                                color: Colors.transparent,
-                                textColor: kWhiteColor,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ],
-                          ),
+                        40.verticalSpace,
+                        FText(
+                          text: "Use the coupon to get 50% off",
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: kWhiteColor,
+                        ),
+                        50.verticalSpace,
+                        FButton(
+                          buttonText: "GOT IT",
+                          onPressed: () {
+                            Get.back();
+                          },
+                          borderColor: kWhiteColor,
+                          color: Colors.transparent,
+                          textColor: kWhiteColor,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
                         ),
                       ],
                     ),
                   ),
-                );
-              },
-              child: Row(
-                children: [
-                  Row(
-                    children: [
-                      CircleWidget(
-                        radius: 22.5,
-                        color: kGreyColor,
-                        child: FImage(
-                          assetPath: Assets.svgsDelivery,
-                          assetType: FoodAssetType.svg,
-                          width: 12,
-                          height: 16,
-                        ),
-                        onTap: () {
-                          nav.navigateTo(Routes.menu);
-                        },
-                      ),
-                      18.horizontalSpace,
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          FText(
-                            text: "Deliver to",
-                            fontSize: 14,
-                            color: kTextColorDark,
-                          ),
-                          Row(
-                            children: [
-                              FText(
-                                text: "Lagos, Nigeria",
-                                fontSize: 14,
-                                color: kAddressColor,
-                              ),
-                              8.horizontalSpace,
-                              FImage(
-                                assetPath: Assets.svgsArrowDown,
-                                assetType: FoodAssetType.svg,
-                                width: 10,
-                                height: 10,
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  Spacer(),
-                  CartWidget().paddingOnly(
-                    right: AppConstants.defaultPadding.w,
-                  ),
                 ],
               ),
             ),
+          );
+        },
+        child: Row(
+          children: [
+            Row(
+              children: [
+                CircleWidget(
+                  radius: 22.5,
+                  color: kGreyColor,
+                  child: FImage(
+                    assetPath: Assets.svgsDelivery,
+                    assetType: FoodAssetType.svg,
+                    width: 12,
+                    height: 16,
+                  ),
+                  onTap: () {
+                    nav.navigateTo(Routes.menu);
+                  },
+                ),
+                18.horizontalSpace,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    FText(
+                      text: "Deliver to",
+                      fontSize: 14,
+                      color: kTextColorDark,
+                    ),
+                    Row(
+                      children: [
+                        FText(
+                          text: "Lagos, Nigeria",
+                          fontSize: 14,
+                          color: kAddressColor,
+                        ),
+                        8.horizontalSpace,
+                        FImage(
+                          assetPath: Assets.svgsArrowDown,
+                          assetType: FoodAssetType.svg,
+                          width: 10,
+                          height: 10,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            Spacer(),
+            CartWidget().paddingOnly(right: AppConstants.defaultPadding.w),
+          ],
+        ),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
             24.verticalSpace,
             Row(
               children: [

@@ -28,21 +28,22 @@ class _EditProfileState extends State<EditProfile> {
   @override
   Widget build(BuildContext context) {
     return FScaffold(
+      appBarWidget: Row(
+        children: [
+          BackWidget(color: kGreyColor),
+          20.horizontalSpace,
+          FText(
+            text: "Edit profile",
+            fontSize: 17.sp,
+            fontWeight: FontWeight.w400,
+            color: kBlackColor,
+          ),
+        ],
+      ),
+      useSafeArea: true,
       body: SingleChildScrollView(
         child: Column(
           children: [
-            Row(
-              children: [
-                BackWidget(color: kGreyColor),
-                20.horizontalSpace,
-                FText(
-                  text: "Edit profile",
-                  fontSize: 17.sp,
-                  fontWeight: FontWeight.w400,
-                  color: kBlackColor,
-                ),
-              ],
-            ),
             20.verticalSpace,
             Stack(
               children: [
@@ -76,13 +77,7 @@ class _EditProfileState extends State<EditProfile> {
               action: TextInputAction.next,
               label: "Last Name",
             ),
-            24.verticalSpace,
-            FTextField(
-              hintText: "Email",
-              action: TextInputAction.next,
-              label: "Email",
-              keyboardType: TextInputType.emailAddress,
-            ),
+
             24.verticalSpace,
             FTextField(
               hintText: "Phone",

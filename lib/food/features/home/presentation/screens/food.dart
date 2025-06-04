@@ -24,46 +24,47 @@ class Food extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final nav = GetIt.instance<NavigationService>();
+
     return FScaffold(
       useSafeArea: true,
+      appBarWidget: Row(
+        children: [
+          BackWidget(color: kContainerColor),
+          17.horizontalSpace,
+          FoodContainer(
+            width: 102,
+            height: 45,
+            borderRadius: 33,
+            color: kWhiteColor,
+            hasBorder: true,
+            borderColor: kGreyColor,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Row(
+                  children: [
+                    FText(text: "Burger"),
+                    5.horizontalSpace,
+                    FImage(
+                      assetPath: Assets.svgsArrowDown,
+                      assetType: FoodAssetType.svg,
+                      width: 10,
+                      height: 10,
+                      svgAssetColor: kPrimaryColor,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    BackWidget(color: kContainerColor),
-                    17.horizontalSpace,
-                    FoodContainer(
-                      width: 102,
-                      height: 45,
-                      borderRadius: 33,
-                      color: kWhiteColor,
-                      hasBorder: true,
-                      borderColor: kGreyColor,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Row(
-                            children: [
-                              FText(text: "Burger"),
-                              5.horizontalSpace,
-                              FImage(
-                                assetPath: Assets.svgsArrowDown,
-                                assetType: FoodAssetType.svg,
-                                width: 10,
-                                height: 10,
-                                svgAssetColor: kPrimaryColor,
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
                 Row(
                   spacing: 10,
                   children: [
