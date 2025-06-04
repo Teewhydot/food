@@ -109,7 +109,7 @@ class Cart extends StatelessWidget {
                         10.horizontalSpace,
                         FText(
                           text:
-                              state.totalPrice.toStringAsFixed(0).toUpperCase(),
+                              "\$${state.totalPrice.toStringAsFixed(0).toUpperCase()}",
                           fontSize: 30,
                           fontWeight: FontWeight.w400,
                         ),

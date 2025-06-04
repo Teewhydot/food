@@ -44,7 +44,7 @@ class DFoodCartWidget extends StatelessWidget {
               ),
               10.verticalSpace,
               FWrapText(
-                text: "Total: ${foodEntity.price * foodEntity.quantity}",
+                text: "Total: \$${foodEntity.price * foodEntity.quantity}",
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
                 color: kWhiteColor,

@@ -14,12 +14,12 @@ class CartCubit extends Cubit<CartState> {
       final currentState = state as CartLoaded;
       final newItems = List<FoodEntity>.from(currentState.items);
       final index = newItems.indexWhere((item) => item.id == food.id);
+      // First deduct the current total of that particular food from currentState.price
       final totalPriceMinusCurrentFoodTotalPrice =
           currentState.totalPrice - (food.price * food.quantity);
       if (index != -1) {
         // If the food item already exists, update its quantity
         newItems[index].quantity += 1;
-        // First deduct the current total of that particular food from currentState.price
 
         Logger.logBasic(
           "Current total price: ${currentState.totalPrice} Food price: ${food.price}, "
