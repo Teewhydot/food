@@ -35,15 +35,13 @@ class DFoodUtils {
           child: Dialog(
             clipBehavior: Clip.none,
             insetPadding: insetPadding,
-            backgroundColor: kWhiteColor,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12).r,
+              borderRadius: BorderRadius.circular(35).r,
             ),
             child: Container(
               width: width.w,
               height: height,
               decoration: BoxDecoration(
-                color: kWhiteColor,
                 borderRadius: BorderRadius.circular(35).r,
               ),
               padding:

@@ -6,7 +6,6 @@ import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/components/texts/texts.dart';
 import 'package:food/food/core/routes/routes.dart';
 import 'package:food/food/core/theme/colors.dart';
-import 'package:food/food/core/utils/app_utils.dart';
 import 'package:food/food/features/home/domain/entities/restaurant_food_category.dart';
 import 'package:food/generated/assets.dart';
 import 'package:get/get.dart';
@@ -16,6 +15,7 @@ import 'package:uuid/uuid.dart';
 import '../../../../components/buttons/buttons.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
+import '../../../../core/utils/app_utils.dart';
 import '../../../payments/presentation/manager/cart/cart_cubit.dart';
 import '../../domain/entities/food.dart';
 import '../../domain/entities/restaurant.dart';
@@ -694,9 +694,8 @@ class _HomeState extends State<Home> {
             contentPadding: EdgeInsets.zero,
             child: Container(
               height: 395.h,
-              width: 382.w,
+              width: 327.w,
               decoration: BoxDecoration(
-                color: kWhiteColor,
                 borderRadius: BorderRadius.circular(35).r,
                 gradient: const LinearGradient(
                   colors: [kGradientColor2, kGradientColor1],
@@ -729,7 +728,7 @@ class _HomeState extends State<Home> {
                     ),
                   ),
                   Positioned(
-                    top: 85,
+                    top: 82,
                     left: 0,
                     right: 0,
                     child: Column(
@@ -740,21 +739,21 @@ class _HomeState extends State<Home> {
                           color: kWhiteColor,
                           fontWeight: FontWeight.w800,
                         ),
-                        50.verticalSpace,
+                        35.verticalSpace,
                         FText(
                           text: "#1234CD2",
                           fontSize: 24,
                           color: kWhiteColor,
                           fontWeight: FontWeight.w600,
                         ),
-                        40.verticalSpace,
+                        20.verticalSpace,
                         FText(
                           text: "Use the coupon to get 50% off",
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
                           color: kWhiteColor,
                         ),
-                        50.verticalSpace,
+                        30.verticalSpace,
                         FButton(
                           buttonText: "GOT IT",
                           onPressed: () {
@@ -765,7 +764,7 @@ class _HomeState extends State<Home> {
                           textColor: kWhiteColor,
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
-                        ),
+                        ).paddingSymmetric(horizontal: 35),
                       ],
                     ),
                   ),
@@ -829,6 +828,7 @@ class _HomeState extends State<Home> {
         child: Column(
           children: [
             24.verticalSpace,
+
             Row(
               children: [
                 FText(
