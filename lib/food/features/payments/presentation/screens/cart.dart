@@ -35,41 +35,32 @@ class _CartState extends State<Cart> {
         if (state is CartLoaded) {
           if (state.items.isEmpty) {
             return FScaffold(
-              useSafeArea: true,
+              hasAppBar: true,
+              appBarColor: kScaffoldColorDark,
               backgroundColor: kScaffoldColorDark,
-              body: Stack(
+              appBarWidget: Row(
                 children: [
-                  Row(
-                    children: [
-                      BackWidget(),
-                      18.horizontalSpace,
-                      FText(text: "Cart", color: kWhiteColor),
-                      Spacer(),
-                      FText(
-                        text: "Edit cart".toUpperCase(),
-                        color: kPrimaryColor,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        decorations: [TextDecoration.underline],
-                      ),
-                    ],
-                  ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      FText(
-                        text: "Your cart is empty",
-                        color: kWhiteColor,
-                        fontSize: 18,
-                      ),
-                    ],
+                  BackWidget(),
+                  18.horizontalSpace,
+                  FText(text: "Cart", color: kWhiteColor),
+                  Spacer(),
+                ],
+              ),
+              body: Column(
+                children: [
+                  200.verticalSpace,
+                  FText(
+                    text: "Your cart is empty",
+                    color: kWhiteColor,
+                    fontSize: 18,
                   ),
                 ],
-              ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
+              ),
             );
           }
           return FScaffold(
-            useSafeArea: true,
+            hasAppBar: true,
+            appBarColor: kScaffoldColorDark,
             appBarWidget: Row(
               children: [
                 BackWidget(),
@@ -167,13 +158,14 @@ class _CartState extends State<Cart> {
                       editMode: editMode,
                     );
                   }),
+                  400.verticalSpace,
                 ],
               ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
             ),
           );
         } else if (state is CartLoading) {
           return FScaffold(
-            useSafeArea: true,
+            hasAppBar: true,
             backgroundColor: kScaffoldColorDark,
             body: Center(
               child: FText(

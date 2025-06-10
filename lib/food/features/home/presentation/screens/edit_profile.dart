@@ -40,7 +40,7 @@ class _EditProfileState extends State<EditProfile> {
           ),
         ],
       ),
-      useSafeArea: true,
+      hasAppBar: true,
       body: SingleChildScrollView(
         child: Column(
           children: [

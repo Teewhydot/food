@@ -23,7 +23,7 @@ class Menu extends StatelessWidget {
     final nav = GetIt.instance<NavigationService>();
 
     return FScaffold(
-      useSafeArea: true,
+      hasAppBar: true,
       appBarWidget: Row(
         children: [
           BackWidget(color: kGreyColor),

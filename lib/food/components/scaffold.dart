@@ -6,19 +6,20 @@ import 'package:get/get.dart';
 class FScaffold extends StatelessWidget {
   final Widget body, bottomWidget, appBarWidget;
   final double padding;
-  final bool showNavBar, resizeToAvoidBottomInset, useSafeArea;
-  final Color? backgroundColor;
+  final bool showNavBar, resizeToAvoidBottomInset, hasAppBar;
+  final Color? backgroundColor, appBarColor;
 
   const FScaffold({
     super.key,
     required this.body,
     this.padding = 0.0,
     this.showNavBar = false,
-    this.useSafeArea = false,
+    this.hasAppBar = false,
     this.resizeToAvoidBottomInset = true,
     this.bottomWidget = const SizedBox(),
     this.appBarWidget = const SizedBox(),
     this.backgroundColor,
+    this.appBarColor = kWhiteColor,
   });
 
   @override
@@ -28,19 +29,18 @@ class FScaffold extends StatelessWidget {
       backgroundColor:
           backgroundColor ?? Theme.of(context).scaffoldBackgroundColor,
       resizeToAvoidBottomInset: resizeToAvoidBottomInset,
-
       body:
-          useSafeArea
+          hasAppBar
               ? CustomScrollView(
                 slivers: [
                   SliverAppBar(
                     pinned: true,
                     floating: true,
-                    backgroundColor: kWhiteColor,
+                    backgroundColor: appBarColor,
                     elevation: 0,
                     automaticallyImplyLeading: false,
                     title:
-                        useSafeArea
+                        hasAppBar
                             ? SafeArea(child: appBarWidget.paddingOnly())
                             : appBarWidget.paddingOnly(),
                   ),

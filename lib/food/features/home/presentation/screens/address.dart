@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:food/food/components/buttons/buttons.dart';
 import 'package:food/food/components/image.dart';
-import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/core/constants/app_constants.dart';
 import 'package:food/food/features/home/presentation/widgets/circle_widget.dart';
 import 'package:food/food/features/onboarding/presentation/widgets/food_container.dart';
@@ -10,6 +8,7 @@ import 'package:food/generated/assets.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 
+import '../../../../components/buttons/buttons.dart';
 import '../../../../components/texts/texts.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../core/theme/colors.dart';
@@ -24,38 +23,100 @@ class Address extends StatelessWidget {
   Widget build(BuildContext context) {
     final nav = GetIt.instance<NavigationService>();
 
-    return FScaffold(
-      appBarWidget: Row(
-        children: [
-          BackWidget(color: kGreyColor),
-          20.horizontalSpace,
-          FText(
-            text: "My Addresses",
-            fontSize: 17.sp,
-            fontWeight: FontWeight.w400,
-            color: kBlackColor,
+    return Scaffold(
+      extendBody: true,
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(56.h),
+        child: AppBar(
+          backgroundColor: kWhiteColor,
+          elevation: 0,
+          automaticallyImplyLeading: false,
+          title: Row(
+            children: [
+              BackWidget(color: kGreyColor),
+              20.horizontalSpace,
+              FText(
+                text: "Address",
+                fontSize: 17.sp,
+                fontWeight: FontWeight.w400,
+                color: kBlackColor,
+              ),
+            ],
           ),
-        ],
+        ),
       ),
-      useSafeArea: true,
       body: Stack(
         children: [
-          Positioned.fill(
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  24.verticalSpace,
-                  AddressWidget(addressType: AddressType.home, address: ""),
-                  AddressWidget(
-                    addressType: AddressType.home,
-                    address: "Car park from buggatti veyron farreri la ferrari",
-                  ),
-                ],
-              ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
+          SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  children: [
+                    24.verticalSpace,
+                    AddressWidget(addressType: AddressType.home, address: ""),
+                    AddressWidget(
+                      addressType: AddressType.home,
+                      address:
+                          "Car park from buggatti veyron farreri la ferrari",
+                    ),
+                    AddressWidget(
+                      addressType: AddressType.home,
+                      address:
+                          "Car park from buggatti veyron farreri la ferrari",
+                    ),
+                    AddressWidget(
+                      addressType: AddressType.home,
+                      address:
+                          "Car park from buggatti veyron farreri la ferrari",
+                    ),
+                    AddressWidget(
+                      addressType: AddressType.home,
+                      address:
+                          "Car park from buggatti veyron farreri la ferrari",
+                    ),
+                    AddressWidget(
+                      addressType: AddressType.home,
+                      address:
+                          "Car park from buggatti veyron farreri la ferrari",
+                    ),
+                    AddressWidget(
+                      addressType: AddressType.home,
+                      address:
+                          "Car park from buggatti veyron farreri la ferrari",
+                    ),
+                    AddressWidget(
+                      addressType: AddressType.home,
+                      address:
+                          "Car park from buggatti veyron farreri la ferrari",
+                    ),
+                    AddressWidget(
+                      addressType: AddressType.home,
+                      address:
+                          "Car park from buggatti veyron farreri la ferrari",
+                    ),
+                    AddressWidget(
+                      addressType: AddressType.home,
+                      address:
+                          "Car park from buggatti veyron farreri la ferrari",
+                    ),
+                    AddressWidget(
+                      addressType: AddressType.home,
+                      address:
+                          "Car park from buggatti veyron farreri la ferrari",
+                    ),
+                    AddressWidget(
+                      addressType: AddressType.home,
+                      address:
+                          "Car park from buggatti veyron farreri la ferrari",
+                    ),
+                  ],
+                ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
+              ],
             ),
           ),
           Positioned(
-            bottom: 20,
+            bottom: 10,
             left: 0,
             right: 0,
             child: FButton(

@@ -33,7 +33,7 @@ class _AuthTemplateState extends State<AuthTemplate> {
   Widget build(BuildContext context) {
     return FScaffold(
       resizeToAvoidBottomInset: true,
-      useSafeArea: false,
+      hasAppBar: false,
       body: Stack(
         children: [
           Container(width: 1.sw, color: kAuthBgColorDark),

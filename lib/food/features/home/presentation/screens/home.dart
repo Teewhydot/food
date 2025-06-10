@@ -685,7 +685,7 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return FScaffold(
-      useSafeArea: true,
+      hasAppBar: true,
       appBarWidget: GestureDetector(
         onTap: () {
           DFoodUtils.showDialogContainer(

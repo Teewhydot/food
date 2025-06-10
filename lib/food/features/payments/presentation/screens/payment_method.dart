@@ -110,7 +110,7 @@ class _PaymentMethodState extends State<PaymentMethod> {
           ),
         ],
       ),
-      useSafeArea: true,
+      hasAppBar: true,
       body: Column(
         children: [
           30.verticalSpace,

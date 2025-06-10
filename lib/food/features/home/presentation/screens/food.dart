@@ -31,7 +31,7 @@ class Food extends StatelessWidget {
       builder: (context, state) {
         if (state is CartLoaded) {
           return FScaffold(
-            useSafeArea: true,
+            hasAppBar: true,
             appBarWidget: Row(
               children: [
                 BackWidget(color: kContainerColor),
