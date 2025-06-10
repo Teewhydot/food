@@ -25,112 +25,388 @@ class PersonalInfo extends StatelessWidget {
     // done
     return FScaffold(
       useSafeArea: true,
-      appBarWidget: Row(
-        children: [
-          BackWidget(color: kGreyColor),
-          20.horizontalSpace,
-          FText(
-            text: "Personal Info",
-            fontSize: 17.sp,
-            fontWeight: FontWeight.w400,
-            color: kBlackColor,
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              FText(
-                text: "Edit".toUpperCase(),
-                fontSize: 17.sp,
-                fontWeight: FontWeight.w400,
-                color: kPrimaryColor,
-                decorations: [TextDecoration.underline],
-              ).onTap(() {
-                nav.navigateTo(Routes.editProfile);
-              }),
-            ],
-          ),
-          30.verticalSpace,
-          Expanded(
-            child: ListView(
+      appBarWidget: GestureDetector(
+        onTap: () {
+          nav.navigateTo(Routes.home);
+        },
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
               children: [
-                Row(
-                  children: [
-                    CircleWidget(radius: 50, color: kPrimaryColor),
-                    32.horizontalSpace,
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        FText(
-                          text: "Vishal Dharma",
-                          fontSize: 20.sp,
-                          fontWeight: FontWeight.w500,
-                          color: kBlackColor,
-                        ),
-                        8.verticalSpace,
-                        FText(
-                          text: "I hate fast food",
-                          fontSize: 13.sp,
-                          fontWeight: FontWeight.w400,
-                          color: kContainerColor,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                32.verticalSpace,
-                Container(
-                  width: 1.sw,
-                  decoration: BoxDecoration(
-                    color: kLightGreyColor,
-
-                    borderRadius: BorderRadius.all(Radius.circular(16)),
-                  ),
-                  child: Column(
-                    spacing: 16,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      PersonalInfoWidget(
-                        field: 'full name',
-                        value: "Visha Dharma",
-                        child: FImage(
-                          assetPath: Assets.svgsPersonalInfo,
-                          assetType: FoodAssetType.svg,
-                          width: 12,
-                          height: 14,
-                        ),
-                      ),
-                      PersonalInfoWidget(
-                        field: 'email',
-                        value: "tchipsical@gmail.com",
-                        child: FImage(
-                          assetPath: Assets.svgsEmail,
-                          assetType: FoodAssetType.svg,
-                          width: 12,
-                          height: 14,
-                        ),
-                      ),
-                      PersonalInfoWidget(
-                        field: 'phone number',
-                        value: "08068787087",
-                        child: FImage(
-                          assetPath: Assets.svgsPhoneNum,
-                          assetType: FoodAssetType.svg,
-                          width: 12,
-                          height: 14,
-                        ),
-                      ),
-                    ],
-                  ).paddingAll(20),
+                BackWidget(color: kGreyColor),
+                20.horizontalSpace,
+                FText(
+                  text: "Personal Info",
+                  fontSize: 17.sp,
+                  fontWeight: FontWeight.w400,
+                  color: kBlackColor,
                 ),
               ],
             ),
-          ),
-        ],
-      ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
+            FText(
+              text: "Edit".toUpperCase(),
+              fontSize: 17.sp,
+              fontWeight: FontWeight.w400,
+              color: kPrimaryColor,
+              decorations: [TextDecoration.underline],
+            ).onTap(() {
+              nav.navigateTo(Routes.editProfile);
+            }),
+          ],
+        ),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Row(
+              children: [
+                CircleWidget(radius: 50, color: kPrimaryColor),
+                32.horizontalSpace,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    FText(
+                      text: "Vishal Dharma",
+                      fontSize: 20.sp,
+                      fontWeight: FontWeight.w500,
+                      color: kBlackColor,
+                    ),
+                    8.verticalSpace,
+                    FText(
+                      text: "I hate fast food",
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w400,
+                      color: kContainerColor,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            32.verticalSpace,
+            Container(
+              width: 1.sw,
+              decoration: BoxDecoration(
+                color: kLightGreyColor,
+
+                borderRadius: BorderRadius.all(Radius.circular(16)),
+              ),
+              child: Column(
+                spacing: 16,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  PersonalInfoWidget(
+                    field: 'full name',
+                    value: "Visha Dharma",
+                    child: FImage(
+                      assetPath: Assets.svgsPersonalInfo,
+                      assetType: FoodAssetType.svg,
+                      width: 12,
+                      height: 14,
+                    ),
+                  ),
+                  PersonalInfoWidget(
+                    field: 'email',
+                    value: "tchipsical@gmail.com",
+                    child: FImage(
+                      assetPath: Assets.svgsEmail,
+                      assetType: FoodAssetType.svg,
+                      width: 12,
+                      height: 14,
+                    ),
+                  ),
+                  PersonalInfoWidget(
+                    field: 'phone number',
+                    value: "08068787087",
+                    child: FImage(
+                      assetPath: Assets.svgsPhoneNum,
+                      assetType: FoodAssetType.svg,
+                      width: 12,
+                      height: 14,
+                    ),
+                  ),
+                ],
+              ).paddingAll(20),
+            ),
+            Row(
+              children: [
+                CircleWidget(radius: 50, color: kPrimaryColor),
+                32.horizontalSpace,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    FText(
+                      text: "Vishal Dharma",
+                      fontSize: 20.sp,
+                      fontWeight: FontWeight.w500,
+                      color: kBlackColor,
+                    ),
+                    8.verticalSpace,
+                    FText(
+                      text: "I hate fast food",
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w400,
+                      color: kContainerColor,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            32.verticalSpace,
+            Container(
+              width: 1.sw,
+              decoration: BoxDecoration(
+                color: kLightGreyColor,
+
+                borderRadius: BorderRadius.all(Radius.circular(16)),
+              ),
+              child: Column(
+                spacing: 16,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  PersonalInfoWidget(
+                    field: 'full name',
+                    value: "Visha Dharma",
+                    child: FImage(
+                      assetPath: Assets.svgsPersonalInfo,
+                      assetType: FoodAssetType.svg,
+                      width: 12,
+                      height: 14,
+                    ),
+                  ),
+                  PersonalInfoWidget(
+                    field: 'email',
+                    value: "tchipsical@gmail.com",
+                    child: FImage(
+                      assetPath: Assets.svgsEmail,
+                      assetType: FoodAssetType.svg,
+                      width: 12,
+                      height: 14,
+                    ),
+                  ),
+                  PersonalInfoWidget(
+                    field: 'phone number',
+                    value: "08068787087",
+                    child: FImage(
+                      assetPath: Assets.svgsPhoneNum,
+                      assetType: FoodAssetType.svg,
+                      width: 12,
+                      height: 14,
+                    ),
+                  ),
+                ],
+              ).paddingAll(20),
+            ),
+            Row(
+              children: [
+                CircleWidget(radius: 50, color: kPrimaryColor),
+                32.horizontalSpace,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    FText(
+                      text: "Vishal Dharma",
+                      fontSize: 20.sp,
+                      fontWeight: FontWeight.w500,
+                      color: kBlackColor,
+                    ),
+                    8.verticalSpace,
+                    FText(
+                      text: "I hate fast food",
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w400,
+                      color: kContainerColor,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            32.verticalSpace,
+            Container(
+              width: 1.sw,
+              decoration: BoxDecoration(
+                color: kLightGreyColor,
+
+                borderRadius: BorderRadius.all(Radius.circular(16)),
+              ),
+              child: Column(
+                spacing: 16,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  PersonalInfoWidget(
+                    field: 'full name',
+                    value: "Visha Dharma",
+                    child: FImage(
+                      assetPath: Assets.svgsPersonalInfo,
+                      assetType: FoodAssetType.svg,
+                      width: 12,
+                      height: 14,
+                    ),
+                  ),
+                  PersonalInfoWidget(
+                    field: 'email',
+                    value: "tchipsical@gmail.com",
+                    child: FImage(
+                      assetPath: Assets.svgsEmail,
+                      assetType: FoodAssetType.svg,
+                      width: 12,
+                      height: 14,
+                    ),
+                  ),
+                  PersonalInfoWidget(
+                    field: 'phone number',
+                    value: "08068787087",
+                    child: FImage(
+                      assetPath: Assets.svgsPhoneNum,
+                      assetType: FoodAssetType.svg,
+                      width: 12,
+                      height: 14,
+                    ),
+                  ),
+                ],
+              ).paddingAll(20),
+            ),
+            Row(
+              children: [
+                CircleWidget(radius: 50, color: kPrimaryColor),
+                32.horizontalSpace,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    FText(
+                      text: "Vishal Dharma",
+                      fontSize: 20.sp,
+                      fontWeight: FontWeight.w500,
+                      color: kBlackColor,
+                    ),
+                    8.verticalSpace,
+                    FText(
+                      text: "I hate fast food",
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w400,
+                      color: kContainerColor,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            32.verticalSpace,
+            Container(
+              width: 1.sw,
+              decoration: BoxDecoration(
+                color: kLightGreyColor,
+
+                borderRadius: BorderRadius.all(Radius.circular(16)),
+              ),
+              child: Column(
+                spacing: 16,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  PersonalInfoWidget(
+                    field: 'full name',
+                    value: "Visha Dharma",
+                    child: FImage(
+                      assetPath: Assets.svgsPersonalInfo,
+                      assetType: FoodAssetType.svg,
+                      width: 12,
+                      height: 14,
+                    ),
+                  ),
+                  PersonalInfoWidget(
+                    field: 'email',
+                    value: "tchipsical@gmail.com",
+                    child: FImage(
+                      assetPath: Assets.svgsEmail,
+                      assetType: FoodAssetType.svg,
+                      width: 12,
+                      height: 14,
+                    ),
+                  ),
+                  PersonalInfoWidget(
+                    field: 'phone number',
+                    value: "08068787087",
+                    child: FImage(
+                      assetPath: Assets.svgsPhoneNum,
+                      assetType: FoodAssetType.svg,
+                      width: 12,
+                      height: 14,
+                    ),
+                  ),
+                ],
+              ).paddingAll(20),
+            ),
+            Row(
+              children: [
+                CircleWidget(radius: 50, color: kPrimaryColor),
+                32.horizontalSpace,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    FText(
+                      text: "Vishal Dharma",
+                      fontSize: 20.sp,
+                      fontWeight: FontWeight.w500,
+                      color: kBlackColor,
+                    ),
+                    8.verticalSpace,
+                    FText(
+                      text: "I hate fast food",
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w400,
+                      color: kContainerColor,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            32.verticalSpace,
+            Container(
+              width: 1.sw,
+              decoration: BoxDecoration(
+                color: kLightGreyColor,
+
+                borderRadius: BorderRadius.all(Radius.circular(16)),
+              ),
+              child: Column(
+                spacing: 16,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  PersonalInfoWidget(
+                    field: 'full name',
+                    value: "Visha Dharma",
+                    child: FImage(
+                      assetPath: Assets.svgsPersonalInfo,
+                      assetType: FoodAssetType.svg,
+                      width: 12,
+                      height: 14,
+                    ),
+                  ),
+                  PersonalInfoWidget(
+                    field: 'email',
+                    value: "tchipsical@gmail.com",
+                    child: FImage(
+                      assetPath: Assets.svgsEmail,
+                      assetType: FoodAssetType.svg,
+                      width: 12,
+                      height: 14,
+                    ),
+                  ),
+                  PersonalInfoWidget(
+                    field: 'phone number',
+                    value: "08068787087",
+                    child: FImage(
+                      assetPath: Assets.svgsPhoneNum,
+                      assetType: FoodAssetType.svg,
+                      width: 12,
+                      height: 14,
+                    ),
+                  ),
+                ],
+              ).paddingAll(20),
+            ),
+          ],
+        ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
+      ),
     );
   }
 }

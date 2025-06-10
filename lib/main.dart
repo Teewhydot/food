@@ -9,6 +9,7 @@ import 'package:food/food/core/theme/theme.dart';
 import 'package:get/get.dart';
 
 void main() {
+  // debugPaintSizeEnabled = true;
   AppConfig.init();
   runApp(MultiBlocProvider(providers: blocs, child: const MyApp()));
 }
@@ -16,7 +17,6 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(

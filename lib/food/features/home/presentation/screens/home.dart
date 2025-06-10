@@ -820,15 +820,13 @@ class _HomeState extends State<Home> {
               ],
             ),
             Spacer(),
-            CartWidget().paddingOnly(right: AppConstants.defaultPadding.w),
+            CartWidget(),
           ],
         ),
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            24.verticalSpace,
-
             Row(
               children: [
                 FText(
@@ -848,8 +846,6 @@ class _HomeState extends State<Home> {
                 ),
               ],
             ),
-            // 16.verticalSpace,
-            // SearchWidget(),
             32.verticalSpace,
             SectionHead(
               actionText: "Search",

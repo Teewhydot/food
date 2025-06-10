@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:food/food/core/theme/colors.dart';
 import 'package:get/get.dart';
-
-import '../core/constants/app_constants.dart';
 
 class FScaffold extends StatelessWidget {
   final Widget body, bottomWidget, appBarWidget;
@@ -29,16 +28,31 @@ class FScaffold extends StatelessWidget {
       backgroundColor:
           backgroundColor ?? Theme.of(context).scaffoldBackgroundColor,
       resizeToAvoidBottomInset: resizeToAvoidBottomInset,
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(60.h),
-        child:
-            useSafeArea
-                ? SafeArea(
-                  child: appBarWidget,
-                ).paddingOnly(left: AppConstants.defaultPadding)
-                : appBarWidget.paddingOnly(left: AppConstants.defaultPadding),
-      ),
-      body: Padding(padding: EdgeInsets.all(padding).r, child: body),
+
+      body:
+          useSafeArea
+              ? CustomScrollView(
+                slivers: [
+                  SliverAppBar(
+                    pinned: true,
+                    floating: true,
+                    backgroundColor: kWhiteColor,
+                    elevation: 0,
+                    automaticallyImplyLeading: false,
+                    title:
+                        useSafeArea
+                            ? SafeArea(child: appBarWidget.paddingOnly())
+                            : appBarWidget.paddingOnly(),
+                  ),
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.all(padding).r,
+                      child: body,
+                    ),
+                  ),
+                ],
+              )
+              : body,
       bottomNavigationBar: bottomWidget,
     );
   }

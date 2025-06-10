@@ -50,6 +50,7 @@ dependencies:
   path_provider: ^2.1.5
   skeletonizer: ^1.4.3
   hydrated_bloc: ^10.0.0
+  sticky_headers: ^0.3.0+2
 
 
 
