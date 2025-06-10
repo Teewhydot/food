@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../../../../components/scaffold.dart';
 import '../../../../components/texts/texts.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
@@ -21,21 +20,29 @@ class Notifications extends StatelessWidget {
   Widget build(BuildContext context) {
     final nav = GetIt.instance<NavigationService>();
 
-    return FScaffold(
-      appBarWidget: Row(
-        children: [
-          BackWidget(color: kContainerColor),
-          10.horizontalSpace,
-          FText(
-            text: "Notifications",
-            fontWeight: FontWeight.w400,
-            fontSize: 17,
+    return Scaffold(
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(56.h),
+        child: AppBar(
+          backgroundColor: kWhiteColor,
+          elevation: 0,
+          automaticallyImplyLeading: false,
+          title: Row(
+            children: [
+              BackWidget(color: kGreyColor),
+              20.horizontalSpace,
+              FText(
+                text: "Notifications",
+                fontSize: 17.sp,
+                fontWeight: FontWeight.w400,
+                color: kBlackColor,
+              ),
+            ],
           ),
-        ],
+        ),
       ),
       body: Column(
         children: [
-          24.verticalSpace,
           Expanded(
             child: ContainedTabBarView(
               tabBarProperties: TabBarProperties(

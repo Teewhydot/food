@@ -790,7 +790,7 @@ class _HomeState extends State<Home> {
                     nav.navigateTo(Routes.menu);
                   },
                 ),
-                18.horizontalSpace,
+                20.horizontalSpace,
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

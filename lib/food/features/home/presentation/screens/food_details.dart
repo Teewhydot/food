@@ -117,7 +117,6 @@ class _FoodDetailsState extends State<FoodDetails> {
                       onPressed: () {
                         final finalFoodEntity = widget.foodEntity.copyWith(
                           quantity: foodQuantity,
-                          price: totalPrice,
                         );
                         context.read<CartCubit>().addFood(finalFoodEntity);
                         nav.goBack();

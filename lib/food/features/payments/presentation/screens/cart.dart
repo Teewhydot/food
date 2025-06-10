@@ -41,7 +41,7 @@ class _CartState extends State<Cart> {
               appBarWidget: Row(
                 children: [
                   BackWidget(),
-                  18.horizontalSpace,
+                  20.horizontalSpace,
                   FText(text: "Cart", color: kWhiteColor),
                   Spacer(),
                 ],
