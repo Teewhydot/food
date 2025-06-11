@@ -118,7 +118,7 @@ class FWrapText extends StatelessWidget {
         children: [
           Text(
             text,
-            textAlign: textAlign, // Ensures text is centered
+            textAlign: textAlign,
             overflow: textOverflow,
             style: GoogleFonts.sen(
               fontSize: fontSize.sp,
@@ -127,6 +127,39 @@ class FWrapText extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class FConstrainedText extends StatelessWidget {
+  final double maxWidth, minWidth;
+  final String text;
+  final double fontSize;
+  final Color color;
+  final FontWeight fontWeight;
+
+  const FConstrainedText({
+    super.key,
+    required this.text,
+    this.maxWidth = double.infinity,
+    this.minWidth = 0.0,
+    this.fontSize = 16.0,
+    this.color = kBlackColor,
+    this.fontWeight = FontWeight.bold,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: maxWidth, minWidth: minWidth),
+      child: Text(
+        text,
+        style: GoogleFonts.sen(
+          fontSize: fontSize.sp,
+          color: color,
+          fontWeight: fontWeight,
+        ),
       ),
     );
   }

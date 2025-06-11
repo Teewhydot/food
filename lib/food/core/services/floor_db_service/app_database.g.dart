@@ -102,9 +102,9 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `recent_keywords` (`keyword` TEXT NOT NULL, PRIMARY KEY (`keyword`))');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `user_profile` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `firstName` TEXT NOT NULL, `lastName` TEXT NOT NULL, `email` TEXT NOT NULL, `phoneNumber` TEXT NOT NULL)');
+            'CREATE TABLE IF NOT EXISTS `user_profile` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `firstName` TEXT NOT NULL, `lastName` TEXT NOT NULL, `email` TEXT NOT NULL, `phoneNumber` TEXT NOT NULL, `bio` TEXT)');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `addresses` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `userId` INTEGER NOT NULL, `street` TEXT NOT NULL, `city` TEXT NOT NULL, `state` TEXT NOT NULL, `zipCode` TEXT NOT NULL, FOREIGN KEY (`userId`) REFERENCES `user_profile` (`id`) ON UPDATE NO ACTION ON DELETE CASCADE)');
+            'CREATE TABLE IF NOT EXISTS `addresses` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `userId` TEXT NOT NULL, `street` TEXT NOT NULL, `city` TEXT NOT NULL, `state` TEXT NOT NULL, `zipCode` TEXT NOT NULL, `type` TEXT NOT NULL, FOREIGN KEY (`userId`) REFERENCES `user_profile` (`id`) ON UPDATE NO ACTION ON DELETE CASCADE)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -196,7 +196,8 @@ class _$UserProfileDao extends UserProfileDao {
                   'firstName': item.firstName,
                   'lastName': item.lastName,
                   'email': item.email,
-                  'phoneNumber': item.phoneNumber
+                  'phoneNumber': item.phoneNumber,
+                  'bio': item.bio
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -209,13 +210,14 @@ class _$UserProfileDao extends UserProfileDao {
 
   @override
   Future<UserProfileEntity?> getUserProfile() async {
-    return _queryAdapter.query('SELECT * FROM user_profile',
+    return _queryAdapter.query('SELECT * FROM user_profile LIMIT 1',
         mapper: (Map<String, Object?> row) => UserProfileEntity(
             id: row['id'] as int?,
             firstName: row['firstName'] as String,
             lastName: row['lastName'] as String,
             email: row['email'] as String,
-            phoneNumber: row['phoneNumber'] as String));
+            phoneNumber: row['phoneNumber'] as String,
+            bio: row['bio'] as String?));
   }
 
   @override
@@ -244,7 +246,8 @@ class _$AddressDao extends AddressDao {
                   'street': item.street,
                   'city': item.city,
                   'state': item.state,
-                  'zipCode': item.zipCode
+                  'zipCode': item.zipCode,
+                  'type': item.type
                 }),
         _addressEntityDeletionAdapter = DeletionAdapter(
             database,
@@ -256,7 +259,8 @@ class _$AddressDao extends AddressDao {
                   'street': item.street,
                   'city': item.city,
                   'state': item.state,
-                  'zipCode': item.zipCode
+                  'zipCode': item.zipCode,
+                  'type': item.type
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -274,11 +278,12 @@ class _$AddressDao extends AddressDao {
     return _queryAdapter.queryList('SELECT * FROM addresses WHERE userId = ?1',
         mapper: (Map<String, Object?> row) => AddressEntity(
             id: row['id'] as int?,
-            userId: row['userId'] as int,
+            userId: row['userId'] as String,
             street: row['street'] as String,
             city: row['city'] as String,
             state: row['state'] as String,
-            zipCode: row['zipCode'] as String),
+            zipCode: row['zipCode'] as String,
+            type: row['type'] as String),
         arguments: [userId]);
   }
 

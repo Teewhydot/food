@@ -21,8 +21,8 @@ import '../../../../core/theme/colors.dart';
 import '../../../auth/presentation/widgets/back_widget.dart';
 
 class EditProfile extends StatefulWidget {
-  const EditProfile({super.key});
-
+  final UserProfileEntity userProfile;
+  const EditProfile({super.key, required this.userProfile});
   @override
   State<EditProfile> createState() => _EditProfileState();
 }
@@ -36,13 +36,22 @@ class _EditProfileState extends State<EditProfile> {
   final bioController = TextEditingController();
   final db = UserProfileDatabaseService();
   String email = "";
-  @override
-  void initState() async {
-    super.initState();
+  void getUserProfile() async {
     final user = await (await db.database).userProfileDao.getUserProfile();
     if (user != null) {
       email = user.email;
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    firstNameController.text = widget.userProfile.firstName;
+    lastNameController.text = widget.userProfile.lastName;
+    phoneController.text = widget.userProfile.phoneNumber;
+    bioController.text = widget.userProfile.bio ?? "";
+
+    getUserProfile();
   }
 
   @override

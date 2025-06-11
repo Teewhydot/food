@@ -17,11 +17,12 @@ import 'profile.dart';
 class AddressEntity {
   @PrimaryKey(autoGenerate: true)
   final int? id;
-  final int userId;
+  final String userId;
   final String street;
   final String city;
   final String state;
   final String zipCode;
+  final String type;
 
   AddressEntity({
     this.id,
@@ -30,6 +31,7 @@ class AddressEntity {
     required this.city,
     required this.state,
     required this.zipCode,
+    this.type = 'home',
   });
 
   factory AddressEntity.fromJson(Map<String, dynamic> json) {
@@ -41,6 +43,7 @@ class AddressEntity {
       city: json['city'] as String,
       state: json['state'] as String,
       zipCode: json['zipCode'] as String,
+      type: json['type'] as String,
     );
   }
 
@@ -52,6 +55,7 @@ class AddressEntity {
       'city': city,
       'state': state,
       'zipCode': zipCode,
+      'type': type,
     };
   }
 }

@@ -7,7 +7,7 @@ abstract class UserProfileDao {
   @Insert(onConflict: OnConflictStrategy.replace)
   Future<void> saveUserProfile(UserProfileEntity userProfile);
 
-  @Query('SELECT * FROM ${FloorDbConstants.userProfileTableName}')
+  @Query('SELECT * FROM ${FloorDbConstants.userProfileTableName} LIMIT 1')
   Future<UserProfileEntity?> getUserProfile();
 
   @Query('DELETE FROM ${FloorDbConstants.userProfileTableName}')

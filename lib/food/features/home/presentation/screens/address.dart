@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/image.dart';
 import 'package:food/food/core/constants/app_constants.dart';
+import 'package:food/food/features/home/manager/address/address_cubit.dart';
 import 'package:food/food/features/home/presentation/widgets/circle_widget.dart';
 import 'package:food/food/features/onboarding/presentation/widgets/food_container.dart';
 import 'package:food/generated/assets.dart';
@@ -23,109 +25,169 @@ class Address extends StatelessWidget {
   Widget build(BuildContext context) {
     final nav = GetIt.instance<NavigationService>();
 
-    return Scaffold(
-      extendBody: true,
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(56.h),
-        child: AppBar(
-          backgroundColor: kWhiteColor,
-          elevation: 0,
-          automaticallyImplyLeading: false,
-          title: Row(
-            children: [
-              BackWidget(color: kGreyColor),
-              20.horizontalSpace,
-              FText(
-                text: "Address",
-                fontSize: 17.sp,
-                fontWeight: FontWeight.w400,
-                color: kBlackColor,
+    return BlocBuilder<AddressCubit, AddressState>(
+      builder: (context, state) {
+        if (state is AddressLoaded) {
+          if (state.addresses.isEmpty) {
+            return Scaffold(
+              extendBody: true,
+              appBar: PreferredSize(
+                preferredSize: Size.fromHeight(56.h),
+                child: AppBar(
+                  backgroundColor: kWhiteColor,
+                  elevation: 0,
+                  automaticallyImplyLeading: false,
+                  title: Row(
+                    children: [
+                      BackWidget(color: kGreyColor),
+                      20.horizontalSpace,
+                      FText(
+                        text: "Address",
+                        fontSize: 17.sp,
+                        fontWeight: FontWeight.w400,
+                        color: kBlackColor,
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ],
-          ),
-        ),
-      ),
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
+              body: Center(
+                child: FText(
+                  text: "No addresses found",
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w400,
+                  color: kGreyColor,
+                ),
+              ),
+              floatingActionButtonLocation:
+                  FloatingActionButtonLocation.centerFloat,
+              floatingActionButton: FButton(
+                buttonText: "Add new address",
+                width: 1.sw,
+                onPressed: () {},
+              ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
+            );
+          }
+          return Scaffold(
+            extendBody: true,
+            appBar: PreferredSize(
+              preferredSize: Size.fromHeight(56.h),
+              child: AppBar(
+                backgroundColor: kWhiteColor,
+                elevation: 0,
+                automaticallyImplyLeading: false,
+                title: Row(
                   children: [
-                    24.verticalSpace,
-                    AddressWidget(addressType: AddressType.home, address: ""),
-                    AddressWidget(
-                      addressType: AddressType.home,
-                      address:
-                          "Car park from buggatti veyron farreri la ferrari",
-                    ),
-                    AddressWidget(
-                      addressType: AddressType.home,
-                      address:
-                          "Car park from buggatti veyron farreri la ferrari",
-                    ),
-                    AddressWidget(
-                      addressType: AddressType.home,
-                      address:
-                          "Car park from buggatti veyron farreri la ferrari",
-                    ),
-                    AddressWidget(
-                      addressType: AddressType.home,
-                      address:
-                          "Car park from buggatti veyron farreri la ferrari",
-                    ),
-                    AddressWidget(
-                      addressType: AddressType.home,
-                      address:
-                          "Car park from buggatti veyron farreri la ferrari",
-                    ),
-                    AddressWidget(
-                      addressType: AddressType.home,
-                      address:
-                          "Car park from buggatti veyron farreri la ferrari",
-                    ),
-                    AddressWidget(
-                      addressType: AddressType.home,
-                      address:
-                          "Car park from buggatti veyron farreri la ferrari",
-                    ),
-                    AddressWidget(
-                      addressType: AddressType.home,
-                      address:
-                          "Car park from buggatti veyron farreri la ferrari",
-                    ),
-                    AddressWidget(
-                      addressType: AddressType.home,
-                      address:
-                          "Car park from buggatti veyron farreri la ferrari",
-                    ),
-                    AddressWidget(
-                      addressType: AddressType.home,
-                      address:
-                          "Car park from buggatti veyron farreri la ferrari",
-                    ),
-                    AddressWidget(
-                      addressType: AddressType.home,
-                      address:
-                          "Car park from buggatti veyron farreri la ferrari",
+                    BackWidget(color: kGreyColor),
+                    20.horizontalSpace,
+                    FText(
+                      text: "Address",
+                      fontSize: 17.sp,
+                      fontWeight: FontWeight.w400,
+                      color: kBlackColor,
                     ),
                   ],
-                ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
+                ),
+              ),
+            ),
+            body: Stack(
+              children: [
+                SingleChildScrollView(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        children:
+                            state.addresses.map((address) {
+                              return AddressWidget(
+                                addressType:
+                                    address.type == 'home'
+                                        ? AddressType.home
+                                        : AddressType.work,
+                                address: address.city,
+                              );
+                            }).toList(),
+                        // children: [
+                        //   24.verticalSpace,
+                        //   AddressWidget(
+                        //       addressType: AddressType.home, address: ""),
+                        //   AddressWidget(
+                        //     addressType: AddressType.home,
+                        //     address:
+                        //     "Car park from buggatti veyron farreri la ferrari",
+                        //   ),
+                        //   AddressWidget(
+                        //     addressType: AddressType.home,
+                        //     address:
+                        //     "Car park from buggatti veyron farreri la ferrari",
+                        //   ),
+                        //   AddressWidget(
+                        //     addressType: AddressType.home,
+                        //     address:
+                        //     "Car park from buggatti veyron farreri la ferrari",
+                        //   ),
+                        //   AddressWidget(
+                        //     addressType: AddressType.home,
+                        //     address:
+                        //     "Car park from buggatti veyron farreri la ferrari",
+                        //   ),
+                        //   AddressWidget(
+                        //     addressType: AddressType.home,
+                        //     address:
+                        //     "Car park from buggatti veyron farreri la ferrari",
+                        //   ),
+                        //   AddressWidget(
+                        //     addressType: AddressType.home,
+                        //     address:
+                        //     "Car park from buggatti veyron farreri la ferrari",
+                        //   ),
+                        //   AddressWidget(
+                        //     addressType: AddressType.home,
+                        //     address:
+                        //     "Car park from buggatti veyron farreri la ferrari",
+                        //   ),
+                        //   AddressWidget(
+                        //     addressType: AddressType.home,
+                        //     address:
+                        //     "Car park from buggatti veyron farreri la ferrari",
+                        //   ),
+                        //   AddressWidget(
+                        //     addressType: AddressType.home,
+                        //     address:
+                        //     "Car park from buggatti veyron farreri la ferrari",
+                        //   ),
+                        //   AddressWidget(
+                        //     addressType: AddressType.home,
+                        //     address:
+                        //     "Car park from buggatti veyron farreri la ferrari",
+                        //   ),
+                        //   AddressWidget(
+                        //     addressType: AddressType.home,
+                        //     address:
+                        //     "Car park from buggatti veyron farreri la ferrari",
+                        //   ),
+                        // ],
+                      ).paddingSymmetric(
+                        horizontal: AppConstants.defaultPadding,
+                      ),
+                    ],
+                  ),
+                ),
+                Positioned(
+                  bottom: 10,
+                  left: 0,
+                  right: 0,
+                  child: FButton(
+                    buttonText: "Add new address",
+                    width: 1.sw,
+                  ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
+                ),
               ],
             ),
-          ),
-          Positioned(
-            bottom: 10,
-            left: 0,
-            right: 0,
-            child: FButton(
-              buttonText: "Add new address",
-              width: 1.sw,
-            ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
-          ),
-        ],
-      ),
+          );
+        }
+        return SizedBox();
+      },
     );
   }
 }
@@ -133,6 +195,7 @@ class Address extends StatelessWidget {
 class AddressWidget extends StatelessWidget {
   final AddressType addressType;
   final String address;
+
   const AddressWidget({
     super.key,
     required this.addressType,
