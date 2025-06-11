@@ -10,6 +10,7 @@ class UserProfileEntity {
   final String lastName;
   final String email;
   final String phoneNumber;
+  final String? bio;
 
   UserProfileEntity({
     this.id,
@@ -17,5 +18,6 @@ class UserProfileEntity {
     required this.lastName,
     required this.email,
     required this.phoneNumber,
+    this.bio,
   });
 }

@@ -10,6 +10,8 @@ import 'package:food/food/core/utils/validators.dart';
 import 'package:food/food/features/auth/presentation/manager/auth_bloc/login/login_bloc.dart';
 import 'package:food/food/features/auth/presentation/widgets/auth_template.dart';
 import 'package:food/food/features/auth/presentation/widgets/custom_overlay.dart';
+import 'package:food/food/features/home/domain/entities/profile.dart';
+import 'package:food/food/features/home/manager/user_profile/user_profile_cubit.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:ionicons/ionicons.dart';
@@ -49,6 +51,16 @@ class _LoginState extends State<Login> {
       bloc: context.read<LoginBloc>(),
       listener: (context, state) {
         if (state is LoginSuccessState) {
+          context.read<UserProfileCubit>().updateUserProfile(
+            UserProfileEntity(
+              firstName: "Tunde",
+              lastName: "Adesina",
+              email: "tchipsical@gmail.com",
+              phoneNumber: "08012345678",
+              bio:
+                  "Food lover and tech enthusiast, also a software developer/flutter and golang.",
+            ),
+          );
           nav.navigateAndReplace(Routes.home);
         } else if (state is LoginFailureState) {
           DFoodUtils.showSnackBar(state.error, kErrorColor);

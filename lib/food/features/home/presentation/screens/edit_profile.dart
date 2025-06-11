@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/buttons/buttons.dart';
 import 'package:food/food/components/image.dart';
 import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/components/textfields.dart';
 import 'package:food/food/core/constants/app_constants.dart';
+import 'package:food/food/core/services/floor_db_service/user_profile/user_profile_database_service.dart';
+import 'package:food/food/features/auth/presentation/widgets/custom_overlay.dart';
+import 'package:food/food/features/home/domain/entities/profile.dart';
+import 'package:food/food/features/home/manager/user_profile/user_profile_cubit.dart';
 import 'package:food/food/features/home/presentation/widgets/circle_widget.dart';
 import 'package:food/generated/assets.dart';
 import 'package:get/get.dart';
@@ -24,79 +29,130 @@ class EditProfile extends StatefulWidget {
 
 class _EditProfileState extends State<EditProfile> {
   final nav = GetIt.instance<NavigationService>();
+  //controllers
+  final firstNameController = TextEditingController();
+  final lastNameController = TextEditingController();
+  final phoneController = TextEditingController();
+  final bioController = TextEditingController();
+  final db = UserProfileDatabaseService();
+  String email = "";
+  @override
+  void initState() async {
+    super.initState();
+    final user = await (await db.database).userProfileDao.getUserProfile();
+    if (user != null) {
+      email = user.email;
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    firstNameController.dispose();
+    lastNameController.dispose();
+    phoneController.dispose();
+    bioController.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return FScaffold(
-      appBarWidget: Row(
-        children: [
-          BackWidget(color: kGreyColor),
-          20.horizontalSpace,
-          FText(
-            text: "Edit profile",
-            fontSize: 17.sp,
-            fontWeight: FontWeight.w400,
-            color: kBlackColor,
+    return BlocListener<UserProfileCubit, UserProfileState>(
+      listener: (context, state) {
+        // TODO: implement listener
+      },
+      child: CustomOverlay(
+        isLoading:
+            context.watch<UserProfileCubit>().state is UserProfileLoading,
+        child: FScaffold(
+          appBarWidget: Row(
+            children: [
+              BackWidget(color: kGreyColor),
+              20.horizontalSpace,
+              FText(
+                text: "Edit profile",
+                fontSize: 17.sp,
+                fontWeight: FontWeight.w400,
+                color: kBlackColor,
+              ),
+            ],
           ),
-        ],
-      ),
-      hasAppBar: true,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            20.verticalSpace,
-            Stack(
+          hasAppBar: true,
+          body: SingleChildScrollView(
+            child: Column(
               children: [
-                CircleWidget(radius: 70, color: kPrimaryColor),
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: CircleWidget(
-                    radius: 20,
-                    color: kBlackColor,
-                    child: FImage(
-                      assetPath: Assets.svgsPencil,
-                      assetType: FoodAssetType.svg,
-                      width: 16,
-                      height: 16,
-                      svgAssetColor: kWhiteColor,
+                20.verticalSpace,
+                Stack(
+                  children: [
+                    CircleWidget(radius: 70, color: kPrimaryColor),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: CircleWidget(
+                        radius: 20,
+                        color: kBlackColor,
+                        child: FImage(
+                          assetPath: Assets.svgsPencil,
+                          assetType: FoodAssetType.svg,
+                          width: 16,
+                          height: 16,
+                          svgAssetColor: kWhiteColor,
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
-            30.verticalSpace,
-            FTextField(
-              hintText: "First Name",
-              action: TextInputAction.next,
-              label: "First Name",
-            ),
-            24.verticalSpace,
-            FTextField(
-              hintText: "Last Name",
-              action: TextInputAction.next,
-              label: "Last Name",
-            ),
+                30.verticalSpace,
+                FTextField(
+                  hintText: "First Name",
+                  action: TextInputAction.next,
+                  label: "First Name",
+                  controller: firstNameController,
+                ),
+                24.verticalSpace,
+                FTextField(
+                  hintText: "Last Name",
+                  action: TextInputAction.next,
+                  label: "Last Name",
+                  controller: lastNameController,
+                ),
 
-            24.verticalSpace,
-            FTextField(
-              hintText: "Phone",
-              action: TextInputAction.next,
-              label: "Phone",
-              keyboardType: TextInputType.phone,
-            ),
-            24.verticalSpace,
-            FTextField(
-              hintText: "",
-              action: TextInputAction.next,
-              label: "Bio",
-              height: 103,
-            ),
-            32.verticalSpace,
-            FButton(buttonText: "Save", width: 1.sw),
-            32.verticalSpace,
-          ],
-        ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
+                24.verticalSpace,
+                FTextField(
+                  hintText: "Phone",
+                  action: TextInputAction.next,
+                  label: "Phone",
+                  keyboardType: TextInputType.phone,
+                  controller: phoneController,
+                ),
+                24.verticalSpace,
+                FTextField(
+                  hintText: "",
+                  action: TextInputAction.next,
+                  label: "Bio",
+                  height: 103,
+                  controller: bioController,
+                ),
+                32.verticalSpace,
+                FButton(
+                  buttonText: "Save",
+                  width: 1.sw,
+                  onPressed: () {
+                    final updatedProfile = UserProfileEntity(
+                      firstName: firstNameController.text,
+                      lastName: lastNameController.text,
+                      email: email,
+                      phoneNumber: phoneController.text,
+                    );
+                    context.read<UserProfileCubit>().updateUserProfile(
+                      updatedProfile,
+                    );
+                  },
+                ),
+                32.verticalSpace,
+              ],
+            ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
+          ),
+        ),
       ),
     );
   }
