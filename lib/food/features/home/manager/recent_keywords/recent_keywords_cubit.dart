@@ -13,7 +13,7 @@ class RecentKeywordsCubit extends Cubit<RecentKeywordsState> {
   void addKeyword(String keyword) async {
     emit(RecentKeywordsLoading());
     try {
-      final recentKeyword = RecentKeyword(keyword);
+      final recentKeyword = RecentKeywordEntity(keyword);
       await (await db.database).recentsKeywordsDao.insertKeyword(recentKeyword);
       emit(RecentKeywordsAdded(recentKeyword));
       loadRecentKeywords();

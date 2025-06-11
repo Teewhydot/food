@@ -8,13 +8,13 @@ final class RecentKeywordsInitial extends RecentKeywordsState {}
 final class RecentKeywordsLoading extends RecentKeywordsState {}
 
 final class RecentKeywordsLoaded extends RecentKeywordsState {
-  final List<RecentKeyword> keywords;
+  final List<RecentKeywordEntity> keywords;
 
   RecentKeywordsLoaded(this.keywords);
 }
 
 final class RecentKeywordsAdded extends RecentKeywordsState {
-  final RecentKeyword keyword;
+  final RecentKeywordEntity keyword;
 
   RecentKeywordsAdded(this.keyword);
 }
