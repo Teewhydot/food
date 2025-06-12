@@ -17,7 +17,7 @@ import 'profile.dart';
 class AddressEntity {
   @PrimaryKey(autoGenerate: true)
   final int? id;
-  final String userId;
+  final int userId;
   final String street;
   final String city;
   final String state;

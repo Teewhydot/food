@@ -56,7 +56,10 @@ class PersonalInfo extends StatelessWidget {
                     color: kPrimaryColor,
                     decorations: [TextDecoration.underline],
                   ).onTap(() {
-                    nav.navigateTo(Routes.editProfile);
+                    nav.navigateTo(
+                      Routes.editProfile,
+                      arguments: state.userProfile,
+                    );
                   }),
                 ],
               ),

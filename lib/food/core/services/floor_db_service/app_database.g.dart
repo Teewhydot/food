@@ -104,7 +104,7 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `user_profile` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `firstName` TEXT NOT NULL, `lastName` TEXT NOT NULL, `email` TEXT NOT NULL, `phoneNumber` TEXT NOT NULL, `bio` TEXT)');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `addresses` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `userId` TEXT NOT NULL, `street` TEXT NOT NULL, `city` TEXT NOT NULL, `state` TEXT NOT NULL, `zipCode` TEXT NOT NULL, `type` TEXT NOT NULL, FOREIGN KEY (`userId`) REFERENCES `user_profile` (`id`) ON UPDATE NO ACTION ON DELETE CASCADE)');
+            'CREATE TABLE IF NOT EXISTS `addresses` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `userId` INTEGER NOT NULL, `street` TEXT NOT NULL, `city` TEXT NOT NULL, `state` TEXT NOT NULL, `zipCode` TEXT NOT NULL, `type` TEXT NOT NULL, FOREIGN KEY (`userId`) REFERENCES `user_profile` (`id`) ON UPDATE NO ACTION ON DELETE CASCADE)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -198,6 +198,18 @@ class _$UserProfileDao extends UserProfileDao {
                   'email': item.email,
                   'phoneNumber': item.phoneNumber,
                   'bio': item.bio
+                }),
+        _userProfileEntityUpdateAdapter = UpdateAdapter(
+            database,
+            'user_profile',
+            ['id'],
+            (UserProfileEntity item) => <String, Object?>{
+                  'id': item.id,
+                  'firstName': item.firstName,
+                  'lastName': item.lastName,
+                  'email': item.email,
+                  'phoneNumber': item.phoneNumber,
+                  'bio': item.bio
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -208,9 +220,11 @@ class _$UserProfileDao extends UserProfileDao {
 
   final InsertionAdapter<UserProfileEntity> _userProfileEntityInsertionAdapter;
 
+  final UpdateAdapter<UserProfileEntity> _userProfileEntityUpdateAdapter;
+
   @override
-  Future<UserProfileEntity?> getUserProfile() async {
-    return _queryAdapter.query('SELECT * FROM user_profile LIMIT 1',
+  Future<List<UserProfileEntity>> getUserProfile() async {
+    return _queryAdapter.queryList('SELECT * FROM user_profile',
         mapper: (Map<String, Object?> row) => UserProfileEntity(
             id: row['id'] as int?,
             firstName: row['firstName'] as String,
@@ -228,6 +242,12 @@ class _$UserProfileDao extends UserProfileDao {
   @override
   Future<void> saveUserProfile(UserProfileEntity userProfile) async {
     await _userProfileEntityInsertionAdapter.insert(
+        userProfile, OnConflictStrategy.replace);
+  }
+
+  @override
+  Future<void> updateUserProfile(UserProfileEntity userProfile) async {
+    await _userProfileEntityUpdateAdapter.update(
         userProfile, OnConflictStrategy.replace);
   }
 }
@@ -278,7 +298,7 @@ class _$AddressDao extends AddressDao {
     return _queryAdapter.queryList('SELECT * FROM addresses WHERE userId = ?1',
         mapper: (Map<String, Object?> row) => AddressEntity(
             id: row['id'] as int?,
-            userId: row['userId'] as String,
+            userId: row['userId'] as int,
             street: row['street'] as String,
             city: row['city'] as String,
             state: row['state'] as String,

@@ -7,6 +7,7 @@ import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/components/textfields.dart';
 import 'package:food/food/core/constants/app_constants.dart';
 import 'package:food/food/core/services/floor_db_service/user_profile/user_profile_database_service.dart';
+import 'package:food/food/core/utils/logger.dart';
 import 'package:food/food/features/auth/presentation/widgets/custom_overlay.dart';
 import 'package:food/food/features/home/domain/entities/profile.dart';
 import 'package:food/food/features/home/manager/user_profile/user_profile_cubit.dart';
@@ -23,6 +24,7 @@ import '../../../auth/presentation/widgets/back_widget.dart';
 class EditProfile extends StatefulWidget {
   final UserProfileEntity userProfile;
   const EditProfile({super.key, required this.userProfile});
+
   @override
   State<EditProfile> createState() => _EditProfileState();
 }
@@ -36,10 +38,13 @@ class _EditProfileState extends State<EditProfile> {
   final bioController = TextEditingController();
   final db = UserProfileDatabaseService();
   String email = "";
+  int id = 0;
   void getUserProfile() async {
     final user = await (await db.database).userProfileDao.getUserProfile();
-    if (user != null) {
-      email = user.email;
+    if (user.first.id != null) {
+      email = user.first.email;
+      id = user.first.id!;
+      Logger.logBasic("User ID: $id, Email: $email");
     }
   }
 
@@ -50,7 +55,6 @@ class _EditProfileState extends State<EditProfile> {
     lastNameController.text = widget.userProfile.lastName;
     phoneController.text = widget.userProfile.phoneNumber;
     bioController.text = widget.userProfile.bio ?? "";
-
     getUserProfile();
   }
 
@@ -139,6 +143,7 @@ class _EditProfileState extends State<EditProfile> {
                   action: TextInputAction.next,
                   label: "Bio",
                   height: 103,
+                  maxLine: 5,
                   controller: bioController,
                 ),
                 32.verticalSpace,
@@ -147,14 +152,17 @@ class _EditProfileState extends State<EditProfile> {
                   width: 1.sw,
                   onPressed: () {
                     final updatedProfile = UserProfileEntity(
+                      id: id,
                       firstName: firstNameController.text,
                       lastName: lastNameController.text,
                       email: email,
                       phoneNumber: phoneController.text,
+                      bio: bioController.text,
                     );
                     context.read<UserProfileCubit>().updateUserProfile(
                       updatedProfile,
                     );
+                    nav.goBack();
                   },
                 ),
                 32.verticalSpace,

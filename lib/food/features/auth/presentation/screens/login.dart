@@ -51,7 +51,7 @@ class _LoginState extends State<Login> {
       bloc: context.read<LoginBloc>(),
       listener: (context, state) {
         if (state is LoginSuccessState) {
-          context.read<UserProfileCubit>().updateUserProfile(
+          context.read<UserProfileCubit>().saveUserProfile(
             UserProfileEntity(
               firstName: "Tunde",
               lastName: "Adesina",

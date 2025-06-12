@@ -8,6 +8,7 @@ import 'package:food/food/components/texts/texts.dart';
 import 'package:food/food/core/constants/app_constants.dart';
 import 'package:food/food/core/services/floor_db_service/user_profile/user_profile_database_service.dart';
 import 'package:food/food/core/theme/colors.dart';
+import 'package:food/food/core/utils/logger.dart';
 import 'package:food/food/features/auth/presentation/widgets/back_widget.dart';
 import 'package:food/food/features/auth/presentation/widgets/custom_overlay.dart';
 import 'package:food/food/features/home/domain/entities/address.dart';
@@ -35,15 +36,16 @@ class _AddAddressState extends State<AddAddress> {
   final postCodeController = TextEditingController();
   final apartmentController = TextEditingController();
   final db = UserProfileDatabaseService();
-  String userId = "";
+  int userId = 0;
 
   @override
   void initState() async {
     super.initState();
     // Fetch user ID from the database
     final user = await (await db.database).userProfileDao.getUserProfile();
-    if (user != null) {
-      userId = user.id.toString();
+    if (user.first.id != null) {
+      Logger.logSuccess("User ID: ${user.first.id}");
+      userId = user.first.id!;
     }
   }
 
