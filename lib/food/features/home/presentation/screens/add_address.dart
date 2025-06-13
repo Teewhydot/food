@@ -15,12 +15,14 @@ import 'package:food/food/features/home/domain/entities/address.dart';
 import 'package:food/food/features/home/manager/address/address_cubit.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../../core/services/navigation_service/nav_config.dart';
 
 class AddAddress extends StatefulWidget {
-  const AddAddress({super.key});
+  final AddressEntity? addressEntity;
 
+  const AddAddress({super.key, this.addressEntity});
   @override
   State<AddAddress> createState() => _AddAddressState();
 }
@@ -34,6 +36,7 @@ class _AddAddressState extends State<AddAddress> {
   final stateController = TextEditingController();
   final postCodeController = TextEditingController();
   final apartmentController = TextEditingController();
+  final addressController = TextEditingController();
   final db = UserProfileDatabaseService();
   int userId = 0;
   String? selectedLabel;
@@ -42,6 +45,18 @@ class _AddAddressState extends State<AddAddress> {
   @override
   void initState() {
     super.initState();
+    if (widget.addressEntity != null) {
+      final address = widget.addressEntity!;
+      streetController.text = address.street;
+      cityController.text = address.city;
+      stateController.text = address.state;
+      postCodeController.text = address.zipCode;
+      apartmentController.text = address.street.split(',').first;
+      addressController.text = address.street.split(',').last;
+      selectedLabel = address.type;
+    } else {
+      selectedLabel = labels.first; // Default to the first label
+    }
   }
 
   @override
@@ -52,6 +67,7 @@ class _AddAddressState extends State<AddAddress> {
     stateController.dispose();
     postCodeController.dispose();
     apartmentController.dispose();
+    addressController.dispose();
   }
 
   @override
@@ -61,6 +77,8 @@ class _AddAddressState extends State<AddAddress> {
       child: CustomOverlay(
         isLoading: context.read<AddressCubit>().state is AddressLoading,
         child: FScaffold(
+          customScroll: false,
+          resizeToAvoidBottomInset: false,
           appBarWidget: Row(
             children: [
               BackWidget(color: kGreyColor),
@@ -77,7 +95,11 @@ class _AddAddressState extends State<AddAddress> {
             children: [
               Column(
                 children: [
-                  FTextField(hintText: "Address", action: TextInputAction.next),
+                  FTextField(
+                    hintText: "Address",
+                    action: TextInputAction.next,
+                    controller: addressController,
+                  ),
                   10.verticalSpace,
                   Row(
                     spacing: 15,
@@ -153,10 +175,11 @@ class _AddAddressState extends State<AddAddress> {
                 width: 1.sw,
                 onPressed: () {
                   final address = AddressEntity(
-                    street: streetController.text,
+                    id: Uuid().v4(),
+                    street:
+                        "${apartmentController.text}, ${addressController.text}",
                     city: cityController.text,
                     state: stateController.text,
-                    userId: userId,
                     zipCode: postCodeController.text,
                     type: selectedLabel!,
                   );

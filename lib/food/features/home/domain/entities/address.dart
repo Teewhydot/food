@@ -1,23 +1,11 @@
 import 'package:floor/floor.dart';
 
 import '../../../../core/services/floor_db_service/constants.dart';
-import 'profile.dart';
 
-@Entity(
-  tableName: FloorDbConstants.addressTableName,
-  foreignKeys: [
-    ForeignKey(
-      childColumns: ['userId'],
-      parentColumns: ['id'],
-      entity: UserProfileEntity,
-      onDelete: ForeignKeyAction.cascade,
-    ),
-  ],
-)
+@Entity(tableName: FloorDbConstants.addressTableName)
 class AddressEntity {
-  @PrimaryKey(autoGenerate: true)
-  final int? id;
-  final int userId;
+  @primaryKey
+  final String id;
   final String street;
   final String city;
   final String state;
@@ -25,8 +13,7 @@ class AddressEntity {
   final String type;
 
   AddressEntity({
-    this.id,
-    this.userId = 1, // Default userId to 1
+    required this.id,
     required this.street,
     required this.city,
     required this.state,
@@ -37,7 +24,6 @@ class AddressEntity {
   factory AddressEntity.fromJson(Map<String, dynamic> json) {
     return AddressEntity(
       id: json['id'],
-      userId: json['userId'] ?? 1, // Use 1 if userId is missing
       street: json['street'] as String,
       city: json['city'] as String,
       state: json['state'] as String,
@@ -49,7 +35,6 @@ class AddressEntity {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'userId': userId,
       'street': street,
       'city': city,
       'state': state,

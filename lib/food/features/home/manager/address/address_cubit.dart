@@ -7,7 +7,6 @@ part 'address_state.dart';
 
 class AddressCubit extends Cubit<AddressState> {
   AddressCubit() : super(AddressInitial());
-  int? userId;
   final db = AddressDatabaseService();
 
   void addAddress(AddressEntity address) async {
@@ -15,6 +14,7 @@ class AddressCubit extends Cubit<AddressState> {
     try {
       await (await db.database).addressDao.insertAddress(address);
       emit(AddressAdded(address: address));
+      loadAddresses();
     } catch (e) {
       emit(AddressError(errorMessage: e.toString()));
     }
@@ -35,7 +35,7 @@ class AddressCubit extends Cubit<AddressState> {
     try {
       await (await db.database).addressDao.insertAddress(address);
       emit(AddressUpdated(address: address));
-      // loadAddresses();
+      loadAddresses();
     } catch (e) {
       emit(AddressError(errorMessage: e.toString()));
     }
@@ -46,7 +46,7 @@ class AddressCubit extends Cubit<AddressState> {
     try {
       await (await db.database).addressDao.deleteAddress(address);
       emit(AddressDeleted(message: "Address deleted successfully"));
-      // loadAddresses();
+      loadAddresses();
     } catch (e) {
       emit(AddressError(errorMessage: e.toString()));
     }

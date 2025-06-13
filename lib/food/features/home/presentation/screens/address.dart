@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/image.dart';
+import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/core/constants/app_constants.dart';
+import 'package:food/food/core/helpers/extensions.dart';
 import 'package:food/food/core/routes/routes.dart';
+import 'package:food/food/features/home/domain/entities/address.dart';
 import 'package:food/food/features/home/manager/address/address_cubit.dart';
 import 'package:food/food/features/home/manager/user_profile/user_profile_cubit.dart';
 import 'package:food/food/features/home/presentation/widgets/circle_widget.dart';
@@ -45,50 +48,49 @@ class _AddressState extends State<Address> {
       builder: (context, state) {
         if (state is AddressLoaded) {
           if (state.addresses.isEmpty) {
-            return Scaffold(
-              extendBody: true,
-              appBar: PreferredSize(
-                preferredSize: Size.fromHeight(56.h),
-                child: AppBar(
-                  backgroundColor: kWhiteColor,
-                  elevation: 0,
-                  automaticallyImplyLeading: false,
-                  title: Row(
-                    children: [
-                      BackWidget(color: kGreyColor),
-                      20.horizontalSpace,
-                      FText(
-                        text: "Address",
-                        fontSize: 17.sp,
-                        fontWeight: FontWeight.w400,
-                        color: kBlackColor,
-                      ),
-                    ],
+            return FScaffold(
+              customScroll: false,
+              appBarWidget: Row(
+                children: [
+                  BackWidget(color: kGreyColor),
+                  20.horizontalSpace,
+                  FText(
+                    text: "Address",
+                    fontSize: 17.sp,
+                    fontWeight: FontWeight.w400,
+                    color: kBlackColor,
                   ),
-                ),
+                ],
               ),
-              body: Center(
-                child: FText(
-                  text: "No addresses found",
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w400,
-                  color: kGreyColor,
-                ),
+              body: Stack(
+                children: [
+                  Center(
+                    child: FText(
+                      text: "No addresses found",
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w400,
+                      color: kGreyColor,
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 10,
+                    left: 0,
+                    right: 0,
+                    child: FButton(
+                      buttonText: "Add new address",
+                      width: 1.sw,
+                      onPressed: () {
+                        nav.navigateTo(Routes.addAddress);
+                      },
+                    ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
+                  ),
+                ],
               ),
-              floatingActionButtonLocation:
-                  FloatingActionButtonLocation.centerFloat,
-              floatingActionButton: FButton(
-                buttonText: "Add new address",
-                width: 1.sw,
-                onPressed: () {
-                  nav.navigateTo(Routes.addAddress);
-                },
-              ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
             );
           }
-          return Scaffold(
-            extendBody: true,
-            appBar: PreferredSize(
+          return FScaffold(
+            customScroll: false,
+            appBarWidget: PreferredSize(
               preferredSize: Size.fromHeight(56.h),
               child: AppBar(
                 backgroundColor: kWhiteColor,
@@ -109,27 +111,21 @@ class _AddressState extends State<Address> {
               ),
             ),
             body: Stack(
+              fit: StackFit.expand,
               children: [
                 SingleChildScrollView(
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        children:
-                            state.addresses.map((address) {
-                              return AddressWidget(
-                                addressType:
-                                    address.type == 'home'
-                                        ? AddressType.home
-                                        : AddressType.work,
-                                address: address.city,
-                              );
-                            }).toList(),
-                      ).paddingSymmetric(
-                        horizontal: AppConstants.defaultPadding,
-                      ),
-                    ],
-                  ),
+                    children:
+                        state.addresses.map((address) {
+                          return AddressWidget(
+                            addressType:
+                                address.type == 'home'
+                                    ? AddressType.home
+                                    : AddressType.work,
+                            address: address,
+                          );
+                        }).toList(),
+                  ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
                 ),
                 Positioned(
                   bottom: 10,
@@ -194,7 +190,7 @@ class _AddressState extends State<Address> {
 
 class AddressWidget extends StatelessWidget {
   final AddressType addressType;
-  final String address;
+  final AddressEntity address;
 
   const AddressWidget({
     super.key,
@@ -204,6 +200,7 @@ class AddressWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final nav = GetIt.instance<NavigationService>();
     return FoodContainer(
       width: 1.sw,
       height: 101,
@@ -244,21 +241,25 @@ class AddressWidget extends StatelessWidget {
                           width: 20,
                           height: 20,
                           assetType: FoodAssetType.svg,
-                        ),
+                        ).onTap(() {
+                          nav.navigateTo(Routes.addAddress, arguments: address);
+                        }),
                         20.horizontalSpace,
                         FImage(
                           assetPath: Assets.svgsDeleteAddress,
                           width: 20,
                           height: 20,
                           assetType: FoodAssetType.svg,
-                        ),
+                        ).onTap(() {
+                          context.read<AddressCubit>().deleteAddress(address);
+                        }),
                       ],
                     ),
                   ],
                 ),
                 10.verticalSpace,
                 FWrapText(
-                  text: address,
+                  text: address.street,
                   fontWeight: FontWeight.w400,
                   fontSize: 14,
                   textAlign: TextAlign.start,

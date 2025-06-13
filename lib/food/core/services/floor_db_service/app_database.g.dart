@@ -104,7 +104,7 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `user_profile` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `firstName` TEXT NOT NULL, `lastName` TEXT NOT NULL, `email` TEXT NOT NULL, `phoneNumber` TEXT NOT NULL, `bio` TEXT)');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `addresses` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `userId` INTEGER NOT NULL, `street` TEXT NOT NULL, `city` TEXT NOT NULL, `state` TEXT NOT NULL, `zipCode` TEXT NOT NULL, `type` TEXT NOT NULL, FOREIGN KEY (`userId`) REFERENCES `user_profile` (`id`) ON UPDATE NO ACTION ON DELETE CASCADE)');
+            'CREATE TABLE IF NOT EXISTS `addresses` (`id` TEXT NOT NULL, `street` TEXT NOT NULL, `city` TEXT NOT NULL, `state` TEXT NOT NULL, `zipCode` TEXT NOT NULL, `type` TEXT NOT NULL, PRIMARY KEY (`id`))');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -262,7 +262,6 @@ class _$AddressDao extends AddressDao {
             'addresses',
             (AddressEntity item) => <String, Object?>{
                   'id': item.id,
-                  'userId': item.userId,
                   'street': item.street,
                   'city': item.city,
                   'state': item.state,
@@ -275,7 +274,6 @@ class _$AddressDao extends AddressDao {
             ['id'],
             (AddressEntity item) => <String, Object?>{
                   'id': item.id,
-                  'userId': item.userId,
                   'street': item.street,
                   'city': item.city,
                   'state': item.state,
@@ -288,7 +286,6 @@ class _$AddressDao extends AddressDao {
             ['id'],
             (AddressEntity item) => <String, Object?>{
                   'id': item.id,
-                  'userId': item.userId,
                   'street': item.street,
                   'city': item.city,
                   'state': item.state,
@@ -312,8 +309,7 @@ class _$AddressDao extends AddressDao {
   Future<List<AddressEntity>> getAddresses() async {
     return _queryAdapter.queryList('SELECT * FROM addresses',
         mapper: (Map<String, Object?> row) => AddressEntity(
-            id: row['id'] as int?,
-            userId: row['userId'] as int,
+            id: row['id'] as String,
             street: row['street'] as String,
             city: row['city'] as String,
             state: row['state'] as String,
