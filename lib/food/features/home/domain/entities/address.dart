@@ -26,7 +26,7 @@ class AddressEntity {
 
   AddressEntity({
     this.id,
-    required this.userId,
+    this.userId = 1, // Default userId to 1
     required this.street,
     required this.city,
     required this.state,
@@ -37,8 +37,7 @@ class AddressEntity {
   factory AddressEntity.fromJson(Map<String, dynamic> json) {
     return AddressEntity(
       id: json['id'],
-      userId: json['userId'],
-
+      userId: json['userId'] ?? 1, // Use 1 if userId is missing
       street: json['street'] as String,
       city: json['city'] as String,
       state: json['state'] as String,

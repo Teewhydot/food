@@ -40,7 +40,7 @@ class _MenuState extends State<Menu> {
       builder: (context, state) {
         if (state is UserProfileLoaded) {
           return FScaffold(
-            hasAppBar: true,
+            customScroll: true,
             appBarWidget: Row(
               children: [
                 BackWidget(color: kGreyColor),

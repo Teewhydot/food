@@ -6,7 +6,7 @@ import 'package:get/get.dart';
 class FScaffold extends StatelessWidget {
   final Widget body, bottomWidget, appBarWidget;
   final double padding;
-  final bool showNavBar, resizeToAvoidBottomInset, hasAppBar;
+  final bool showNavBar, resizeToAvoidBottomInset, customScroll, stackLayout;
   final Color? backgroundColor, appBarColor;
 
   const FScaffold({
@@ -14,7 +14,8 @@ class FScaffold extends StatelessWidget {
     required this.body,
     this.padding = 0.0,
     this.showNavBar = false,
-    this.hasAppBar = false,
+    this.customScroll = false,
+    this.stackLayout = false,
     this.resizeToAvoidBottomInset = true,
     this.bottomWidget = const SizedBox(),
     this.appBarWidget = const SizedBox(),
@@ -24,36 +25,85 @@ class FScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBody: true,
-      backgroundColor:
-          backgroundColor ?? Theme.of(context).scaffoldBackgroundColor,
-      resizeToAvoidBottomInset: resizeToAvoidBottomInset,
-      body:
-          hasAppBar
-              ? CustomScrollView(
-                slivers: [
-                  SliverAppBar(
-                    pinned: true,
-                    floating: true,
+    if (customScroll) {
+      return Scaffold(
+        extendBody: true,
+        appBar:
+            !customScroll
+                ? PreferredSize(
+                  preferredSize: Size.fromHeight(56.h),
+                  child: AppBar(
                     backgroundColor: appBarColor,
                     elevation: 0,
                     automaticallyImplyLeading: false,
-                    title:
-                        hasAppBar
-                            ? SafeArea(child: appBarWidget.paddingOnly())
-                            : appBarWidget.paddingOnly(),
+                    title: SafeArea(child: appBarWidget.paddingOnly()),
                   ),
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: EdgeInsets.all(padding).r,
-                      child: body,
+                )
+                : PreferredSize(
+                  preferredSize: Size.fromHeight(0.h),
+                  child: AppBar(
+                    backgroundColor: appBarColor,
+                    elevation: 0,
+                    automaticallyImplyLeading: false,
+                    title: SafeArea(child: appBarWidget.paddingOnly()),
+                  ),
+                ),
+        backgroundColor:
+            backgroundColor ?? Theme.of(context).scaffoldBackgroundColor,
+        resizeToAvoidBottomInset: resizeToAvoidBottomInset,
+        body:
+            customScroll
+                ? CustomScrollView(
+                  slivers: [
+                    SliverAppBar(
+                      pinned: true,
+                      floating: true,
+                      backgroundColor: appBarColor,
+                      elevation: 0,
+                      automaticallyImplyLeading: false,
+                      title:
+                          customScroll
+                              ? SafeArea(child: appBarWidget.paddingOnly())
+                              : appBarWidget.paddingOnly(),
                     ),
-                  ),
-                ],
-              )
-              : body,
-      bottomNavigationBar: bottomWidget,
-    );
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.all(padding).r,
+                        child: body,
+                      ),
+                    ),
+                  ],
+                )
+                : body,
+        bottomNavigationBar: bottomWidget,
+      );
+    } else if (stackLayout) {
+      return Scaffold(
+        extendBody: true,
+        backgroundColor:
+            backgroundColor ?? Theme.of(context).scaffoldBackgroundColor,
+        resizeToAvoidBottomInset: resizeToAvoidBottomInset,
+        body: Padding(padding: EdgeInsets.all(padding).r, child: body),
+        bottomNavigationBar: showNavBar ? bottomWidget : null,
+      );
+    } else {
+      return Scaffold(
+        extendBody: true,
+        backgroundColor:
+            backgroundColor ?? Theme.of(context).scaffoldBackgroundColor,
+        resizeToAvoidBottomInset: resizeToAvoidBottomInset,
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(56.h),
+          child: AppBar(
+            backgroundColor: appBarColor,
+            elevation: 0,
+            automaticallyImplyLeading: false,
+            title: SafeArea(child: appBarWidget.paddingOnly()),
+          ),
+        ),
+        body: Padding(padding: EdgeInsets.all(padding).r, child: body),
+        bottomNavigationBar: showNavBar ? bottomWidget : null,
+      );
+    }
   }
 }

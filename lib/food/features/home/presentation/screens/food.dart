@@ -31,7 +31,7 @@ class Food extends StatelessWidget {
       builder: (context, state) {
         if (state is CartLoaded) {
           return FScaffold(
-            hasAppBar: true,
+            customScroll: true,
             appBarWidget: Row(
               children: [
                 BackWidget(color: kContainerColor),

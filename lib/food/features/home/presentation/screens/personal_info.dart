@@ -29,7 +29,7 @@ class PersonalInfo extends StatelessWidget {
       builder: (context, state) {
         if (state is UserProfileLoaded) {
           return FScaffold(
-            hasAppBar: true,
+            customScroll: true,
             appBarWidget: GestureDetector(
               onTap: () {
                 nav.navigateTo(Routes.home);

@@ -18,6 +18,10 @@ final List<BlocProvider> blocs = [
   BlocProvider<LocationBloc>(create: (context) => LocationBloc()),
   BlocProvider<RecentKeywordsCubit>(create: (context) => RecentKeywordsCubit()),
   BlocProvider<CartCubit>(create: (context) => CartCubit()),
-  BlocProvider<UserProfileCubit>(create: (context) => UserProfileCubit()),
-  BlocProvider<AddressCubit>(create: (context) => AddressCubit()),
+  BlocProvider<UserProfileCubit>(
+    create: (context) => UserProfileCubit()..loadUserProfile(),
+  ),
+  BlocProvider<AddressCubit>(
+    create: (context) => AddressCubit()..loadAddresses(),
+  ),
 ];

@@ -89,7 +89,7 @@ class _EditProfileState extends State<EditProfile> {
               ),
             ],
           ),
-          hasAppBar: true,
+          customScroll: true,
           body: SingleChildScrollView(
             child: Column(
               children: [

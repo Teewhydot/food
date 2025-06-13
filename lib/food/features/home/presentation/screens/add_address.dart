@@ -6,14 +6,13 @@ import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/components/textfields.dart';
 import 'package:food/food/components/texts/texts.dart';
 import 'package:food/food/core/constants/app_constants.dart';
+import 'package:food/food/core/helpers/extensions.dart';
 import 'package:food/food/core/services/floor_db_service/user_profile/user_profile_database_service.dart';
 import 'package:food/food/core/theme/colors.dart';
-import 'package:food/food/core/utils/logger.dart';
 import 'package:food/food/features/auth/presentation/widgets/back_widget.dart';
 import 'package:food/food/features/auth/presentation/widgets/custom_overlay.dart';
 import 'package:food/food/features/home/domain/entities/address.dart';
 import 'package:food/food/features/home/manager/address/address_cubit.dart';
-import 'package:food/food/features/onboarding/presentation/widgets/food_container.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 
@@ -37,16 +36,12 @@ class _AddAddressState extends State<AddAddress> {
   final apartmentController = TextEditingController();
   final db = UserProfileDatabaseService();
   int userId = 0;
+  String? selectedLabel;
+  List<String> labels = ["home", "work", "other"];
 
   @override
-  void initState() async {
+  void initState() {
     super.initState();
-    // Fetch user ID from the database
-    final user = await (await db.database).userProfileDao.getUserProfile();
-    if (user.first.id != null) {
-      Logger.logSuccess("User ID: ${user.first.id}");
-      userId = user.first.id!;
-    }
   }
 
   @override
@@ -82,7 +77,6 @@ class _AddAddressState extends State<AddAddress> {
             children: [
               Column(
                 children: [
-                  30.verticalSpace,
                   FTextField(hintText: "Address", action: TextInputAction.next),
                   10.verticalSpace,
                   Row(
@@ -119,50 +113,37 @@ class _AddAddressState extends State<AddAddress> {
                   ),
                   10.verticalSpace,
                   Row(
-                    spacing: 10,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(
-                        child: FoodContainer(
-                          width: 95,
-                          height: 45,
-                          color: kGreyColor,
-                          borderRadius: 22,
-                          child: FText(
-                            text: "Home",
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                            alignment: MainAxisAlignment.center,
+                      for (String label in labels)
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              selectedLabel = label;
+                            });
+                          },
+                          child: Container(
+                            width: 95.w,
+                            height: 45.h,
+                            decoration: BoxDecoration(
+                              color:
+                                  selectedLabel == label
+                                      ? kPrimaryColor
+                                      : kGreyColor,
+                              borderRadius: BorderRadius.circular(22.r),
+                            ),
+                            alignment: Alignment.center,
+                            child: FText(
+                              text: label.toSentenceCase(),
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                              color:
+                                  selectedLabel == label
+                                      ? Colors.white
+                                      : Colors.black,
+                            ),
                           ),
                         ),
-                      ),
-                      Expanded(
-                        child: FoodContainer(
-                          width: 95,
-                          height: 45,
-                          color: kGreyColor,
-                          borderRadius: 22,
-                          child: FText(
-                            text: "Work",
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                            alignment: MainAxisAlignment.center,
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: FoodContainer(
-                          width: 95,
-                          height: 45,
-                          color: kGreyColor,
-                          borderRadius: 22,
-                          child: FText(
-                            text: "Other",
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                            alignment: MainAxisAlignment.center,
-                          ),
-                        ),
-                      ),
                     ],
                   ),
                 ],
@@ -177,6 +158,7 @@ class _AddAddressState extends State<AddAddress> {
                     state: stateController.text,
                     userId: userId,
                     zipCode: postCodeController.text,
+                    type: selectedLabel!,
                   );
                   context.read<AddressCubit>().addAddress(address);
                   nav.goBack();

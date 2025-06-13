@@ -35,7 +35,7 @@ class _CartState extends State<Cart> {
         if (state is CartLoaded) {
           if (state.items.isEmpty) {
             return FScaffold(
-              hasAppBar: true,
+              customScroll: true,
               appBarColor: kScaffoldColorDark,
               backgroundColor: kScaffoldColorDark,
               appBarWidget: Row(
@@ -59,7 +59,7 @@ class _CartState extends State<Cart> {
             );
           }
           return FScaffold(
-            hasAppBar: true,
+            customScroll: true,
             appBarColor: kScaffoldColorDark,
             appBarWidget: Row(
               children: [
@@ -165,7 +165,7 @@ class _CartState extends State<Cart> {
           );
         } else if (state is CartLoading) {
           return FScaffold(
-            hasAppBar: true,
+            customScroll: true,
             backgroundColor: kScaffoldColorDark,
             body: Center(
               child: FText(

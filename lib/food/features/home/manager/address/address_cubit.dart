@@ -7,7 +7,7 @@ part 'address_state.dart';
 
 class AddressCubit extends Cubit<AddressState> {
   AddressCubit() : super(AddressInitial());
-
+  int? userId;
   final db = AddressDatabaseService();
 
   void addAddress(AddressEntity address) async {
@@ -20,11 +20,10 @@ class AddressCubit extends Cubit<AddressState> {
     }
   }
 
-  void loadAddresses(int userId) async {
+  void loadAddresses() async {
     emit(AddressLoading());
     try {
-      final addresses = await (await db.database).addressDao
-          .getAddressesForUser(userId);
+      final addresses = await (await db.database).addressDao.getAddresses();
       emit(AddressLoaded(addresses: addresses));
     } catch (e) {
       emit(AddressError(errorMessage: e.toString()));

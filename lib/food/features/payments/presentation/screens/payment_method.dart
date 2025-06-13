@@ -110,7 +110,7 @@ class _PaymentMethodState extends State<PaymentMethod> {
           ),
         ],
       ),
-      hasAppBar: true,
+      customScroll: true,
       body: Column(
         children: [
           30.verticalSpace,

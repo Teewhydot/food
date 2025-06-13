@@ -269,6 +269,19 @@ class _$AddressDao extends AddressDao {
                   'zipCode': item.zipCode,
                   'type': item.type
                 }),
+        _addressEntityUpdateAdapter = UpdateAdapter(
+            database,
+            'addresses',
+            ['id'],
+            (AddressEntity item) => <String, Object?>{
+                  'id': item.id,
+                  'userId': item.userId,
+                  'street': item.street,
+                  'city': item.city,
+                  'state': item.state,
+                  'zipCode': item.zipCode,
+                  'type': item.type
+                }),
         _addressEntityDeletionAdapter = DeletionAdapter(
             database,
             'addresses',
@@ -291,11 +304,13 @@ class _$AddressDao extends AddressDao {
 
   final InsertionAdapter<AddressEntity> _addressEntityInsertionAdapter;
 
+  final UpdateAdapter<AddressEntity> _addressEntityUpdateAdapter;
+
   final DeletionAdapter<AddressEntity> _addressEntityDeletionAdapter;
 
   @override
-  Future<List<AddressEntity>> getAddressesForUser(int userId) async {
-    return _queryAdapter.queryList('SELECT * FROM addresses WHERE userId = ?1',
+  Future<List<AddressEntity>> getAddresses() async {
+    return _queryAdapter.queryList('SELECT * FROM addresses',
         mapper: (Map<String, Object?> row) => AddressEntity(
             id: row['id'] as int?,
             userId: row['userId'] as int,
@@ -303,20 +318,24 @@ class _$AddressDao extends AddressDao {
             city: row['city'] as String,
             state: row['state'] as String,
             zipCode: row['zipCode'] as String,
-            type: row['type'] as String),
-        arguments: [userId]);
+            type: row['type'] as String));
   }
 
   @override
-  Future<void> deleteAllAddressesForUser(int userId) async {
-    await _queryAdapter.queryNoReturn('DELETE FROM addresses WHERE userId = ?1',
-        arguments: [userId]);
+  Future<void> deleteAllAddresses() async {
+    await _queryAdapter.queryNoReturn('DELETE FROM addresses');
   }
 
   @override
   Future<void> insertAddress(AddressEntity address) async {
     await _addressEntityInsertionAdapter.insert(
         address, OnConflictStrategy.replace);
+  }
+
+  @override
+  Future<void> updateAddress(AddressEntity updatedAddress) async {
+    await _addressEntityUpdateAdapter.update(
+        updatedAddress, OnConflictStrategy.replace);
   }
 
   @override

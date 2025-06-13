@@ -9,6 +9,7 @@ part 'user_profile_state.dart';
 class UserProfileCubit extends Cubit<UserProfileState> {
   UserProfileCubit() : super(UserProfileInitial());
   final db = UserProfileDatabaseService();
+  int userId = 0;
   void saveUserProfile(UserProfileEntity userProfile) async {
     emit(UserProfileLoading());
     try {
@@ -60,6 +61,7 @@ class UserProfileCubit extends Cubit<UserProfileState> {
     emit(UserProfileLoading());
     try {
       final user = await (await db.database).userProfileDao.getUserProfile();
+      userId = user.first.id ?? 0;
       emit(UserProfileLoaded(userProfile: user.first));
       Logger.logSuccess(
         "User profile loaded successfully: ${user.first.firstName} ${user.first.lastName} ${user.first.email} ${user.first.phoneNumber} ${user.first.bio}",

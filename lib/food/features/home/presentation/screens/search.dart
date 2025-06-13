@@ -794,7 +794,7 @@ class _SearchState extends State<Search> {
           CartWidget().paddingOnly(right: AppConstants.defaultPadding.w),
         ],
       ),
-      hasAppBar: true,
+      customScroll: true,
       body: SingleChildScrollView(
         child: Column(
           children: [

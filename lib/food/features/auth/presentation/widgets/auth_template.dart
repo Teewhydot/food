@@ -32,8 +32,9 @@ class _AuthTemplateState extends State<AuthTemplate> {
   @override
   Widget build(BuildContext context) {
     return FScaffold(
+      stackLayout: true,
       resizeToAvoidBottomInset: true,
-      hasAppBar: false,
+      customScroll: false,
       body: Stack(
         children: [
           Container(width: 1.sw, color: kAuthBgColorDark),
