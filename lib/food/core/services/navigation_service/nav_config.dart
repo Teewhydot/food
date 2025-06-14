@@ -1,5 +1,4 @@
 import 'package:get/get.dart';
-import 'package:go_router/go_router.dart';
 
 abstract class NavigationService {
   Future<void> navigateTo(String routeName, {Object? arguments});
@@ -54,47 +53,5 @@ class GetxNavigationService implements NavigationService {
       (route) => route.settings.name == conditionalRoute,
       arguments: arguments,
     );
-  }
-}
-
-// Go router implementation
-
-class GoRouterNavigationService implements NavigationService {
-  final GoRouter _goRouter;
-
-  GoRouterNavigationService(this._goRouter);
-  @override
-  Future<void> navigateTo(String routeName, {Object? arguments}) async {
-    // Implement GoRouter navigation logic here
-  }
-
-  @override
-  Future<void> navigateAndReplace(String routeName, {Object? arguments}) async {
-    // Implement GoRouter navigation logic here
-  }
-
-  @override
-  Future<void> navigateAndReplaceAll(
-    String routeName, {
-    Object? arguments,
-  }) async {
-    // Implement GoRouter navigation logic here
-  }
-
-  @override
-  Future<void> goBack() async {
-    // Implement GoRouter navigation logic here
-    _goRouter.pop();
-  }
-
-  @override
-  Future<void> goBackUntil(String routeName) async {
-    // Implement GoRouter navigation logic here
-  }
-
-  @override
-  Future<void> navigateAndOffAll(String routeName, sd, {Object? arguments}) {
-    // TODO: implement navigateAndOffAll
-    throw UnimplementedError();
   }
 }

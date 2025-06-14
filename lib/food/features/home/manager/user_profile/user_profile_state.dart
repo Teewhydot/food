@@ -10,6 +10,7 @@ final class UserProfileLoading extends UserProfileState {}
 final class UserProfileLoaded extends UserProfileState {
   final UserProfileEntity userProfile;
 
+  bool? get firstTimeLogin => userProfile.firstTimeLogin;
   UserProfileLoaded({required this.userProfile});
 }
 

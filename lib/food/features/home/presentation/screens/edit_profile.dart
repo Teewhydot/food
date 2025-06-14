@@ -158,6 +158,7 @@ class _EditProfileState extends State<EditProfile> {
                       email: email,
                       phoneNumber: phoneController.text,
                       bio: bioController.text,
+                      firstTimeLogin: widget.userProfile.firstTimeLogin,
                     );
                     context.read<UserProfileCubit>().updateUserProfile(
                       updatedProfile,

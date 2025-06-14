@@ -9,12 +9,12 @@ part 'user_profile_state.dart';
 class UserProfileCubit extends Cubit<UserProfileState> {
   UserProfileCubit() : super(UserProfileInitial());
   final db = UserProfileDatabaseService();
-  int userId = 0;
+
   void saveUserProfile(UserProfileEntity userProfile) async {
     emit(UserProfileLoading());
     try {
       Logger.logSuccess(
-        "Saving details: ${userProfile.firstName} ${userProfile.lastName} ${userProfile.email} ${userProfile.phoneNumber} ${userProfile.bio}",
+        "Saving details: ${userProfile.firstName} ${userProfile.lastName} ${userProfile.email} ${userProfile.phoneNumber} ${userProfile.bio} ${userProfile.firstTimeLogin}",
       );
       await (await db.database).userProfileDao.saveUserProfile(userProfile);
       // emit(UserProfileLoaded(userProfile: userProfile));
@@ -42,16 +42,6 @@ class UserProfileCubit extends Cubit<UserProfileState> {
     emit(UserProfileLoading());
     try {
       await (await db.database).userProfileDao.deleteUserProfile();
-      emit(
-        UserProfileLoaded(
-          userProfile: UserProfileEntity(
-            firstName: "Guest",
-            lastName: "",
-            email: "",
-            phoneNumber: "",
-          ),
-        ),
-      );
     } catch (e) {
       emit(UserProfileError(errorMessage: e.toString()));
     }
@@ -61,7 +51,6 @@ class UserProfileCubit extends Cubit<UserProfileState> {
     emit(UserProfileLoading());
     try {
       final user = await (await db.database).userProfileDao.getUserProfile();
-      userId = user.first.id ?? 0;
       emit(UserProfileLoaded(userProfile: user.first));
       Logger.logSuccess(
         "User profile loaded successfully: ${user.first.firstName} ${user.first.lastName} ${user.first.email} ${user.first.phoneNumber} ${user.first.bio}",

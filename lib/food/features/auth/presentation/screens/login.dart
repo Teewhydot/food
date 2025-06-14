@@ -57,6 +57,7 @@ class _LoginState extends State<Login> {
               lastName: "Adesina",
               email: "tchipsical@gmail.com",
               phoneNumber: "08012345678",
+              firstTimeLogin: false,
               bio:
                   "Food lover and tech enthusiast, also a software developer/flutter and golang.",
             ),

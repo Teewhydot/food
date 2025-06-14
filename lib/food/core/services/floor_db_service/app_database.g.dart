@@ -102,7 +102,7 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `recent_keywords` (`keyword` TEXT NOT NULL, PRIMARY KEY (`keyword`))');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `user_profile` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `firstName` TEXT NOT NULL, `lastName` TEXT NOT NULL, `email` TEXT NOT NULL, `phoneNumber` TEXT NOT NULL, `bio` TEXT)');
+            'CREATE TABLE IF NOT EXISTS `user_profile` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `firstName` TEXT NOT NULL, `lastName` TEXT NOT NULL, `email` TEXT NOT NULL, `phoneNumber` TEXT NOT NULL, `bio` TEXT, `firstTimeLogin` INTEGER NOT NULL)');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `addresses` (`id` TEXT NOT NULL, `street` TEXT NOT NULL, `city` TEXT NOT NULL, `state` TEXT NOT NULL, `zipCode` TEXT NOT NULL, `type` TEXT NOT NULL, PRIMARY KEY (`id`))');
 
@@ -197,7 +197,8 @@ class _$UserProfileDao extends UserProfileDao {
                   'lastName': item.lastName,
                   'email': item.email,
                   'phoneNumber': item.phoneNumber,
-                  'bio': item.bio
+                  'bio': item.bio,
+                  'firstTimeLogin': item.firstTimeLogin ? 1 : 0
                 }),
         _userProfileEntityUpdateAdapter = UpdateAdapter(
             database,
@@ -209,7 +210,8 @@ class _$UserProfileDao extends UserProfileDao {
                   'lastName': item.lastName,
                   'email': item.email,
                   'phoneNumber': item.phoneNumber,
-                  'bio': item.bio
+                  'bio': item.bio,
+                  'firstTimeLogin': item.firstTimeLogin ? 1 : 0
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -231,7 +233,8 @@ class _$UserProfileDao extends UserProfileDao {
             lastName: row['lastName'] as String,
             email: row['email'] as String,
             phoneNumber: row['phoneNumber'] as String,
-            bio: row['bio'] as String?));
+            bio: row['bio'] as String?,
+            firstTimeLogin: (row['firstTimeLogin'] as int) != 0));
   }
 
   @override
