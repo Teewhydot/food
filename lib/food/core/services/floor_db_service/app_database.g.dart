@@ -104,7 +104,7 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `user_profile` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `firstName` TEXT NOT NULL, `lastName` TEXT NOT NULL, `email` TEXT NOT NULL, `phoneNumber` TEXT NOT NULL, `bio` TEXT, `firstTimeLogin` INTEGER NOT NULL)');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `addresses` (`id` TEXT NOT NULL, `street` TEXT NOT NULL, `city` TEXT NOT NULL, `state` TEXT NOT NULL, `zipCode` TEXT NOT NULL, `type` TEXT NOT NULL, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `addresses` (`id` TEXT NOT NULL, `street` TEXT NOT NULL, `city` TEXT NOT NULL, `state` TEXT NOT NULL, `zipCode` TEXT NOT NULL, `type` TEXT NOT NULL, `address` TEXT NOT NULL, `apartment` TEXT NOT NULL, PRIMARY KEY (`id`))');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -269,7 +269,9 @@ class _$AddressDao extends AddressDao {
                   'city': item.city,
                   'state': item.state,
                   'zipCode': item.zipCode,
-                  'type': item.type
+                  'type': item.type,
+                  'address': item.address,
+                  'apartment': item.apartment
                 }),
         _addressEntityUpdateAdapter = UpdateAdapter(
             database,
@@ -281,7 +283,9 @@ class _$AddressDao extends AddressDao {
                   'city': item.city,
                   'state': item.state,
                   'zipCode': item.zipCode,
-                  'type': item.type
+                  'type': item.type,
+                  'address': item.address,
+                  'apartment': item.apartment
                 }),
         _addressEntityDeletionAdapter = DeletionAdapter(
             database,
@@ -293,7 +297,9 @@ class _$AddressDao extends AddressDao {
                   'city': item.city,
                   'state': item.state,
                   'zipCode': item.zipCode,
-                  'type': item.type
+                  'type': item.type,
+                  'address': item.address,
+                  'apartment': item.apartment
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -317,6 +323,8 @@ class _$AddressDao extends AddressDao {
             city: row['city'] as String,
             state: row['state'] as String,
             zipCode: row['zipCode'] as String,
+            address: row['address'] as String,
+            apartment: row['apartment'] as String,
             type: row['type'] as String));
   }
 

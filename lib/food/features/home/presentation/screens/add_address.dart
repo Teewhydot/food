@@ -38,25 +38,26 @@ class _AddAddressState extends State<AddAddress> {
   final apartmentController = TextEditingController();
   final addressController = TextEditingController();
   final db = UserProfileDatabaseService();
-  int userId = 0;
   String? selectedLabel;
   List<String> labels = ["home", "work", "other"];
 
   @override
   void initState() {
     super.initState();
-    if (widget.addressEntity != null) {
-      final address = widget.addressEntity!;
-      streetController.text = address.street;
-      cityController.text = address.city;
-      stateController.text = address.state;
-      postCodeController.text = address.zipCode;
-      apartmentController.text = address.street.split(',').first;
-      addressController.text = address.street.split(',').last;
-      selectedLabel = address.type;
-    } else {
-      selectedLabel = labels.first; // Default to the first label
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (widget.addressEntity != null) {
+        final address = widget.addressEntity!;
+        streetController.text = address.street;
+        cityController.text = address.city;
+        stateController.text = address.state;
+        postCodeController.text = address.zipCode;
+        apartmentController.text = address.apartment;
+        selectedLabel = address.type;
+        addressController.text = address.address;
+      } else {
+        selectedLabel = labels.first;
+      }
+    });
   }
 
   @override
@@ -121,6 +122,26 @@ class _AddAddressState extends State<AddAddress> {
                     ],
                   ),
                   10.verticalSpace,
+                  Row(
+                    spacing: 15,
+                    children: [
+                      Expanded(
+                        child: FTextField(
+                          hintText: "City",
+                          action: TextInputAction.next,
+                          controller: cityController,
+                        ),
+                      ),
+                      Expanded(
+                        child: FTextField(
+                          hintText: "State",
+                          action: TextInputAction.next,
+                          controller: stateController,
+                        ),
+                      ),
+                    ],
+                  ),
+                  10.verticalSpace,
                   FTextField(
                     hintText: "Apartment",
                     action: TextInputAction.next,
@@ -176,8 +197,9 @@ class _AddAddressState extends State<AddAddress> {
                 onPressed: () {
                   final address = AddressEntity(
                     id: Uuid().v4(),
-                    street:
-                        "${apartmentController.text}, ${addressController.text}",
+                    apartment: apartmentController.text,
+                    address: addressController.text,
+                    street: streetController.text,
                     city: cityController.text,
                     state: stateController.text,
                     zipCode: postCodeController.text,

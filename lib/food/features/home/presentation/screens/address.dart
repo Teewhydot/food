@@ -77,7 +77,19 @@ class _AddressState extends State<Address> {
                       buttonText: "Add new address",
                       width: 1.sw,
                       onPressed: () {
-                        nav.navigateTo(Routes.addAddress);
+                        nav.navigateTo(
+                          Routes.addAddress,
+                          arguments: AddressEntity(
+                            id: '',
+                            street: '',
+                            city: '',
+                            state: '',
+                            zipCode: '',
+                            type: 'home',
+                            address: '',
+                            apartment: '',
+                          ),
+                        );
                       },
                     ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
                   ),
@@ -120,6 +132,17 @@ class _AddressState extends State<Address> {
                                     ? AddressType.home
                                     : AddressType.work,
                             address: address,
+                            onTapDelete: () {
+                              context.read<AddressCubit>().deleteAddress(
+                                address,
+                              );
+                            },
+                            onTapEdit: () {
+                              nav.navigateTo(
+                                Routes.addAddress,
+                                arguments: address,
+                              );
+                            },
                           );
                         }).toList(),
                   ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
@@ -132,7 +155,19 @@ class _AddressState extends State<Address> {
                     buttonText: "Add new address",
                     width: 1.sw,
                     onPressed: () {
-                      nav.navigateTo(Routes.addAddress);
+                      nav.navigateTo(
+                        Routes.addAddress,
+                        arguments: AddressEntity(
+                          id: '',
+                          street: '',
+                          city: '',
+                          state: '',
+                          zipCode: '',
+                          type: 'home',
+                          address: '',
+                          apartment: '',
+                        ),
+                      );
                     },
                   ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
                 ),
@@ -172,12 +207,43 @@ class _AddressState extends State<Address> {
             ),
           );
         }
-        return Center(
-          child: FText(
-            text: "Loading addresses...",
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w400,
-            color: kErrorColor,
+        return FScaffold(
+          customScroll: false,
+          appBarWidget: Row(
+            children: [
+              BackWidget(color: kGreyColor),
+              20.horizontalSpace,
+              FText(
+                text: "Address",
+                fontSize: 17.sp,
+                fontWeight: FontWeight.w400,
+                color: kBlackColor,
+              ),
+            ],
+          ),
+          body: Stack(
+            children: [
+              Center(
+                child: FText(
+                  text: "Loading addresses...",
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w400,
+                  color: kGreyColor,
+                ),
+              ),
+              Positioned(
+                bottom: 10,
+                left: 0,
+                right: 0,
+                child: FButton(
+                  buttonText: "Add new address",
+                  width: 1.sw,
+                  onPressed: () {
+                    nav.navigateTo(Routes.addAddress);
+                  },
+                ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
+              ),
+            ],
           ),
         );
       },
@@ -188,11 +254,14 @@ class _AddressState extends State<Address> {
 class AddressWidget extends StatelessWidget {
   final AddressType addressType;
   final AddressEntity address;
+  final Function() onTapEdit, onTapDelete;
 
   const AddressWidget({
     super.key,
     required this.addressType,
     required this.address,
+    required this.onTapDelete,
+    required this.onTapEdit,
   });
 
   @override
@@ -239,7 +308,7 @@ class AddressWidget extends StatelessWidget {
                           height: 20,
                           assetType: FoodAssetType.svg,
                         ).onTap(() {
-                          nav.navigateTo(Routes.addAddress, arguments: address);
+                          onTapEdit();
                         }),
                         20.horizontalSpace,
                         FImage(
@@ -248,7 +317,7 @@ class AddressWidget extends StatelessWidget {
                           height: 20,
                           assetType: FoodAssetType.svg,
                         ).onTap(() {
-                          context.read<AddressCubit>().deleteAddress(address);
+                          onTapDelete();
                         }),
                       ],
                     ),
@@ -256,7 +325,8 @@ class AddressWidget extends StatelessWidget {
                 ),
                 10.verticalSpace,
                 FWrapText(
-                  text: address.street,
+                  text:
+                      '${address.street}, ${address.apartment}, ${address.city}, ${address.state}, ${address.zipCode}',
                   fontWeight: FontWeight.w400,
                   fontSize: 14,
                   textAlign: TextAlign.start,

@@ -4,6 +4,7 @@ import 'package:food/food/features/auth/presentation/screens/location.dart';
 import 'package:food/food/features/auth/presentation/screens/login.dart';
 import 'package:food/food/features/auth/presentation/screens/sign_up.dart';
 import 'package:food/food/features/auth/presentation/screens/verification.dart';
+import 'package:food/food/features/home/domain/entities/address.dart';
 import 'package:food/food/features/home/domain/entities/profile.dart';
 import 'package:food/food/features/home/presentation/screens/add_address.dart';
 import 'package:food/food/features/home/presentation/screens/address.dart';
@@ -172,7 +173,8 @@ class GetXRouteModule {
     ),
     GetPage(
       name: Routes.addAddress,
-      page: () => const AddAddress(),
+      arguments: AddressEntity,
+      page: () => AddAddress(addressEntity: Get.arguments as AddressEntity),
       transition: _transition,
       transitionDuration: _transitionDuration,
     ),
