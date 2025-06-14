@@ -99,25 +99,17 @@ class _AddressState extends State<Address> {
           }
           return FScaffold(
             customScroll: false,
-            appBarWidget: PreferredSize(
-              preferredSize: Size.fromHeight(56.h),
-              child: AppBar(
-                backgroundColor: kWhiteColor,
-                elevation: 0,
-                automaticallyImplyLeading: false,
-                title: Row(
-                  children: [
-                    BackWidget(color: kGreyColor),
-                    20.horizontalSpace,
-                    FText(
-                      text: "Address",
-                      fontSize: 17.sp,
-                      fontWeight: FontWeight.w400,
-                      color: kBlackColor,
-                    ),
-                  ],
+            appBarWidget: Row(
+              children: [
+                BackWidget(color: kGreyColor),
+                20.horizontalSpace,
+                FText(
+                  text: "Address",
+                  fontSize: 17.sp,
+                  fontWeight: FontWeight.w400,
+                  color: kBlackColor,
                 ),
-              ),
+              ],
             ),
             body: Stack(
               fit: StackFit.expand,

@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:food/food/features/tracking/domain/entities/notification_entity.dart';
 import 'package:get/get.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 import '../../../../components/texts/texts.dart';
 import '../../../../core/theme/colors.dart';
 import '../../../home/presentation/widgets/circle_widget.dart';
 
 class NotificationWidget extends StatelessWidget {
-  const NotificationWidget({super.key});
+  final NotificationEntity notificationEntity;
+  const NotificationWidget({super.key, required this.notificationEntity});
 
   @override
   Widget build(BuildContext context) {
@@ -21,13 +24,18 @@ class NotificationWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               spacing: 10,
               children: [
-                FRichText(
-                  text: "Tunde",
-                  text2: ' placed a new order',
-                  text2Color: kContainerColor,
-                  color: kBlackColor,
+                FWrapText(text: notificationEntity.body),
+                // FRichText(
+                //   text: "Tunde",
+                //   text2: ' placed a new order',
+                //   text2Color: kContainerColor,
+                //   color: kBlackColor,
+                // ),
+                FText(
+                  text: timeago.format(notificationEntity.createdAt),
+                  fontSize: 12,
+                  color: kGreyColor,
                 ),
-                FText(text: "20mins ago"),
               ],
             ),
           ],

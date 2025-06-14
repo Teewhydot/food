@@ -145,16 +145,7 @@ class _MenuState extends State<Menu> {
                             nav.navigateTo(Routes.cart);
                           },
                         ),
-                        16.verticalSpace,
-                        MenuSectionWidget(
-                          title: "Favourites",
-                          child: FImage(
-                            assetPath: Assets.svgsFavourite,
-                            assetType: FoodAssetType.svg,
-                            width: 12,
-                            height: 14,
-                          ),
-                        ),
+
                         16.verticalSpace,
                         MenuSectionWidget(
                           title: "Notifications",

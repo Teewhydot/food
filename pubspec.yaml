@@ -47,6 +47,7 @@ dependencies:
   path_provider: ^2.1.5
   skeletonizer: ^1.4.3
   ionicons: ^0.2.2
+  timeago: ^3.7.1
 
 
 

@@ -7,6 +7,8 @@ import 'package:food/food/features/home/manager/address/address_cubit.dart';
 import 'package:food/food/features/home/manager/recent_keywords/recent_keywords_cubit.dart';
 import 'package:food/food/features/home/manager/user_profile/user_profile_cubit.dart';
 import 'package:food/food/features/payments/presentation/manager/cart/cart_cubit.dart';
+import 'package:food/food/features/tracking/presentation/manager/chats_bloc/chats_cubit.dart';
+import 'package:food/food/features/tracking/presentation/manager/notification_bloc/notification_cubit.dart';
 
 import '../features/auth/presentation/manager/auth_bloc/forgot_password/forgot_password_bloc.dart';
 
@@ -24,4 +26,8 @@ final List<BlocProvider> blocs = [
   BlocProvider<AddressCubit>(
     create: (context) => AddressCubit()..loadAddresses(),
   ),
+  BlocProvider<NotificationCubit>(
+    create: (context) => NotificationCubit()..loadNotifications(),
+  ),
+  BlocProvider<ChatsCubit>(create: (context) => ChatsCubit()..loadChats()),
 ];
