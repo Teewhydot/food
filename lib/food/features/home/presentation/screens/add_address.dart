@@ -20,9 +20,9 @@ import 'package:uuid/uuid.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 
 class AddAddress extends StatefulWidget {
-  final AddressEntity? addressEntity;
+  final AddressEntity addressEntity;
 
-  const AddAddress({super.key, this.addressEntity});
+  const AddAddress({super.key, required this.addressEntity});
   @override
   State<AddAddress> createState() => _AddAddressState();
 }
@@ -45,18 +45,14 @@ class _AddAddressState extends State<AddAddress> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (widget.addressEntity != null) {
-        final address = widget.addressEntity!;
-        streetController.text = address.street;
-        cityController.text = address.city;
-        stateController.text = address.state;
-        postCodeController.text = address.zipCode;
-        apartmentController.text = address.apartment;
-        selectedLabel = address.type;
-        addressController.text = address.address;
-      } else {
-        selectedLabel = labels.first;
-      }
+      final address = widget.addressEntity;
+      streetController.text = address.street;
+      cityController.text = address.city;
+      stateController.text = address.state;
+      postCodeController.text = address.zipCode;
+      apartmentController.text = address.apartment;
+      selectedLabel = address.type;
+      addressController.text = address.address;
     });
   }
 
@@ -195,17 +191,31 @@ class _AddAddressState extends State<AddAddress> {
                 buttonText: "Save Address",
                 width: 1.sw,
                 onPressed: () {
-                  final address = AddressEntity(
-                    id: Uuid().v4(),
-                    apartment: apartmentController.text,
-                    address: addressController.text,
-                    street: streetController.text,
-                    city: cityController.text,
-                    state: stateController.text,
-                    zipCode: postCodeController.text,
-                    type: selectedLabel!,
-                  );
-                  context.read<AddressCubit>().addAddress(address);
+                  if (widget.addressEntity.address.isNotEmpty) {
+                    final address = AddressEntity(
+                      id: widget.addressEntity.id,
+                      apartment: apartmentController.text,
+                      address: addressController.text,
+                      street: streetController.text,
+                      city: cityController.text,
+                      state: stateController.text,
+                      zipCode: postCodeController.text,
+                      type: selectedLabel!,
+                    );
+                    context.read<AddressCubit>().updateAddress(address);
+                  } else {
+                    final address = AddressEntity(
+                      id: Uuid().v4(),
+                      apartment: apartmentController.text,
+                      address: addressController.text,
+                      street: streetController.text,
+                      city: cityController.text,
+                      state: stateController.text,
+                      zipCode: postCodeController.text,
+                      type: selectedLabel!,
+                    );
+                    context.read<AddressCubit>().addAddress(address);
+                  }
                   nav.goBack();
                 },
               ),
