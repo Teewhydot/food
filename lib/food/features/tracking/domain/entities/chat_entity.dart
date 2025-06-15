@@ -1,6 +1,6 @@
 class ChatEntity {
   final String id, senderID, receiverID;
-  final String name;
+  final String name, lastMessage;
   final String imageUrl;
   final DateTime lastMessageTime;
 
@@ -9,6 +9,7 @@ class ChatEntity {
     required this.senderID,
     required this.receiverID,
     required this.name,
+    required this.lastMessage,
     required this.imageUrl,
     required this.lastMessageTime,
   });

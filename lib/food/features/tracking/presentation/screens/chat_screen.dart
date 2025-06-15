@@ -27,161 +27,154 @@ class ChatScreen extends StatelessWidget {
     final nav = GetIt.instance<NavigationService>();
 
     return FScaffold(
-      body: Stack(
+      customScroll: false,
+      showNavBar: true,
+      appBarWidget: Row(
         children: [
-          Positioned.fill(
-            child: ListView(
-              children: [
-                CustomChatBubble(
-                  message: "Hello, how are you?",
-                  time: "8:23PM",
-                  isSender: true,
-                ),
-                CustomChatBubble(
-                  message: "Hello, how are you?",
-                  time: "8:23PM",
-                  isSender: false,
-                ),
-                CustomChatBubble(
-                  message: "Hello, how are you?",
-                  time: "8:23PM",
-                  isSender: false,
-                ),
-                CustomChatBubble(
-                  message: "Hello, how are you?",
-                  time: "8:23PM",
-                  isSender: true,
-                ),
-                CustomChatBubble(
-                  message: "Hello, how are you?",
-                  time: "8:23PM",
-                  isSender: true,
-                ),
-                CustomChatBubble(
-                  message: "Hello, how are you?",
-                  time: "8:23PM",
-                  isSender: false,
-                ),
-                CustomChatBubble(
-                  message: "Hello, how are you?",
-                  time: "8:23PM",
-                  isSender: false,
-                ),
-                CustomChatBubble(
-                  message: "Hello, how are you?",
-                  time: "8:23PM",
-                  isSender: true,
-                ),
-                CustomChatBubble(
-                  message: "Hello, how are you?",
-                  time: "8:23PM",
-                  isSender: true,
-                ),
-                CustomChatBubble(
-                  message: "Hello, how are you?",
-                  time: "8:23PM",
-                  isSender: false,
-                ),
-                CustomChatBubble(
-                  message: "Hello, how are you?",
-                  time: "8:23PM",
-                  isSender: false,
-                ),
-                CustomChatBubble(
-                  message: "Hello, how are you?",
-                  time: "8:23PM",
-                  isSender: true,
-                ),
-                CustomChatBubble(
-                  message: "Hello, how are you?",
-                  time: "8:23PM",
-                  isSender: true,
-                ),
-                CustomChatBubble(
-                  message: "Hello, how are you?",
-                  time: "8:23PM",
-                  isSender: false,
-                ),
-                CustomChatBubble(
-                  message: "Hello, how are you?",
-                  time: "8:23PM",
-                  isSender: false,
-                ),
-                CustomChatBubble(
-                  message: "Hello, how are you?",
-                  time: "8:23PM",
-                  isSender: true,
-                ),
-                CustomChatBubble(
-                  message: "Hello, how are you?",
-                  time: "8:23PM",
-                  isSender: true,
-                ),
-                CustomChatBubble(
-                  message: "Hello, how are you?",
-                  time: "8:23PM",
-                  isSender: false,
-                ),
-                CustomChatBubble(
-                  message: "Hello, how are you?",
-                  time: "8:23PM",
-                  isSender: false,
-                ),
-                CustomChatBubble(
-                  message: "Hello, how are you?",
-                  time: "8:23PM",
-                  isSender: true,
-                ),
-              ],
-            ).paddingOnly(
-              left: AppConstants.defaultPadding,
-              right: AppConstants.defaultPadding,
-            ),
+          BackWidget(color: kGreyColor, iconColor: kBlackColor),
+          10.horizontalSpace,
+          FText(
+            text: "Robert Fox",
+            fontSize: 17,
+            fontWeight: FontWeight.w400,
+            color: kTextColorDark,
           ),
-          Positioned(
-            bottom: 20,
-            left: 24,
-            right: 24,
-            child: FTextField(
-              height: 63,
-              hintText: "Type something",
-              action: TextInputAction.send,
-              prefix: Icon(Icons.emoji_emotions_outlined),
-              suffix: CircleWidget(
-                radius: 21,
-                color: kWhiteColor,
-                child: FImage(
-                  assetPath: Assets.svgsSend,
-                  width: 20,
-                  height: 20,
-                  assetType: FoodAssetType.svg,
-                  svgAssetColor: kPrimaryColor,
-                ),
-              ),
-              keyboardType: TextInputType.text,
-            ),
-          ),
-          Positioned(
-            top: 0,
-            left: AppConstants.defaultPadding,
-            child: Container(
-              height: 95,
-              width: 1.sw,
-              color: kWhiteColor,
-              child: Row(
+        ],
+      ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              physics: const BouncingScrollPhysics(),
+              child: Column(
                 children: [
-                  BackWidget(color: kGreyColor, iconColor: kBlackColor),
-                  10.horizontalSpace,
-                  FText(
-                    text: "Robert Fox",
-                    fontSize: 17,
-                    fontWeight: FontWeight.w400,
-                    color: kTextColorDark,
+                  CustomChatBubble(
+                    message: "Hello, how are you?",
+                    time: "8:23PM",
+                    isSender: true,
+                  ),
+                  CustomChatBubble(
+                    message: "Hello, how are you?",
+                    time: "8:23PM",
+                    isSender: false,
+                  ),
+                  CustomChatBubble(
+                    message: "Hello, how are you?",
+                    time: "8:23PM",
+                    isSender: false,
+                  ),
+                  CustomChatBubble(
+                    message: "Hello, how are you?",
+                    time: "8:23PM",
+                    isSender: true,
+                  ),
+                  CustomChatBubble(
+                    message: "Hello, how are you?",
+                    time: "8:23PM",
+                    isSender: true,
+                  ),
+                  CustomChatBubble(
+                    message: "Hello, how are you?",
+                    time: "8:23PM",
+                    isSender: false,
+                  ),
+                  CustomChatBubble(
+                    message: "Hello, how are you?",
+                    time: "8:23PM",
+                    isSender: false,
+                  ),
+                  CustomChatBubble(
+                    message: "Hello, how are you?",
+                    time: "8:23PM",
+                    isSender: true,
+                  ),
+                  CustomChatBubble(
+                    message: "Hello, how are you?",
+                    time: "8:23PM",
+                    isSender: true,
+                  ),
+                  CustomChatBubble(
+                    message: "Hello, how are you?",
+                    time: "8:23PM",
+                    isSender: false,
+                  ),
+                  CustomChatBubble(
+                    message: "Hello, how are you?",
+                    time: "8:23PM",
+                    isSender: false,
+                  ),
+                  CustomChatBubble(
+                    message: "Hello, how are you?",
+                    time: "8:23PM",
+                    isSender: true,
+                  ),
+                  CustomChatBubble(
+                    message: "Hello, how are you?",
+                    time: "8:23PM",
+                    isSender: true,
+                  ),
+                  CustomChatBubble(
+                    message: "Hello, how are you?",
+                    time: "8:23PM",
+                    isSender: false,
+                  ),
+                  CustomChatBubble(
+                    message: "Hello, how are you?",
+                    time: "8:23PM",
+                    isSender: false,
+                  ),
+                  CustomChatBubble(
+                    message: "Hello, how are you?",
+                    time: "8:23PM",
+                    isSender: true,
+                  ),
+                  CustomChatBubble(
+                    message: "Hello, how are you?",
+                    time: "8:23PM",
+                    isSender: true,
+                  ),
+                  CustomChatBubble(
+                    message: "Hello, how are you?",
+                    time: "8:23PM",
+                    isSender: false,
+                  ),
+                  CustomChatBubble(
+                    message: "Hello, how are you?",
+                    time: "8:23PM",
+                    isSender: false,
+                  ),
+                  CustomChatBubble(
+                    message: "Hello, how are you?",
+                    time: "8:23PM",
+                    isSender: true,
                   ),
                 ],
+              ).paddingOnly(
+                left: AppConstants.defaultPadding,
+                right: AppConstants.defaultPadding,
               ),
             ),
           ),
+          FTextField(
+            height: 63,
+            hintText: "Type something",
+            action: TextInputAction.send,
+            prefix: Icon(Icons.emoji_emotions_outlined),
+            suffix: CircleWidget(
+              radius: 21,
+              color: kWhiteColor,
+              child: FImage(
+                assetPath: Assets.svgsSend,
+                width: 20,
+                height: 20,
+                assetType: FoodAssetType.svg,
+                svgAssetColor: kPrimaryColor,
+              ),
+            ),
+            keyboardType: TextInputType.text,
+          ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
         ],
       ),
     );

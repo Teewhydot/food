@@ -88,7 +88,7 @@ class FScaffold extends StatelessWidget {
       );
     } else {
       return Scaffold(
-        extendBody: true,
+        extendBody: false,
         backgroundColor:
             backgroundColor ?? Theme.of(context).scaffoldBackgroundColor,
         resizeToAvoidBottomInset: resizeToAvoidBottomInset,

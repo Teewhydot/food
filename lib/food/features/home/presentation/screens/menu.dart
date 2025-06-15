@@ -241,14 +241,20 @@ class _MenuState extends State<Menu> {
             ),
           );
         } else if (state is UserProfileLoading) {
-          return Center(child: CircularProgressIndicator(color: kPrimaryColor));
+          return FScaffold(
+            body: Center(
+              child: CircularProgressIndicator(color: kPrimaryColor),
+            ),
+          );
         } else if (state is UserProfileError) {
-          return Center(
-            child: FText(
-              text: state.errorMessage,
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w400,
-              color: Colors.red,
+          return FScaffold(
+            body: Center(
+              child: FText(
+                text: state.errorMessage,
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w400,
+                color: Colors.red,
+              ),
             ),
           );
         }

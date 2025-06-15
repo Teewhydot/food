@@ -2,6 +2,8 @@ import 'package:contained_tab_bar_view/contained_tab_bar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:food/food/components/scaffold.dart';
+import 'package:food/food/core/routes/routes.dart';
 import 'package:food/food/features/tracking/presentation/manager/chats_bloc/chats_cubit.dart';
 import 'package:food/food/features/tracking/presentation/manager/chats_bloc/chats_state.dart';
 import 'package:food/food/features/tracking/presentation/manager/notification_bloc/notification_cubit.dart';
@@ -18,33 +20,38 @@ import '../../../auth/presentation/widgets/back_widget.dart';
 import '../widgets/message_widget.dart';
 import '../widgets/notification_widget.dart';
 
-class Notifications extends StatelessWidget {
+class Notifications extends StatefulWidget {
   const Notifications({super.key});
+
+  @override
+  State<Notifications> createState() => _NotificationsState();
+}
+
+class _NotificationsState extends State<Notifications> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<NotificationCubit>().loadNotifications();
+    context.read<ChatsCubit>().loadChats();
+  }
 
   @override
   Widget build(BuildContext context) {
     final nav = GetIt.instance<NavigationService>();
 
-    return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(56.h),
-        child: AppBar(
-          backgroundColor: kWhiteColor,
-          elevation: 0,
-          automaticallyImplyLeading: false,
-          title: Row(
-            children: [
-              BackWidget(color: kGreyColor),
-              20.horizontalSpace,
-              FText(
-                text: "Notifications",
-                fontSize: 17.sp,
-                fontWeight: FontWeight.w400,
-                color: kBlackColor,
-              ),
-            ],
+    return FScaffold(
+      customScroll: false,
+      appBarWidget: Row(
+        children: [
+          BackWidget(color: kGreyColor),
+          20.horizontalSpace,
+          FText(
+            text: "Notifications",
+            fontSize: 17.sp,
+            fontWeight: FontWeight.w400,
+            color: kBlackColor,
           ),
-        ),
+        ],
       ),
       body: Column(
         children: [
@@ -133,7 +140,13 @@ class Notifications extends StatelessWidget {
                         child: Column(
                           children:
                               state.chats
-                                  .map((notification) => MessageWidget())
+                                  .map(
+                                    (notification) => MessageWidget(
+                                      onTap: () {
+                                        nav.navigateTo(Routes.chatScreen);
+                                      },
+                                    ),
+                                  )
                                   .toList(),
                         ).paddingOnly(top: 32),
                       );
@@ -161,7 +174,7 @@ class Notifications extends StatelessWidget {
             ),
           ),
         ],
-      ).paddingAll(AppConstants.defaultPadding),
+      ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
     );
   }
 }
