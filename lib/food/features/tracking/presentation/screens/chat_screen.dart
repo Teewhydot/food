@@ -174,7 +174,11 @@ class ChatScreen extends StatelessWidget {
               ),
             ),
             keyboardType: TextInputType.text,
-          ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
+          ).paddingOnly(
+            left: AppConstants.defaultPadding,
+            bottom: AppConstants.defaultPadding,
+            right: AppConstants.defaultPadding,
+          ),
         ],
       ),
     );

@@ -3,9 +3,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:food/food/bloc_manager/bloc_manager.dart';
 import 'package:food/food/core/helpers/extensions.dart';
 import 'package:food/food/core/routes/routes.dart';
-import 'package:food/food/core/utils/app_utils.dart';
 import 'package:food/food/core/utils/validators.dart';
 import 'package:food/food/features/auth/presentation/manager/auth_bloc/login/login_bloc.dart';
 import 'package:food/food/features/auth/presentation/widgets/auth_template.dart';
@@ -47,25 +47,24 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<LoginBloc, LoginState>(
+    return BlocManager<LoginBloc, LoginState>(
       bloc: context.read<LoginBloc>(),
-      listener: (context, state) {
-        if (state is LoginSuccessState) {
-          context.read<UserProfileCubit>().saveUserProfile(
-            UserProfileEntity(
-              firstName: "Tunde",
-              lastName: "Adesina",
-              email: "tchipsical@gmail.com",
-              phoneNumber: "08012345678",
-              firstTimeLogin: false,
-              bio:
-                  "Food lover and tech enthusiast, also a software developer/flutter and golang.",
-            ),
-          );
-          nav.navigateAndReplace(Routes.home);
-        } else if (state is LoginFailureState) {
-          DFoodUtils.showSnackBar(state.error, kErrorColor);
-        }
+      isError: (state) => state is LoginFailureState,
+      getErrorMessage: (state) => (state as LoginFailureState).error,
+      isSuccess: (state) => state is LoginSuccessState,
+      onSuccess: (context, state) {
+        context.read<UserProfileCubit>().saveUserProfile(
+          UserProfileEntity(
+            firstName: "Tunde",
+            lastName: "Adesina",
+            email: "tchipsical@gmail.com",
+            phoneNumber: "08012345678",
+            firstTimeLogin: false,
+            bio:
+                "Food lover and tech enthusiast, also a software developer/flutter and golang.",
+          ),
+        );
+        nav.navigateAndReplace(Routes.home);
       },
       child: CustomOverlay(
         isLoading:
