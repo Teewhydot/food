@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:food/food/core/bloc/app_state.dart';
 import 'package:meta/meta.dart';
 
 part 'login_event.dart';
@@ -12,7 +13,11 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       // Simulate a network call
 
       await Future.delayed(const Duration(seconds: 1), () {
-        emit(LoginSuccessState());
+        emit(
+          LoginSuccessState(
+            successMessage: 'Login successful for ${event.email}',
+          ),
+        );
       });
     });
   }

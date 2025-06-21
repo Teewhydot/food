@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:food/food/core/bloc/app_state.dart';
 import 'package:meta/meta.dart';
 
 part 'forgot_password_event.dart';
@@ -12,7 +13,9 @@ class ForgotPasswordBloc
       // Simulate a network call
 
       await Future.delayed(const Duration(seconds: 5), () {
-        emit(ForgotPasswordSuccess(message: 'Code sent successfully'));
+        emit(
+          ForgotPasswordSuccess(successMessage: 'Code sent to ${event.email}'),
+        );
       });
     });
   }

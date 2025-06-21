@@ -7,14 +7,18 @@ final class ForgotPasswordInitial extends ForgotPasswordState {}
 
 final class ForgotPasswordLoading extends ForgotPasswordState {}
 
-final class ForgotPasswordSuccess extends ForgotPasswordState {
-  final String message;
+final class ForgotPasswordSuccess extends ForgotPasswordState
+    implements AppSuccessState {
+  @override
+  final String successMessage;
 
-  ForgotPasswordSuccess({required this.message});
+  ForgotPasswordSuccess({required this.successMessage});
 }
 
-final class ForgotPasswordFailure extends ForgotPasswordState {
-  final String error;
+final class ForgotPasswordFailure extends ForgotPasswordState
+    implements AppErrorState {
+  @override
+  final String errorMessage;
 
-  ForgotPasswordFailure({required this.error});
+  ForgotPasswordFailure({required this.errorMessage});
 }

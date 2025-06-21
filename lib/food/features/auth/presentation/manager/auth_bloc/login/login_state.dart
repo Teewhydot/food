@@ -7,10 +7,16 @@ final class LoginInitialState extends LoginState {}
 
 final class LoginLoadingState extends LoginState {}
 
-final class LoginSuccessState extends LoginState {}
+final class LoginSuccessState extends LoginState implements AppSuccessState {
+  @override
+  final String successMessage;
 
-final class LoginFailureState extends LoginState {
-  final String error;
+  LoginSuccessState({required this.successMessage});
+}
 
-  LoginFailureState({required this.error});
+final class LoginFailureState extends LoginState implements AppErrorState {
+  @override
+  final String errorMessage;
+
+  LoginFailureState({required this.errorMessage});
 }

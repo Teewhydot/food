@@ -27,8 +27,10 @@ final class RecentKeywordsCleared extends RecentKeywordsState {
 
 final class RecentKeywordsDeleted extends RecentKeywordsState {}
 
-final class RecentKeywordsError extends RecentKeywordsState {
-  final String message;
+final class RecentKeywordsError extends RecentKeywordsState
+    implements AppErrorState {
+  @override
+  final String errorMessage;
 
-  RecentKeywordsError(this.message);
+  RecentKeywordsError(this.errorMessage);
 }

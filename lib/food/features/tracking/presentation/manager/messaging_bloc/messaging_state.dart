@@ -13,8 +13,9 @@ final class MessagingLoaded extends MessagingState {
   MessagingLoaded({required this.messages});
 }
 
-final class MessagingError extends MessagingState {
-  final String error;
+final class MessagingError extends MessagingState implements AppErrorState {
+  @override
+  final String errorMessage;
 
-  MessagingError({required this.error});
+  MessagingError({required this.errorMessage});
 }

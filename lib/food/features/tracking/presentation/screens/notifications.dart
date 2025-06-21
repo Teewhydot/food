@@ -2,8 +2,8 @@ import 'package:contained_tab_bar_view/contained_tab_bar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:food/food/bloc_manager/bloc_manager.dart';
 import 'package:food/food/components/scaffold.dart';
+import 'package:food/food/core/bloc/bloc_manager.dart';
 import 'package:food/food/core/routes/routes.dart';
 import 'package:food/food/features/tracking/presentation/manager/chats_bloc/chats_cubit.dart';
 import 'package:food/food/features/tracking/presentation/manager/chats_bloc/chats_state.dart';
@@ -82,7 +82,7 @@ class _NotificationsState extends State<Notifications> {
                   getErrorMessage:
                       (state) =>
                           state is NotificationError
-                              ? state.message
+                              ? state.errorMessage
                               : AppConstants.defaultErrorMessage,
                   builder: (context, state) {
                     if (state is NotificationLoading) {
@@ -137,7 +137,7 @@ class _NotificationsState extends State<Notifications> {
                   getErrorMessage:
                       (state) =>
                           state is ChatsError
-                              ? state.message
+                              ? state.errorMessage
                               : AppConstants.defaultErrorMessage,
 
                   builder: (context, state) {

@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:food/food/core/bloc/app_state.dart';
 import 'package:meta/meta.dart';
 import 'package:uuid/uuid.dart';
 

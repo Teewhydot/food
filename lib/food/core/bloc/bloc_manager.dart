@@ -4,7 +4,7 @@ import 'package:food/food/core/constants/app_constants.dart';
 import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/core/utils/logger.dart';
 
-import '../core/utils/app_utils.dart';
+import '../utils/app_utils.dart';
 
 class BlocManager<T extends BlocBase<S>, S> extends StatelessWidget {
   final T bloc;

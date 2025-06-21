@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:food/food/core/bloc/app_state.dart';
 import 'package:food/food/core/utils/logger.dart';
 import 'package:meta/meta.dart';
 

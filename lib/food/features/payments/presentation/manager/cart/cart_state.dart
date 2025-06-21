@@ -19,8 +19,9 @@ class CartLoaded extends CartState {
   });
 }
 
-class CartError extends CartState {
-  final String message;
+class CartError extends CartState implements AppErrorState {
+  @override
+  final String errorMessage;
 
-  CartError({required this.message});
+  CartError({required this.errorMessage});
 }

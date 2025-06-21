@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:food/food/core/bloc/app_state.dart';
 import 'package:food/food/core/services/floor_db_service/user_profile/user_profile_database_service.dart';
 import 'package:food/food/core/utils/logger.dart';
 import 'package:food/food/features/home/domain/entities/profile.dart';

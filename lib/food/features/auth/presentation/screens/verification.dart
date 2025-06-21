@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:food/food/bloc_manager/bloc_manager.dart';
 import 'package:food/food/components/texts/texts.dart';
+import 'package:food/food/core/bloc/bloc_manager.dart';
 import 'package:food/food/core/helpers/extensions.dart';
 import 'package:food/food/features/auth/presentation/widgets/auth_template.dart';
 import 'package:food/food/features/auth/presentation/widgets/custom_overlay.dart';
@@ -51,7 +51,7 @@ class _LoginState extends State<Verification> {
     return BlocManager<VerificationBloc, VerificationState>(
       isSuccess: (state) => state is VerificationSuccess,
       isError: (state) => state is VerificationFailure,
-      getErrorMessage: (state) => (state as VerificationFailure).error,
+      getErrorMessage: (state) => (state as VerificationFailure).errorMessage,
       onSuccess: (context, state) {
         // Handle any additional success logic if needed
         DFoodUtils.showSnackBar("Verification successful", kSuccessColor);

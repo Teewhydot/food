@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:food/food/core/bloc/app_state.dart';
 import 'package:meta/meta.dart';
 
 part 'register_event.dart';
@@ -11,7 +12,7 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
       // Simulate a network call
 
       await Future.delayed(const Duration(seconds: 1), () {
-        emit(RegisterSuccess(message: "Registration successful"));
+        emit(RegisterSuccess(successMessage: "Registration successful"));
       });
     });
   }

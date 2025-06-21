@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:food/food/core/bloc/app_state.dart';
 import 'package:meta/meta.dart';
 
 part 'verification_event.dart';
@@ -11,9 +12,11 @@ class VerificationBloc extends Bloc<VerificationEvent, VerificationState> {
       // Simulate a network call
       await Future.delayed(const Duration(seconds: 5), () {
         if (event.otpCode == "1234") {
-          emit(VerificationSuccess(message: "OTP verified successfully!"));
+          emit(
+            VerificationSuccess(successMessage: "OTP verified successfully!"),
+          );
         } else {
-          emit(VerificationFailure(error: "Invalid OTP code!"));
+          emit(VerificationFailure(errorMessage: "Invalid OTP code!"));
         }
       });
     });

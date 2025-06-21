@@ -7,14 +7,16 @@ final class LocationInitial extends LocationState {}
 
 final class LocationLoading extends LocationState {}
 
-final class LocationSuccess extends LocationState {
-  final String message;
+final class LocationSuccess extends LocationState implements AppSuccessState {
+  @override
+  final String successMessage;
 
-  LocationSuccess({required this.message});
+  LocationSuccess({required this.successMessage});
 }
 
-final class LocationFailure extends LocationState {
-  final String error;
+final class LocationFailure extends LocationState implements AppErrorState {
+  @override
+  final String errorMessage;
 
-  LocationFailure({required this.error});
+  LocationFailure({required this.errorMessage});
 }

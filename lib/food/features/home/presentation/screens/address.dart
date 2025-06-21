@@ -14,9 +14,9 @@ import 'package:food/generated/assets.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 
-import '../../../../bloc_manager/bloc_manager.dart';
 import '../../../../components/buttons/buttons.dart';
 import '../../../../components/texts/texts.dart';
+import '../../../../core/bloc/bloc_manager.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../core/theme/colors.dart';
 import '../../../auth/presentation/widgets/back_widget.dart';

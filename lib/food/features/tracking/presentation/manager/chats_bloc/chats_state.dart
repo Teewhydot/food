@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:food/food/core/bloc/app_state.dart';
 import 'package:food/food/features/tracking/domain/entities/chat_entity.dart';
 
 @immutable
@@ -14,8 +15,9 @@ class ChatsLoaded extends ChatsState {
   ChatsLoaded({required this.chats});
 }
 
-class ChatsError extends ChatsState {
-  final String message;
+class ChatsError extends ChatsState implements AppErrorState {
+  @override
+  final String errorMessage;
 
-  ChatsError({required this.message});
+  ChatsError({required this.errorMessage});
 }

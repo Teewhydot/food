@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:food/food/core/bloc/app_state.dart';
 import 'package:food/food/features/tracking/domain/entities/notification_entity.dart';
 
 @immutable
@@ -14,8 +15,9 @@ class NotificationLoaded extends NotificationState {
   NotificationLoaded({required this.notifications});
 }
 
-class NotificationError extends NotificationState {
-  final String message;
+class NotificationError extends NotificationState implements AppErrorState {
+  @override
+  final String errorMessage;
 
-  NotificationError({required this.message});
+  NotificationError({required this.errorMessage});
 }

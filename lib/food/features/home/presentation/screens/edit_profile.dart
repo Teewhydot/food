@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:food/food/bloc_manager/bloc_manager.dart';
 import 'package:food/food/components/buttons/buttons.dart';
 import 'package:food/food/components/image.dart';
 import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/components/textfields.dart';
+import 'package:food/food/core/bloc/bloc_manager.dart';
 import 'package:food/food/core/constants/app_constants.dart';
 import 'package:food/food/core/services/floor_db_service/user_profile/user_profile_database_service.dart';
 import 'package:food/food/core/utils/logger.dart';

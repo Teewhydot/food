@@ -12,8 +12,8 @@ import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../../../../generated/assets.dart';
-import '../../../../bloc_manager/bloc_manager.dart';
 import '../../../../components/image.dart';
+import '../../../../core/bloc/bloc_manager.dart';
 import '../../../../core/routes/routes.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../core/utils/app_utils.dart';
@@ -34,7 +34,7 @@ class _LocationState extends State<Location> {
     return BlocManager<LocationBloc, LocationState>(
       bloc: context.read<LocationBloc>(),
       isError: (state) => state is LocationFailure,
-      getErrorMessage: (state) => (state as LocationFailure).error,
+      getErrorMessage: (state) => (state as LocationFailure).errorMessage,
       isSuccess: (state) => state is LocationSuccess,
       onSuccess: (context, state) {
         // Handle any additional success logic if needed

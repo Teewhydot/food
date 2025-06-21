@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:food/food/core/bloc/app_state.dart';
 import 'package:meta/meta.dart';
 
 part 'location_event.dart';
@@ -10,7 +11,7 @@ class LocationBloc extends Bloc<LocationEvent, LocationState> {
       emit(LocationLoading());
       // Simulate a network call
       await Future.delayed(const Duration(seconds: 2), () {
-        emit(LocationSuccess(message: "Location fetched successfully"));
+        emit(LocationSuccess(successMessage: "Location fetched successfully"));
       });
     });
   }

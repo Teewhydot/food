@@ -7,14 +7,18 @@ final class VerificationInitial extends VerificationState {}
 
 final class VerificationLoading extends VerificationState {}
 
-final class VerificationSuccess extends VerificationState {
-  final String message;
+final class VerificationSuccess extends VerificationState
+    implements AppSuccessState {
+  @override
+  final String successMessage;
 
-  VerificationSuccess({required this.message});
+  VerificationSuccess({required this.successMessage});
 }
 
-final class VerificationFailure extends VerificationState {
-  final String error;
+final class VerificationFailure extends VerificationState
+    implements AppErrorState {
+  @override
+  final String errorMessage;
 
-  VerificationFailure({required this.error});
+  VerificationFailure({required this.errorMessage});
 }

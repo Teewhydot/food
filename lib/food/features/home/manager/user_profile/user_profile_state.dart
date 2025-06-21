@@ -14,7 +14,8 @@ final class UserProfileLoaded extends UserProfileState {
   UserProfileLoaded({required this.userProfile});
 }
 
-final class UserProfileError extends UserProfileState {
+final class UserProfileError extends UserProfileState implements AppErrorState {
+  @override
   final String errorMessage;
 
   UserProfileError({required this.errorMessage});

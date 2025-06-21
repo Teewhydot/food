@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:food/food/bloc_manager/bloc_manager.dart';
+import 'package:food/food/core/bloc/bloc_manager.dart';
 import 'package:food/food/core/routes/routes.dart';
 import 'package:food/food/core/utils/app_utils.dart';
 import 'package:food/food/features/auth/presentation/manager/auth_bloc/register/register_bloc.dart';
@@ -31,7 +31,7 @@ class _LoginState extends State<SignUp> {
     return BlocManager<RegisterBloc, RegisterState>(
       bloc: context.read<RegisterBloc>(),
       isError: (state) => state is RegisterFailure,
-      getErrorMessage: (state) => (state as RegisterFailure).error,
+      getErrorMessage: (state) => (state as RegisterFailure).errorMessage,
       isSuccess: (state) => state is RegisterSuccess,
       onSuccess: (context, state) {
         // Handle any additional success logic if needed

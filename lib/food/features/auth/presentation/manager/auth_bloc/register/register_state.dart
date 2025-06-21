@@ -7,14 +7,16 @@ final class RegisterInitial extends RegisterState {}
 
 final class RegisterLoading extends RegisterState {}
 
-final class RegisterSuccess extends RegisterState {
-  final String message;
+final class RegisterSuccess extends RegisterState implements AppSuccessState {
+  @override
+  final String successMessage;
 
-  RegisterSuccess({required this.message});
+  RegisterSuccess({required this.successMessage});
 }
 
-final class RegisterFailure extends RegisterState {
-  final String error;
+final class RegisterFailure extends RegisterState implements AppErrorState {
+  @override
+  final String errorMessage;
 
-  RegisterFailure({required this.error});
+  RegisterFailure({required this.errorMessage});
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:food/food/bloc_manager/bloc_manager.dart';
+import 'package:food/food/core/bloc/bloc_manager.dart';
 import 'package:food/food/core/routes/routes.dart';
 import 'package:food/food/features/auth/presentation/manager/auth_bloc/forgot_password/forgot_password_bloc.dart';
 import 'package:food/food/features/auth/presentation/widgets/auth_template.dart';
@@ -31,7 +31,7 @@ class _LoginState extends State<ForgotPassword> {
     return BlocManager<ForgotPasswordBloc, ForgotPasswordState>(
       bloc: context.read<ForgotPasswordBloc>(),
       isError: (state) => state is ForgotPasswordFailure,
-      getErrorMessage: (state) => (state as ForgotPasswordFailure).error,
+      getErrorMessage: (state) => (state as ForgotPasswordFailure).errorMessage,
       isSuccess: (state) => state is ForgotPasswordSuccess,
       onSuccess: (context, state) {
         // Handle any additional success logic if needed
