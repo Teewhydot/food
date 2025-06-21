@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:food/food/bloc_manager/bloc_manager.dart';
 import 'package:food/food/components/buttons/buttons.dart';
 import 'package:food/food/components/image.dart';
 import 'package:food/food/components/scaffold.dart';
@@ -27,7 +28,8 @@ class Food extends StatelessWidget {
   Widget build(BuildContext context) {
     final nav = GetIt.instance<NavigationService>();
 
-    return BlocBuilder<CartCubit, CartState>(
+    return BlocManager<CartCubit, CartState>(
+      bloc: context.read<CartCubit>(),
       builder: (context, state) {
         if (state is CartLoaded) {
           return FScaffold(
@@ -263,32 +265,6 @@ class Food extends StatelessWidget {
                     alignment: WrapAlignment.center,
                     runAlignment: WrapAlignment.center,
                     runSpacing: 50,
-                    // children: [
-                    //   FoodWidget(
-                    //     image: "assets/images/food1.png",
-                    //     name: "Pizza",
-                    //     rating: "4.5",
-                    //     price: "\$10.00",
-                    //   ),
-                    //   FoodWidget(
-                    //     image: "assets/images/food1.png",
-                    //     name: "Pizza",
-                    //     rating: "4.5",
-                    //     price: "\$10.00",
-                    //   ),
-                    //   FoodWidget(
-                    //     image: "assets/images/food1.png",
-                    //     name: "Pizza",
-                    //     rating: "4.5",
-                    //     price: "\$10.00",
-                    //   ),
-                    //   FoodWidget(
-                    //     image: "assets/images/food1.png",
-                    //     name: "Pizza",
-                    //     rating: "4.5",
-                    //     price: "\$10.00",
-                    //   ),
-                    // ],
                   ).paddingOnly(right: AppConstants.defaultPadding),
                   40.verticalSpace,
                   SectionHead(
@@ -297,39 +273,7 @@ class Food extends StatelessWidget {
                   20.verticalSpace,
                   SingleChildScrollView(
                     scrollDirection: Axis.vertical,
-                    child: Column(
-                      spacing: 16,
-                      // children: [
-                      //   RestaurantWidget(
-                      //     name: "Burger King",
-                      //     rating: "4.5",
-                      //     distance: "2.5 km",
-                      //     time: "30 min",
-                      //     categories: ["Burger", "Fast Food"],
-                      //   ),
-                      //   RestaurantWidget(
-                      //     name: "Pizza Hut",
-                      //     rating: "4.8",
-                      //     distance: "3.0 km",
-                      //     time: "25 min",
-                      //     categories: ["Pizza", "Italian"],
-                      //   ),
-                      //   RestaurantWidget(
-                      //     name: "Pizza Hut",
-                      //     rating: "4.8",
-                      //     distance: "3.0 km",
-                      //     time: "25 min",
-                      //     categories: ["Pizza", "Italian"],
-                      //   ),
-                      //   RestaurantWidget(
-                      //     name: "Pizza Hut",
-                      //     rating: "4.8",
-                      //     distance: "3.0 km",
-                      //     time: "25 min",
-                      //     categories: ["Pizza", "Italian"],
-                      //   ),
-                      // ],
-                    ),
+                    child: Column(spacing: 16),
                   ).paddingOnly(right: AppConstants.defaultPadding.w),
                 ],
               ).paddingOnly(left: AppConstants.defaultPadding),
@@ -338,6 +282,7 @@ class Food extends StatelessWidget {
         }
         return SizedBox();
       },
+      child: Container(),
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:food/food/bloc_manager/bloc_manager.dart';
 import 'package:food/food/components/texts/texts.dart';
 import 'package:food/food/core/constants/app_constants.dart';
 import 'package:food/food/features/home/domain/entities/food.dart';
@@ -35,7 +36,12 @@ class _FoodDetailsState extends State<FoodDetails> {
   Widget build(BuildContext context) {
     final nav = GetIt.instance<NavigationService>();
 
-    return BlocBuilder<CartCubit, CartState>(
+    return BlocManager<CartCubit, CartState>(
+      bloc: context.read<CartCubit>(),
+      isError: (state) => state is CartError,
+      getErrorMessage: (state) => (state as CartError).message,
+      isSuccess: (state) => state is CartLoaded,
+      child: Container(),
       builder: (context, state) {
         if (state is CartLoaded) {
           return DetailsSkeletonWidget(

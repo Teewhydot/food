@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:food/food/bloc_manager/bloc_manager.dart';
 import 'package:food/food/components/buttons/buttons.dart';
 import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/components/textfields.dart';
@@ -18,6 +19,7 @@ import 'package:get_it/get_it.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../core/services/navigation_service/nav_config.dart';
+import '../../../../core/utils/app_utils.dart';
 
 class AddAddress extends StatefulWidget {
   final AddressEntity addressEntity;
@@ -69,10 +71,17 @@ class _AddAddressState extends State<AddAddress> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AddressCubit, AddressState>(
-      listener: (context, state) {},
+    return BlocManager<AddressCubit, AddressState>(
+      bloc: context.read<AddressCubit>(),
+      isError: (state) => state is AddressError,
+      getErrorMessage: (state) => (state as AddressError).errorMessage,
+      isSuccess: (state) => state is AddressAdded,
+      onSuccess: (context, state) {
+        DFoodUtils.showSnackBar("Address saved successfully", kSuccessColor);
+        nav.goBack();
+      },
       child: CustomOverlay(
-        isLoading: context.read<AddressCubit>().state is AddressLoading,
+        isLoading: context.watch<AddressCubit>().state is AddressLoading,
         child: FScaffold(
           customScroll: false,
           resizeToAvoidBottomInset: false,
@@ -216,7 +225,6 @@ class _AddAddressState extends State<AddAddress> {
                     );
                     context.read<AddressCubit>().addAddress(address);
                   }
-                  nav.goBack();
                 },
               ),
             ],

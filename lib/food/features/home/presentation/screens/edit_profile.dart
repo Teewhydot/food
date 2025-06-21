@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:food/food/bloc_manager/bloc_manager.dart';
 import 'package:food/food/components/buttons/buttons.dart';
 import 'package:food/food/components/image.dart';
 import 'package:food/food/components/scaffold.dart';
@@ -69,10 +70,19 @@ class _EditProfileState extends State<EditProfile> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<UserProfileCubit, UserProfileState>(
-      listener: (context, state) {
-        // TODO: implement listener
+    return BlocManager<UserProfileCubit, UserProfileState>(
+      bloc: context.read<UserProfileCubit>(),
+      isError: (state) => state is UserProfileError,
+      getErrorMessage:
+          (state) =>
+              state is UserProfileError
+                  ? state.errorMessage
+                  : AppConstants.defaultErrorMessage,
+      isSuccess: (state) => state is UserProfileLoaded,
+      onSuccess: (context, state) {
+        Logger.logBasic("User profile updated successfully");
       },
+
       child: CustomOverlay(
         isLoading:
             context.watch<UserProfileCubit>().state is UserProfileLoading,

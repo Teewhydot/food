@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:food/food/bloc_manager/bloc_manager.dart';
 import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/components/texts/texts.dart';
 import 'package:food/food/core/helpers/extensions.dart';
@@ -30,7 +31,15 @@ class _CartState extends State<Cart> {
   @override
   Widget build(BuildContext context) {
     final nav = GetIt.instance<NavigationService>();
-    return BlocBuilder<CartCubit, CartState>(
+    return BlocManager<CartCubit, CartState>(
+      bloc: context.read<CartCubit>(),
+      child: Container(),
+      isError: (state) => state is CartError,
+      getErrorMessage:
+          (state) =>
+              state is CartError
+                  ? state.message
+                  : AppConstants.defaultErrorMessage,
       builder: (context, state) {
         if (state is CartLoaded) {
           if (state.items.isEmpty) {

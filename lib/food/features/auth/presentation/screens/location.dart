@@ -12,6 +12,7 @@ import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../../../../generated/assets.dart';
+import '../../../../bloc_manager/bloc_manager.dart';
 import '../../../../components/image.dart';
 import '../../../../core/routes/routes.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
@@ -30,14 +31,15 @@ class _LocationState extends State<Location> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<LocationBloc, LocationState>(
-      listener: (context, state) {
-        if (state is LocationSuccess) {
-          DFoodUtils.showSnackBar("Location access granted", kSuccessColor);
-          nav.navigateAndReplaceAll(Routes.home);
-        } else if (state is LocationFailure) {
-          DFoodUtils.showSnackBar(state.error, kErrorColor);
-        }
+    return BlocManager<LocationBloc, LocationState>(
+      bloc: context.read<LocationBloc>(),
+      isError: (state) => state is LocationFailure,
+      getErrorMessage: (state) => (state as LocationFailure).error,
+      isSuccess: (state) => state is LocationSuccess,
+      onSuccess: (context, state) {
+        // Handle any additional success logic if needed
+        DFoodUtils.showSnackBar("Location access granted", kSuccessColor);
+        nav.navigateAndReplaceAll(Routes.home);
       },
       child: CustomOverlay(
         isLoading: context.watch<LocationBloc>().state is LocationLoading,

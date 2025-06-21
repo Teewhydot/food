@@ -11,9 +11,10 @@ class AddressCubit extends Cubit<AddressState> {
 
   void addAddress(AddressEntity address) async {
     emit(AddressLoading());
+    await Future.delayed(const Duration(seconds: 5));
     try {
       await (await db.database).addressDao.insertAddress(address);
-      emit(AddressAdded(address: address));
+      emit(AddressError(errorMessage: "Address added successfully"));
       loadAddresses();
     } catch (e) {
       emit(AddressError(errorMessage: e.toString()));

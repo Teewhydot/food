@@ -18,3 +18,9 @@ class CartLoaded extends CartState {
     required this.itemCount,
   });
 }
+
+class CartError extends CartState {
+  final String message;
+
+  CartError({required this.message});
+}

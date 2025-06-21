@@ -14,6 +14,7 @@ import 'package:food/generated/assets.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 
+import '../../../../bloc_manager/bloc_manager.dart';
 import '../../../../components/buttons/buttons.dart';
 import '../../../../components/texts/texts.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
@@ -40,7 +41,7 @@ class _AddressState extends State<Address> {
   @override
   Widget build(BuildContext context) {
     final nav = GetIt.instance<NavigationService>();
-    return BlocBuilder<AddressCubit, AddressState>(
+    return BlocManager<AddressCubit, AddressState>(
       bloc: context.read<AddressCubit>(),
       builder: (context, state) {
         if (state is AddressLoaded) {
@@ -166,38 +167,6 @@ class _AddressState extends State<Address> {
               ],
             ),
           );
-        } else if (state is AddressError) {
-          return Scaffold(
-            extendBody: true,
-            appBar: PreferredSize(
-              preferredSize: Size.fromHeight(56.h),
-              child: AppBar(
-                backgroundColor: kWhiteColor,
-                elevation: 0,
-                automaticallyImplyLeading: false,
-                title: Row(
-                  children: [
-                    BackWidget(color: kGreyColor),
-                    20.horizontalSpace,
-                    FText(
-                      text: "Address",
-                      fontSize: 17.sp,
-                      fontWeight: FontWeight.w400,
-                      color: kBlackColor,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            body: Center(
-              child: FWrapText(
-                text: state.errorMessage,
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w400,
-                color: kErrorColor,
-              ),
-            ),
-          );
         }
         return FScaffold(
           customScroll: false,
@@ -239,6 +208,7 @@ class _AddressState extends State<Address> {
           ),
         );
       },
+      child: Container(),
     );
   }
 }

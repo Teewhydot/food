@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:food/food/bloc_manager/bloc_manager.dart';
 import 'package:food/food/core/routes/routes.dart';
 import 'package:food/food/core/utils/app_utils.dart';
 import 'package:food/food/features/auth/presentation/manager/auth_bloc/register/register_bloc.dart';
@@ -27,15 +28,15 @@ class _LoginState extends State<SignUp> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<RegisterBloc, RegisterState>(
+    return BlocManager<RegisterBloc, RegisterState>(
       bloc: context.read<RegisterBloc>(),
-      listener: (context, state) {
-        if (state is RegisterSuccess) {
-          DFoodUtils.showSnackBar("Registration was successful", kSuccessColor);
-          nav.navigateTo(Routes.location);
-        } else if (state is RegisterFailure) {
-          DFoodUtils.showSnackBar(state.error, kErrorColor);
-        }
+      isError: (state) => state is RegisterFailure,
+      getErrorMessage: (state) => (state as RegisterFailure).error,
+      isSuccess: (state) => state is RegisterSuccess,
+      onSuccess: (context, state) {
+        // Handle any additional success logic if needed
+        DFoodUtils.showSnackBar("Registration successful", kSuccessColor);
+        nav.navigateTo(Routes.location);
       },
       child: CustomOverlay(
         isLoading:

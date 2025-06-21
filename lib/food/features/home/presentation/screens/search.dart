@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:food/food/bloc_manager/bloc_manager.dart';
 import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/components/texts/texts.dart';
 import 'package:food/food/core/helpers/extensions.dart';
@@ -820,7 +821,14 @@ class _SearchState extends State<Search> {
             25.verticalSpace,
             SectionHead(title: "Recent Keywords", isActionVisible: false),
             20.verticalSpace,
-            BlocBuilder<RecentKeywordsCubit, RecentKeywordsState>(
+            BlocManager<RecentKeywordsCubit, RecentKeywordsState>(
+              bloc: context.read<RecentKeywordsCubit>(),
+              isError: (state) => state is RecentKeywordsError,
+              getErrorMessage:
+                  (state) =>
+                      state is RecentKeywordsError
+                          ? state.message
+                          : AppConstants.defaultErrorMessage,
               builder: (context, state) {
                 if (state is RecentKeywordsLoading) {
                   return SizedBox(
@@ -830,14 +838,10 @@ class _SearchState extends State<Search> {
                       scrollDirection: Axis.horizontal,
                       itemCount: 5,
                       itemBuilder: (context, index) {
-                        return KeywordWidget(keyword: "Hope", onTap: () {});
+                        return KeywordWidget(keyword: "Loading", onTap: () {});
                       },
                     ),
                   ).skeletonize();
-                } else if (state is RecentKeywordsError) {
-                  return Center(
-                    child: FText(text: state.message, color: kPrimaryColor),
-                  );
                 } else if (state is RecentKeywordsLoaded) {
                   if (state.keywords.isEmpty) {
                     return Center(
@@ -871,6 +875,7 @@ class _SearchState extends State<Search> {
                   return SizedBox();
                 }
               },
+              child: Container(),
             ),
             30.verticalSpace,
             SectionHead(title: "Suggested Restaurants", isActionVisible: false),

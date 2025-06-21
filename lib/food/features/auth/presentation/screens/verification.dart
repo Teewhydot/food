@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:food/food/bloc_manager/bloc_manager.dart';
 import 'package:food/food/components/texts/texts.dart';
 import 'package:food/food/core/helpers/extensions.dart';
 import 'package:food/food/features/auth/presentation/widgets/auth_template.dart';
@@ -47,15 +48,16 @@ class _LoginState extends State<Verification> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<VerificationBloc, VerificationState>(
-      listener: (context, state) {
-        if (state is VerificationSuccess) {
-          DFoodUtils.showSnackBar("Verification successful", kSuccessColor);
-          nav.navigateAndReplace(Routes.home);
-        } else if (state is VerificationFailure) {
-          DFoodUtils.showSnackBar(state.error, kErrorColor);
-        }
+    return BlocManager<VerificationBloc, VerificationState>(
+      isSuccess: (state) => state is VerificationSuccess,
+      isError: (state) => state is VerificationFailure,
+      getErrorMessage: (state) => (state as VerificationFailure).error,
+      onSuccess: (context, state) {
+        // Handle any additional success logic if needed
+        DFoodUtils.showSnackBar("Verification successful", kSuccessColor);
+        nav.navigateAndReplace(Routes.home);
       },
+      bloc: context.watch<VerificationBloc>(),
       child: CustomOverlay(
         isLoading:
             context.watch<VerificationBloc>().state is VerificationLoading

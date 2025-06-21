@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:food/food/bloc_manager/bloc_manager.dart';
 import 'package:food/food/components/image.dart';
 import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/components/texts/texts.dart';
@@ -25,7 +26,15 @@ class PersonalInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     final nav = GetIt.instance<NavigationService>();
     // done
-    return BlocBuilder<UserProfileCubit, UserProfileState>(
+    return BlocManager<UserProfileCubit, UserProfileState>(
+      bloc: context.read<UserProfileCubit>(),
+      child: Container(),
+      isError: (state) => state is UserProfileError,
+      getErrorMessage:
+          (state) =>
+              state is UserProfileError
+                  ? state.errorMessage
+                  : AppConstants.defaultErrorMessage,
       builder: (context, state) {
         if (state is UserProfileLoaded) {
           return FScaffold(

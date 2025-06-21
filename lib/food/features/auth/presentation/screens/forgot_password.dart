@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:food/food/bloc_manager/bloc_manager.dart';
 import 'package:food/food/core/routes/routes.dart';
 import 'package:food/food/features/auth/presentation/manager/auth_bloc/forgot_password/forgot_password_bloc.dart';
 import 'package:food/food/features/auth/presentation/widgets/auth_template.dart';
@@ -27,15 +28,15 @@ class _LoginState extends State<ForgotPassword> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<ForgotPasswordBloc, ForgotPasswordState>(
+    return BlocManager<ForgotPasswordBloc, ForgotPasswordState>(
       bloc: context.read<ForgotPasswordBloc>(),
-      listener: (context, state) {
-        if (state is ForgotPasswordSuccess) {
-          DFoodUtils.showSnackBar("Code sent successfully", kSuccessColor);
-          nav.navigateTo(Routes.otpVerification);
-        } else if (state is ForgotPasswordFailure) {
-          DFoodUtils.showSnackBar(state.error, kErrorColor);
-        }
+      isError: (state) => state is ForgotPasswordFailure,
+      getErrorMessage: (state) => (state as ForgotPasswordFailure).error,
+      isSuccess: (state) => state is ForgotPasswordSuccess,
+      onSuccess: (context, state) {
+        // Handle any additional success logic if needed
+        DFoodUtils.showSnackBar("Code sent successfully", kSuccessColor);
+        nav.navigateTo(Routes.otpVerification);
       },
       child: CustomOverlay(
         isLoading:
