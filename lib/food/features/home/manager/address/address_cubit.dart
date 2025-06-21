@@ -3,6 +3,8 @@ import 'package:food/food/core/services/floor_db_service/address/address_databas
 import 'package:food/food/features/home/domain/entities/address.dart';
 import 'package:meta/meta.dart';
 
+import '../../../../core/bloc/app_state.dart';
+
 part 'address_state.dart';
 
 class AddressCubit extends Cubit<AddressState> {
@@ -14,10 +16,10 @@ class AddressCubit extends Cubit<AddressState> {
     await Future.delayed(const Duration(seconds: 5));
     try {
       await (await db.database).addressDao.insertAddress(address);
-      emit(AddressError(errorMessage: "Address added successfully"));
+      emit(AddressAdded(address: address));
       loadAddresses();
     } catch (e) {
-      emit(AddressError(errorMessage: e.toString()));
+      emit(AddressError(e.toString()));
     }
   }
 
@@ -27,7 +29,7 @@ class AddressCubit extends Cubit<AddressState> {
       final addresses = await (await db.database).addressDao.getAddresses();
       emit(AddressLoaded(addresses: addresses));
     } catch (e) {
-      emit(AddressError(errorMessage: e.toString()));
+      emit(AddressError(e.toString()));
     }
   }
 
@@ -38,7 +40,7 @@ class AddressCubit extends Cubit<AddressState> {
       emit(AddressUpdated(address: address));
       loadAddresses();
     } catch (e) {
-      emit(AddressError(errorMessage: e.toString()));
+      emit(AddressError(e.toString()));
     }
   }
 
@@ -46,10 +48,10 @@ class AddressCubit extends Cubit<AddressState> {
     emit(AddressLoading());
     try {
       await (await db.database).addressDao.deleteAddress(address);
-      emit(AddressDeleted(message: "Address deleted successfully"));
+      emit(AddressDeleted());
       loadAddresses();
     } catch (e) {
-      emit(AddressError(errorMessage: e.toString()));
+      emit(AddressError(e.toString()));
     }
   }
 }

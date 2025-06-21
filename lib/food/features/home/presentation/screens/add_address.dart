@@ -75,10 +75,15 @@ class _AddAddressState extends State<AddAddress> {
       bloc: context.read<AddressCubit>(),
       isError: (state) => state is AddressError,
       getErrorMessage: (state) => (state as AddressError).errorMessage,
-      isSuccess: (state) => state is AddressAdded,
+      isSuccess: (state) => state is AddressAdded || state is AddressUpdated,
       onSuccess: (context, state) {
-        DFoodUtils.showSnackBar("Address saved successfully", kSuccessColor);
         nav.goBack();
+        state is AddressAdded
+            ? DFoodUtils.showSnackBar((state).successMessage, kSuccessColor)
+            : DFoodUtils.showSnackBar(
+              (state as AddressUpdated).successMessage,
+              kSuccessColor,
+            );
       },
       child: CustomOverlay(
         isLoading: context.watch<AddressCubit>().state is AddressLoading,

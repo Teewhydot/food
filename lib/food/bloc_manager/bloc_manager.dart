@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food/food/core/constants/app_constants.dart';
 import 'package:food/food/core/theme/colors.dart';
+import 'package:food/food/core/utils/logger.dart';
 
 import '../core/utils/app_utils.dart';
 
@@ -44,7 +45,9 @@ class BlocManager<T extends BlocBase<S>, S> extends StatelessWidget {
             DFoodUtils.showSnackBar(message, errorColor);
           }
           if (isSuccess != null && isSuccess!(state)) {
+            Logger.logSuccess("Success condition met in BlocManager");
             if (onSuccess != null) {
+              Logger.logSuccess("Executing onSuccess callback");
               onSuccess!(context, state);
             }
           }
