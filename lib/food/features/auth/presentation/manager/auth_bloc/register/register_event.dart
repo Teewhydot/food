@@ -4,12 +4,16 @@ part of 'register_bloc.dart';
 sealed class RegisterEvent {}
 
 class RegisterInitialEvent extends RegisterEvent {
-  final String fullName;
+  final String firstName;
+  final String lastName;
+  final String phoneNumber;
   final String email;
   final String password;
 
   RegisterInitialEvent({
-    required this.fullName,
+    required this.firstName,
+    required this.lastName,
+    required this.phoneNumber,
     required this.email,
     required this.password,
   });

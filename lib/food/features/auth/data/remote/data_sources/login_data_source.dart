@@ -5,7 +5,7 @@ abstract class LoginDataSource {
 }
 
 // implement firebase login functionality
-class LoginDataSourceImplementation implements LoginDataSource {
+class FirebaseLoginDSI implements LoginDataSource {
   @override
   Future<UserCredential> logUserInFirebase(
     String email,

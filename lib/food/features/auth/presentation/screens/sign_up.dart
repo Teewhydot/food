@@ -25,6 +25,23 @@ class SignUp extends StatefulWidget {
 
 class _LoginState extends State<SignUp> {
   final nav = GetIt.instance<NavigationService>();
+  final firstNameController = TextEditingController();
+  final lastNameController = TextEditingController();
+  final emailController = TextEditingController();
+  final phoneNumberController = TextEditingController();
+  final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
+
+  @override
+  void dispose() {
+    super.dispose();
+    firstNameController.dispose();
+    lastNameController.dispose();
+    emailController.dispose();
+    phoneNumberController.dispose();
+    passwordController.dispose();
+    confirmPasswordController.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,22 +70,34 @@ class _LoginState extends State<SignUp> {
             children: [
               FTextField(
                 height: 63,
-                hintText: "Enter your full name",
+                hintText: "Enter your last name",
+                controller: lastNameController,
                 onChanged: (value) {},
                 onTap: () {},
                 keyboardType: TextInputType.name,
-                label: 'FULL NAME',
+                label: 'LAST NAME',
                 action: TextInputAction.next,
               ),
               24.verticalSpace,
-
+              FTextField(
+                height: 63,
+                hintText: "Enter your first name",
+                onChanged: (value) {},
+                controller: firstNameController,
+                onTap: () {},
+                keyboardType: TextInputType.name,
+                label: 'FIRST NAME',
+                action: TextInputAction.next,
+              ),
+              24.verticalSpace,
               FTextField(
                 height: 63,
                 hintText: "Enter your email",
                 onChanged: (value) {},
                 onTap: () {},
+                controller: emailController,
                 keyboardType: TextInputType.emailAddress,
-                label: 'FULL NAME',
+                label: 'Email',
                 action: TextInputAction.next,
               ),
               24.verticalSpace,
@@ -77,6 +106,7 @@ class _LoginState extends State<SignUp> {
                 height: 63,
                 hintText: "Enter your password",
                 onChanged: (value) {},
+                controller: passwordController,
                 onTap: () {},
                 keyboardType: TextInputType.visiblePassword,
                 label: 'PASSWORD',
@@ -86,8 +116,9 @@ class _LoginState extends State<SignUp> {
 
               FTextField(
                 height: 63,
-                hintText: "Enter your password",
+                hintText: "Enter your password again",
                 onChanged: (value) {},
+                controller: confirmPasswordController,
                 onTap: () {},
                 keyboardType: TextInputType.visiblePassword,
                 label: 'CONFIRM PASSWORD',
@@ -99,11 +130,17 @@ class _LoginState extends State<SignUp> {
                 width: 1.sw,
                 onPressed: () {
                   context.read<RegisterBloc>().add(
-                    RegisterInitialEvent(fullName: '', email: '', password: ''),
+                    RegisterInitialEvent(
+                      firstName: firstNameController.text,
+                      lastName: lastNameController.text,
+                      email: emailController.text,
+                      password: passwordController.text,
+                      phoneNumber: phoneNumberController.text,
+                    ),
                   );
                 },
               ),
-              24.verticalSpace,
+              440.verticalSpace,
             ],
           ).paddingOnly(
             left: AppConstants.defaultPadding,

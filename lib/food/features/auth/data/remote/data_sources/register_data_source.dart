@@ -5,7 +5,7 @@ abstract class RegisterDataSource {
 }
 
 // implement firebase login functionality
-class RegisterDataSourceImplementation implements RegisterDataSource {
+class FirebaseRegisterDSI implements RegisterDataSource {
   @override
   Future<UserCredential> registerUser(String email, String password) async {
     final auth = FirebaseAuth.instance;

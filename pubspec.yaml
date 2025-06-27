@@ -48,6 +48,7 @@ dependencies:
   skeletonizer: ^1.4.3
   ionicons: ^0.2.2
   timeago: ^3.7.1
+  cloud_firestore: ^5.6.9
 
 
 
