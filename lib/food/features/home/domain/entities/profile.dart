@@ -4,8 +4,8 @@ import '../../../../core/services/floor_db_service/constants.dart';
 
 @Entity(tableName: FloorDbConstants.userProfileTableName)
 class UserProfileEntity {
-  @PrimaryKey(autoGenerate: true)
-  final int? id;
+  @PrimaryKey()
+  final String? id;
   final String firstName;
   final String lastName;
   final String email;
@@ -14,7 +14,7 @@ class UserProfileEntity {
   final bool firstTimeLogin;
 
   UserProfileEntity({
-    this.id,
+    required this.id,
     required this.firstName,
     required this.lastName,
     required this.email,

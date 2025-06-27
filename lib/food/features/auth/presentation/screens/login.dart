@@ -10,8 +10,6 @@ import 'package:food/food/core/utils/validators.dart';
 import 'package:food/food/features/auth/presentation/manager/auth_bloc/login/login_bloc.dart';
 import 'package:food/food/features/auth/presentation/widgets/auth_template.dart';
 import 'package:food/food/features/auth/presentation/widgets/custom_overlay.dart';
-import 'package:food/food/features/home/domain/entities/profile.dart';
-import 'package:food/food/features/home/manager/user_profile/user_profile_cubit.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:ionicons/ionicons.dart';
@@ -53,17 +51,18 @@ class _LoginState extends State<Login> {
       getErrorMessage: (state) => (state as LoginFailureState).errorMessage,
       isSuccess: (state) => state is LoginSuccessState,
       onSuccess: (context, state) {
-        context.read<UserProfileCubit>().saveUserProfile(
-          UserProfileEntity(
-            firstName: "Tunde",
-            lastName: "Adesina",
-            email: "tchipsical@gmail.com",
-            phoneNumber: "08012345678",
-            firstTimeLogin: false,
-            bio:
-                "Food lover and tech enthusiast, also a software developer/flutter and golang.",
-          ),
-        );
+        // context.read<UserProfileCubit>().saveUserProfile(
+        //   UserProfileEntity(
+        //
+        //     firstName: "Tunde",
+        //     lastName: "Adesina",
+        //     email: "tchipsical@gmail.com",
+        //     phoneNumber: "08012345678",
+        //     firstTimeLogin: false,
+        //     bio:
+        //         "Food lover and tech enthusiast, also a software developer/flutter and golang.",
+        //   ),
+        // );
         nav.navigateAndReplace(Routes.home);
       },
       child: CustomOverlay(

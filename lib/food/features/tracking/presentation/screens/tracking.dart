@@ -48,8 +48,22 @@ class _TrackingOrderState extends State<TrackingOrder> {
   );
   @override
   Widget build(BuildContext context) {
-
     return FScaffold(
+      appBarWidget: Container(
+        color: Colors.transparent,
+        child: Row(
+          children: [
+            BackWidget(color: kBlackColor, iconColor: kWhiteColor),
+            10.horizontalSpace,
+            FText(
+              text: "Track Order",
+              fontSize: 17,
+              fontWeight: FontWeight.w400,
+              color: kTextColorDark,
+            ),
+          ],
+        ),
+      ),
       body: Stack(
         children: [
           Positioned.fill(
@@ -140,25 +154,6 @@ class _TrackingOrderState extends State<TrackingOrder> {
                   ],
                 ).paddingOnly(left: AppConstants.defaultPadding),
               ],
-            ),
-          ),
-          Positioned(
-            top: 50,
-            left: AppConstants.defaultPadding,
-            child: Container(
-              color: Colors.transparent,
-              child: Row(
-                children: [
-                  BackWidget(color: kBlackColor, iconColor: kWhiteColor),
-                  10.horizontalSpace,
-                  FText(
-                    text: "Track Order",
-                    fontSize: 17,
-                    fontWeight: FontWeight.w400,
-                    color: kTextColorDark,
-                  ),
-                ],
-              ),
             ),
           ),
         ],

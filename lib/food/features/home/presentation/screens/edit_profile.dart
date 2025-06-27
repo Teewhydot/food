@@ -39,7 +39,7 @@ class _EditProfileState extends State<EditProfile> {
   final bioController = TextEditingController();
   final db = UserProfileDatabaseService();
   String email = "";
-  int id = 0;
+  String id = "";
   void getUserProfile() async {
     final user = await (await db.database).userProfileDao.getUserProfile();
     if (user.first.id != null) {

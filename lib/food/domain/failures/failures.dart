@@ -3,13 +3,6 @@ abstract class Failure {
   Failure({required this.failureMessage});
 }
 
-abstract class Success {}
-
-class OtpSentSuccess extends Success {
-  final String verificationId;
-  OtpSentSuccess({required this.verificationId});
-}
-
 class ServerFailure extends Failure {
   ServerFailure({required super.failureMessage});
 }

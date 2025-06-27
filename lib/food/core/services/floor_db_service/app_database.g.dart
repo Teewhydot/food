@@ -102,7 +102,7 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `recent_keywords` (`keyword` TEXT NOT NULL, PRIMARY KEY (`keyword`))');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `user_profile` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `firstName` TEXT NOT NULL, `lastName` TEXT NOT NULL, `email` TEXT NOT NULL, `phoneNumber` TEXT NOT NULL, `bio` TEXT, `firstTimeLogin` INTEGER NOT NULL)');
+            'CREATE TABLE IF NOT EXISTS `user_profile` (`id` TEXT, `firstName` TEXT NOT NULL, `lastName` TEXT NOT NULL, `email` TEXT NOT NULL, `phoneNumber` TEXT NOT NULL, `bio` TEXT, `firstTimeLogin` INTEGER NOT NULL, PRIMARY KEY (`id`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `addresses` (`id` TEXT NOT NULL, `street` TEXT NOT NULL, `city` TEXT NOT NULL, `state` TEXT NOT NULL, `zipCode` TEXT NOT NULL, `type` TEXT NOT NULL, `address` TEXT NOT NULL, `apartment` TEXT NOT NULL, PRIMARY KEY (`id`))');
 
@@ -228,7 +228,7 @@ class _$UserProfileDao extends UserProfileDao {
   Future<List<UserProfileEntity>> getUserProfile() async {
     return _queryAdapter.queryList('SELECT * FROM user_profile',
         mapper: (Map<String, Object?> row) => UserProfileEntity(
-            id: row['id'] as int?,
+            id: row['id'] as String?,
             firstName: row['firstName'] as String,
             lastName: row['lastName'] as String,
             email: row['email'] as String,
