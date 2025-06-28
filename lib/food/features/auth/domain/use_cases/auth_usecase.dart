@@ -30,4 +30,16 @@ class AuthUseCase {
   Future<Either<Failure, void>> sendEmailVerification(String email) {
     return authRepo.sendEmailVerification(email);
   }
+
+  Future<Either<Failure, void>> sendPasswordResetEmail(String email) {
+    return authRepo.sendPasswordResetEmail(email);
+  }
+
+  Future<Either<Failure, void>> signOut() {
+    return authRepo.signOut();
+  }
+
+  Future<Either<Failure, void>> deleteUserAccount() {
+    return authRepo.deleteUserAccount();
+  }
 }

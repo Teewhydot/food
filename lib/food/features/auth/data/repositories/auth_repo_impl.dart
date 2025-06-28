@@ -6,9 +6,12 @@ import 'package:food/food/features/auth/domain/repositories/auth_repository.dart
 import 'package:get_it/get_it.dart';
 
 import '../../../../core/utils/handle_exceptions.dart';
+import '../remote/data_sources/delete_user_account_data_source.dart';
 import '../remote/data_sources/email_verification_data_source.dart';
 import '../remote/data_sources/login_data_source.dart';
+import '../remote/data_sources/password_reset_data_source.dart';
 import '../remote/data_sources/register_data_source.dart';
+import '../remote/data_sources/sign_out_data_source.dart';
 
 class AuthRepoImpl implements AuthRepository {
   final firebase = FirebaseFirestore.instance;
@@ -16,10 +19,14 @@ class AuthRepoImpl implements AuthRepository {
   final registerService = GetIt.instance<RegisterDataSource>();
   final emailVerificationService =
       GetIt.instance<EmailVerificationDataSource>();
+  final passwordResetService = GetIt.instance<PasswordResetDataSource>();
+  final signOutService = GetIt.instance<SignOutDataSource>();
+  final deleteAccountService = GetIt.instance<DeleteUserAccountDataSource>();
   @override
   Future<Either<Failure, void>> deleteUserAccount() {
-    // TODO: implement deleteUserAccount
-    throw UnimplementedError();
+    return handleExceptions(() async {
+      await deleteAccountService.deleteUserAccount();
+    });
   }
 
   @override
@@ -88,14 +95,16 @@ class AuthRepoImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, void>> sendPasswordResetEmail(String email) {
-    // TODO: implement sendPasswordResetEmail
-    throw UnimplementedError();
+    return handleExceptions(() async {
+      await passwordResetService.sendPasswordResetEmail(email);
+    });
   }
 
   @override
   Future<Either<Failure, void>> signOut() {
-    // TODO: implement signOut
-    throw UnimplementedError();
+    return handleExceptions(() async {
+      await signOutService.signOut();
+    });
   }
 
   @override
