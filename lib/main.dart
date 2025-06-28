@@ -10,7 +10,6 @@ import 'package:get/get.dart';
 import 'food/core/routes/routes.dart';
 
 void main() {
-  // debugPaintSizeEnabled = true;
   AppConfig.init();
   runApp(MultiBlocProvider(providers: blocs, child: const MyApp()));
 }

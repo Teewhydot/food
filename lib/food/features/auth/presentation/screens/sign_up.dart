@@ -53,7 +53,7 @@ class _LoginState extends State<SignUp> {
       onSuccess: (context, state) {
         // Handle any additional success logic if needed
         DFoodUtils.showSnackBar("Registration successful", kSuccessColor);
-        nav.navigateTo(Routes.location);
+        nav.navigateTo(Routes.otpVerification);
       },
       child: CustomOverlay(
         isLoading:

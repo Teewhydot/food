@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:food/food/core/bloc/app_state.dart';
+import 'package:food/food/core/utils/pretty_firebase_errors.dart';
 import 'package:meta/meta.dart';
 
 import '../../../../domain/use_cases/auth_usecase.dart';
@@ -19,11 +20,39 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
         lastName: event.lastName,
         phoneNumber: event.phoneNumber,
       );
-      result.fold(
-        (failure) =>
-            emit(RegisterFailure(errorMessage: failure.failureMessage)),
-        (userProfile) =>
-            emit(RegisterSuccess(successMessage: 'Successfully registered')),
+
+      await result.fold(
+        (failure) async {
+          emit(
+            RegisterFailure(
+              errorMessage: getAuthErrorMessage(failure.failureMessage),
+            ),
+          );
+        },
+        (userProfile) async {
+          // Send verification email after successful registration
+          final verificationResult = await _authUseCase.sendEmailVerification(
+            event.email,
+          );
+
+          await verificationResult.fold(
+            (failure) async {
+              emit(
+                RegisterFailure(
+                  errorMessage: getAuthErrorMessage(failure.failureMessage),
+                ),
+              );
+            },
+            (_) async {
+              emit(
+                RegisterSuccess(
+                  successMessage:
+                      'Registration successful. Please verify your email.',
+                ),
+              );
+            },
+          );
+        },
       );
     });
   }

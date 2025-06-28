@@ -3,8 +3,12 @@ import 'package:get_it/get_it.dart';
 
 import '../core/services/firebase_service.dart';
 import '../core/services/navigation_service/nav_config.dart';
+import '../features/auth/data/remote/data_sources/delete_user_account_data_source.dart';
 import '../features/auth/data/remote/data_sources/email_verification_data_source.dart';
+import '../features/auth/data/remote/data_sources/email_verification_status_data_source.dart';
 import '../features/auth/data/remote/data_sources/login_data_source.dart';
+import '../features/auth/data/remote/data_sources/password_reset_data_source.dart';
+import '../features/auth/data/remote/data_sources/sign_out_data_source.dart';
 
 final getIt = GetIt.instance;
 
@@ -17,4 +21,14 @@ void setupDIService() {
   getIt.registerLazySingleton<EmailVerificationDataSource>(
     () => FirebaseEmailVerificationDSI(),
   );
+  getIt.registerLazySingleton<DeleteUserAccountDataSource>(
+    () => FirebaseDeleteUserAccountDSI(),
+  );
+  getIt.registerLazySingleton<EmailVerificationStatusDataSource>(
+    () => FirebaseEmailVerificationStatusDSI(),
+  );
+  getIt.registerLazySingleton<PasswordResetDataSource>(
+    () => FirebasePasswordResetDSI(),
+  );
+  getIt.registerLazySingleton<SignOutDataSource>(() => FirebaseSignOutDSI());
 }

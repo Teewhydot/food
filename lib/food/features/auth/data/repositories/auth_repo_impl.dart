@@ -8,6 +8,7 @@ import 'package:get_it/get_it.dart';
 import '../../../../core/utils/handle_exceptions.dart';
 import '../remote/data_sources/delete_user_account_data_source.dart';
 import '../remote/data_sources/email_verification_data_source.dart';
+import '../remote/data_sources/email_verification_status_data_source.dart';
 import '../remote/data_sources/login_data_source.dart';
 import '../remote/data_sources/password_reset_data_source.dart';
 import '../remote/data_sources/register_data_source.dart';
@@ -19,6 +20,8 @@ class AuthRepoImpl implements AuthRepository {
   final registerService = GetIt.instance<RegisterDataSource>();
   final emailVerificationService =
       GetIt.instance<EmailVerificationDataSource>();
+  final emailVerificationStatusService =
+      GetIt.instance<EmailVerificationStatusDataSource>();
   final passwordResetService = GetIt.instance<PasswordResetDataSource>();
   final signOutService = GetIt.instance<SignOutDataSource>();
   final deleteAccountService = GetIt.instance<DeleteUserAccountDataSource>();
@@ -109,7 +112,10 @@ class AuthRepoImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, UserProfile>> verifyEmail() {
-    // TODO: implement verifyEmail
-    throw UnimplementedError();
+    return handleExceptions(() async {
+      final userProfile =
+          await emailVerificationStatusService.checkEmailVerification();
+      return userProfile;
+    });
   }
 }

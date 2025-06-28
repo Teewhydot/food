@@ -42,4 +42,8 @@ class AuthUseCase {
   Future<Either<Failure, void>> deleteUserAccount() {
     return authRepo.deleteUserAccount();
   }
+
+  Future<Either<Failure, UserProfile>> verifyEmail() {
+    return authRepo.verifyEmail();
+  }
 }

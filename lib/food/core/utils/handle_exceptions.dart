@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:dartz/dartz.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../domain/exceptions/custom_exceptions.dart';
 import '../../domain/failures/failures.dart';
@@ -19,6 +20,8 @@ Future<Either<Failure, T>> handleExceptions<T>(
     return Left(NoInternetFailure(failureMessage: 'No Internet'));
   } on UnknownException catch (e) {
     return Left(UnknownFailure(failureMessage: e.toString()));
+  } on FirebaseAuthException catch (e) {
+    return Left(UnknownFailure(failureMessage: e.code));
   } catch (e) {
     return Left(UnknownFailure(failureMessage: e.toString()));
   }
