@@ -41,15 +41,8 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
   void initState() {
     super.initState();
     _countdownController.start();
-
     // Get current user email
     userEmail = FirebaseAuth.instance.currentUser?.email;
-
-    // Set up timer to periodically check for email verification
-    _checkEmailVerificationTimer = Timer.periodic(
-      const Duration(seconds: 5),
-      (_) => _checkEmailVerification(),
-    );
   }
 
   void _checkEmailVerification() {
@@ -136,7 +129,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                       color: kPrimaryColor,
                     ),
                     16.verticalSpace,
-                    FText(
+                    FWrapText(
                       text:
                           "Click the link in the email to verify your account. "
                           "If you don't see it, check your spam folder.",
@@ -183,6 +176,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
               FButton(
                 buttonText: "Back to Login",
                 width: 1.sw,
+                color: kWhiteColor,
                 textColor: kPrimaryColor,
                 borderColor: kPrimaryColor,
                 onPressed: () {

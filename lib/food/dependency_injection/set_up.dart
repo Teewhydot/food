@@ -9,6 +9,7 @@ import '../features/auth/data/remote/data_sources/email_verification_status_data
 import '../features/auth/data/remote/data_sources/login_data_source.dart';
 import '../features/auth/data/remote/data_sources/password_reset_data_source.dart';
 import '../features/auth/data/remote/data_sources/sign_out_data_source.dart';
+import '../features/auth/data/remote/data_sources/user_data_source.dart';
 
 final getIt = GetIt.instance;
 
@@ -31,4 +32,5 @@ void setupDIService() {
     () => FirebasePasswordResetDSI(),
   );
   getIt.registerLazySingleton<SignOutDataSource>(() => FirebaseSignOutDSI());
+  getIt.registerLazySingleton<UserDataSource>(() => FirebaseUserDSI());
 }

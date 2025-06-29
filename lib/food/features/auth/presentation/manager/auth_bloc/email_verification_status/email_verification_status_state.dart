@@ -9,7 +9,7 @@ final class EmailVerificationStatusLoading extends VerifyEmailState {}
 
 final class EmailVerificationStatusSuccess extends VerifyEmailState
     implements AppSuccessState {
-  final UserProfile userProfile;
+  final UserProfileEntity userProfile;
 
   @override
   final String successMessage;

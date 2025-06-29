@@ -1,9 +1,9 @@
 import 'package:food/food/core/routes/routes.dart';
+import 'package:food/food/features/auth/presentation/screens/email_verification_screen.dart';
 import 'package:food/food/features/auth/presentation/screens/forgot_password.dart';
 import 'package:food/food/features/auth/presentation/screens/location.dart';
 import 'package:food/food/features/auth/presentation/screens/login.dart';
 import 'package:food/food/features/auth/presentation/screens/sign_up.dart';
-import 'package:food/food/features/auth/presentation/screens/verification.dart';
 import 'package:food/food/features/home/domain/entities/address.dart';
 import 'package:food/food/features/home/domain/entities/profile.dart';
 import 'package:food/food/features/home/presentation/screens/add_address.dart';
@@ -50,6 +50,12 @@ class GetXRouteModule {
     GetPage(
       name: Routes.login,
       page: () => const Login(),
+      transition: _transition,
+      transitionDuration: _transitionDuration,
+    ),
+    GetPage(
+      name: Routes.emailVerification,
+      page: () => const EmailVerificationScreen(),
       transition: _transition,
       transitionDuration: _transitionDuration,
     ),
@@ -105,12 +111,12 @@ class GetXRouteModule {
       transition: _transition,
       transitionDuration: _transitionDuration,
     ),
-    GetPage(
-      name: Routes.otpVerification,
-      page: () => const Verification(),
-      transition: _transition,
-      transitionDuration: _transitionDuration,
-    ),
+    // GetPage(
+    //   name: Routes.otpVerification,
+    //   page: () => const Verification(),
+    //   transition: _transition,
+    //   transitionDuration: _transitionDuration,
+    // ),
     GetPage(
       name: Routes.cart,
       page: () => const Cart(),

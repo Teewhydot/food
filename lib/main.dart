@@ -9,8 +9,9 @@ import 'package:get/get.dart';
 
 import 'food/core/routes/routes.dart';
 
-void main() {
-  AppConfig.init();
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // Add this line
+  await AppConfig.init(); // Await the initialization
   runApp(MultiBlocProvider(providers: blocs, child: const MyApp()));
 }
 

@@ -6,7 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/core/bloc/bloc_manager.dart';
 import 'package:food/food/core/helpers/extensions.dart';
 import 'package:food/food/core/routes/routes.dart';
-import 'package:food/food/core/utils/validators.dart';
+import 'package:food/food/core/utils/form_validators.dart';
 import 'package:food/food/features/auth/presentation/manager/auth_bloc/login/login_bloc.dart';
 import 'package:food/food/features/auth/presentation/widgets/auth_template.dart';
 import 'package:food/food/features/auth/presentation/widgets/custom_overlay.dart';
@@ -51,18 +51,6 @@ class _LoginState extends State<Login> {
       getErrorMessage: (state) => (state as LoginFailureState).errorMessage,
       isSuccess: (state) => state is LoginSuccessState,
       onSuccess: (context, state) {
-        // context.read<UserProfileCubit>().saveUserProfile(
-        //   UserProfileEntity(
-        //
-        //     firstName: "Tunde",
-        //     lastName: "Adesina",
-        //     email: "tchipsical@gmail.com",
-        //     phoneNumber: "08012345678",
-        //     firstTimeLogin: false,
-        //     bio:
-        //         "Food lover and tech enthusiast, also a software developer/flutter and golang.",
-        //   ),
-        // );
         nav.navigateAndReplace(Routes.home);
       },
       child: CustomOverlay(
@@ -85,19 +73,9 @@ class _LoginState extends State<Login> {
                 borderColor: emailError != null ? kErrorColor : kContainerColor,
                 hintText: "Enter your email",
                 onChanged: (value) {
-                  if (value.isEmpty) {
-                    setState(() {
-                      emailError = "Email cannot be empty";
-                    });
-                  } else if (!GetUtils.isEmail(value)) {
-                    setState(() {
-                      emailError = "Please enter a valid email";
-                    });
-                  } else {
-                    setState(() {
-                      emailError = null;
-                    });
-                  }
+                  setState(() {
+                    emailError = validateEmail(value);
+                  });
                 },
                 onTap: () {},
                 keyboardType: TextInputType.emailAddress,
@@ -125,24 +103,9 @@ class _LoginState extends State<Login> {
                 controller: passwordController,
 
                 onChanged: (value) {
-                  if (value.isEmpty) {
-                    setState(() {
-                      passwordError = "Password cannot be empty";
-                    });
-                  } else if (value.length < 6) {
-                    setState(() {
-                      passwordError = "Password must be at least 6 characters";
-                    });
-                  } else if (passwordValidator.call(value) != null) {
-                    setState(() {
-                      passwordError =
-                          "Password must contain a mix of characters";
-                    });
-                  } else {
-                    setState(() {
-                      passwordError = null;
-                    });
-                  }
+                  setState(() {
+                    passwordError = validatePassword(value);
+                  });
                 },
                 onTap: () {},
                 keyboardType: TextInputType.emailAddress,
@@ -206,7 +169,10 @@ class _LoginState extends State<Login> {
                     return;
                   }
                   context.read<LoginBloc>().add(
-                    AuthLoginEvent(email: '', password: ''),
+                    AuthLoginEvent(
+                      email: emailController.text.trim(),
+                      password: passwordController.text.trim(),
+                    ),
                   );
                 },
               ),

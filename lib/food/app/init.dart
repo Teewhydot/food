@@ -8,7 +8,7 @@ import '../core/services/floor_db_service/recent_keywords/recent_keywords_databa
 import '../dependency_injection/set_up.dart';
 
 class AppConfig {
-  static void init() async {
+  static Future<void> init() async {
     // Initialize app configurations here
     // For example, setting up environment variables, logging, etc.
     WidgetsFlutterBinding.ensureInitialized();

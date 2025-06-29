@@ -1,8 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:food/food/core/bloc/app_state.dart';
-import 'package:food/food/features/auth/domain/entities/user_profile.dart';
 import 'package:meta/meta.dart';
 
+import '../../../../../home/domain/entities/profile.dart';
 import '../../../../domain/use_cases/auth_usecase.dart';
 
 part 'email_verification_status_event.dart';

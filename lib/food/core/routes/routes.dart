@@ -26,4 +26,5 @@ class Routes {
   static const String menu = '/menu';
   static const String settings = '/settings';
   static const String orderHistory = '/orderHistory';
+  static const String emailVerification = '/emailVerification';
 }

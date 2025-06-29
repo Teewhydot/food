@@ -1,15 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:food/food/features/auth/domain/entities/user_profile.dart';
+import 'package:food/food/features/home/domain/entities/profile.dart';
 
 abstract class EmailVerificationStatusDataSource {
-  Future<UserProfile> checkEmailVerification();
+  Future<UserProfileEntity> checkEmailVerification();
 }
 
 class FirebaseEmailVerificationStatusDSI
     implements EmailVerificationStatusDataSource {
   @override
-  Future<UserProfile> checkEmailVerification() async {
+  Future<UserProfileEntity> checkEmailVerification() async {
     final auth = FirebaseAuth.instance;
     final firestore = FirebaseFirestore.instance;
 
@@ -46,7 +46,7 @@ class FirebaseEmailVerificationStatusDSI
 
       final userData = userDoc.data()!;
 
-      return UserProfile(
+      return UserProfileEntity(
         id: currentUser.uid,
         email: currentUser.email ?? '',
         firstName: userData['firstName'] as String? ?? '',

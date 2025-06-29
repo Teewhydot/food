@@ -1,17 +1,24 @@
 import 'package:dartz/dartz.dart';
-import 'package:food/food/features/auth/domain/entities/user_profile.dart';
 
 import '../../../../domain/failures/failures.dart';
+import '../../../home/domain/entities/profile.dart';
 import '../../data/repositories/auth_repo_impl.dart';
 
 class AuthUseCase {
   final authRepo = AuthRepoImpl();
 
-  Future<Either<Failure, UserProfile>> login(String email, String password) {
+  Future<Either<Failure, UserProfileEntity>> getCurrentUser() {
+    return authRepo.getCurrentUser();
+  }
+
+  Future<Either<Failure, UserProfileEntity>> login(
+    String email,
+    String password,
+  ) {
     return authRepo.login(email, password);
   }
 
-  Future<Either<Failure, UserProfile>> register({
+  Future<Either<Failure, UserProfileEntity>> register({
     required String firstName,
     required String lastName,
     required String email,
@@ -43,7 +50,7 @@ class AuthUseCase {
     return authRepo.deleteUserAccount();
   }
 
-  Future<Either<Failure, UserProfile>> verifyEmail() {
+  Future<Either<Failure, UserProfileEntity>> verifyEmail() {
     return authRepo.verifyEmail();
   }
 }

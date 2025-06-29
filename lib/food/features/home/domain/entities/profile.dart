@@ -12,6 +12,7 @@ class UserProfileEntity {
   final String phoneNumber;
   final String? bio;
   final bool firstTimeLogin;
+  final String? profileImageUrl;
 
   UserProfileEntity({
     required this.id,
@@ -19,6 +20,7 @@ class UserProfileEntity {
     required this.lastName,
     required this.email,
     required this.phoneNumber,
+    this.profileImageUrl,
     this.bio,
     required this.firstTimeLogin,
   });

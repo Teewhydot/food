@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:food/food/domain/failures/failures.dart';
-import 'package:food/food/features/auth/domain/entities/user_profile.dart';
 import 'package:food/food/features/auth/domain/repositories/auth_repository.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../../../core/utils/handle_exceptions.dart';
+import '../../../home/domain/entities/profile.dart';
 import '../remote/data_sources/delete_user_account_data_source.dart';
 import '../remote/data_sources/email_verification_data_source.dart';
 import '../remote/data_sources/email_verification_status_data_source.dart';
@@ -13,6 +13,7 @@ import '../remote/data_sources/login_data_source.dart';
 import '../remote/data_sources/password_reset_data_source.dart';
 import '../remote/data_sources/register_data_source.dart';
 import '../remote/data_sources/sign_out_data_source.dart';
+import '../remote/data_sources/user_data_source.dart';
 
 class AuthRepoImpl implements AuthRepository {
   final firebase = FirebaseFirestore.instance;
@@ -25,6 +26,7 @@ class AuthRepoImpl implements AuthRepository {
   final passwordResetService = GetIt.instance<PasswordResetDataSource>();
   final signOutService = GetIt.instance<SignOutDataSource>();
   final deleteAccountService = GetIt.instance<DeleteUserAccountDataSource>();
+  final userProfileService = GetIt.instance<UserDataSource>();
   @override
   Future<Either<Failure, void>> deleteUserAccount() {
     return handleExceptions(() async {
@@ -45,10 +47,13 @@ class AuthRepoImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, UserProfile>> login(String email, String password) {
+  Future<Either<Failure, UserProfileEntity>> login(
+    String email,
+    String password,
+  ) {
     return handleExceptions(() async {
       final user = await loginService.logUserInFirebase(email, password);
-      return UserProfile(
+      return UserProfileEntity(
         email: user.user?.email ?? '',
         firstName: user.user?.displayName?.split(' ').first ?? '',
         lastName: user.user?.displayName?.split(' ').last ?? '',
@@ -60,7 +65,7 @@ class AuthRepoImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, UserProfile>> register({
+  Future<Either<Failure, UserProfileEntity>> register({
     required String firstName,
     required String lastName,
     required String email,
@@ -75,15 +80,17 @@ class AuthRepoImpl implements AuthRepository {
           'lastName': lastName,
           'email': email,
           'phoneNumber': phoneNumber,
+          'profileImageUrl': "",
           'createdAt': FieldValue.serverTimestamp(),
         });
       }
-      return UserProfile(
+      return UserProfileEntity(
         email: user.user?.email ?? '',
         firstName: firstName,
         lastName: lastName,
         phoneNumber: phoneNumber,
         id: user.user?.uid ?? '',
+        profileImageUrl: null,
         firstTimeLogin: true,
       );
     });
@@ -111,10 +118,18 @@ class AuthRepoImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, UserProfile>> verifyEmail() {
+  Future<Either<Failure, UserProfileEntity>> verifyEmail() {
     return handleExceptions(() async {
       final userProfile =
           await emailVerificationStatusService.checkEmailVerification();
+      return userProfile;
+    });
+  }
+
+  @override
+  Future<Either<Failure, UserProfileEntity>> getCurrentUser() {
+    return handleExceptions(() async {
+      final userProfile = await userProfileService.getCurrentUser();
       return userProfile;
     });
   }
