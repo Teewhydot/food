@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/buttons/buttons.dart';
+import 'package:food/food/components/permission_dialog.dart';
 import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/components/texts/texts.dart';
 import 'package:food/food/core/constants/app_constants.dart';
@@ -10,6 +11,7 @@ import 'package:food/food/features/auth/presentation/widgets/custom_overlay.dart
 import 'package:food/food/features/onboarding/presentation/widgets/food_container.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../../../../../generated/assets.dart';
 import '../../../../components/image.dart';
@@ -30,11 +32,28 @@ class _LocationState extends State<Location> {
   final nav = GetIt.instance<NavigationService>();
 
   @override
+  void initState() {
+    super.initState();
+    // Check if location permission is already granted
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<LocationBloc>().add(LocationPermissionCheckEvent());
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocManager<LocationBloc, LocationState>(
       bloc: context.read<LocationBloc>(),
-      isError: (state) => state is LocationFailure,
-      getErrorMessage: (state) => (state as LocationFailure).errorMessage,
+      listener: (context, state) {
+        if (state is LocationPermissionRequired) {
+          _showPermissionDialog(context);
+        } else if (state is LocationPermissionGranted) {
+          // Permission is already granted, proceed with location request
+          context.read<LocationBloc>().add(LocationRequestedEvent());
+        }
+      },
+      isError: (state) => state is LocationError,
+      getErrorMessage: (state) => (state as LocationError).errorMessage,
       isSuccess: (state) => state is LocationSuccess,
       onSuccess: (context, state) {
         // Handle any additional success logic if needed
@@ -82,6 +101,33 @@ class _LocationState extends State<Location> {
           ),
         ),
       ),
+    );
+  }
+
+  void _showPermissionDialog(BuildContext context) {
+    PermissionDialog.show(
+      context: context,
+      title: "Location Access",
+      description:
+          "DFood needs access to your location to deliver food to your address.",
+      icon:
+          Assets
+              .svgsLocationIcon, // This path might need adjustment if it's not compatible with Image.asset
+      permission: Permission.location,
+      isMandatory: true, // Making it mandatory
+      onGranted: () {
+        // When permission is granted, request the location
+        context.read<LocationBloc>().add(LocationRequestedEvent());
+      },
+      onDenied: () {
+        // Show a message that location is required
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Location permission is required to use this app'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      },
     );
   }
 }

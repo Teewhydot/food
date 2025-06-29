@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:floor/floor.dart';
+import 'package:food/food/core/services/floor_db_service/permission/entities/permission_entity.dart';
+import 'package:food/food/core/services/floor_db_service/permission/permission_dao.dart';
 import 'package:food/food/core/services/floor_db_service/user_profile/dao.dart';
 import 'package:food/food/features/home/domain/entities/address.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
@@ -14,12 +16,18 @@ part 'app_database.g.dart'; // the generated code will be there
 
 @Database(
   version: 1,
-  entities: [RecentKeywordEntity, UserProfileEntity, AddressEntity],
+  entities: [
+    RecentKeywordEntity,
+    UserProfileEntity,
+    AddressEntity,
+    PermissionEntity,
+  ],
 )
 abstract class AppDatabase extends FloorDatabase {
   RecentKeywordsDao get recentsKeywordsDao;
   UserProfileDao get userProfileDao;
   AddressDao get addressDao;
+  PermissionDao get permissionDao;
 }
 
 // flutter packages pub run build_runner build

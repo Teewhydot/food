@@ -14,12 +14,6 @@ final class UserProfileLoaded extends UserProfileState {
   UserProfileLoaded({required this.userProfile});
 }
 
-final class UserProfileEmpty extends UserProfileState {
-  final UserProfileEntity? userProfile;
-
-  UserProfileEmpty({this.userProfile});
-}
-
 final class UserProfileError extends UserProfileState implements AppErrorState {
   @override
   final String errorMessage;

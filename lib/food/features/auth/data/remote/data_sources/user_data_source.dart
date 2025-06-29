@@ -32,7 +32,8 @@ class FirebaseUserDSI implements UserDataSource {
           email: 'johndoe@gmail.com',
           phoneNumber: '11111111111',
           bio: 'Just a cool developer',
-          firstTimeLogin: false,
+          firstTimeLogin:
+              true, // Default values for a new user, App must redirect to onboarding screen so new user can register or login. Also usefull for anonymous login.
           profileImageUrl: '',
           id: Uuid().v4(),
         );

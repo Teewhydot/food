@@ -78,6 +78,8 @@ class _$AppDatabase extends AppDatabase {
 
   AddressDao? _addressDaoInstance;
 
+  PermissionDao? _permissionDaoInstance;
+
   Future<sqflite.Database> open(
     String path,
     List<Migration> migrations, [
@@ -102,9 +104,11 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `recent_keywords` (`keyword` TEXT NOT NULL, PRIMARY KEY (`keyword`))');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `user_profile` (`id` TEXT, `firstName` TEXT NOT NULL, `lastName` TEXT NOT NULL, `email` TEXT NOT NULL, `phoneNumber` TEXT NOT NULL, `bio` TEXT, `firstTimeLogin` INTEGER NOT NULL, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `user_profile` (`id` TEXT, `firstName` TEXT NOT NULL, `lastName` TEXT NOT NULL, `email` TEXT NOT NULL, `phoneNumber` TEXT NOT NULL, `bio` TEXT, `firstTimeLogin` INTEGER NOT NULL, `profileImageUrl` TEXT, PRIMARY KEY (`id`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `addresses` (`id` TEXT NOT NULL, `street` TEXT NOT NULL, `city` TEXT NOT NULL, `state` TEXT NOT NULL, `zipCode` TEXT NOT NULL, `type` TEXT NOT NULL, `address` TEXT NOT NULL, `apartment` TEXT NOT NULL, PRIMARY KEY (`id`))');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `PermissionEntity` (`permissionName` TEXT NOT NULL, `isGranted` INTEGER NOT NULL, `lastUpdated` TEXT NOT NULL, PRIMARY KEY (`permissionName`))');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -127,6 +131,11 @@ class _$AppDatabase extends AppDatabase {
   @override
   AddressDao get addressDao {
     return _addressDaoInstance ??= _$AddressDao(database, changeListener);
+  }
+
+  @override
+  PermissionDao get permissionDao {
+    return _permissionDaoInstance ??= _$PermissionDao(database, changeListener);
   }
 }
 
@@ -198,7 +207,8 @@ class _$UserProfileDao extends UserProfileDao {
                   'email': item.email,
                   'phoneNumber': item.phoneNumber,
                   'bio': item.bio,
-                  'firstTimeLogin': item.firstTimeLogin ? 1 : 0
+                  'firstTimeLogin': item.firstTimeLogin ? 1 : 0,
+                  'profileImageUrl': item.profileImageUrl
                 }),
         _userProfileEntityUpdateAdapter = UpdateAdapter(
             database,
@@ -211,7 +221,8 @@ class _$UserProfileDao extends UserProfileDao {
                   'email': item.email,
                   'phoneNumber': item.phoneNumber,
                   'bio': item.bio,
-                  'firstTimeLogin': item.firstTimeLogin ? 1 : 0
+                  'firstTimeLogin': item.firstTimeLogin ? 1 : 0,
+                  'profileImageUrl': item.profileImageUrl
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -233,6 +244,7 @@ class _$UserProfileDao extends UserProfileDao {
             lastName: row['lastName'] as String,
             email: row['email'] as String,
             phoneNumber: row['phoneNumber'] as String,
+            profileImageUrl: row['profileImageUrl'] as String?,
             bio: row['bio'] as String?,
             firstTimeLogin: (row['firstTimeLogin'] as int) != 0));
   }
@@ -348,5 +360,78 @@ class _$AddressDao extends AddressDao {
   @override
   Future<void> deleteAddress(AddressEntity address) async {
     await _addressEntityDeletionAdapter.delete(address);
+  }
+}
+
+class _$PermissionDao extends PermissionDao {
+  _$PermissionDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database),
+        _permissionEntityInsertionAdapter = InsertionAdapter(
+            database,
+            'PermissionEntity',
+            (PermissionEntity item) => <String, Object?>{
+                  'permissionName': item.permissionName,
+                  'isGranted': item.isGranted ? 1 : 0,
+                  'lastUpdated': item.lastUpdated
+                }),
+        _permissionEntityUpdateAdapter = UpdateAdapter(
+            database,
+            'PermissionEntity',
+            ['permissionName'],
+            (PermissionEntity item) => <String, Object?>{
+                  'permissionName': item.permissionName,
+                  'isGranted': item.isGranted ? 1 : 0,
+                  'lastUpdated': item.lastUpdated
+                });
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<PermissionEntity> _permissionEntityInsertionAdapter;
+
+  final UpdateAdapter<PermissionEntity> _permissionEntityUpdateAdapter;
+
+  @override
+  Future<PermissionEntity?> getPermissionByName(String name) async {
+    return _queryAdapter.query(
+        'SELECT * FROM PermissionEntity WHERE permissionName = ?1',
+        mapper: (Map<String, Object?> row) => PermissionEntity(
+            permissionName: row['permissionName'] as String,
+            isGranted: (row['isGranted'] as int) != 0,
+            lastUpdated: row['lastUpdated'] as String),
+        arguments: [name]);
+  }
+
+  @override
+  Future<List<PermissionEntity>> getAllPermissions() async {
+    return _queryAdapter.queryList('SELECT * FROM PermissionEntity',
+        mapper: (Map<String, Object?> row) => PermissionEntity(
+            permissionName: row['permissionName'] as String,
+            isGranted: (row['isGranted'] as int) != 0,
+            lastUpdated: row['lastUpdated'] as String));
+  }
+
+  @override
+  Future<void> deletePermission(String name) async {
+    await _queryAdapter.queryNoReturn(
+        'DELETE FROM PermissionEntity WHERE permissionName = ?1',
+        arguments: [name]);
+  }
+
+  @override
+  Future<void> insertPermission(PermissionEntity permission) async {
+    await _permissionEntityInsertionAdapter.insert(
+        permission, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> updatePermission(PermissionEntity permission) async {
+    await _permissionEntityUpdateAdapter.update(
+        permission, OnConflictStrategy.abort);
   }
 }
