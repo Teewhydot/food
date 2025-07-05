@@ -37,9 +37,9 @@ class _RestaurantDetailsState extends State<RestaurantDetails> {
       RestaurantFoodCategory(
         category: "All",
         imageUrl: "",
-        foods: widget.restaurant.categories.expand((cat) => cat.foods).toList(),
+        foods: widget.restaurant.category.expand((cat) => cat.foods).toList(),
       ),
-      ...widget.restaurant.categories,
+      ...widget.restaurant.category,
     ];
   }
 
@@ -160,11 +160,11 @@ class _RestaurantDetailsState extends State<RestaurantDetails> {
     if (category == "All") {
       // If "All" is selected, combine foods from all categories
       filteredFoodList =
-          widget.restaurant.categories.expand((cat) => cat.foods).toList();
+          widget.restaurant.category.expand((cat) => cat.foods).toList();
     } else {
       // Find the specific category and get its foods
       filteredFoodList =
-          widget.restaurant.categories
+          widget.restaurant.category
               .where((food) => food.category == category)
               .expand((cat) => cat.foods)
               .toList();

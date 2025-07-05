@@ -19,5 +19,5 @@ class ChatsError extends ChatsState implements AppErrorState {
   @override
   final String errorMessage;
 
-  ChatsError({required this.errorMessage});
+  ChatsError(this.errorMessage);
 }

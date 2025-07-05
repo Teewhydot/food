@@ -1,9 +1,11 @@
 import 'package:contained_tab_bar_view/contained_tab_bar_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/buttons/buttons.dart';
 import 'package:food/food/components/texts/texts.dart';
 import 'package:food/food/core/constants/app_constants.dart';
+import 'package:food/food/core/helpers/user_extensions.dart';
 import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/features/auth/presentation/widgets/back_widget.dart';
 import 'package:food/food/features/tracking/presentation/screens/tracking.dart';
@@ -11,12 +13,31 @@ import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../../core/routes/routes.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
+import '../../../payments/domain/entities/order_entity.dart';
+import '../../../payments/presentation/manager/order_bloc/order_bloc.dart';
+import '../../../payments/presentation/manager/order_bloc/order_event.dart';
+import '../../../payments/presentation/manager/order_bloc/order_state.dart';
 
 enum OrderCategory { ongoing, history }
 
-class Orders extends StatelessWidget {
+class Orders extends StatefulWidget {
   const Orders({super.key});
+
+  @override
+  State<Orders> createState() => _OrdersState();
+}
+
+class _OrdersState extends State<Orders> {
+  @override
+  void initState() {
+    super.initState();
+    // Load user orders
+    context.read<OrderBloc>().add(
+      GetUserOrdersEvent(context.currentUserId ?? ""),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,71 +68,151 @@ class Orders extends StatelessWidget {
             ),
             tabs: [Text("Ongoing"), Text("History")],
             views: [
-              SingleChildScrollView(
-                child: Column(
-                  children: [
-                    OrderDetailsWidget(
-                      orderCategory: OrderCategory.ongoing,
-                      category: "Pizza",
-                      foodName: "Cheese Pizza",
-                      price: "12.00",
-                      orderId: "123456789",
-                      quantity: 2,
-                      firstButtonOnTap: () {},
-                    ),
-                    OrderDetailsWidget(
-                      orderCategory: OrderCategory.ongoing,
-                      category: "Burger",
-                      foodName: "Cheese Burger",
-                      price: "10.00",
-                      orderId: "123456789",
-                      quantity: 1,
-                      firstButtonOnTap: () {},
-                    ),
-                    OrderDetailsWidget(
-                      orderCategory: OrderCategory.ongoing,
-                      category: "Pizza",
-                      foodName: "Cheese Pizza",
-                      price: "12.00",
-                      orderId: "123456789",
-                      quantity: 2,
-                      firstButtonOnTap: () {},
-                    ),
-                  ],
-                ).paddingOnly(top: 32),
+              BlocBuilder<OrderBloc, OrderState>(
+                builder: (context, state) {
+                  if (state is OrderLoading) {
+                    return Center(
+                      child: CircularProgressIndicator(color: kPrimaryColor),
+                    );
+                  } else if (state is OrdersLoaded) {
+                    final ongoingOrders =
+                        state.orders
+                            .where(
+                              (order) =>
+                                  order.status == OrderStatus.pending ||
+                                  order.status == OrderStatus.confirmed ||
+                                  order.status == OrderStatus.preparing ||
+                                  order.status == OrderStatus.onTheWay,
+                            )
+                            .toList();
+
+                    if (ongoingOrders.isEmpty) {
+                      return Center(
+                        child: FText(
+                          text: "No ongoing orders",
+                          fontSize: 16,
+                          color: kContainerColor,
+                        ),
+                      );
+                    }
+
+                    return SingleChildScrollView(
+                      child: Column(
+                        children:
+                            ongoingOrders.map((order) {
+                              // Get first item for display
+                              final firstItem =
+                                  order.items.isNotEmpty
+                                      ? order.items.first
+                                      : null;
+                              return OrderDetailsWidget(
+                                orderCategory: OrderCategory.ongoing,
+                                order: order,
+                                category: firstItem?.foodName ?? "Food",
+                                foodName: firstItem?.foodName ?? "Unknown",
+                                price: order.total.toStringAsFixed(2),
+                                orderId: order.id,
+                                quantity: order.items.fold(
+                                  0,
+                                  (sum, item) => sum + item.quantity,
+                                ),
+                                firstButtonOnTap: () {
+                                  nav.navigateTo(
+                                    Routes.tracking,
+                                    arguments: order,
+                                  );
+                                },
+                                secondButtonOnTap: () {
+                                  context.read<OrderBloc>().add(
+                                    UpdateOrderStatusEvent(
+                                      order.id,
+                                      OrderStatus.cancelled,
+                                    ),
+                                  );
+                                },
+                              );
+                            }).toList(),
+                      ).paddingOnly(top: 32),
+                    );
+                  } else if (state is OrderError) {
+                    return Center(
+                      child: FText(
+                        text: state.message,
+                        fontSize: 14,
+                        color: kErrorColor,
+                      ),
+                    );
+                  }
+                  return SizedBox.shrink();
+                },
               ),
-              SingleChildScrollView(
-                child: Column(
-                  children: [
-                    OrderDetailsWidget(
-                      orderCategory: OrderCategory.history,
-                      category: "Pizza",
-                      foodName: "Cheese Pizza",
-                      price: "12.00",
-                      orderId: "123456789",
-                      quantity: 2,
-                      firstButtonOnTap: () {},
-                    ),
-                    OrderDetailsWidget(
-                      orderCategory: OrderCategory.history,
-                      category: "Burger",
-                      foodName: "Cheese Burger",
-                      price: "10.00",
-                      orderId: "123456789",
-                      quantity: 1,
-                      firstButtonOnTap: () {},
-                    ),
-                    OrderDetailsWidget(
-                      orderCategory: OrderCategory.history,
-                      category: "Pizza",
-                      foodName: "Cheese Pizza",
-                      price: "12.00",
-                      orderId: "123456789",
-                      quantity: 2,
-                      firstButtonOnTap: () {},
-                    ),
-                  ],
-                ).paddingOnly(top: 32),
+              BlocBuilder<OrderBloc, OrderState>(
+                builder: (context, state) {
+                  if (state is OrderLoading) {
+                    return Center(
+                      child: CircularProgressIndicator(color: kPrimaryColor),
+                    );
+                  } else if (state is OrdersLoaded) {
+                    final historyOrders =
+                        state.orders
+                            .where(
+                              (order) =>
+                                  order.status == OrderStatus.delivered ||
+                                  order.status == OrderStatus.cancelled,
+                            )
+                            .toList();
+
+                    if (historyOrders.isEmpty) {
+                      return Center(
+                        child: FText(
+                          text: "No order history",
+                          fontSize: 16,
+                          color: kContainerColor,
+                        ),
+                      );
+                    }
+
+                    return SingleChildScrollView(
+                      child: Column(
+                        children:
+                            historyOrders.map((order) {
+                              // Get first item for display
+                              final firstItem =
+                                  order.items.isNotEmpty
+                                      ? order.items.first
+                                      : null;
+                              return OrderDetailsWidget(
+                                orderCategory: OrderCategory.history,
+                                order: order,
+                                category: firstItem?.foodName ?? "Food",
+                                foodName: firstItem?.foodName ?? "Unknown",
+                                price: order.total.toStringAsFixed(2),
+                                orderId: order.id,
+                                quantity: order.items.fold(
+                                  0,
+                                  (sum, item) => sum + item.quantity,
+                                ),
+                                firstButtonOnTap: () {
+                                  // TODO: Implement rating
+                                },
+                                secondButtonOnTap: () {
+                                  // TODO: Implement re-order
+                                },
+                              );
+                            }).toList(),
+                      ).paddingOnly(top: 32),
+                    );
+                  } else if (state is OrderError) {
+                    return Center(
+                      child: FText(
+                        text: state.message,
+                        fontSize: 14,
+                        color: kErrorColor,
+                      ),
+                    );
+                  }
+                  return SizedBox.shrink();
+                },
               ),
             ],
           ),
@@ -128,6 +229,7 @@ class OrderDetailsWidget extends StatelessWidget {
   final String category, foodName, price, orderId;
   final OrderCategory orderCategory;
   final int quantity;
+  final OrderEntity? order;
   final Function()? firstButtonOnTap, secondButtonOnTap;
 
   const OrderDetailsWidget({
@@ -138,7 +240,7 @@ class OrderDetailsWidget extends StatelessWidget {
     required this.price,
     required this.orderId,
     required this.quantity,
-
+    this.order,
     this.firstButtonOnTap,
     this.secondButtonOnTap,
   });

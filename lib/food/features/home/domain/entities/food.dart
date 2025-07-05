@@ -1,47 +1,88 @@
-import 'package:food/food/features/home/domain/entities/restaurant.dart';
+import '../../../../core/services/floor_db_service/food/food_entity.dart';
 
-class FoodEntity {
-  final String id, name, description, imageUrl, category, restaurantName;
-  final double price, rating;
-  int quantity; // Default quantity set to 1
-  final Restaurant? restaurant;
-
+class FoodEntity extends FoodFloorEntity {
   FoodEntity({
-    required this.id,
-    required this.name,
-    required this.description,
-    required this.imageUrl,
-    required this.price,
-    required this.rating,
-    required this.category,
-    required this.restaurantName,
-    this.restaurant,
-    this.quantity = 1,
+    required super.id,
+    required super.name,
+    required super.description,
+    required super.price,
+    required super.rating,
+    required super.imageUrl,
+    required super.category,
+    required super.restaurantId,
+    required super.restaurantName,
+    required super.ingredients,
+    required super.isAvailable,
+    required super.preparationTime,
+    required super.calories,
+    required super.quantity,
+    required super.isVegetarian,
+    required super.isVegan,
+    required super.isGlutenFree,
+    required super.lastUpdated,
   });
+
+  factory FoodEntity.fromMap(Map<String, dynamic> map) {
+    return FoodEntity(
+      id: map['id'] as String,
+      name: map['name'] as String,
+      description: map['description'] as String,
+      price: (map['price'] as num).toDouble(),
+      rating: (map['rating'] as num).toDouble(),
+      imageUrl: map['imageUrl'] as String,
+      category: map['category'] as String,
+      quantity: map['quantity'] as int? ?? 1,
+      restaurantId: map['restaurantId'] as String,
+      restaurantName: map['restaurantName'] as String,
+      ingredients: List<String>.from(map['ingredients'] ?? []),
+      isAvailable: map['isAvailable'] as bool? ?? true,
+      preparationTime: map['preparationTime'] as String? ?? '',
+      calories: (map['calories'] as num?)?.toInt() ?? 0,
+      isVegetarian: map['isVegetarian'] as bool? ?? false,
+      isVegan: map['isVegan'] as bool? ?? false,
+      isGlutenFree: map['isGlutenFree'] as bool? ?? false,
+      lastUpdated: DateTime.now().millisecondsSinceEpoch, // Default to now
+    );
+  }
 
   FoodEntity copyWith({
     String? id,
     String? name,
     String? description,
-    String? imageUrl,
     double? price,
     double? rating,
+    String? imageUrl,
     String? category,
+    String? restaurantId,
     String? restaurantName,
-    Restaurant? restaurant,
+    List<String>? ingredients,
+    bool? isAvailable,
+    String? preparationTime,
+    int? calories,
     int? quantity,
+    bool? isVegetarian,
+    bool? isVegan,
+    bool? isGlutenFree,
   }) {
     return FoodEntity(
       id: id ?? this.id,
       name: name ?? this.name,
       description: description ?? this.description,
-      imageUrl: imageUrl ?? this.imageUrl,
       price: price ?? this.price,
       rating: rating ?? this.rating,
+      imageUrl: imageUrl ?? this.imageUrl,
       category: category ?? this.category,
+      restaurantId: restaurantId ?? this.restaurantId,
       restaurantName: restaurantName ?? this.restaurantName,
-      restaurant: restaurant ?? this.restaurant,
+      ingredients: ingredients ?? this.ingredients,
+      isAvailable: isAvailable ?? this.isAvailable,
       quantity: quantity ?? this.quantity,
+      preparationTime: preparationTime ?? this.preparationTime,
+      calories: calories ?? this.calories,
+      isVegetarian: isVegetarian ?? this.isVegetarian,
+      isVegan: isVegan ?? this.isVegan,
+      isGlutenFree: isGlutenFree ?? this.isGlutenFree,
+      lastUpdated: lastUpdated,
     );
   }
 }

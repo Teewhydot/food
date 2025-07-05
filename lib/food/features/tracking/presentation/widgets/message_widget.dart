@@ -4,10 +4,12 @@ import 'package:get/get.dart';
 import '../../../../components/texts/texts.dart';
 import '../../../../core/theme/colors.dart';
 import '../../../home/presentation/widgets/circle_widget.dart';
+import '../../domain/entities/chat_entity.dart';
 
 class MessageWidget extends StatelessWidget {
+  final ChatEntity chat;
   final VoidCallback? onTap;
-  const MessageWidget({super.key, this.onTap});
+  const MessageWidget({super.key, required this.chat, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -28,29 +30,34 @@ class MessageWidget extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        FText(text: "Tunde idiagbon", color: kBlackColor),
-                        FText(text: "3:00", color: kBlackColor),
+                        FText(text: chat.receiverID, color: kBlackColor),
+                        FText(
+                          text: _formatTime(chat.lastMessageTime),
+                          color: kBlackColor,
+                        ),
                       ],
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
                       children: [
-                        FText(
-                          text: "Sounds Awesome bro",
-                          fontSize: 12,
-                          color: kContainerColor,
-                        ),
-                        CircleWidget(
-                          radius: 11,
-                          color: kPrimaryColor,
-                          onTap: null,
+                        Expanded(
                           child: FText(
-                            text: "1",
-                            color: kWhiteColor,
+                            text: chat.lastMessage,
                             fontSize: 12,
+                            color: kContainerColor,
                           ),
                         ),
+                        //   if (chat.un > 0)
+                        //     CircleWidget(
+                        //       radius: 11,
+                        //       color: kPrimaryColor,
+                        //       onTap: null,
+                        //       child: FText(
+                        //         text: chat.unreadCount.toString(),
+                        //         color: kWhiteColor,
+                        //         fontSize: 12,
+                        //       ),
+                        //     ),
                       ],
                     ),
                   ],
@@ -62,5 +69,20 @@ class MessageWidget extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _formatTime(DateTime time) {
+    final now = DateTime.now();
+    final difference = now.difference(time);
+
+    if (difference.inDays > 0) {
+      return '${difference.inDays}d ago';
+    } else if (difference.inHours > 0) {
+      return '${difference.inHours}h ago';
+    } else if (difference.inMinutes > 0) {
+      return '${difference.inMinutes}m ago';
+    } else {
+      return 'Just now';
+    }
   }
 }

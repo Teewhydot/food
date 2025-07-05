@@ -1,27 +1,67 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:food/food/features/tracking/domain/entities/chat_entity.dart';
+import 'package:food/food/features/tracking/domain/use_cases/chat_usecase.dart';
 import 'package:food/food/features/tracking/presentation/manager/chats_bloc/chats_state.dart';
-import 'package:uuid/uuid.dart';
 
 class ChatsCubit extends Cubit<ChatsState> {
-  ChatsCubit() : super(ChatsInitial());
+  final ChatUseCase chatUseCase;
+  StreamSubscription<List<ChatEntity>>? _chatsSubscription;
+
+  ChatsCubit({required this.chatUseCase}) : super(ChatsInitial());
 
   void loadChats() async {
     emit(ChatsLoading());
-    // Simulate a network call
-    await Future.delayed(Duration(seconds: 2), () {
-      final chats = [
-        ChatEntity(
-          id: Uuid().v4(),
-          senderID: Uuid().v4(),
-          receiverID: Uuid().v4(),
-          name: Uuid().v4(),
-          imageUrl: Uuid().v4(),
-          lastMessageTime: DateTime.now().subtract(Duration(minutes: 5)),
-          lastMessage: Uuid().v4(),
-        ),
-      ];
-      emit(ChatsLoaded(chats: chats));
+
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) {
+      emit(ChatsError('User not authenticated'));
+      return;
+    }
+
+    // Cancel any existing subscription
+    _chatsSubscription?.cancel();
+
+    // Watch for real-time updates
+    _chatsSubscription = chatUseCase
+        .watchUserChats(userId)
+        .listen(
+          (chats) {
+            emit(ChatsLoaded(chats: chats));
+          },
+          onError: (error) {
+            emit(ChatsError(error.toString()));
+          },
+        );
+  }
+
+  Future<void> createChat({
+    required String otherUserId,
+    required String orderId,
+  }) async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) {
+      emit(ChatsError('User not authenticated'));
+      return;
+    }
+
+    final result = await chatUseCase.createOrGetChat(
+      userId: userId,
+      otherUserId: otherUserId,
+      orderId: orderId,
+    );
+
+    result.fold((failure) => emit(ChatsError(failure.failureMessage)), (chat) {
+      // Chat created, reload chats
+      loadChats();
     });
+  }
+
+  @override
+  Future<void> close() {
+    _chatsSubscription?.cancel();
+    return super.close();
   }
 }

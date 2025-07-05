@@ -1,0 +1,1 @@
+Search the web for this: $ARGUMENTS and get the mose relevant information that answers my queries

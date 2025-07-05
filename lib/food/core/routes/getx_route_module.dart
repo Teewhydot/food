@@ -28,6 +28,7 @@ import '../../features/home/domain/entities/food.dart';
 import '../../features/home/domain/entities/restaurant.dart';
 import '../../features/home/presentation/screens/home.dart';
 import '../../features/payments/presentation/screens/cart.dart';
+import '../../features/tracking/domain/entities/chat_entity.dart';
 import '../../features/tracking/presentation/screens/call_screen.dart';
 import '../../features/tracking/presentation/screens/chat_screen.dart';
 
@@ -155,7 +156,11 @@ class GetXRouteModule {
     ),
     GetPage(
       name: Routes.chatScreen,
-      page: () => const ChatScreen(),
+      page:
+          () => ChatScreen(
+            chat:
+                Get.arguments as ChatEntity, // Cast the argument to ChatEntity
+          ),
       transition: _transition,
       transitionDuration: _transitionDuration,
     ),

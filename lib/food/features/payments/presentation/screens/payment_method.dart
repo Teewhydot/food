@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/image.dart';
 import 'package:food/food/components/scaffold.dart';
@@ -17,7 +18,15 @@ import 'package:get_it/get_it.dart';
 
 import '../../../../components/texts/texts.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
+import '../../../../core/utils/app_utils.dart';
 import '../../domain/entities/card_entity.dart';
+import '../../domain/entities/order_entity.dart';
+import '../manager/cart/cart_cubit.dart';
+import '../manager/order_bloc/order_bloc.dart';
+import '../manager/order_bloc/order_state.dart';
+import '../manager/payment_bloc/payment_bloc.dart';
+import '../manager/payment_bloc/payment_event.dart';
+import '../manager/payment_bloc/payment_state.dart';
 
 class PaymentMethod extends StatefulWidget {
   const PaymentMethod({super.key});
@@ -147,6 +156,93 @@ class _PaymentMethodState extends State<PaymentMethod> {
     );
   }
 
+  void _processPayment(CardEntity? card) {
+    // Get cart state
+    final cartState = context.read<CartCubit>().state;
+    if (cartState is! CartLoaded) {
+      DFoodUtils.showSnackBar(
+        "Cart is empty. Please add items to your cart before proceeding.",
+        kErrorColor,
+      );
+      return;
+    }
+
+    // Show loading dialog
+    DFoodUtils.showDialogContainer(
+      context: context,
+      child: BlocListener<OrderBloc, OrderState>(
+        listener: (context, orderState) {
+          if (orderState is OrderCreated) {
+            // Process payment after order is created
+            context.read<PaymentBloc>().add(
+              ProcessPaymentEvent(
+                amount: cartState.totalPrice,
+                paymentMethodId: selectedMethod,
+                currency: "NGN",
+                metadata: {},
+              ),
+            );
+          } else if (orderState is OrderError) {
+            nav.goBack();
+            DFoodUtils.showSnackBar(orderState.message, kSuccessColor);
+          }
+        },
+        child: BlocListener<PaymentBloc, PaymentState>(
+          listener: (context, paymentState) {
+            if (paymentState is PaymentProcessed) {
+              nav.goBack();
+              // Clear cart
+              // context.read<CartCubit>().clearCart();
+              // Navigate to success screen
+              nav.navigateAndReplace(
+                Routes.statusScreen,
+                arguments: PaymentStatusEnum.success,
+              );
+            } else if (paymentState is PaymentError) {
+              nav.goBack();
+              DFoodUtils.showSnackBar(paymentState.message, kErrorColor);
+            }
+          },
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(color: kPrimaryColor),
+              20.verticalSpace,
+              FText(
+                text: "Processing payment...",
+                fontSize: 16,
+                color: kTextColorDark,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    // Create order
+    final orderItems =
+        cartState.items
+            .map(
+              (item) => OrderItem(
+                foodId: item.id,
+                foodName: item.name,
+                quantity: item.quantity,
+                price: item.price,
+                total: item.price * item.quantity,
+              ),
+            )
+            .toList();
+
+    // context.read<OrderBloc>().add(
+    //   CreateOrderEvent(
+    //     OrderEntity(
+    //       id: Uuid().v4(),
+    //       userId:
+    //     )
+    //   ),
+    // );
+  }
+
   Widget _buildPaymentDetails() {
     // Filter cards based on selectedMethod
     List<CardEntity> filteredCards =
@@ -155,12 +251,36 @@ class _PaymentMethodState extends State<PaymentMethod> {
             .toList();
 
     if (selectedMethod == "Cash" || selectedMethod == "Paypal") {
-      return Center(
-        child: FText(
-          text: "Selected: $selectedMethod",
-          fontSize: 18,
-          fontWeight: FontWeight.w500,
-        ),
+      return Column(
+        children: [
+          Center(
+            child: FText(
+              text: "Selected: $selectedMethod",
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          40.verticalSpace,
+          SizedBox(
+            width: 1.sw - (AppConstants.defaultPadding * 2),
+            child: ElevatedButton(
+              onPressed: () => _processPayment(null),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: kPrimaryColor,
+                padding: EdgeInsets.symmetric(vertical: 16.h),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: FText(
+                text: "Proceed with $selectedMethod",
+                color: kWhiteColor,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
       );
     } else if (filteredCards.isEmpty) {
       return Column(
@@ -201,12 +321,7 @@ class _PaymentMethodState extends State<PaymentMethod> {
           ...filteredCards.map(
             (card) => PaymentCardWidget(
               card: card,
-              onTap: () {
-                nav.navigateAndReplace(
-                  Routes.statusScreen,
-                  arguments: PaymentStatusEnum.success,
-                );
-              },
+              onTap: () => _processPayment(card),
             ).paddingOnly(right: AppConstants.defaultPadding, bottom: 20.h),
           ),
           20.verticalSpace,

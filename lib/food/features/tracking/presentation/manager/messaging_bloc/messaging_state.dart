@@ -17,5 +17,5 @@ final class MessagingError extends MessagingState implements AppErrorState {
   @override
   final String errorMessage;
 
-  MessagingError({required this.errorMessage});
+  MessagingError(this.errorMessage);
 }

@@ -152,9 +152,7 @@ class _FoodDetailsState extends State<FoodDetails> {
                     ),
                     10.horizontalSpace,
                     FText(
-                      text:
-                          widget.foodEntity.restaurant?.name ??
-                          "Unknown Restaurant",
+                      text: widget.foodEntity.restaurantName,
                       fontSize: 16,
                       fontWeight: FontWeight.w400,
                       alignment: MainAxisAlignment.start,
@@ -192,10 +190,7 @@ class _FoodDetailsState extends State<FoodDetails> {
                         ),
                         4.horizontalSpace,
                         FText(
-                          text:
-                              widget.foodEntity.restaurant?.distance
-                                  .toString() ??
-                              "Unknown Distance",
+                          text: widget.foodEntity.preparationTime,
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
                           color: kTextColorDark,
@@ -212,10 +207,7 @@ class _FoodDetailsState extends State<FoodDetails> {
                         ),
                         4.horizontalSpace,
                         FText(
-                          text:
-                              widget.foodEntity.restaurant?.deliveryTime
-                                  .toString() ??
-                              "Unknown Delivery Time",
+                          text: widget.foodEntity.preparationTime,
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
                           color: kTextColorDark,

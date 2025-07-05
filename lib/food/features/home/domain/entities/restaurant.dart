@@ -1,23 +1,20 @@
-import 'package:food/food/features/home/domain/entities/restaurant_food_category.dart';
+import 'package:food/food/core/services/floor_db_service/restaurant/restaurant_entity.dart';
 
-class Restaurant {
-  final String id;
-  final String name;
-  final String imageUrl;
-  final String description;
-  final List<RestaurantFoodCategory> categories;
-  final double rating, distance;
-  final int reviewCount, deliveryTime;
-
+class Restaurant extends RestaurantFloorEntity {
   Restaurant({
-    required this.id,
-    required this.name,
-    required this.imageUrl,
-    required this.description,
-    required this.categories,
-    required this.rating,
-    required this.reviewCount,
-    required this.deliveryTime,
-    required this.distance,
+    required super.id,
+    required super.name,
+    required super.description,
+    required super.location,
+    required super.distance,
+    required super.rating,
+    required super.deliveryTime,
+    required super.deliveryFee,
+    required super.imageUrl,
+    required super.category,
+    required super.isOpen,
+    required super.latitude,
+    required super.longitude,
+    required super.lastUpdated,
   });
 }

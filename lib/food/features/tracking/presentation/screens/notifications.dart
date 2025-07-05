@@ -159,9 +159,13 @@ class _NotificationsState extends State<Notifications> {
                           children:
                               state.chats
                                   .map(
-                                    (notification) => MessageWidget(
+                                    (chat) => MessageWidget(
+                                      chat: chat,
                                       onTap: () {
-                                        nav.navigateTo(Routes.chatScreen);
+                                        nav.navigateTo(
+                                          Routes.chatScreen, 
+                                          arguments: chat,
+                                        );
                                       },
                                     ),
                                   )

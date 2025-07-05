@@ -1,0 +1,1 @@
+Scan the entire codebase and explain it to me in a way that i can see at a glance what the project is all about and i can understand how everything is connected and how it functions

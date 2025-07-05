@@ -36,12 +36,12 @@ class RestaurantWidget extends StatelessWidget {
           4.verticalSpace,
           Row(
             children:
-                restaurant.categories.asMap().entries.map((entry) {
+                restaurant.category.asMap().entries.map((entry) {
                   final index = entry.key;
                   final category = entry.value.category;
                   return FText(
                     text:
-                        index == restaurant.categories.length - 1
+                        index == restaurant.category.length - 1
                             ? category
                             : "$category-",
                     fontSize: 12,
