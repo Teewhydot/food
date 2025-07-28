@@ -6,7 +6,7 @@ import 'package:food/food/features/auth/presentation/widgets/back_widget.dart';
 
 import '../../../../../generated/assets.dart';
 import '../../../../components/image.dart';
-import '../../../../components/texts/texts.dart';
+import '../../../../components/texts.dart';
 
 class AuthTemplate extends StatefulWidget {
   final String title, subtitle;

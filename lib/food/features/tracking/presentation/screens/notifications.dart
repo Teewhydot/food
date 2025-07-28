@@ -13,7 +13,7 @@ import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../../../../components/texts/texts.dart';
+import '../../../../components/texts.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../core/theme/colors.dart';
@@ -163,7 +163,7 @@ class _NotificationsState extends State<Notifications> {
                                       chat: chat,
                                       onTap: () {
                                         nav.navigateTo(
-                                          Routes.chatScreen, 
+                                          Routes.chatScreen,
                                           arguments: chat,
                                         );
                                       },

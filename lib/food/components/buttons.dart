@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 
-import '../../core/theme/colors.dart';
+import '../core/theme/colors.dart';
 
 class FButton extends StatefulWidget {
   final String buttonText;

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:food/food/components/buttons/buttons.dart';
+import 'package:food/food/components/buttons.dart';
 import 'package:food/food/components/permission_dialog.dart';
 import 'package:food/food/components/scaffold.dart';
-import 'package:food/food/components/texts/texts.dart';
+import 'package:food/food/components/texts.dart';
 import 'package:food/food/core/constants/app_constants.dart';
 import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/features/auth/presentation/widgets/custom_overlay.dart';

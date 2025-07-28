@@ -8,7 +8,7 @@ import 'package:food/food/features/onboarding/presentation/widgets/food_containe
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 
-import '../../../../components/texts/texts.dart';
+import '../../../../components/texts.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:food/food/components/buttons/buttons.dart';
+import 'package:food/food/components/buttons.dart';
 import 'package:food/food/components/scaffold.dart';
-import 'package:food/food/components/texts/texts.dart';
+import 'package:food/food/components/texts.dart';
 import 'package:food/food/core/routes/routes.dart';
 import 'package:food/food/core/services/navigation_service/nav_config.dart';
 import 'package:food/food/core/theme/colors.dart';
@@ -12,6 +12,7 @@ import 'package:get_it/get_it.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import '../../../../core/constants/app_constants.dart';
+
 class FoodOnboarding extends StatefulWidget {
   const FoodOnboarding({super.key});
 
@@ -98,8 +99,13 @@ class _FoodOnboardingState extends State<FoodOnboarding> {
                   buttonText: isLastPage ? "Get Started" : "Next",
                   width: 1.sw,
                   borderRadius: 12,
-                  onPressed: (){
-                  !isLastPage? controller.nextPage(duration: Duration(milliseconds: 500), curve: Curves.ease): nav.navigateTo(Routes.login);
+                  onPressed: () {
+                    !isLastPage
+                        ? controller.nextPage(
+                          duration: Duration(milliseconds: 500),
+                          curve: Curves.ease,
+                        )
+                        : nav.navigateTo(Routes.login);
                   },
                 ).paddingOnly(
                   left: AppConstants.defaultPadding,
@@ -107,7 +113,7 @@ class _FoodOnboardingState extends State<FoodOnboarding> {
                 ),
                 TextButton(
                   onPressed: () {
-                               controller.jumpToPage(2);
+                    controller.jumpToPage(2);
                   },
                   child: FText(
                     fontSize: 16,

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/scaffold.dart';
-import 'package:food/food/components/texts/texts.dart';
+import 'package:food/food/components/texts.dart';
 import 'package:food/food/core/bloc/bloc_manager.dart';
 import 'package:food/food/core/helpers/extensions.dart';
 import 'package:food/food/core/theme/colors.dart';
@@ -62,10 +62,11 @@ class _SearchState extends State<Search> {
       bloc: context.read<SearchBloc>(),
       child: SizedBox.shrink(),
       isError: (state) => state is SearchError,
-      getErrorMessage: (state) =>
-          state is SearchError
-              ? state.message
-              : AppConstants.defaultErrorMessage,
+      getErrorMessage:
+          (state) =>
+              state is SearchError
+                  ? state.message
+                  : AppConstants.defaultErrorMessage,
       builder: (context, state) {
         if (state is SearchLoading) {
           return SizedBox(
@@ -130,10 +131,11 @@ class _SearchState extends State<Search> {
       bloc: context.read<SearchBloc>(),
       child: SizedBox.shrink(),
       isError: (state) => state is SearchError,
-      getErrorMessage: (state) =>
-          state is SearchError
-              ? state.message
-              : AppConstants.defaultErrorMessage,
+      getErrorMessage:
+          (state) =>
+              state is SearchError
+                  ? state.message
+                  : AppConstants.defaultErrorMessage,
       builder: (context, state) {
         if (state is SearchLoading) {
           return Column(

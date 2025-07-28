@@ -3,14 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/image.dart';
 import 'package:food/food/components/scaffold.dart';
-import 'package:food/food/components/texts/texts.dart';
+import 'package:food/food/components/texts.dart';
 import 'package:food/food/core/routes/routes.dart';
 import 'package:food/food/core/theme/colors.dart';
 import 'package:food/generated/assets.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 
-import '../../../../components/buttons/buttons.dart';
+import '../../../../components/buttons.dart';
 import '../../../../core/bloc/bloc_manager.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
@@ -274,10 +274,11 @@ class _HomeState extends State<Home> {
               bloc: context.read<FoodBloc>(),
               child: SizedBox.shrink(),
               isError: (state) => state is FoodError,
-              getErrorMessage: (state) =>
-                  state is FoodError
-                      ? state.errorMessage
-                      : AppConstants.defaultErrorMessage,
+              getErrorMessage:
+                  (state) =>
+                      state is FoodError
+                          ? state.errorMessage
+                          : AppConstants.defaultErrorMessage,
               builder: (context, state) {
                 if (state is FoodLoading) {
                   return SizedBox(
@@ -305,10 +306,11 @@ class _HomeState extends State<Home> {
               bloc: context.read<RestaurantBloc>(),
               child: SizedBox.shrink(),
               isError: (state) => state is RestaurantError,
-              getErrorMessage: (state) =>
-                  state is RestaurantError
-                      ? state.message
-                      : AppConstants.defaultErrorMessage,
+              getErrorMessage:
+                  (state) =>
+                      state is RestaurantError
+                          ? state.message
+                          : AppConstants.defaultErrorMessage,
               builder: (context, state) {
                 if (state is RestaurantLoading) {
                   return Column(

@@ -2,8 +2,8 @@ import 'package:contained_tab_bar_view/contained_tab_bar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:food/food/components/buttons/buttons.dart';
-import 'package:food/food/components/texts/texts.dart';
+import 'package:food/food/components/buttons.dart';
+import 'package:food/food/components/texts.dart';
 import 'package:food/food/core/constants/app_constants.dart';
 import 'package:food/food/core/helpers/user_extensions.dart';
 import 'package:food/food/core/theme/colors.dart';
@@ -73,10 +73,11 @@ class _OrdersState extends State<Orders> {
                 bloc: context.read<OrderBloc>(),
                 child: SizedBox.shrink(),
                 isError: (state) => state is OrderError,
-                getErrorMessage: (state) =>
-                    state is OrderError
-                        ? state.message
-                        : AppConstants.defaultErrorMessage,
+                getErrorMessage:
+                    (state) =>
+                        state is OrderError
+                            ? state.message
+                            : AppConstants.defaultErrorMessage,
                 builder: (context, state) {
                   if (state is OrderLoading) {
                     return Center(
@@ -150,10 +151,11 @@ class _OrdersState extends State<Orders> {
                 bloc: context.read<OrderBloc>(),
                 child: SizedBox.shrink(),
                 isError: (state) => state is OrderError,
-                getErrorMessage: (state) =>
-                    state is OrderError
-                        ? state.message
-                        : AppConstants.defaultErrorMessage,
+                getErrorMessage:
+                    (state) =>
+                        state is OrderError
+                            ? state.message
+                            : AppConstants.defaultErrorMessage,
                 builder: (context, state) {
                   if (state is OrderLoading) {
                     return Center(

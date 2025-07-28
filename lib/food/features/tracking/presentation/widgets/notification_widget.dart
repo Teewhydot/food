@@ -3,7 +3,7 @@ import 'package:food/food/features/tracking/domain/entities/notification_entity.
 import 'package:get/get.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
-import '../../../../components/texts/texts.dart';
+import '../../../../components/texts.dart';
 import '../../../../core/theme/colors.dart';
 import '../../../home/presentation/widgets/circle_widget.dart';
 

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
-import '../../../../components/texts/texts.dart';
+import '../../../../components/texts.dart';
 import '../../../../core/theme/colors.dart';
 import 'circle_widget.dart';
 

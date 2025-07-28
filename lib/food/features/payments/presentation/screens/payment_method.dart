@@ -16,7 +16,7 @@ import 'package:food/generated/assets.dart';
 import 'package:get/utils.dart';
 import 'package:get_it/get_it.dart';
 
-import '../../../../components/texts/texts.dart';
+import '../../../../components/texts.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../core/utils/app_utils.dart';
 import '../../domain/entities/card_entity.dart';

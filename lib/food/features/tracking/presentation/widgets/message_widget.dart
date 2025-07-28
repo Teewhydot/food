@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../../components/texts/texts.dart';
+import '../../../../components/texts.dart';
 import '../../../../core/theme/colors.dart';
 import '../../../home/presentation/widgets/circle_widget.dart';
 import '../../domain/entities/chat_entity.dart';

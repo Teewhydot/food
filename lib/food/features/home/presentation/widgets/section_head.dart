@@ -4,7 +4,7 @@ import 'package:food/food/core/helpers/extensions.dart';
 
 import '../../../../../generated/assets.dart';
 import '../../../../components/image.dart';
-import '../../../../components/texts/texts.dart';
+import '../../../../components/texts.dart';
 import '../../../../core/theme/colors.dart';
 
 class SectionHead extends StatelessWidget {

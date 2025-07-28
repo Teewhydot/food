@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:food/food/components/texts/texts.dart';
+import 'package:food/food/components/texts.dart';
 import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/features/onboarding/presentation/widgets/food_container.dart';
 import 'package:food/food/features/payments/presentation/manager/cart/cart_cubit.dart';
@@ -31,10 +31,11 @@ class DFoodCartWidget extends StatelessWidget {
       bloc: context.read<CartCubit>(),
       child: Container(),
       isError: (state) => state is CartError,
-      getErrorMessage: (state) =>
-          state is CartError
-              ? state.errorMessage
-              : AppConstants.defaultErrorMessage,
+      getErrorMessage:
+          (state) =>
+              state is CartError
+                  ? state.errorMessage
+                  : AppConstants.defaultErrorMessage,
       builder: (context, state) {
         return Row(
           children: [

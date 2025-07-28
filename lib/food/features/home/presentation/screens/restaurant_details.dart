@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:food/food/components/texts/texts.dart';
+import 'package:food/food/components/texts.dart';
 import 'package:food/food/features/home/domain/entities/restaurant.dart';
 import 'package:food/food/features/home/domain/entities/restaurant_food_category.dart';
 import 'package:food/food/features/home/presentation/widgets/details_skeleton_widget.dart';

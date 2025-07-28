@@ -9,7 +9,7 @@ import 'package:food/food/features/auth/presentation/widgets/custom_overlay.dart
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 
-import '../../../../components/buttons/buttons.dart';
+import '../../../../components/buttons.dart';
 import '../../../../components/textfields.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';

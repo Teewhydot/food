@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:food/food/components/texts/texts.dart';
+import 'package:food/food/components/texts.dart';
 import 'package:food/food/core/services/permission_service/permission_repository.dart';
 import 'package:food/food/core/services/permission_service/permission_service.dart';
 import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/core/utils/logger.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import 'buttons/buttons.dart';
+import 'buttons.dart';
 
 /// A reusable dialog to request various app permissions
 class PermissionDialog extends StatelessWidget {

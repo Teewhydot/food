@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/scaffold.dart';
-import 'package:food/food/components/texts/texts.dart';
+import 'package:food/food/components/texts.dart';
 import 'package:food/food/core/bloc/bloc_manager.dart';
 import 'package:food/food/core/helpers/extensions.dart';
 import 'package:food/food/core/routes/routes.dart';
@@ -13,7 +13,7 @@ import 'package:food/food/features/tracking/presentation/widgets/cart_widget.dar
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 
-import '../../../../components/buttons/buttons.dart';
+import '../../../../components/buttons.dart';
 import '../../../../components/textfields.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
