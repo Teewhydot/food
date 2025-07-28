@@ -25,9 +25,27 @@ import '../features/payments/domain/repositories/payment_repository.dart';
 import '../features/payments/domain/use_cases/order_usecase.dart';
 import '../features/payments/domain/use_cases/payment_usecase.dart';
 import '../features/tracking/data/remote/data_sources/chat_remote_data_source.dart';
+import '../features/tracking/data/remote/data_sources/notification_remote_data_source.dart';
 import '../features/tracking/data/repositories/chat_repository_impl.dart';
+import '../features/tracking/data/repositories/notification_repository_impl.dart';
 import '../features/tracking/domain/repositories/chat_repository.dart';
+import '../features/tracking/domain/repositories/notification_repository.dart';
 import '../features/tracking/domain/use_cases/chat_usecase.dart';
+import '../features/tracking/domain/use_cases/notification_usecase.dart';
+import '../features/home/data/remote/data_sources/address_remote_data_source.dart';
+import '../features/home/data/remote/data_sources/user_profile_remote_data_source.dart';
+import '../features/home/data/remote/data_sources/favorites_remote_data_source.dart';
+import '../features/home/data/repositories/address_repository_impl.dart';
+import '../features/home/data/repositories/user_profile_repository_impl.dart';
+import '../features/home/data/repositories/favorites_repository_impl.dart';
+import '../features/home/domain/repositories/address_repository.dart';
+import '../features/home/domain/repositories/user_profile_repository.dart';
+import '../features/home/domain/repositories/favorites_repository.dart';
+import '../features/home/domain/use_cases/address_usecase.dart';
+import '../features/home/domain/use_cases/user_profile_usecase.dart';
+import '../features/home/domain/use_cases/favorites_usecase.dart';
+import '../core/services/floor_db_service/address/address_database_service.dart';
+import '../core/services/floor_db_service/user_profile/user_profile_database_service.dart';
 
 final getIt = GetIt.instance;
 
@@ -107,5 +125,65 @@ void setupDIService() {
   );
   getIt.registerLazySingleton<ChatUseCase>(
     () => ChatUseCase(getIt<ChatRepository>()),
+  );
+  
+  // Notification dependencies
+  getIt.registerLazySingleton<NotificationRemoteDataSource>(
+    () => FirebaseNotificationRemoteDataSource(),
+  );
+  getIt.registerLazySingleton<NotificationRepository>(
+    () => NotificationRepositoryImpl(
+      remoteDataSource: getIt<NotificationRemoteDataSource>(),
+    ),
+  );
+  getIt.registerLazySingleton<NotificationUseCase>(
+    () => NotificationUseCase(getIt<NotificationRepository>()),
+  );
+  
+  // Address dependencies
+  getIt.registerLazySingleton<AddressRemoteDataSource>(
+    () => FirebaseAddressRemoteDataSource(),
+  );
+  getIt.registerLazySingleton<AddressDatabaseService>(
+    () => AddressDatabaseService(),
+  );
+  getIt.registerLazySingleton<AddressRepository>(
+    () => AddressRepositoryImpl(
+      remoteDataSource: getIt<AddressRemoteDataSource>(),
+      localDataSource: getIt<AddressDatabaseService>(),
+    ),
+  );
+  getIt.registerLazySingleton<AddressUseCase>(
+    () => AddressUseCase(getIt<AddressRepository>()),
+  );
+  
+  // User Profile dependencies
+  getIt.registerLazySingleton<UserProfileRemoteDataSource>(
+    () => FirebaseUserProfileRemoteDataSource(),
+  );
+  getIt.registerLazySingleton<UserProfileDatabaseService>(
+    () => UserProfileDatabaseService(),
+  );
+  getIt.registerLazySingleton<UserProfileRepository>(
+    () => UserProfileRepositoryImpl(
+      remoteDataSource: getIt<UserProfileRemoteDataSource>(),
+      localDataSource: getIt<UserProfileDatabaseService>(),
+    ),
+  );
+  getIt.registerLazySingleton<UserProfileUseCase>(
+    () => UserProfileUseCase(getIt<UserProfileRepository>()),
+  );
+  
+  // Favorites dependencies
+  getIt.registerLazySingleton<FavoritesRemoteDataSource>(
+    () => FirebaseFavoritesRemoteDataSource(),
+  );
+  getIt.registerLazySingleton<FavoritesRepository>(
+    () => FavoritesRepositoryImpl(
+      remoteDataSource: getIt<FavoritesRemoteDataSource>(),
+    ),
+  );
+  getIt.registerLazySingleton<FavoritesUseCase>(
+    () => FavoritesUseCase(getIt<FavoritesRepository>()),
   );
 }

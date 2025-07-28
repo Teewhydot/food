@@ -18,7 +18,11 @@ dependencies:
   flutter_svg: ^2.1.0
   firebase_core: ^3.13.1
   firebase_auth: ^5.5.4
+  firebase_messaging: ^15.1.6
+  firebase_storage: ^12.3.8
+  flutter_local_notifications: ^18.0.1
   dartz: ^0.10.1
+  equatable: ^2.0.5
   get_it: ^8.0.3
   bloc: ^9.0.0
   flutter_bloc: ^9.1.1
@@ -52,6 +56,8 @@ dependencies:
   geocoding: ^4.0.0
   http: ^1.4.0
   permission_handler: ^12.0.0+1
+  path: ^1.9.0
+  meta: ^1.15.0
 
 
 
@@ -64,6 +70,8 @@ dev_dependencies:
   flutter_lints: ^5.0.0
   floor_generator: ^1.4.2
   build_runner: ^2.1.2
+  mockito: ^5.4.4
+  bloc_test: ^10.0.0
 
 
 flutter_native_splash:

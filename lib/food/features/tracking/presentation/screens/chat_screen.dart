@@ -13,6 +13,7 @@ import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../../../components/texts/texts.dart';
+import '../../../../core/bloc/bloc_manager.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../auth/presentation/widgets/back_widget.dart';
 import '../../domain/entities/chat_entity.dart';
@@ -93,7 +94,15 @@ class _ChatScreenState extends State<ChatScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
-            child: BlocBuilder<MessagingBloc, MessagingState>(
+            child: BlocManager<MessagingBloc, MessagingState>(
+              bloc: context.read<MessagingBloc>(),
+              child: SizedBox.shrink(),
+              isError: (state) => state is MessagingError,
+              getErrorMessage:
+                  (state) =>
+                      state is MessagingError
+                          ? state.errorMessage
+                          : AppConstants.defaultErrorMessage,
               builder: (context, state) {
                 if (state is MessagingLoading) {
                   return Center(
@@ -125,14 +134,6 @@ class _ChatScreenState extends State<ChatScreen> {
                   ).paddingOnly(
                     left: AppConstants.defaultPadding,
                     right: AppConstants.defaultPadding,
-                  );
-                } else if (state is MessagingError) {
-                  return Center(
-                    child: FText(
-                      text: state.errorMessage,
-                      fontSize: 14,
-                      color: kErrorColor,
-                    ),
                   );
                 }
                 return SizedBox.shrink();

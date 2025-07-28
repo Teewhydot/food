@@ -4,7 +4,12 @@
       "Bash(mkdir:*)",
       "Bash(flutter analyze:*)",
       "Bash(rg:*)",
-      "Bash(flutter packages pub run build_runner build:*)"
+      "Bash(flutter packages pub run build_runner build:*)",
+      "Bash(grep:*)",
+      "Bash(flutter pub:*)",
+      "Bash(flutter test:*)",
+      "Bash(find:*)",
+      "Bash(sed:*)"
     ],
     "deny": []
   }

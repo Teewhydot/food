@@ -58,7 +58,14 @@ class _SearchState extends State<Search> {
   }
 
   Widget _buildSuggestedFoodsSection() {
-    return BlocBuilder<SearchBloc, SearchState>(
+    return BlocManager<SearchBloc, SearchState>(
+      bloc: context.read<SearchBloc>(),
+      child: SizedBox.shrink(),
+      isError: (state) => state is SearchError,
+      getErrorMessage: (state) =>
+          state is SearchError
+              ? state.message
+              : AppConstants.defaultErrorMessage,
       builder: (context, state) {
         if (state is SearchLoading) {
           return SizedBox(
@@ -119,7 +126,14 @@ class _SearchState extends State<Search> {
   }
 
   Widget _buildSuggestedRestaurantsSection() {
-    return BlocBuilder<SearchBloc, SearchState>(
+    return BlocManager<SearchBloc, SearchState>(
+      bloc: context.read<SearchBloc>(),
+      child: SizedBox.shrink(),
+      isError: (state) => state is SearchError,
+      getErrorMessage: (state) =>
+          state is SearchError
+              ? state.message
+              : AppConstants.defaultErrorMessage,
       builder: (context, state) {
         if (state is SearchLoading) {
           return Column(

@@ -1,4 +1,36 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <!-- Internet permission for API calls and real-time features -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    
+    <!-- Location permissions for delivery address and restaurant location -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    
+    <!-- Camera permission for profile pictures and food reviews -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    
+    <!-- Storage permissions for caching images and saving data -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    
+    <!-- Phone permission for customer support calls -->
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    
+    <!-- Notification permissions -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    
+    <!-- Vibration permission for notifications -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+    
+    <!-- Wake lock permission to keep the app active during order tracking -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    
+    <!-- For Android 13+ photo picker -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    
     <application
         android:label="food"
         android:name="${applicationName}"

@@ -11,6 +11,7 @@ import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../../../components/buttons/buttons.dart';
+import '../../../../core/bloc/bloc_manager.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../core/utils/app_utils.dart';
@@ -269,7 +270,14 @@ class _HomeState extends State<Home> {
               ),
             ),
             32.verticalSpace,
-            BlocBuilder<FoodBloc, FoodState>(
+            BlocManager<FoodBloc, FoodState>(
+              bloc: context.read<FoodBloc>(),
+              child: SizedBox.shrink(),
+              isError: (state) => state is FoodError,
+              getErrorMessage: (state) =>
+                  state is FoodError
+                      ? state.errorMessage
+                      : AppConstants.defaultErrorMessage,
               builder: (context, state) {
                 if (state is FoodLoading) {
                   return SizedBox(
@@ -283,14 +291,6 @@ class _HomeState extends State<Home> {
                     selectedCategory,
                     state.foods,
                   ).paddingOnly(right: AppConstants.defaultPadding);
-                } else if (state is FoodError) {
-                  return Center(
-                    child: FText(
-                      text: state.errorMessage,
-                      fontSize: 14,
-                      color: kErrorColor,
-                    ),
-                  );
                 }
                 return SizedBox.shrink();
               },
@@ -301,7 +301,14 @@ class _HomeState extends State<Home> {
               isActionVisible: false,
             ).paddingOnly(right: AppConstants.defaultPadding.w),
             20.verticalSpace,
-            BlocBuilder<RestaurantBloc, RestaurantState>(
+            BlocManager<RestaurantBloc, RestaurantState>(
+              bloc: context.read<RestaurantBloc>(),
+              child: SizedBox.shrink(),
+              isError: (state) => state is RestaurantError,
+              getErrorMessage: (state) =>
+                  state is RestaurantError
+                      ? state.message
+                      : AppConstants.defaultErrorMessage,
               builder: (context, state) {
                 if (state is RestaurantLoading) {
                   return Column(
@@ -335,14 +342,6 @@ class _HomeState extends State<Home> {
                             );
                           }).toList(),
                     ).paddingOnly(right: AppConstants.defaultPadding.w),
-                  );
-                } else if (state is RestaurantError) {
-                  return Center(
-                    child: FText(
-                      text: state.message,
-                      fontSize: 14,
-                      color: kErrorColor,
-                    ),
                   );
                 }
                 return SizedBox.shrink();

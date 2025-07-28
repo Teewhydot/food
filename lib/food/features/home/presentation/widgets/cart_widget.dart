@@ -5,6 +5,8 @@ import 'package:get_it/get_it.dart';
 import '../../../../../generated/assets.dart';
 import '../../../../components/image.dart';
 import '../../../../components/texts/texts.dart';
+import '../../../../core/bloc/bloc_manager.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/routes/routes.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../core/theme/colors.dart';
@@ -45,7 +47,17 @@ class _CartWidgetState extends State<CartWidget> {
             radius: 10,
             color: kPrimaryColor,
             onTap: null,
-            child: BlocBuilder<CartCubit, CartState>(
+            child: BlocManager<CartCubit, CartState>(
+              bloc: context.read<CartCubit>(),
+              child: CupertinoActivityIndicator(
+                radius: 5,
+                color: kWhiteColor,
+              ),
+              isError: (state) => state is CartError,
+              getErrorMessage: (state) =>
+                  state is CartError
+                      ? state.errorMessage
+                      : AppConstants.defaultErrorMessage,
               builder: (context, state) {
                 if (state is CartLoaded) {
                   return FText(

@@ -13,6 +13,7 @@ import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../../core/bloc/bloc_manager.dart';
 import '../../../../core/routes/routes.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../payments/domain/entities/order_entity.dart';
@@ -68,7 +69,14 @@ class _OrdersState extends State<Orders> {
             ),
             tabs: [Text("Ongoing"), Text("History")],
             views: [
-              BlocBuilder<OrderBloc, OrderState>(
+              BlocManager<OrderBloc, OrderState>(
+                bloc: context.read<OrderBloc>(),
+                child: SizedBox.shrink(),
+                isError: (state) => state is OrderError,
+                getErrorMessage: (state) =>
+                    state is OrderError
+                        ? state.message
+                        : AppConstants.defaultErrorMessage,
                 builder: (context, state) {
                   if (state is OrderLoading) {
                     return Center(
@@ -134,19 +142,18 @@ class _OrdersState extends State<Orders> {
                             }).toList(),
                       ).paddingOnly(top: 32),
                     );
-                  } else if (state is OrderError) {
-                    return Center(
-                      child: FText(
-                        text: state.message,
-                        fontSize: 14,
-                        color: kErrorColor,
-                      ),
-                    );
                   }
                   return SizedBox.shrink();
                 },
               ),
-              BlocBuilder<OrderBloc, OrderState>(
+              BlocManager<OrderBloc, OrderState>(
+                bloc: context.read<OrderBloc>(),
+                child: SizedBox.shrink(),
+                isError: (state) => state is OrderError,
+                getErrorMessage: (state) =>
+                    state is OrderError
+                        ? state.message
+                        : AppConstants.defaultErrorMessage,
                 builder: (context, state) {
                   if (state is OrderLoading) {
                     return Center(
@@ -201,14 +208,6 @@ class _OrdersState extends State<Orders> {
                               );
                             }).toList(),
                       ).paddingOnly(top: 32),
-                    );
-                  } else if (state is OrderError) {
-                    return Center(
-                      child: FText(
-                        text: state.message,
-                        fontSize: 14,
-                        color: kErrorColor,
-                      ),
                     );
                   }
                   return SizedBox.shrink();

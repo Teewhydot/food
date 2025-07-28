@@ -1,4 +1,5 @@
 import 'package:food/food/core/services/floor_db_service/app_database.dart';
+import 'package:food/food/features/home/domain/entities/profile.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
@@ -21,5 +22,26 @@ class UserProfileDatabaseService {
     final documentsDir = await getApplicationDocumentsDirectory();
     final dbPath = p.join(documentsDir.path, 'user_profile.db');
     return await $FloorAppDatabase.databaseBuilder(dbPath).build();
+  }
+
+  Future<void> insertUserProfile(UserProfileEntity userProfile) async {
+    final db = await database;
+    await db.userProfileDao.saveUserProfile(userProfile);
+  }
+
+  Future<UserProfileEntity?> getUserProfile() async {
+    final db = await database;
+    final profiles = await db.userProfileDao.getUserProfile();
+    return profiles.isNotEmpty ? profiles.first : null;
+  }
+
+  Future<void> updateUserProfile(UserProfileEntity userProfile) async {
+    final db = await database;
+    await db.userProfileDao.updateUserProfile(userProfile);
+  }
+
+  Future<void> deleteUserProfile() async {
+    final db = await database;
+    await db.userProfileDao.deleteUserProfile();
   }
 }
