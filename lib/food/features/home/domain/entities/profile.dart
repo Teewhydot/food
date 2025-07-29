@@ -24,4 +24,30 @@ class UserProfileEntity {
     this.bio,
     required this.firstTimeLogin,
   });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'firstName': firstName,
+      'lastName': lastName,
+      'email': email,
+      'phoneNumber': phoneNumber,
+      'profileImageUrl': profileImageUrl,
+      'bio': bio,
+      'firstTimeLogin': firstTimeLogin,
+    };
+  }
+
+  factory UserProfileEntity.fromJson(Map<String, dynamic> json) {
+    return UserProfileEntity(
+      id: json['id'] as String?,
+      firstName: json['firstName'] as String,
+      lastName: json['lastName'] as String,
+      email: json['email'] as String,
+      phoneNumber: json['phoneNumber'] as String,
+      profileImageUrl: json['profileImageUrl'] as String?,
+      bio: json['bio'] as String?,
+      firstTimeLogin: json['firstTimeLogin'] as bool,
+    );
+  }
 }

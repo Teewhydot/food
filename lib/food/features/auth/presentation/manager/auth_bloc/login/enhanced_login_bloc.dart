@@ -1,0 +1,252 @@
+import 'package:get_it/get_it.dart';
+import 'package:meta/meta.dart';
+import 'package:bloc/bloc.dart';
+
+import '../../../../../../core/bloc/base/base_bloc.dart';
+import '../../../../../../core/bloc/base/base_state.dart';
+import '../../../../../../core/bloc/mixins/cacheable_bloc_mixin.dart';
+import '../../../../../../core/bloc/utils/state_utils.dart';
+import '../../../../../../core/utils/logger.dart';
+import '../../../../../../core/utils/pretty_firebase_errors.dart';
+import '../../../../../home/domain/entities/profile.dart';
+import '../../../../domain/use_cases/auth_usecase.dart';
+
+/// Enhanced Login Events using sealed classes
+@immutable
+sealed class EnhancedLoginEvent {
+  const EnhancedLoginEvent();
+}
+
+/// Event to submit login credentials
+@immutable
+final class LoginSubmitEvent extends EnhancedLoginEvent {
+  final String email;
+  final String password;
+
+  const LoginSubmitEvent({
+    required this.email,
+    required this.password,
+  });
+
+  @override
+  String toString() => 'LoginSubmitEvent(email: $email)';
+}
+
+/// Event to retry login with same credentials
+@immutable
+final class LoginRetryEvent extends EnhancedLoginEvent {
+  final String email;
+  final String password;
+
+  const LoginRetryEvent({
+    required this.email,
+    required this.password,
+  });
+
+  @override
+  String toString() => 'LoginRetryEvent(email: $email)';
+}
+
+/// Event to reset login state
+@immutable
+final class LoginResetEvent extends EnhancedLoginEvent {
+  const LoginResetEvent();
+
+  @override
+  String toString() => 'LoginResetEvent()';
+}
+
+/// Event to validate input before login
+@immutable
+final class LoginValidateEvent extends EnhancedLoginEvent {
+  final String email;
+  final String password;
+
+  const LoginValidateEvent({
+    required this.email,
+    required this.password,
+  });
+
+  @override
+  String toString() => 'LoginValidateEvent(email: $email)';
+}
+
+/// Enhanced Login BLoC with modern state management
+class EnhancedLoginBloc extends BaseBloC<EnhancedLoginEvent, BaseState<UserProfileEntity>>
+    with CacheableBlocMixin<BaseState<UserProfileEntity>> {
+  
+  final AuthUseCase _authUseCase;
+
+  EnhancedLoginBloc({
+    AuthUseCase? authUseCase,
+  }) : _authUseCase = authUseCase ?? AuthUseCase(),
+       super(const InitialState<UserProfileEntity>()) {
+    on<LoginSubmitEvent>(_onLoginSubmit);
+    on<LoginRetryEvent>(_onLoginRetry);
+    on<LoginResetEvent>(_onLoginReset);
+    on<LoginValidateEvent>(_onLoginValidate);
+  }
+
+  @override
+  String get cacheKey => 'enhanced_login_bloc';
+
+  @override
+  Duration get cacheTimeout => const Duration(minutes: 30);
+
+  @override
+  bool get enableCaching => false; // Don't cache login attempts for security
+
+  /// Handle login submission
+  Future<void> _onLoginSubmit(
+    LoginSubmitEvent event,
+    Emitter<BaseState<UserProfileEntity>> emit,
+  ) async {
+    emit(const LoadingState<UserProfileEntity>(message: 'Signing you in...'));
+
+    try {
+      Logger.logBasic('Attempting login for email: ${event.email}');
+      
+      final result = await _authUseCase.login(event.email, event.password);
+      
+      await result.fold(
+        (failure) async {
+          final errorMessage = getAuthErrorMessage(failure.failureMessage);
+          final errorState = ErrorState<UserProfileEntity>(
+            errorMessage: errorMessage,
+            errorCode: failure.failureMessage,
+            isRetryable: _isRetryableError(failure.failureMessage),
+          );
+          
+          emit(errorState);
+          Logger.logError('Login failed: $errorMessage');
+        },
+        (userProfile) async {
+          // Create loaded state with user profile
+          final loadedState = StateUtils.createLoadedState(
+            userProfile,
+            isFromCache: false,
+          );
+          
+          emit(loadedState);
+          
+          // Also emit a success message
+          emit(const SuccessState<UserProfileEntity>(
+            successMessage: 'Successfully logged in! Welcome back.',
+          ));
+          
+          Logger.logSuccess('Login successful for user: ${userProfile.firstName} ${userProfile.lastName}');
+        },
+      );
+    } catch (e, stackTrace) {
+      final errorState = ErrorState<UserProfileEntity>(
+        errorMessage: 'An unexpected error occurred. Please try again.',
+        exception: Exception(e.toString()),
+        stackTrace: stackTrace,
+        isRetryable: true,
+      );
+      
+      emit(errorState);
+      Logger.logError('Login exception: $e');
+    }
+  }
+
+  /// Handle login retry
+  Future<void> _onLoginRetry(
+    LoginRetryEvent event,
+    Emitter<BaseState<UserProfileEntity>> emit,
+  ) async {
+    Logger.logBasic('Retrying login attempt');
+    add(LoginSubmitEvent(email: event.email, password: event.password));
+  }
+
+  /// Handle login reset (back to initial state)
+  Future<void> _onLoginReset(
+    LoginResetEvent event,
+    Emitter<BaseState<UserProfileEntity>> emit,
+  ) async {
+    emit(const InitialState<UserProfileEntity>());
+    Logger.logBasic('Login state reset');
+  }
+
+  /// Handle input validation
+  Future<void> _onLoginValidate(
+    LoginValidateEvent event,
+    Emitter<BaseState<UserProfileEntity>> emit,
+  ) async {
+    final validationErrors = _validateLoginInput(event.email, event.password);
+    
+    if (validationErrors.isNotEmpty) {
+      emit(ErrorState<UserProfileEntity>(
+        errorMessage: validationErrors.first,
+        errorCode: 'validation_error',
+        isRetryable: false, // Validation errors are not retryable
+      ));
+    } else {
+      // Input is valid, proceed with login
+      add(LoginSubmitEvent(email: event.email, password: event.password));
+    }
+  }
+
+  /// Validate login input
+  List<String> _validateLoginInput(String email, String password) {
+    final errors = <String>[];
+
+    // Email validation
+    if (email.isEmpty) {
+      errors.add('Email is required');
+    } else if (!_isValidEmail(email)) {
+      errors.add('Please enter a valid email address');
+    }
+
+    // Password validation
+    if (password.isEmpty) {
+      errors.add('Password is required');
+    } else if (password.length < 6) {
+      errors.add('Password must be at least 6 characters long');
+    }
+
+    return errors;
+  }
+
+  /// Check if email format is valid
+  bool _isValidEmail(String email) {
+    return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
+  }
+
+  /// Determine if an error is retryable
+  bool _isRetryableError(String errorCode) {
+    const nonRetryableErrors = [
+      'user-not-found',
+      'wrong-password',
+      'invalid-email',
+      'user-disabled',
+      'too-many-requests',
+    ];
+    
+    return !nonRetryableErrors.contains(errorCode);
+  }
+
+  /// Convert state to JSON for caching (disabled for security)
+  @override
+  Map<String, dynamic>? stateToJson(BaseState<UserProfileEntity> state) {
+    // Don't cache login states for security reasons
+    return null;
+  }
+
+  /// Create state from cached JSON (disabled for security)
+  @override
+  BaseState<UserProfileEntity>? stateFromJson(Map<String, dynamic> json) {
+    // Don't restore login states from cache for security reasons
+    return null;
+  }
+
+  /// Quick login method for external use
+  void quickLogin({required String email, required String password}) {
+    add(LoginValidateEvent(email: email, password: password));
+  }
+
+  /// Reset to initial state
+  void resetLogin() {
+    add(const LoginResetEvent());
+  }
+}

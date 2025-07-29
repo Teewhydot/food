@@ -1,14 +1,15 @@
 import 'package:food/food/core/routes/routes.dart';
 import 'package:food/food/features/auth/presentation/screens/email_verification_screen.dart';
+import 'package:food/food/features/auth/presentation/screens/enhanced_login_screen.dart';
+import 'package:food/food/features/auth/presentation/screens/enhanced_register_screen.dart';
 import 'package:food/food/features/auth/presentation/screens/forgot_password.dart';
 import 'package:food/food/features/auth/presentation/screens/location.dart';
-import 'package:food/food/features/auth/presentation/screens/login.dart';
-import 'package:food/food/features/auth/presentation/screens/sign_up.dart';
 import 'package:food/food/features/home/domain/entities/address.dart';
 import 'package:food/food/features/home/domain/entities/profile.dart';
 import 'package:food/food/features/home/presentation/screens/add_address.dart';
 import 'package:food/food/features/home/presentation/screens/address.dart';
 import 'package:food/food/features/home/presentation/screens/edit_profile.dart';
+import 'package:food/food/features/home/presentation/screens/example_enhanced_home_screen.dart';
 import 'package:food/food/features/home/presentation/screens/food.dart';
 import 'package:food/food/features/home/presentation/screens/food_details.dart';
 import 'package:food/food/features/home/presentation/screens/menu.dart';
@@ -26,7 +27,6 @@ import 'package:get/get.dart';
 
 import '../../features/home/domain/entities/food.dart';
 import '../../features/home/domain/entities/restaurant.dart';
-import '../../features/home/presentation/screens/home.dart';
 import '../../features/payments/presentation/screens/cart.dart';
 import '../../features/tracking/domain/entities/chat_entity.dart';
 import '../../features/tracking/presentation/screens/call_screen.dart';
@@ -50,7 +50,7 @@ class GetXRouteModule {
     ),
     GetPage(
       name: Routes.login,
-      page: () => const Login(),
+      page: () => const EnhancedLoginScreen(),
       transition: _transition,
       transitionDuration: _transitionDuration,
     ),
@@ -62,7 +62,7 @@ class GetXRouteModule {
     ),
     GetPage(
       name: Routes.register,
-      page: () => const SignUp(),
+      page: () => const EnhancedRegisterScreen(),
       transition: _transition,
       transitionDuration: _transitionDuration,
     ),
@@ -74,7 +74,7 @@ class GetXRouteModule {
     ),
     GetPage(
       name: Routes.home,
-      page: () => const Home(),
+      page: () => const ExampleEnhancedHomeScreen(),
       transition: _transition,
       transitionDuration: _transitionDuration,
     ),

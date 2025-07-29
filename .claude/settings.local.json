@@ -9,7 +9,9 @@
       "Bash(flutter pub:*)",
       "Bash(flutter test:*)",
       "Bash(find:*)",
-      "Bash(sed:*)"
+      "Bash(sed:*)",
+      "Bash(mv:*)",
+      "Bash(rm:*)"
     ],
     "deny": []
   }

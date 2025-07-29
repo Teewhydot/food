@@ -8,3 +8,9 @@ Widget horizontalSpace(double space) {
 Widget verticalSpace(double space) {
   return SizedBox(height: space.h);
 }
+
+/// Extension methods for spacing
+extension SpacingExtension on int {
+  Widget get verticalSpace => SizedBox(height: toDouble().h);
+  Widget get horizontalSpace => SizedBox(width: toDouble().w);
+}
