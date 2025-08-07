@@ -48,7 +48,10 @@ class _EnhancedRegisterScreenState extends State<EnhancedRegisterScreen> {
   }
 
   Widget _buildRegistrationForm() {
-    return EnhancedBlocManager<EnhancedRegisterBloc, BaseState<UserProfileEntity>>(
+    return EnhancedBlocManager<
+      EnhancedRegisterBloc,
+      BaseState<UserProfileEntity>
+    >(
       bloc: BlocProvider.of<EnhancedRegisterBloc>(context),
       showLoadingIndicator: false,
       showErrorMessages: true,
@@ -100,10 +103,11 @@ class _EnhancedRegisterScreenState extends State<EnhancedRegisterScreen> {
               BlocBuilder<EnhancedRegisterBloc, BaseState<UserProfileEntity>>(
                 builder: (context, state) {
                   final isLoading = state.isLoading;
-                  
+
                   return FButton(
                     onPressed: isLoading ? null : _handleRegistration,
-                    buttonText: isLoading ? 'Creating Account...' : 'Create Account',
+                    buttonText:
+                        isLoading ? 'Creating Account...' : 'Create Account',
                   );
                 },
               ),
@@ -114,12 +118,12 @@ class _EnhancedRegisterScreenState extends State<EnhancedRegisterScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const FText(
-                    text: 'Already have an account? ',
-                    fontSize: 14,
-                  ),
+                  const FText(text: 'Already have an account? ', fontSize: 14),
                   TextButton(
-                    onPressed: () => Navigator.of(context).pushReplacementNamed('/login'),
+                    onPressed:
+                        () => Navigator.of(
+                          context,
+                        ).pushReplacementNamed('/login'),
                     child: const FText(
                       text: 'Sign In',
                       fontSize: 14,
@@ -140,7 +144,7 @@ class _EnhancedRegisterScreenState extends State<EnhancedRegisterScreen> {
     if (_formKey.currentState?.validate() ?? false) {
       // Hide keyboard
       FocusScope.of(context).unfocus();
-      
+
       // Submit registration
       context.read<EnhancedRegisterBloc>().quickRegister(
         firstName: _firstNameController.text.trim(),

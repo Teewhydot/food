@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:loading_overlay/loading_overlay.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/colors.dart';
@@ -8,7 +10,8 @@ import '../../../core/utils/logger.dart';
 import '../base/base_state.dart';
 
 /// Enhanced BloC Manager with automatic state detection and advanced features
-class EnhancedBlocManager<T extends BlocBase<S>, S extends BaseState> extends StatelessWidget {
+class EnhancedBlocManager<T extends BlocBase<S>, S extends BaseState>
+    extends StatelessWidget {
   /// The BLoC instance to manage
   final T bloc;
 
@@ -49,7 +52,12 @@ class EnhancedBlocManager<T extends BlocBase<S>, S extends BaseState> extends St
   final Widget? loadingWidget;
 
   /// Error widget builder
-  final Widget Function(BuildContext context, String error, VoidCallback? retry)? errorWidgetBuilder;
+  final Widget Function(
+    BuildContext context,
+    String error,
+    VoidCallback? retry,
+  )?
+  errorWidgetBuilder;
 
   /// Whether to enable retry functionality for errors
   final bool enableRetry;
@@ -109,10 +117,7 @@ class EnhancedBlocManager<T extends BlocBase<S>, S extends BaseState> extends St
 
     // Wrap with pull-to-refresh if enabled
     if (enablePullToRefresh && onRefresh != null) {
-      content = RefreshIndicator(
-        onRefresh: onRefresh!,
-        child: content,
-      );
+      content = RefreshIndicator(onRefresh: onRefresh!, child: content);
     }
 
     return content;
@@ -134,7 +139,9 @@ class EnhancedBlocManager<T extends BlocBase<S>, S extends BaseState> extends St
       return errorWidgetBuilder!(
         context,
         state.errorMessage ?? 'Unknown error',
-        enableRetry && state is ErrorState && state.isRetryable ? onRetry : null,
+        enableRetry && state is ErrorState && state.isRetryable
+            ? onRetry
+            : null,
       );
     }
 
@@ -152,13 +159,16 @@ class EnhancedBlocManager<T extends BlocBase<S>, S extends BaseState> extends St
     }
 
     // Default loading widget
-    return const Center(
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(),
-          SizedBox(height: 16),
-          Text('Loading...'),
+          LoadingOverlay(
+            isLoading: true,
+            color: kPrimaryColor.withOpacity(0.5),
+            progressIndicator: SpinKitFadingCircle(color: kWhiteColor),
+            child: child,
+          ),
         ],
       ),
     );
@@ -206,7 +216,8 @@ class EnhancedBlocManager<T extends BlocBase<S>, S extends BaseState> extends St
   }
 
   void _handleSuccessState(BuildContext context, S state) {
-    final successMessage = state.successMessage ?? 'Operation completed successfully';
+    final successMessage =
+        state.successMessage ?? 'Operation completed successfully';
 
     if (enableLogging) {
       Logger.logSuccess('${bloc.runtimeType} Success: $successMessage');
@@ -223,9 +234,8 @@ class EnhancedBlocManager<T extends BlocBase<S>, S extends BaseState> extends St
 
   void _handleLoadingState(BuildContext context, S state) {
     if (enableLogging) {
-      final loadingMessage = state is LoadingState 
-          ? state.message ?? 'Loading...'
-          : 'Loading...';
+      final loadingMessage =
+          state is LoadingState ? state.message ?? 'Loading...' : 'Loading...';
       Logger.logBasic('${bloc.runtimeType} Loading: $loadingMessage');
     }
 
@@ -241,7 +251,8 @@ class EnhancedBlocManager<T extends BlocBase<S>, S extends BaseState> extends St
 }
 
 /// Convenient wrapper for data-driven widgets
-class DataBlocBuilder<T extends BlocBase<S>, S extends BaseState, D> extends StatelessWidget {
+class DataBlocBuilder<T extends BlocBase<S>, S extends BaseState, D>
+    extends StatelessWidget {
   final T bloc;
   final Widget Function(BuildContext context, D data) builder;
   final Widget Function(BuildContext context, String error)? errorBuilder;
@@ -266,7 +277,7 @@ class DataBlocBuilder<T extends BlocBase<S>, S extends BaseState, D> extends Sta
       builder: (context, state) {
         // Handle loading
         if (state.isLoading) {
-          return loadingBuilder?.call(context) ?? 
+          return loadingBuilder?.call(context) ??
               const Center(child: CircularProgressIndicator());
         }
 
@@ -293,7 +304,8 @@ class DataBlocBuilder<T extends BlocBase<S>, S extends BaseState, D> extends Sta
 }
 
 /// Convenient wrapper for list-driven widgets with pagination support
-class ListBlocBuilder<T extends BlocBase<S>, S extends BaseState, I> extends StatelessWidget {
+class ListBlocBuilder<T extends BlocBase<S>, S extends BaseState, I>
+    extends StatelessWidget {
   final T bloc;
   final Widget Function(BuildContext context, List<I> items)? builder;
   final Widget Function(BuildContext context, int index, I item)? itemBuilder;
@@ -324,7 +336,7 @@ class ListBlocBuilder<T extends BlocBase<S>, S extends BaseState, I> extends Sta
       builder: (context, state) {
         // Handle loading (only for initial load)
         if (state.isLoading && !state.hasData) {
-          return loadingBuilder?.call(context) ?? 
+          return loadingBuilder?.call(context) ??
               const Center(child: CircularProgressIndicator());
         }
 
@@ -353,8 +365,8 @@ class ListBlocBuilder<T extends BlocBase<S>, S extends BaseState, I> extends Sta
           itemCount: items.length,
           itemBuilder: (context, index) {
             // Handle load more
-            if (enableLoadMore && 
-                index == items.length - 1 && 
+            if (enableLoadMore &&
+                index == items.length - 1 &&
                 onLoadMore != null) {
               Future.microtask(() => onLoadMore!());
             }

@@ -1,17 +1,15 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../components/buttons.dart';
 import '../../../../components/textfields.dart';
 import '../../../../components/texts.dart';
 import '../../../../core/bloc/base/base_state.dart';
-import '../../../../core/bloc/managers/enhanced_bloc_manager.dart';
+import '../../../../core/bloc/managers/simplified_enhanced_bloc_manager.dart';
 import '../../../../core/theme/colors.dart';
 import '../../../../core/utils/spacings.dart';
 import '../../../home/domain/entities/profile.dart';
-import '../../domain/entities/user_profile.dart';
 import '../manager/auth_bloc/login/enhanced_login_bloc.dart';
 import '../widgets/auth_template.dart';
 
@@ -46,123 +44,129 @@ class _EnhancedLoginScreenState extends State<EnhancedLoginScreen> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => EnhancedLoginBloc(),
-      child: AuthTemplate(
-        title: 'Welcome Back',
-        subtitle: 'Sign in to your account to continue',
-        child: _buildLoginForm(),
+      child: SimplifiedEnhancedBlocManager<
+        EnhancedLoginBloc,
+        BaseState<UserProfileEntity>
+      >(
+        bloc: BlocProvider.of<EnhancedLoginBloc>(context),
+        showLoadingIndicator: true,
+        onSuccess: (context, state) {
+          // Navigate to home screen on successful login
+          Navigator.of(context).pushReplacementNamed('/home');
+        },
+        onError: (context, state) {
+          // Additional error handling can be added here
+          _clearPasswordField();
+        },
+        child: AuthTemplate(
+          title: 'Welcome Back',
+          subtitle: 'Sign in to your account to continue',
+          child: _buildLoginForm(),
+        ),
       ),
     );
   }
 
   Widget _buildLoginForm() {
-    return EnhancedBlocManager<EnhancedLoginBloc, BaseState<UserProfileEntity>>(
-      bloc: BlocProvider.of<EnhancedLoginBloc>(context),
-      showLoadingIndicator: false, // We'll handle loading in the form
-      showErrorMessages: true,
-      showSuccessMessages: true,
-      enableRetry: true,
-      onRetry: () => _handleLogin(),
-      onSuccess: (context, state) {
-        // Navigate to home screen on successful login
-        Navigator.of(context).pushReplacementNamed('/home');
-      },
-      onError: (context, state) {
-        // Additional error handling can be added here
-        _clearPasswordField();
-      },
-      child: Form(
-        key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Email Field
-            FTextField(
-              controller: _emailController,
-              node: _emailFocusNode,
-              hintText: 'Enter your email',
-              keyboardType: TextInputType.emailAddress,
-              action: TextInputAction.next,
-            ),
+    return Form(
+      key: _formKey,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Email Field
+              FTextField(
+                controller: _emailController,
+                node: _emailFocusNode,
+                hintText: 'Enter your email',
+                keyboardType: TextInputType.emailAddress,
+                action: TextInputAction.next,
+              ),
 
-            16.verticalSpace,
+              16.verticalSpace,
 
-            // Password Field
-            FTextField(
-              controller: _passwordController,
-              node: _passwordFocusNode,
-              hintText: 'Enter your password',
-              action: TextInputAction.done,
-              obscureText: _obscurePassword,
-            ),
+              // Password Field
+              FTextField(
+                controller: _passwordController,
+                node: _passwordFocusNode,
+                hintText: 'Enter your password',
+                action: TextInputAction.done,
+                obscureText: _obscurePassword,
+              ),
 
-            12.verticalSpace,
+              12.verticalSpace,
 
-            // Remember Me & Forgot Password Row
-            Row(
-              children: [
-                Checkbox(
-                  value: _rememberMe,
-                  onChanged: (value) {
-                    setState(() {
-                      _rememberMe = value ?? false;
-                    });
-                  },
-                ),
-                const FText(text: 'Remember me', fontSize: 14),
-                const Spacer(),
-                TextButton(
-                  onPressed:
-                      () => Navigator.of(context).pushNamed('/forgot-password'),
-                  child: const FText(
-                    text: 'Forgot Password?',
-                    fontSize: 14,
-                    color: kPrimaryColor,
+              // Remember Me & Forgot Password Row
+              Row(
+                children: [
+                  Checkbox(
+                    value: _rememberMe,
+                    onChanged: (value) {
+                      setState(() {
+                        _rememberMe = value ?? false;
+                      });
+                    },
                   ),
-                ),
-              ],
-            ),
-
-            24.verticalSpace,
-
-            // Login Button with State-aware Loading
-            BlocBuilder<EnhancedLoginBloc, BaseState<UserProfileEntity>>(
-              builder: (context, state) {
-                final isLoading = state.isLoading;
-
-                return FButton(
-                  onPressed: isLoading ? null : _handleLogin,
-                  buttonText: isLoading ? 'Signing In...' : 'Sign In',
-                );
-              },
-            ),
-
-            24.verticalSpace,
-
-            // Sign Up Link
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const FText(text: 'Don\'t have an account? ', fontSize: 14),
-                TextButton(
-                  onPressed: () => Navigator.of(context).pushNamed('/register'),
-                  child: const FText(
-                    text: 'Sign Up',
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: kPrimaryColor,
+                  const FText(text: 'Remember me', fontSize: 14),
+                  const Spacer(),
+                  TextButton(
+                    onPressed:
+                        () =>
+                            Navigator.of(context).pushNamed('/forgot-password'),
+                    child: const FText(
+                      text: 'Forgot Password?',
+                      fontSize: 14,
+                      color: kPrimaryColor,
+                    ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
 
-            16.verticalSpace,
+              24.verticalSpace,
 
-            // Social Login Options
-            _buildSocialLoginSection(),
+              // Login Button with State-aware Loading
+              BlocBuilder<EnhancedLoginBloc, BaseState<UserProfileEntity>>(
+                builder: (context, state) {
+                  final isLoading = state.isLoading;
 
-            // Debug Section (only in debug mode)
-            if (kDebugMode) ...[32.verticalSpace, _buildDebugSection()],
-          ],
+                  return FButton(
+                    onPressed: isLoading ? null : _handleLogin,
+                    buttonText: isLoading ? 'Signing In...' : 'Sign In',
+                  );
+                },
+              ),
+
+              24.verticalSpace,
+
+              // Sign Up Link
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const FText(text: 'Don\'t have an account? ', fontSize: 14),
+                  TextButton(
+                    onPressed:
+                        () => Navigator.of(context).pushNamed('/register'),
+                    child: const FText(
+                      text: 'Sign Up',
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: kPrimaryColor,
+                    ),
+                  ),
+                ],
+              ),
+
+              16.verticalSpace,
+
+              // Social Login Options
+              _buildSocialLoginSection(),
+
+              // Debug Section (only in debug mode)
+              if (kDebugMode) ...[32.verticalSpace, _buildDebugSection()],
+            ],
+          ),
         ),
       ),
     );

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:food/food/features/auth/presentation/manager/auth_bloc/register/enhanced_register_bloc.dart';
+import 'package:food/food/features/home/manager/user_profile/user_profile_cubit.dart';
 import 'package:get_it/get_it.dart';
 
 import '../core/bloc/factories/bloc_factory.dart';
@@ -7,7 +9,7 @@ import '../features/auth/presentation/manager/auth_bloc/delete_account/delete_ac
 import '../features/auth/presentation/manager/auth_bloc/email_verification/email_verification_bloc.dart';
 import '../features/auth/presentation/manager/auth_bloc/email_verification_status/email_verification_status_bloc.dart';
 import '../features/auth/presentation/manager/auth_bloc/forgot_password/forgot_password_bloc.dart';
-import '../features/auth/presentation/manager/auth_bloc/login/login_bloc.dart';
+import '../features/auth/presentation/manager/auth_bloc/login/enhanced_login_bloc.dart';
 import '../features/auth/presentation/manager/auth_bloc/otp_verification/verification_bloc.dart';
 import '../features/auth/presentation/manager/auth_bloc/register/register_bloc.dart';
 import '../features/auth/presentation/manager/auth_bloc/sign_out/sign_out_bloc.dart';
@@ -40,10 +42,24 @@ class EnhancedBlocProviders {
 
   /// Register authentication-related BLoC factories
   static void _registerAuthFactories() {
-    // Login BLoC - per-session singleton
-    _factoryManager.registerFactory<LoginBloc>(
-      SingletonBlocFactory(() => LoginBloc(), factoryName: 'LoginBloc'),
+    // Enhanced Login BLoC - per-session singleton
+    _factoryManager.registerFactory<EnhancedLoginBloc>(
+      SingletonBlocFactory(
+        () => EnhancedLoginBloc(),
+        factoryName: 'EnhancedLoginBloc',
+      ),
     );
+    _factoryManager.registerFactory<EnhancedRegisterBloc>(
+      SingletonBlocFactory(
+        () => EnhancedRegisterBloc(),
+        factoryName: 'EnhancedRegisterBloc',
+      ),
+    );
+
+    // // Login BLoC - per-session singleton
+    // _factoryManager.registerFactory<LoginBloc>(
+    //   SingletonBlocFactory(() => LoginBloc(), factoryName: 'LoginBloc'),
+    // );
 
     // Register BLoC - new instance for each registration flow
     _factoryManager.registerFactory<RegisterBloc>(
@@ -52,27 +68,42 @@ class EnhancedBlocProviders {
 
     // Forgot Password BLoC - new instance per flow
     _factoryManager.registerFactory<ForgotPasswordBloc>(
-      DefaultBlocFactory(() => ForgotPasswordBloc(), factoryName: 'ForgotPasswordBloc'),
+      DefaultBlocFactory(
+        () => ForgotPasswordBloc(),
+        factoryName: 'ForgotPasswordBloc',
+      ),
     );
 
     // Verification BLoC - new instance per verification
     _factoryManager.registerFactory<VerificationBloc>(
-      DefaultBlocFactory(() => VerificationBloc(), factoryName: 'VerificationBloc'),
+      DefaultBlocFactory(
+        () => VerificationBloc(),
+        factoryName: 'VerificationBloc',
+      ),
     );
 
     // Email Verification BLoC - new instance per verification
     _factoryManager.registerFactory<VerifyEmailBloc>(
-      DefaultBlocFactory(() => VerifyEmailBloc(), factoryName: 'VerifyEmailBloc'),
+      DefaultBlocFactory(
+        () => VerifyEmailBloc(),
+        factoryName: 'VerifyEmailBloc',
+      ),
     );
 
     // Email Verification Status BLoC
     _factoryManager.registerFactory<EmailVerificationBloc>(
-      DefaultBlocFactory(() => EmailVerificationBloc(), factoryName: 'EmailVerificationBloc'),
+      DefaultBlocFactory(
+        () => EmailVerificationBloc(),
+        factoryName: 'EmailVerificationBloc',
+      ),
     );
 
     // Delete Account BLoC - singleton for session
     _factoryManager.registerFactory<DeleteAccountBloc>(
-      SingletonBlocFactory(() => DeleteAccountBloc(), factoryName: 'DeleteAccountBloc'),
+      SingletonBlocFactory(
+        () => DeleteAccountBloc(),
+        factoryName: 'DeleteAccountBloc',
+      ),
     );
 
     // Sign Out BLoC - singleton
@@ -95,7 +126,12 @@ class EnhancedBlocProviders {
         factoryName: 'EnhancedUserProfileCubit',
       ),
     );
-
+    _factoryManager.registerFactory<UserProfileCubit>(
+      SingletonBlocFactory(
+        () => UserProfileCubit(),
+        factoryName: 'UserProfileCubit',
+      ),
+    );
     // Address Cubit - singleton (address data is shared)
     _factoryManager.registerFactory<AddressCubit>(
       SingletonBlocFactory(
@@ -106,15 +142,19 @@ class EnhancedBlocProviders {
 
     // Recent Keywords Cubit - singleton
     _factoryManager.registerFactory<RecentKeywordsCubit>(
-      SingletonBlocFactory(() => RecentKeywordsCubit(), factoryName: 'RecentKeywordsCubit'),
+      SingletonBlocFactory(
+        () => RecentKeywordsCubit(),
+        factoryName: 'RecentKeywordsCubit',
+      ),
     );
 
     // Favorites Cubit - singleton
     _factoryManager.registerFactory<FavoritesCubit>(
       SingletonBlocFactory(
-        () => GetIt.instance.isRegistered<FavoritesCubit>()
-            ? GetIt.instance<FavoritesCubit>()
-            : FavoritesCubit(GetIt.instance()),
+        () =>
+            GetIt.instance.isRegistered<FavoritesCubit>()
+                ? GetIt.instance<FavoritesCubit>()
+                : FavoritesCubit(GetIt.instance()),
         factoryName: 'FavoritesCubit',
       ),
     );
@@ -205,7 +245,9 @@ class EnhancedBlocProviders {
   static MultiBlocProvider createAppBlocProvider({required Widget child}) {
     return MultiBlocProviderBuilder()
         // Auth BLoCs
-        .addFromRegistry<LoginBloc, dynamic>()
+        .addFromRegistry<EnhancedLoginBloc, dynamic>()
+        .addFromRegistry<EnhancedRegisterBloc, dynamic>()
+        // .addFromRegistry<LoginBloc, dynamic>()
         .addFromRegistry<RegisterBloc, dynamic>()
         .addFromRegistry<ForgotPasswordBloc, dynamic>()
         .addFromRegistry<VerificationBloc, dynamic>()
@@ -222,6 +264,7 @@ class EnhancedBlocProviders {
         .addFromRegistry<RestaurantBloc, dynamic>()
         .addFromRegistry<FoodBloc, dynamic>()
         .addFromRegistry<SearchBloc, dynamic>()
+        .addFromRegistry<UserProfileCubit, dynamic>()
         // Payment BLoCs
         .addFromRegistry<CartCubit, dynamic>()
         .addFromRegistry<PaymentBloc, dynamic>()
@@ -243,7 +286,8 @@ class EnhancedBlocProviders {
     switch (feature) {
       case 'auth':
         return builder
-            .addFromRegistry<LoginBloc, dynamic>()
+            .addFromRegistry<EnhancedLoginBloc, dynamic>()
+            // .addFromRegistry<LoginBloc, dynamic>()
             .addFromRegistry<RegisterBloc, dynamic>()
             .addFromRegistry<ForgotPasswordBloc, dynamic>()
             .addFromRegistry<VerificationBloc, dynamic>()

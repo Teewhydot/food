@@ -9,7 +9,6 @@ import 'package:food/food/features/home/domain/entities/profile.dart';
 import 'package:food/food/features/home/presentation/screens/add_address.dart';
 import 'package:food/food/features/home/presentation/screens/address.dart';
 import 'package:food/food/features/home/presentation/screens/edit_profile.dart';
-import 'package:food/food/features/home/presentation/screens/example_enhanced_home_screen.dart';
 import 'package:food/food/features/home/presentation/screens/food.dart';
 import 'package:food/food/features/home/presentation/screens/food_details.dart';
 import 'package:food/food/features/home/presentation/screens/menu.dart';
@@ -27,6 +26,7 @@ import 'package:get/get.dart';
 
 import '../../features/home/domain/entities/food.dart';
 import '../../features/home/domain/entities/restaurant.dart';
+import '../../features/home/presentation/screens/home.dart';
 import '../../features/payments/presentation/screens/cart.dart';
 import '../../features/tracking/domain/entities/chat_entity.dart';
 import '../../features/tracking/presentation/screens/call_screen.dart';
@@ -74,7 +74,7 @@ class GetXRouteModule {
     ),
     GetPage(
       name: Routes.home,
-      page: () => const ExampleEnhancedHomeScreen(),
+      page: () => const Home(),
       transition: _transition,
       transitionDuration: _transitionDuration,
     ),

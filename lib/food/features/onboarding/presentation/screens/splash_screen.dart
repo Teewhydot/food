@@ -26,13 +26,13 @@ class _SplashScreenState extends State<SplashScreen> {
       if (state is UserProfileLoaded) {
         if (state.userProfile.firstTimeLogin == true) {
           Logger.logSuccess("Welcome to Dfood");
-          GetIt.instance<NavigationService>().navigateTo(Routes.onboarding);
+          nav.navigateTo(Routes.onboarding);
         } else {
           Logger.logSuccess("Welcome back");
-          GetIt.instance<NavigationService>().navigateTo(Routes.home);
+          nav.navigateTo(Routes.home);
         }
       } else if (state is UserProfileError) {
-        GetIt.instance<NavigationService>().navigateTo(Routes.onboarding);
+        nav.navigateTo(Routes.onboarding);
       }
     });
   }

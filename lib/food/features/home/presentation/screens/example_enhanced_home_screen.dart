@@ -14,11 +14,11 @@ class ExampleEnhancedHomeScreen extends StatefulWidget {
   const ExampleEnhancedHomeScreen({super.key});
 
   @override
-  State<ExampleEnhancedHomeScreen> createState() => _ExampleEnhancedHomeScreenState();
+  State<ExampleEnhancedHomeScreen> createState() =>
+      _ExampleEnhancedHomeScreenState();
 }
 
 class _ExampleEnhancedHomeScreenState extends State<ExampleEnhancedHomeScreen> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,14 +37,14 @@ class _ExampleEnhancedHomeScreenState extends State<ExampleEnhancedHomeScreen> {
         children: [
           // Example 1: Using EnhancedBlocManager with all features
           _buildUserProfileSection(),
-          
+
           const Divider(),
-          
+
           // Example 2: Using DataBlocBuilder for simple data display
           _buildSimpleUserDisplay(),
-          
+
           const Divider(),
-          
+
           // Example 3: Manual BlocBuilder for custom logic
           _buildCustomUserDisplay(),
         ],
@@ -55,7 +55,10 @@ class _ExampleEnhancedHomeScreenState extends State<ExampleEnhancedHomeScreen> {
   /// Example using EnhancedBlocManager with full features
   Widget _buildUserProfileSection() {
     return Expanded(
-      child: EnhancedBlocManager<EnhancedUserProfileCubit, BaseState<UserProfileEntity>>(
+      child: EnhancedBlocManager<
+        EnhancedUserProfileCubit,
+        BaseState<UserProfileEntity>
+      >(
         bloc: BlocProvider.of<EnhancedUserProfileCubit>(context),
         showLoadingIndicator: true,
         showErrorMessages: true,
@@ -117,7 +120,11 @@ class _ExampleEnhancedHomeScreenState extends State<ExampleEnhancedHomeScreen> {
 
   /// Content to display when user profile is loaded
   Widget _buildUserProfileContent() {
-    return DataBlocBuilder<EnhancedUserProfileCubit, BaseState<UserProfileEntity>, UserProfileEntity>(
+    return DataBlocBuilder<
+      EnhancedUserProfileCubit,
+      BaseState<UserProfileEntity>,
+      UserProfileEntity
+    >(
       bloc: BlocProvider.of<EnhancedUserProfileCubit>(context),
       dataExtractor: (state) => state.data,
       builder: (context, userProfile) {
@@ -131,12 +138,14 @@ class _ExampleEnhancedHomeScreenState extends State<ExampleEnhancedHomeScreen> {
                 children: [
                   CircleAvatar(
                     radius: 30,
-                    backgroundImage: userProfile.profileImageUrl != null
-                        ? NetworkImage(userProfile.profileImageUrl!)
-                        : null,
-                    child: userProfile.profileImageUrl == null
-                        ? Text(userProfile.firstName[0].toUpperCase())
-                        : null,
+                    backgroundImage:
+                        userProfile.profileImageUrl != null
+                            ? NetworkImage(userProfile.profileImageUrl!)
+                            : null,
+                    child:
+                        userProfile.profileImageUrl == null
+                            ? Text(userProfile.firstName[0].toUpperCase())
+                            : null,
                   ),
                   16.horizontalSpace,
                   Expanded(
@@ -144,7 +153,8 @@ class _ExampleEnhancedHomeScreenState extends State<ExampleEnhancedHomeScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         FText(
-                          text: '${userProfile.firstName} ${userProfile.lastName}',
+                          text:
+                              '${userProfile.firstName} ${userProfile.lastName}',
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
@@ -167,9 +177,9 @@ class _ExampleEnhancedHomeScreenState extends State<ExampleEnhancedHomeScreen> {
                   ),
                 ],
               ),
-              
+
               24.verticalSpace,
-              
+
               // Profile Actions
               Row(
                 children: [
@@ -190,9 +200,9 @@ class _ExampleEnhancedHomeScreenState extends State<ExampleEnhancedHomeScreen> {
                   ),
                 ],
               ),
-              
+
               24.verticalSpace,
-              
+
               // Additional info
               if (userProfile.firstTimeLogin == true)
                 Container(
@@ -227,7 +237,9 @@ class _ExampleEnhancedHomeScreenState extends State<ExampleEnhancedHomeScreen> {
                       ),
                       TextButton(
                         onPressed: () {
-                          context.read<EnhancedUserProfileCubit>().markNotFirstTimeLogin();
+                          context
+                              .read<EnhancedUserProfileCubit>()
+                              .markNotFirstTimeLogin();
                         },
                         child: const Text('Complete'),
                       ),
@@ -238,16 +250,17 @@ class _ExampleEnhancedHomeScreenState extends State<ExampleEnhancedHomeScreen> {
           ),
         );
       },
-      emptyBuilder: (context) => const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.person_outline, size: 64),
-            SizedBox(height: 16),
-            Text('No profile data available'),
-          ],
-        ),
-      ),
+      emptyBuilder:
+          (context) => const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.person_outline, size: 64),
+                SizedBox(height: 16),
+                Text('No profile data available'),
+              ],
+            ),
+          ),
     );
   }
 
@@ -255,11 +268,17 @@ class _ExampleEnhancedHomeScreenState extends State<ExampleEnhancedHomeScreen> {
   Widget _buildSimpleUserDisplay() {
     return Container(
       padding: const EdgeInsets.all(16),
-      child: DataBlocBuilder<EnhancedUserProfileCubit, BaseState<UserProfileEntity>, String>(
+      child: DataBlocBuilder<
+        EnhancedUserProfileCubit,
+        BaseState<UserProfileEntity>,
+        String
+      >(
         bloc: BlocProvider.of<EnhancedUserProfileCubit>(context),
-        dataExtractor: (state) => state.data != null 
-            ? '${state.data!.firstName} ${state.data!.lastName}'
-            : null,
+        dataExtractor:
+            (state) =>
+                state.data != null
+                    ? '${state.data!.firstName} ${state.data!.lastName}'
+                    : null,
         builder: (context, displayName) {
           return Card(
             child: ListTile(
@@ -270,22 +289,24 @@ class _ExampleEnhancedHomeScreenState extends State<ExampleEnhancedHomeScreen> {
             ),
           );
         },
-        loadingBuilder: (context) => const Card(
-          child: ListTile(
-            leading: SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(strokeWidth: 2),
+        loadingBuilder:
+            (context) => const Card(
+              child: ListTile(
+                leading: SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+                title: Text('Loading...'),
+              ),
             ),
-            title: Text('Loading...'),
-          ),
-        ),
-        errorBuilder: (context, error) => Card(
-          child: ListTile(
-            leading: const Icon(Icons.error, color: Colors.red),
-            title: Text('Error: $error'),
-          ),
-        ),
+        errorBuilder:
+            (context, error) => Card(
+              child: ListTile(
+                leading: const Icon(Icons.error, color: Colors.red),
+                title: Text('Error: $error'),
+              ),
+            ),
       ),
     );
   }
@@ -304,10 +325,7 @@ class _ExampleEnhancedHomeScreenState extends State<ExampleEnhancedHomeScreen> {
                 children: [
                   const Text(
                     'State Information',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   8.verticalSpace,
                   _buildStateInfo('Is Loading:', state.isLoading.toString()),
@@ -315,12 +333,24 @@ class _ExampleEnhancedHomeScreenState extends State<ExampleEnhancedHomeScreen> {
                   _buildStateInfo('Is Success:', state.isSuccess.toString()),
                   _buildStateInfo('Has Data:', state.hasData.toString()),
                   if (state.data != null)
-                    _buildStateInfo('First Time:', state.data!.firstTimeLogin.toString()),
+                    _buildStateInfo(
+                      'First Time:',
+                      state.data!.firstTimeLogin.toString(),
+                    ),
                   if (state is LoadedState)
-                    _buildStateInfo('From Cache:', (state as LoadedState).isFromCache.toString()),
+                    _buildStateInfo(
+                      'From Cache:',
+                      (state as LoadedState).isFromCache.toString(),
+                    ),
                   if (state is AsyncLoadedState) ...[
-                    _buildStateInfo('Last Updated:', (state as AsyncLoadedState).lastUpdated.toString()),
-                    _buildStateInfo('Is Refreshing:', (state as AsyncLoadedState).isRefreshing.toString()),
+                    _buildStateInfo(
+                      'Last Updated:',
+                      (state as AsyncLoadedState).lastUpdated.toString(),
+                    ),
+                    _buildStateInfo(
+                      'Is Refreshing:',
+                      (state as AsyncLoadedState).isRefreshing.toString(),
+                    ),
                   ],
                 ],
               ),

@@ -1,5 +1,3 @@
-import 'package:get_it/get_it.dart';
-import 'package:meta/meta.dart';
 import 'package:bloc/bloc.dart';
 
 import '../../../../../../core/bloc/base/base_bloc.dart';
@@ -10,77 +8,17 @@ import '../../../../../../core/utils/logger.dart';
 import '../../../../../../core/utils/pretty_firebase_errors.dart';
 import '../../../../../home/domain/entities/profile.dart';
 import '../../../../domain/use_cases/auth_usecase.dart';
-
-/// Enhanced Login Events using sealed classes
-@immutable
-sealed class EnhancedLoginEvent {
-  const EnhancedLoginEvent();
-}
-
-/// Event to submit login credentials
-@immutable
-final class LoginSubmitEvent extends EnhancedLoginEvent {
-  final String email;
-  final String password;
-
-  const LoginSubmitEvent({
-    required this.email,
-    required this.password,
-  });
-
-  @override
-  String toString() => 'LoginSubmitEvent(email: $email)';
-}
-
-/// Event to retry login with same credentials
-@immutable
-final class LoginRetryEvent extends EnhancedLoginEvent {
-  final String email;
-  final String password;
-
-  const LoginRetryEvent({
-    required this.email,
-    required this.password,
-  });
-
-  @override
-  String toString() => 'LoginRetryEvent(email: $email)';
-}
-
-/// Event to reset login state
-@immutable
-final class LoginResetEvent extends EnhancedLoginEvent {
-  const LoginResetEvent();
-
-  @override
-  String toString() => 'LoginResetEvent()';
-}
-
-/// Event to validate input before login
-@immutable
-final class LoginValidateEvent extends EnhancedLoginEvent {
-  final String email;
-  final String password;
-
-  const LoginValidateEvent({
-    required this.email,
-    required this.password,
-  });
-
-  @override
-  String toString() => 'LoginValidateEvent(email: $email)';
-}
+import 'login_event.dart';
 
 /// Enhanced Login BLoC with modern state management
-class EnhancedLoginBloc extends BaseBloC<EnhancedLoginEvent, BaseState<UserProfileEntity>>
+class EnhancedLoginBloc
+    extends BaseBloC<EnhancedLoginEvent, BaseState<UserProfileEntity>>
     with CacheableBlocMixin<BaseState<UserProfileEntity>> {
-  
   final AuthUseCase _authUseCase;
 
-  EnhancedLoginBloc({
-    AuthUseCase? authUseCase,
-  }) : _authUseCase = authUseCase ?? AuthUseCase(),
-       super(const InitialState<UserProfileEntity>()) {
+  EnhancedLoginBloc({AuthUseCase? authUseCase})
+    : _authUseCase = authUseCase ?? AuthUseCase(),
+      super(const InitialState<UserProfileEntity>()) {
     on<LoginSubmitEvent>(_onLoginSubmit);
     on<LoginRetryEvent>(_onLoginRetry);
     on<LoginResetEvent>(_onLoginReset);
@@ -105,9 +43,9 @@ class EnhancedLoginBloc extends BaseBloC<EnhancedLoginEvent, BaseState<UserProfi
 
     try {
       Logger.logBasic('Attempting login for email: ${event.email}');
-      
+
       final result = await _authUseCase.login(event.email, event.password);
-      
+
       await result.fold(
         (failure) async {
           final errorMessage = getAuthErrorMessage(failure.failureMessage);
@@ -116,7 +54,7 @@ class EnhancedLoginBloc extends BaseBloC<EnhancedLoginEvent, BaseState<UserProfi
             errorCode: failure.failureMessage,
             isRetryable: _isRetryableError(failure.failureMessage),
           );
-          
+
           emit(errorState);
           Logger.logError('Login failed: $errorMessage');
         },
@@ -126,15 +64,18 @@ class EnhancedLoginBloc extends BaseBloC<EnhancedLoginEvent, BaseState<UserProfi
             userProfile,
             isFromCache: false,
           );
-          
+
           emit(loadedState);
-          
+
           // Also emit a success message
-          emit(const SuccessState<UserProfileEntity>(
-            successMessage: 'Successfully logged in! Welcome back.',
-          ));
-          
-          Logger.logSuccess('Login successful for user: ${userProfile.firstName} ${userProfile.lastName}');
+          emit(
+            const SuccessState<UserProfileEntity>(
+              successMessage: 'Successfully logged in! Welcome back.',
+            ),
+          );
+          Logger.logSuccess(
+            'Login successful for user: ${userProfile.firstName} ${userProfile.lastName}',
+          );
         },
       );
     } catch (e, stackTrace) {
@@ -144,7 +85,7 @@ class EnhancedLoginBloc extends BaseBloC<EnhancedLoginEvent, BaseState<UserProfi
         stackTrace: stackTrace,
         isRetryable: true,
       );
-      
+
       emit(errorState);
       Logger.logError('Login exception: $e');
     }
@@ -174,13 +115,15 @@ class EnhancedLoginBloc extends BaseBloC<EnhancedLoginEvent, BaseState<UserProfi
     Emitter<BaseState<UserProfileEntity>> emit,
   ) async {
     final validationErrors = _validateLoginInput(event.email, event.password);
-    
+
     if (validationErrors.isNotEmpty) {
-      emit(ErrorState<UserProfileEntity>(
-        errorMessage: validationErrors.first,
-        errorCode: 'validation_error',
-        isRetryable: false, // Validation errors are not retryable
-      ));
+      emit(
+        ErrorState<UserProfileEntity>(
+          errorMessage: validationErrors.first,
+          errorCode: 'validation_error',
+          isRetryable: false, // Validation errors are not retryable
+        ),
+      );
     } else {
       // Input is valid, proceed with login
       add(LoginSubmitEvent(email: event.email, password: event.password));
@@ -222,7 +165,7 @@ class EnhancedLoginBloc extends BaseBloC<EnhancedLoginEvent, BaseState<UserProfi
       'user-disabled',
       'too-many-requests',
     ];
-    
+
     return !nonRetryableErrors.contains(errorCode);
   }
 
