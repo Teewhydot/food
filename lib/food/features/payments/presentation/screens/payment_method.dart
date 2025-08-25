@@ -20,13 +20,11 @@ import '../../../../components/texts.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../core/utils/app_utils.dart';
 import '../../domain/entities/card_entity.dart';
-import '../../domain/entities/order_entity.dart';
 import '../manager/cart/cart_cubit.dart';
 import '../manager/order_bloc/order_bloc.dart';
-import '../manager/order_bloc/order_state.dart';
 import '../manager/payment_bloc/payment_bloc.dart';
 import '../manager/payment_bloc/payment_event.dart';
-import '../manager/payment_bloc/payment_state.dart';
+import '../../../../core/bloc/base/base_state.dart';
 
 class PaymentMethod extends StatefulWidget {
   const PaymentMethod({super.key});
@@ -170,9 +168,9 @@ class _PaymentMethodState extends State<PaymentMethod> {
     // Show loading dialog
     DFoodUtils.showDialogContainer(
       context: context,
-      child: BlocListener<BaseBloc<OrderState>, OrderState>(
+      child: BlocListener<OrderBloc, BaseState<dynamic>>(
         listener: (context, orderState) {
-          if (orderState is OrderCreated) {
+          if (orderState is SuccessState && orderState.successMessage.contains('Order created')) {
             // Process payment after order is created
             context.read<PaymentBloc>().add(
               ProcessPaymentEvent(
@@ -182,14 +180,14 @@ class _PaymentMethodState extends State<PaymentMethod> {
                 metadata: {},
               ),
             );
-          } else if (orderState is OrderError) {
+          } else if (orderState is ErrorState) {
             nav.goBack();
-            DFoodUtils.showSnackBar(orderState.message, kSuccessColor);
+            DFoodUtils.showSnackBar(orderState.errorMessage, kErrorColor);
           }
         },
-        child: BlocListener<PaymentBloc, PaymentState>(
+        child: BlocListener<PaymentBloc, BaseState<dynamic>>(
           listener: (context, paymentState) {
-            if (paymentState is PaymentProcessed) {
+            if (paymentState is SuccessState && paymentState.successMessage.contains('Payment processed')) {
               nav.goBack();
               // Clear cart
               // context.read<CartCubit>().clearCart();
@@ -198,9 +196,9 @@ class _PaymentMethodState extends State<PaymentMethod> {
                 Routes.statusScreen,
                 arguments: PaymentStatusEnum.success,
               );
-            } else if (paymentState is PaymentError) {
+            } else if (paymentState is ErrorState) {
               nav.goBack();
-              DFoodUtils.showSnackBar(paymentState.message, kErrorColor);
+              DFoodUtils.showSnackBar(paymentState.errorMessage, kErrorColor);
             }
           },
           child: Column(
