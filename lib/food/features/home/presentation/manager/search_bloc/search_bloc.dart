@@ -1,16 +1,22 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:food/food/core/bloc/base/base_bloc.dart';
+import 'package:food/food/core/bloc/base/base_state.dart';
 
+import '../../../domain/entities/food.dart';
+import '../../../domain/entities/restaurant.dart';
+import '../../../domain/entities/search_result.dart';
 import '../../../domain/use_cases/food_usecase.dart';
 import '../../../domain/use_cases/restaurant_usecase.dart';
 import 'search_event.dart';
-import 'search_state.dart';
+// import 'search_state.dart'; // Commented out - using BaseState now
 
-class SearchBloc extends Bloc<SearchEvent, SearchState> {
+/// Migrated SearchBloc to use BaseState
+class SearchBloc extends BaseBloC<SearchEvent, BaseState<dynamic>> {
   final FoodUseCase foodUseCase;
   final RestaurantUseCase restaurantUseCase;
 
   SearchBloc({required this.foodUseCase, required this.restaurantUseCase})
-    : super(SearchInitial()) {
+    : super(const InitialState<dynamic>()) {
     on<SearchFoodsEvent>(_onSearchFoods);
     on<SearchRestaurantsEvent>(_onSearchRestaurants);
     on<SearchAllEvent>(_onSearchAll);
@@ -19,75 +25,120 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
 
   Future<void> _onSearchFoods(
     SearchFoodsEvent event,
-    Emitter<SearchState> emit,
+    Emitter<BaseState<dynamic>> emit,
   ) async {
     if (event.query.isEmpty) {
-      emit(SearchEmpty());
+      emit(const EmptyState<List<FoodEntity>>(message: 'Enter a search term'));
       return;
     }
 
-    emit(SearchLoading());
+    emit(LoadingState<List<FoodEntity>>(message: 'Searching for "${event.query}"...'));
     final result = await foodUseCase.searchFoods(event.query);
     result.fold(
-      (failure) => emit(SearchError(failure.failureMessage)),
-      (foods) =>
-          foods.isEmpty ? emit(SearchEmpty()) : emit(SearchFoodsLoaded(foods)),
+      (failure) => emit(
+        ErrorState<List<FoodEntity>>(
+          errorMessage: failure.failureMessage,
+          errorCode: 'search_foods_failed',
+          isRetryable: true,
+        ),
+      ),
+      (foods) => foods.isEmpty
+          ? emit(EmptyState<List<FoodEntity>>(message: 'No foods found for "${event.query}"'))
+          : emit(
+              LoadedState<List<FoodEntity>>(
+                data: foods,
+                lastUpdated: DateTime.now(),
+              ),
+            ),
     );
   }
 
   Future<void> _onSearchRestaurants(
     SearchRestaurantsEvent event,
-    Emitter<SearchState> emit,
+    Emitter<BaseState<dynamic>> emit,
   ) async {
     if (event.query.isEmpty) {
-      emit(SearchEmpty());
+      emit(const EmptyState<List<Restaurant>>(message: 'Enter a search term'));
       return;
     }
 
-    emit(SearchLoading());
+    emit(LoadingState<List<Restaurant>>(message: 'Searching for "${event.query}"...'));
     final result = await restaurantUseCase.searchRestaurants(event.query);
     result.fold(
-      (failure) => emit(SearchError(failure.failureMessage)),
-      (restaurants) =>
-          restaurants.isEmpty
-              ? emit(SearchEmpty())
-              : emit(SearchRestaurantsLoaded(restaurants)),
+      (failure) => emit(
+        ErrorState<List<Restaurant>>(
+          errorMessage: failure.failureMessage,
+          errorCode: 'search_restaurants_failed',
+          isRetryable: true,
+        ),
+      ),
+      (restaurants) => restaurants.isEmpty
+          ? emit(EmptyState<List<Restaurant>>(message: 'No restaurants found for "${event.query}"'))
+          : emit(
+              LoadedState<List<Restaurant>>(
+                data: restaurants,
+                lastUpdated: DateTime.now(),
+              ),
+            ),
     );
   }
 
   Future<void> _onSearchAll(
     SearchAllEvent event,
-    Emitter<SearchState> emit,
+    Emitter<BaseState<dynamic>> emit,
   ) async {
     if (event.query.isEmpty) {
-      emit(SearchEmpty());
+      emit(const EmptyState<SearchResultEntity>(message: 'Enter a search term'));
       return;
     }
 
-    emit(SearchLoading());
+    emit(LoadingState<SearchResultEntity>(message: 'Searching for "${event.query}"...'));
 
     final foodsResult = await foodUseCase.searchFoods(event.query);
     final restaurantsResult = await restaurantUseCase.searchRestaurants(
       event.query,
     );
 
-    foodsResult.fold((failure) => emit(SearchError(failure.failureMessage)), (
-      foods,
-    ) {
-      restaurantsResult.fold(
-        (failure) => emit(SearchError(failure.failureMessage)),
-        (restaurants) {
-          if (foods.isEmpty && restaurants.isEmpty) {
-            emit(SearchEmpty());
-          } else {
-            emit(SearchAllLoaded(foods: foods, restaurants: restaurants));
-          }
-        },
-      );
-    });
+    foodsResult.fold(
+      (failure) => emit(
+        ErrorState<SearchResultEntity>(
+          errorMessage: failure.failureMessage,
+          errorCode: 'search_all_failed',
+          isRetryable: true,
+        ),
+      ),
+      (foods) {
+        restaurantsResult.fold(
+          (failure) => emit(
+            ErrorState<SearchResultEntity>(
+              errorMessage: failure.failureMessage,
+              errorCode: 'search_all_failed',
+              isRetryable: true,
+            ),
+          ),
+          (restaurants) {
+            final searchResult = SearchResultEntity(
+              foods: foods,
+              restaurants: restaurants,
+            );
+            
+            if (searchResult.isEmpty) {
+              emit(EmptyState<SearchResultEntity>(message: 'No results found for "${event.query}"'));
+            } else {
+              emit(
+                LoadedState<SearchResultEntity>(
+                  data: searchResult,
+                  lastUpdated: DateTime.now(),
+                ),
+              );
+            }
+          },
+        );
+      },
+    );
   }
 
-  void _onClearSearch(ClearSearchEvent event, Emitter<SearchState> emit) {
-    emit(SearchInitial());
+  void _onClearSearch(ClearSearchEvent event, Emitter<BaseState<dynamic>> emit) {
+    emit(const InitialState<dynamic>());
   }
 }

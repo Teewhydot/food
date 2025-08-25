@@ -1,46 +1,62 @@
-import 'package:bloc/bloc.dart';
-import 'package:food/food/core/bloc/app_state.dart';
+import 'package:food/food/core/bloc/base/base_bloc.dart';
+import 'package:food/food/core/bloc/base/base_state.dart';
 import 'package:meta/meta.dart';
 
 import '../../../../../home/domain/entities/profile.dart';
 import '../../../../domain/use_cases/auth_usecase.dart';
 
 part 'email_verification_status_event.dart';
-part 'email_verification_status_state.dart';
+// part 'email_verification_status_state.dart'; // Commented out - using BaseState now
 
-class VerifyEmailBloc extends Bloc<VerifyEmailEvent, VerifyEmailState> {
+/// Migrated VerifyEmailBloc to use BaseState<UserProfileEntity>
+class VerifyEmailBloc extends BaseBloC<VerifyEmailEvent, BaseState<UserProfileEntity>> {
   final _authUseCase = AuthUseCase();
 
-  VerifyEmailBloc() : super(EmailVerificationStatusInitial()) {
+  VerifyEmailBloc() : super(const InitialState<UserProfileEntity>()) {
     on<CheckEmailVerificationEvent>((event, emit) async {
-      emit(EmailVerificationStatusLoading());
+      emit(const LoadingState<UserProfileEntity>(message: 'Checking verification status...'));
 
       final result = await _authUseCase.verifyEmail();
 
       result.fold(
         (failure) => emit(
-          EmailVerificationStatusFailure(errorMessage: failure.failureMessage),
-        ),
-        (userProfile) => emit(
-          EmailVerificationStatusSuccess(
-            successMessage: 'Email verification successful',
-            userProfile: userProfile,
+          ErrorState<UserProfileEntity>(
+            errorMessage: failure.failureMessage,
+            errorCode: 'verification_check_failed',
+            isRetryable: true,
           ),
         ),
+        (userProfile) {
+          emit(
+            LoadedState<UserProfileEntity>(
+              data: userProfile,
+              lastUpdated: DateTime.now(),
+            ),
+          );
+          emit(
+            const SuccessState<UserProfileEntity>(
+              successMessage: 'Email verification successful',
+            ),
+          );
+        },
       );
     });
 
     on<ResendVerificationEmailEvent>((event, emit) async {
-      emit(EmailVerificationStatusLoading());
+      emit(const LoadingState<UserProfileEntity>(message: 'Resending verification email...'));
 
       final result = await _authUseCase.sendEmailVerification(event.email);
 
       result.fold(
         (failure) => emit(
-          EmailVerificationStatusFailure(errorMessage: failure.failureMessage),
+          ErrorState<UserProfileEntity>(
+            errorMessage: failure.failureMessage,
+            errorCode: 'resend_verification_failed',
+            isRetryable: true,
+          ),
         ),
         (_) => emit(
-          EmailVerificationResendSuccess(
+          SuccessState<UserProfileEntity>(
             successMessage:
                 'Verification email has been sent to ${event.email}',
           ),

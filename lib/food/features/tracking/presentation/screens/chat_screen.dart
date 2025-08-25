@@ -13,11 +13,13 @@ import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../../../components/texts.dart';
-import '../../../../core/bloc/bloc_manager.dart';
+import '../../../../core/bloc/managers/simplified_enhanced_bloc_manager.dart';
+import '../../../../core/bloc/base/base_state.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../auth/presentation/widgets/back_widget.dart';
 import '../../domain/entities/chat_entity.dart';
 import '../manager/messaging_bloc/messaging_bloc.dart';
+import '../../domain/entities/message_entity.dart';
 
 enum ChatType { text, image, video }
 
@@ -39,9 +41,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void initState() {
     super.initState();
     // Load messages for this chat
-    context.read<MessagingBloc>().add(
-      LoadMessagesEvent(chatId: widget.chat.id),
-    );
+    context.read<MessagingBloc>().loadMessages(widget.chat.id);
   }
 
   @override
@@ -54,12 +54,10 @@ class _ChatScreenState extends State<ChatScreen> {
   void _sendMessage() {
     final text = _messageController.text.trim();
     if (text.isNotEmpty) {
-      context.read<MessagingBloc>().add(
-        SendMessageEvent(
-          chatId: widget.chat.id,
-          message: text,
-          receiverId: widget.chat.receiverID,
-        ),
+      context.read<MessagingBloc>().sendMessage(
+        chatId: widget.chat.id,
+        message: text,
+        receiverId: widget.chat.receiverID,
       );
       _messageController.clear();
       // Scroll to bottom
@@ -94,22 +92,14 @@ class _ChatScreenState extends State<ChatScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
-            child: BlocManager<MessagingBloc, MessagingState>(
+            child: SimplifiedEnhancedBlocManager<MessagingBloc, BaseState<List<MessageEntity>>>(
               bloc: context.read<MessagingBloc>(),
-              child: SizedBox.shrink(),
-              isError: (state) => state is MessagingError,
-              getErrorMessage:
-                  (state) =>
-                      state is MessagingError
-                          ? state.errorMessage
-                          : AppConstants.defaultErrorMessage,
+              child: const SizedBox.shrink(),
+              showLoadingIndicator: true,
               builder: (context, state) {
-                if (state is MessagingLoading) {
-                  return Center(
-                    child: CircularProgressIndicator(color: kPrimaryColor),
-                  );
-                } else if (state is MessagingLoaded) {
-                  if (state.messages.isEmpty) {
+                if (state.hasData) {
+                  final messages = state.data!;
+                  if (messages.isEmpty) {
                     return Center(
                       child: FText(
                         text: "No messages yet. Start a conversation!",
@@ -122,9 +112,9 @@ class _ChatScreenState extends State<ChatScreen> {
                   return ListView.builder(
                     controller: _scrollController,
                     physics: const BouncingScrollPhysics(),
-                    itemCount: state.messages.length,
+                    itemCount: messages.length,
                     itemBuilder: (context, index) {
-                      final message = state.messages[index];
+                      final message = messages[index];
                       return CustomChatBubble(
                         message: message.content,
                         time: _formatTime(message.timestamp),
@@ -135,8 +125,16 @@ class _ChatScreenState extends State<ChatScreen> {
                     left: AppConstants.defaultPadding,
                     right: AppConstants.defaultPadding,
                   );
+                } else if (state is EmptyState) {
+                  return Center(
+                    child: FText(
+                      text: (state as EmptyState).message ?? "No messages yet. Start a conversation!",
+                      fontSize: 16,
+                      color: kContainerColor,
+                    ),
+                  );
                 }
-                return SizedBox.shrink();
+                return const SizedBox.shrink();
               },
             ),
           ),

@@ -3,7 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/components/texts.dart';
-import 'package:food/food/core/bloc/bloc_manager.dart';
+import 'package:food/food/core/bloc/managers/simplified_enhanced_bloc_manager.dart';
+import 'package:food/food/core/bloc/base/base_state.dart';
 import 'package:food/food/core/helpers/extensions.dart';
 import 'package:food/food/core/routes/routes.dart';
 import 'package:food/food/core/theme/colors.dart';
@@ -31,18 +32,14 @@ class _CartState extends State<Cart> {
   @override
   Widget build(BuildContext context) {
     final nav = GetIt.instance<NavigationService>();
-    return BlocManager<CartCubit, CartState>(
+    return SimplifiedEnhancedBlocManager<CartCubit, BaseState<dynamic>>(
       bloc: context.read<CartCubit>(),
-      child: Container(),
-      isError: (state) => state is CartError,
-      getErrorMessage:
-          (state) =>
-              state is CartError
-                  ? state.errorMessage
-                  : AppConstants.defaultErrorMessage,
+      child: const SizedBox.shrink(),
+      showLoadingIndicator: true,
       builder: (context, state) {
-        if (state is CartLoaded) {
-          if (state.items.isEmpty) {
+        if (state.hasData) {
+          final cartData = state.data;
+          if (cartData.items.isEmpty) {
             return FScaffold(
               customScroll: true,
               appBarColor: kScaffoldColorDark,
@@ -138,7 +135,7 @@ class _CartState extends State<Cart> {
                         10.horizontalSpace,
                         FText(
                           text:
-                              "\$${state.totalPrice.toStringAsFixed(0).toUpperCase()}",
+                              "\$${cartData.totalPrice.toStringAsFixed(0).toUpperCase()}",
                           fontSize: 30,
                           fontWeight: FontWeight.w400,
                         ),
@@ -160,7 +157,7 @@ class _CartState extends State<Cart> {
               child: Column(
                 children: [
                   30.verticalSpace,
-                  ...state.items.map((cartItem) {
+                  ...cartData.items.map((cartItem) {
                     return DFoodCartWidget(
                       foodEntity: cartItem,
                       size: cartItem.quantity,
@@ -172,7 +169,7 @@ class _CartState extends State<Cart> {
               ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
             ),
           );
-        } else if (state is CartLoading) {
+        } else if (state is LoadingState) {
           return FScaffold(
             customScroll: true,
             backgroundColor: kScaffoldColorDark,

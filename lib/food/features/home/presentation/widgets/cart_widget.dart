@@ -5,8 +5,8 @@ import 'package:get_it/get_it.dart';
 import '../../../../../generated/assets.dart';
 import '../../../../components/image.dart';
 import '../../../../components/texts.dart';
-import '../../../../core/bloc/bloc_manager.dart';
-import '../../../../core/constants/app_constants.dart';
+import '../../../../core/bloc/managers/simplified_enhanced_bloc_manager.dart';
+import '../../../../core/bloc/base/base_state.dart';
 import '../../../../core/routes/routes.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../core/theme/colors.dart';
@@ -47,19 +47,15 @@ class _CartWidgetState extends State<CartWidget> {
             radius: 10,
             color: kPrimaryColor,
             onTap: null,
-            child: BlocManager<CartCubit, CartState>(
+            child: SimplifiedEnhancedBlocManager<CartCubit, BaseState<dynamic>>(
               bloc: context.read<CartCubit>(),
               child: CupertinoActivityIndicator(radius: 5, color: kWhiteColor),
-              isError: (state) => state is CartError,
-              getErrorMessage:
-                  (state) =>
-                      state is CartError
-                          ? state.errorMessage
-                          : AppConstants.defaultErrorMessage,
+              showLoadingIndicator: false,
               builder: (context, state) {
-                if (state is CartLoaded) {
+                if (state.hasData) {
+                  final cartData = state.data;
                   return FText(
-                    text: "${state.itemCount}",
+                    text: "${cartData.itemCount}",
                     fontSize: 10,
                     color: kWhiteColor,
                   );

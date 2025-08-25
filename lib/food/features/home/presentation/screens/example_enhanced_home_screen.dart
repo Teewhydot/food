@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/bloc/base/base_state.dart';
 import '../../../../core/bloc/managers/enhanced_bloc_manager.dart';
-import '../../../../core/theme/colors.dart';
 import '../../../../core/utils/spacings.dart';
 import '../../../../components/texts.dart';
 import '../../domain/entities/profile.dart';

@@ -159,7 +159,7 @@ class _PaymentMethodState extends State<PaymentMethod> {
   void _processPayment(CardEntity? card) {
     // Get cart state
     final cartState = context.read<CartCubit>().state;
-    if (cartState is! CartLoaded) {
+    if (!cartState.hasData) {
       DFoodUtils.showSnackBar(
         "Cart is empty. Please add items to your cart before proceeding.",
         kErrorColor,
@@ -170,13 +170,13 @@ class _PaymentMethodState extends State<PaymentMethod> {
     // Show loading dialog
     DFoodUtils.showDialogContainer(
       context: context,
-      child: BlocListener<OrderBloc, OrderState>(
+      child: BlocListener<BaseBloc<OrderState>, OrderState>(
         listener: (context, orderState) {
           if (orderState is OrderCreated) {
             // Process payment after order is created
             context.read<PaymentBloc>().add(
               ProcessPaymentEvent(
-                amount: cartState.totalPrice,
+                amount: cartState.data?.totalPrice ?? 0.0,
                 paymentMethodId: selectedMethod,
                 currency: "NGN",
                 metadata: {},
@@ -219,19 +219,19 @@ class _PaymentMethodState extends State<PaymentMethod> {
       ),
     );
 
-    // Create order
-    final orderItems =
-        cartState.items
-            .map(
-              (item) => OrderItem(
-                foodId: item.id,
-                foodName: item.name,
-                quantity: item.quantity,
-                price: item.price,
-                total: item.price * item.quantity,
-              ),
-            )
-            .toList();
+    // Create order (orderItems commented out since order creation is disabled)
+    // final orderItems =
+    //     cartState.items
+    //         .map(
+    //           (item) => OrderItem(
+    //             foodId: item.id,
+    //             foodName: item.name,
+    //             quantity: item.quantity,
+    //             price: item.price,
+    //             total: item.price * item.quantity,
+    //           ),
+    //         )
+    //         .toList();
 
     // context.read<OrderBloc>().add(
     //   CreateOrderEvent(

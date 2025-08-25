@@ -1,9 +1,10 @@
 import 'dart:convert';
 
-import 'package:bloc/bloc.dart';
-import 'package:food/food/core/bloc/app_state.dart';
+import 'package:food/food/core/bloc/base/base_bloc.dart';
+import 'package:food/food/core/bloc/base/base_state.dart';
 import 'package:food/food/core/services/permission_service/permission_repository.dart';
 import 'package:food/food/core/utils/logger.dart';
+import 'package:food/food/features/auth/domain/entities/location_data.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
@@ -11,25 +12,20 @@ import 'package:meta/meta.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 part 'location_event.dart';
-part 'location_state.dart';
+// part 'location_state.dart'; // Commented out - using BaseState now
 
-class LocationBloc extends Bloc<LocationEvent, LocationState> {
+/// Migrated LocationBloc to use BaseState<LocationData> (converted from BLoC to Cubit for simplicity)
+class LocationBloc extends BaseCubit<BaseState<LocationData>> {
   // OpenWeatherMap API key - replace this with your own API key
   final String apiKey =
       "ADD_YOUR_API_KEY_HERE"; // You should use environment variables for API keys
 
   final PermissionRepository _permissionRepository = PermissionRepository();
 
-  LocationBloc() : super(LocationInitial()) {
-    on<LocationRequestedEvent>(_onLocationRequested);
-    on<LocationPermissionCheckEvent>(_onPermissionCheck);
-  }
+  LocationBloc() : super(const InitialState<LocationData>());
 
-  Future<void> _onPermissionCheck(
-    LocationPermissionCheckEvent event,
-    Emitter<LocationState> emit,
-  ) async {
-    emit(LocationLoading());
+  void checkLocationPermission() async {
+    emit(const LoadingState<LocationData>(message: 'Checking location permissions...'));
 
     try {
       // Check database first for persisted permission status
@@ -40,33 +36,34 @@ class LocationBloc extends Bloc<LocationEvent, LocationState> {
       if (savedStatus == true) {
         // Permission already granted according to our database
         emit(
-          LocationPermissionGranted(
-            permissionMessage: "Location permission already granted",
+          const SuccessState<LocationData>(
+            successMessage: "Location permission already granted",
           ),
         );
       } else {
         // Need to check system permission status
         emit(
-          LocationPermissionRequired(
-            permissionMessage: "Location permission required",
+          const ErrorState<LocationData>(
+            errorMessage: "Location permission required",
+            errorCode: 'permission_required',
+            isRetryable: true,
           ),
         );
       }
     } catch (e) {
       Logger.logError("Error checking permission: ${e.toString()}");
       emit(
-        LocationError(
+        ErrorState<LocationData>(
           errorMessage: "Error checking permission: ${e.toString()}",
+          errorCode: 'permission_check_failed',
+          isRetryable: true,
         ),
       );
     }
   }
 
-  Future<void> _onLocationRequested(
-    LocationRequestedEvent event,
-    Emitter<LocationState> emit,
-  ) async {
-    emit(LocationLoading());
+  Future<void> requestLocation() async {
+    emit(const LoadingState<LocationData>(message: 'Getting your location...'));
 
     try {
       // Check location permissions
@@ -81,7 +78,13 @@ class LocationBloc extends Bloc<LocationEvent, LocationState> {
           Permission.location,
           false,
         );
-        emit(LocationError(errorMessage: "Location services are disabled"));
+        emit(
+          const ErrorState<LocationData>(
+            errorMessage: "Location services are disabled",
+            errorCode: 'location_services_disabled',
+            isRetryable: true,
+          ),
+        );
         return;
       }
 
@@ -95,7 +98,13 @@ class LocationBloc extends Bloc<LocationEvent, LocationState> {
             Permission.location,
             false,
           );
-          emit(LocationError(errorMessage: "Location permissions are denied"));
+          emit(
+            const ErrorState<LocationData>(
+              errorMessage: "Location permissions are denied",
+              errorCode: 'permission_denied',
+              isRetryable: true,
+            ),
+          );
           return;
         }
       }
@@ -107,8 +116,10 @@ class LocationBloc extends Bloc<LocationEvent, LocationState> {
           false,
         );
         emit(
-          LocationError(
+          const ErrorState<LocationData>(
             errorMessage: "Location permissions are permanently denied",
+            errorCode: 'permission_denied_forever',
+            isRetryable: false,
           ),
         );
         return;
@@ -134,20 +145,35 @@ class LocationBloc extends Bloc<LocationEvent, LocationState> {
       // Get address details from reverse geocoding using OpenWeatherMap
       final locationDetails = await _getAddressFromLatLng(latitude, longitude);
 
+      final locationData = LocationData(
+        latitude: latitude,
+        longitude: longitude,
+        address: locationDetails['address'] ?? '',
+        city: locationDetails['city'] ?? '',
+        country: locationDetails['country'] ?? '',
+      );
+
       emit(
-        LocationSuccess(
+        LoadedState<LocationData>(
+          data: locationData,
+          lastUpdated: DateTime.now(),
+        ),
+      );
+      
+      // Also emit success state for notification
+      emit(
+        const SuccessState<LocationData>(
           successMessage: "Location fetched successfully",
-          latitude: latitude,
-          longitude: longitude,
-          address: locationDetails['address'] ?? '',
-          city: locationDetails['city'] ?? '',
-          country: locationDetails['country'] ?? '',
         ),
       );
     } catch (e) {
       Logger.logError("Error fetching location: ${e.toString()}");
       emit(
-        LocationError(errorMessage: "Failed to get location: ${e.toString()}"),
+        ErrorState<LocationData>(
+          errorMessage: "Failed to get location: ${e.toString()}",
+          errorCode: 'location_fetch_failed',
+          isRetryable: true,
+        ),
       );
     }
   }

@@ -1,23 +1,31 @@
 import 'dart:async';
 
-import 'package:bloc/bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:food/food/core/bloc/base/base_bloc.dart';
+import 'package:food/food/core/bloc/base/base_state.dart';
 import 'package:food/food/features/tracking/domain/entities/chat_entity.dart';
 import 'package:food/food/features/tracking/domain/use_cases/chat_usecase.dart';
-import 'package:food/food/features/tracking/presentation/manager/chats_bloc/chats_state.dart';
+// import 'package:food/food/features/tracking/presentation/manager/chats_bloc/chats_state.dart'; // Commented out - using BaseState now
 
-class ChatsCubit extends Cubit<ChatsState> {
+/// Migrated ChatsCubit to use BaseState<List<ChatEntity>>
+class ChatsCubit extends BaseCubit<BaseState<List<ChatEntity>>> {
   final ChatUseCase chatUseCase;
   StreamSubscription<List<ChatEntity>>? _chatsSubscription;
 
-  ChatsCubit({required this.chatUseCase}) : super(ChatsInitial());
+  ChatsCubit({required this.chatUseCase}) : super(const InitialState<List<ChatEntity>>());
 
   void loadChats() async {
-    emit(ChatsLoading());
+    emit(const LoadingState<List<ChatEntity>>(message: 'Loading chats...'));
 
     final userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId == null) {
-      emit(ChatsError('User not authenticated'));
+      emit(
+        const ErrorState<List<ChatEntity>>(
+          errorMessage: 'User not authenticated',
+          errorCode: 'auth_required',
+          isRetryable: false,
+        ),
+      );
       return;
     }
 
@@ -29,10 +37,25 @@ class ChatsCubit extends Cubit<ChatsState> {
         .watchUserChats(userId)
         .listen(
           (chats) {
-            emit(ChatsLoaded(chats: chats));
+            if (chats.isEmpty) {
+              emit(const EmptyState<List<ChatEntity>>(message: 'No chats yet'));
+            } else {
+              emit(
+                LoadedState<List<ChatEntity>>(
+                  data: chats,
+                  lastUpdated: DateTime.now(),
+                ),
+              );
+            }
           },
           onError: (error) {
-            emit(ChatsError(error.toString()));
+            emit(
+              ErrorState<List<ChatEntity>>(
+                errorMessage: error.toString(),
+                errorCode: 'chats_load_failed',
+                isRetryable: true,
+              ),
+            );
           },
         );
   }
@@ -43,9 +66,17 @@ class ChatsCubit extends Cubit<ChatsState> {
   }) async {
     final userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId == null) {
-      emit(ChatsError('User not authenticated'));
+      emit(
+        const ErrorState<List<ChatEntity>>(
+          errorMessage: 'User not authenticated',
+          errorCode: 'auth_required',
+          isRetryable: false,
+        ),
+      );
       return;
     }
+
+    emit(const LoadingState<List<ChatEntity>>(message: 'Creating chat...'));
 
     final result = await chatUseCase.createOrGetChat(
       userId: userId,
@@ -53,10 +84,25 @@ class ChatsCubit extends Cubit<ChatsState> {
       orderId: orderId,
     );
 
-    result.fold((failure) => emit(ChatsError(failure.failureMessage)), (chat) {
-      // Chat created, reload chats
-      loadChats();
-    });
+    result.fold(
+      (failure) => emit(
+        ErrorState<List<ChatEntity>>(
+          errorMessage: failure.failureMessage,
+          errorCode: 'create_chat_failed',
+          isRetryable: true,
+        ),
+      ),
+      (chat) {
+        // Chat created successfully
+        emit(
+          const SuccessState<List<ChatEntity>>(
+            successMessage: 'Chat created successfully',
+          ),
+        );
+        // Reload chats to get updated list
+        loadChats();
+      },
+    );
   }
 
   @override

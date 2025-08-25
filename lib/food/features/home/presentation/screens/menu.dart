@@ -4,7 +4,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/image.dart';
 import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/components/texts.dart';
-import 'package:food/food/core/bloc/bloc_manager.dart';
+import 'package:food/food/core/bloc/managers/simplified_enhanced_bloc_manager.dart';
+import 'package:food/food/core/bloc/base/base_state.dart';
 import 'package:food/food/core/constants/app_constants.dart';
 import 'package:food/food/core/routes/routes.dart';
 import 'package:food/food/core/theme/colors.dart';
@@ -37,17 +38,13 @@ class _MenuState extends State<Menu> {
   Widget build(BuildContext context) {
     final nav = GetIt.instance<NavigationService>();
 
-    return BlocManager<UserProfileCubit, UserProfileState>(
+    return SimplifiedEnhancedBlocManager<UserProfileCubit, BaseState<dynamic>>(
       bloc: context.read<UserProfileCubit>(),
-      child: Container(),
-      isError: (state) => state is UserProfileError,
-      getErrorMessage:
-          (state) =>
-              state is UserProfileError
-                  ? state.errorMessage
-                  : AppConstants.defaultErrorMessage,
+      child: const SizedBox.shrink(),
+      showLoadingIndicator: true,
       builder: (context, state) {
-        if (state is UserProfileLoaded) {
+        if (state.hasData) {
+          final userProfile = state.data;
           return FScaffold(
             customScroll: true,
             appBarWidget: Row(
@@ -75,7 +72,7 @@ class _MenuState extends State<Menu> {
                           children: [
                             FText(
                               text:
-                                  "${state.userProfile.firstName} ${state.userProfile.lastName}",
+                                  "${userProfile.firstName} ${userProfile.lastName}",
                               fontSize: 20.sp,
                               fontWeight: FontWeight.w500,
                               color: kBlackColor,
@@ -83,7 +80,7 @@ class _MenuState extends State<Menu> {
                             ),
                             8.verticalSpace,
                             FWrapText(
-                              text: state.userProfile.bio ?? "No bio",
+                              text: userProfile.bio ?? "No bio",
                               fontSize: 13.sp,
                               fontWeight: FontWeight.w400,
                               color: kContainerColor,
@@ -216,6 +213,18 @@ class _MenuState extends State<Menu> {
                             nav.navigateTo(Routes.settings);
                           },
                         ),
+                        16.verticalSpace,
+                        MenuSectionWidget(
+                          title: "Firebase Test",
+                          child: Icon(
+                            Icons.cloud_sync,
+                            size: 16,
+                            color: kPrimaryColor,
+                          ),
+                          onTap: () {
+                            nav.navigateTo(Routes.firebaseTest);
+                          },
+                        ),
                       ],
                     ).paddingAll(20),
                   ),
@@ -249,14 +258,14 @@ class _MenuState extends State<Menu> {
               ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
             ),
           );
-        } else if (state is UserProfileLoading) {
+        } else if (state is LoadingState) {
           return FScaffold(
             body: Center(
               child: CircularProgressIndicator(color: kPrimaryColor),
             ),
           );
         }
-        return SizedBox();
+        return const SizedBox();
       },
     );
   }

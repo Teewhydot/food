@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:food/food/core/bloc/bloc_manager.dart';
+import 'package:food/food/core/bloc/managers/simplified_enhanced_bloc_manager.dart';
+import 'package:food/food/core/bloc/base/base_state.dart';
 import 'package:food/food/core/routes/routes.dart';
 import 'package:food/food/core/utils/app_utils.dart';
 import 'package:food/food/features/auth/presentation/manager/auth_bloc/register/register_bloc.dart';
@@ -53,21 +54,18 @@ class _LoginState extends State<SignUp> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocManager<RegisterBloc, RegisterState>(
+    return SimplifiedEnhancedBlocManager<RegisterBloc, BaseState<void>>(
       bloc: context.read<RegisterBloc>(),
-      isError: (state) => state is RegisterFailure,
-      getErrorMessage: (state) => (state as RegisterFailure).errorMessage,
-      isSuccess: (state) => state is RegisterSuccess,
+      child: const SizedBox.shrink(),
+      showLoadingIndicator: true,
       onSuccess: (context, state) {
         // Handle any additional success logic if needed
         DFoodUtils.showSnackBar("Registration successful", kSuccessColor);
         nav.navigateTo(Routes.emailVerification);
       },
-      child: CustomOverlay(
-        isLoading:
-            context.watch<RegisterBloc>().state is RegisterLoading
-                ? true
-                : false,
+      builder: (context, state) {
+        return CustomOverlay(
+          isLoading: state is LoadingState,
         child: AuthTemplate(
           title: "Sign Up",
           subtitle: "Please sign up to get started",
@@ -221,14 +219,12 @@ class _LoginState extends State<SignUp> {
                 buttonText: "SIGN UP",
                 width: 1.sw,
                 onPressed: () {
-                  context.read<RegisterBloc>().add(
-                    RegisterInitialEvent(
-                      firstName: firstNameController.text,
-                      lastName: lastNameController.text,
-                      email: emailController.text.trim(),
-                      password: passwordController.text.trim(),
-                      phoneNumber: phoneNumberController.text,
-                    ),
+                  context.read<RegisterBloc>().register(
+                    firstName: firstNameController.text,
+                    lastName: lastNameController.text,
+                    email: emailController.text.trim(),
+                    password: passwordController.text.trim(),
+                    phoneNumber: phoneNumberController.text,
                   );
                 },
               ),
@@ -240,7 +236,8 @@ class _LoginState extends State<SignUp> {
             right: AppConstants.defaultPadding,
           ),
         ),
-      ),
+      );
+      },
     );
   }
 }

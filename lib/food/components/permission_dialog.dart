@@ -137,37 +137,6 @@ class PermissionDialog extends StatelessWidget {
     );
   }
 
-  void _showSettingsDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Permission Required'),
-          content: Text(
-            '$title permission is required for this feature. Please enable it in app settings.',
-          ),
-          actions: [
-            TextButton(
-              child: Text('Cancel'),
-              onPressed: () {
-                Navigator.pop(context);
-                if (onDenied != null) {
-                  onDenied!();
-                }
-              },
-            ),
-            TextButton(
-              child: Text('Settings'),
-              onPressed: () {
-                Navigator.pop(context);
-                openAppSettings();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
 
   /// Show permission dialog static method
   static Future<bool?> show({

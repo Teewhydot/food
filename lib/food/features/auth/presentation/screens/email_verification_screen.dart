@@ -6,7 +6,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/buttons.dart';
 import 'package:food/food/components/texts.dart';
-import 'package:food/food/core/bloc/bloc_manager.dart';
+import 'package:food/food/core/bloc/managers/simplified_enhanced_bloc_manager.dart';
+import 'package:food/food/core/bloc/base/base_state.dart';
 import 'package:food/food/core/constants/app_constants.dart';
 import 'package:food/food/core/helpers/extensions.dart';
 import 'package:food/food/core/routes/routes.dart';
@@ -71,29 +72,20 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocManager<VerifyEmailBloc, VerifyEmailState>(
-      isSuccess:
-          (state) =>
-              state is EmailVerificationStatusSuccess ||
-              state is EmailVerificationResendSuccess,
-      isError: (state) => state is EmailVerificationStatusFailure,
-      getErrorMessage:
-          (state) => (state as EmailVerificationStatusFailure).errorMessage,
+    return SimplifiedEnhancedBlocManager<VerifyEmailBloc, BaseState<dynamic>>(
+      bloc: context.watch<VerifyEmailBloc>(),
+      child: const SizedBox.shrink(),
+      showLoadingIndicator: true,
       onSuccess: (context, state) {
-        if (state is EmailVerificationStatusSuccess) {
+        if (state is SuccessState) {
           // Email verified successfully, navigate to location screen
           DFoodUtils.showSnackBar("Email verified successfully", kSuccessColor);
           nav.navigateAndReplace(Routes.location);
-        } else if (state is EmailVerificationResendSuccess) {
-          // Show success message for resending verification email
-          DFoodUtils.showSnackBar(state.successMessage, kSuccessColor);
         }
       },
-      bloc: context.watch<VerifyEmailBloc>(),
-      child: CustomOverlay(
-        isLoading:
-            context.watch<VerifyEmailBloc>().state
-                is EmailVerificationStatusLoading,
+      builder: (context, state) {
+        return CustomOverlay(
+          isLoading: state is LoadingState,
         child: AuthTemplate(
           title: "Email Verification",
           subtitle: "We've sent a verification link to your email",
@@ -190,7 +182,8 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
             right: AppConstants.defaultPadding,
           ),
         ),
-      ),
+      );
+      },
     );
   }
 }

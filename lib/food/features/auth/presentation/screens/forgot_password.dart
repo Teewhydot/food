@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:food/food/core/bloc/bloc_manager.dart';
+import 'package:food/food/core/bloc/managers/simplified_enhanced_bloc_manager.dart';
+import 'package:food/food/core/bloc/base/base_state.dart';
 import 'package:food/food/core/routes/routes.dart';
 import 'package:food/food/features/auth/presentation/manager/auth_bloc/forgot_password/forgot_password_bloc.dart';
 import 'package:food/food/features/auth/presentation/widgets/auth_template.dart';
@@ -28,21 +29,18 @@ class _LoginState extends State<ForgotPassword> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocManager<ForgotPasswordBloc, ForgotPasswordState>(
+    return SimplifiedEnhancedBlocManager<ForgotPasswordBloc, BaseState<void>>(
       bloc: context.read<ForgotPasswordBloc>(),
-      isError: (state) => state is ForgotPasswordFailure,
-      getErrorMessage: (state) => (state as ForgotPasswordFailure).errorMessage,
-      isSuccess: (state) => state is ForgotPasswordSuccess,
+      child: const SizedBox.shrink(),
+      showLoadingIndicator: true,
       onSuccess: (context, state) {
         // Handle any additional success logic if needed
         DFoodUtils.showSnackBar("Code sent successfully", kSuccessColor);
         nav.navigateTo(Routes.otpVerification);
       },
-      child: CustomOverlay(
-        isLoading:
-            context.watch<ForgotPasswordBloc>().state is ForgotPasswordLoading
-                ? true
-                : false,
+      builder: (context, state) {
+        return CustomOverlay(
+          isLoading: state is LoadingState,
         child: AuthTemplate(
           title: "Forgot Password",
           subtitle: "Please enter your email to reset your password",
@@ -77,7 +75,8 @@ class _LoginState extends State<ForgotPassword> {
             right: AppConstants.defaultPadding,
           ),
         ),
-      ),
+      );
+      },
     );
   }
 }

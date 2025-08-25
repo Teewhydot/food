@@ -165,7 +165,7 @@ class EnhancedBlocManager<T extends BlocBase<S>, S extends BaseState>
         children: [
           LoadingOverlay(
             isLoading: true,
-            color: kPrimaryColor.withOpacity(0.5),
+            color: kPrimaryColor.withValues(alpha: 0.5),
             progressIndicator: SpinKitFadingCircle(color: kWhiteColor),
             child: child,
           ),

@@ -17,8 +17,6 @@ class AddCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final nav = GetIt.instance<NavigationService>();
-
     return FScaffold(
       appBarWidget: Row(children: [const BackWidget(color: kGreyColor)]),
       body: Column(

@@ -4,6 +4,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/image.dart';
 import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/core/constants/app_constants.dart';
+import 'package:food/food/core/bloc/managers/simplified_enhanced_bloc_manager.dart';
+import 'package:food/food/core/bloc/base/base_state.dart';
 import 'package:food/food/core/helpers/extensions.dart';
 import 'package:food/food/core/routes/routes.dart';
 import 'package:food/food/features/home/domain/entities/address.dart';
@@ -16,7 +18,6 @@ import 'package:get_it/get_it.dart';
 
 import '../../../../components/buttons.dart';
 import '../../../../components/texts.dart';
-import '../../../../core/bloc/bloc_manager.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../core/theme/colors.dart';
 import '../../../auth/presentation/widgets/back_widget.dart';
@@ -41,11 +42,14 @@ class _AddressState extends State<Address> {
   @override
   Widget build(BuildContext context) {
     final nav = GetIt.instance<NavigationService>();
-    return BlocManager<AddressCubit, AddressState>(
+    return SimplifiedEnhancedBlocManager<AddressCubit, BaseState<dynamic>>(
       bloc: context.read<AddressCubit>(),
+      child: const SizedBox.shrink(),
+      showLoadingIndicator: true,
       builder: (context, state) {
-        if (state is AddressLoaded) {
-          if (state.addresses.isEmpty) {
+        if (state.hasData) {
+          final addresses = state.data as List? ?? [];
+          if (addresses.isEmpty) {
             return FScaffold(
               customScroll: false,
               appBarWidget: Row(
@@ -118,7 +122,7 @@ class _AddressState extends State<Address> {
                 SingleChildScrollView(
                   child: Column(
                     children:
-                        state.addresses.map((address) {
+                        addresses.map((address) {
                           return AddressWidget(
                             addressType:
                                 address.type == 'home'
@@ -208,7 +212,6 @@ class _AddressState extends State<Address> {
           ),
         );
       },
-      child: Container(),
     );
   }
 }
@@ -228,7 +231,6 @@ class AddressWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final nav = GetIt.instance<NavigationService>();
     return FoodContainer(
       width: 1.sw,
       height: 101,

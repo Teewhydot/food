@@ -5,7 +5,8 @@ import 'package:food/food/components/buttons.dart';
 import 'package:food/food/components/image.dart';
 import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/components/textfields.dart';
-import 'package:food/food/core/bloc/bloc_manager.dart';
+import 'package:food/food/core/bloc/managers/simplified_enhanced_bloc_manager.dart';
+import 'package:food/food/core/bloc/base/base_state.dart';
 import 'package:food/food/core/constants/app_constants.dart';
 import 'package:food/food/core/services/floor_db_service/user_profile/user_profile_database_service.dart';
 import 'package:food/food/core/utils/logger.dart';
@@ -70,23 +71,17 @@ class _EditProfileState extends State<EditProfile> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocManager<UserProfileCubit, UserProfileState>(
+    return SimplifiedEnhancedBlocManager<UserProfileCubit, BaseState<UserProfileEntity>>(
       bloc: context.read<UserProfileCubit>(),
-      isError: (state) => state is UserProfileError,
-      getErrorMessage:
-          (state) =>
-              state is UserProfileError
-                  ? state.errorMessage
-                  : AppConstants.defaultErrorMessage,
-      isSuccess: (state) => state is UserProfileLoaded,
+      child: const SizedBox.shrink(),
+      showLoadingIndicator: true,
       onSuccess: (context, state) {
         Logger.logBasic("User profile updated successfully");
       },
-
-      child: CustomOverlay(
-        isLoading:
-            context.watch<UserProfileCubit>().state is UserProfileLoading,
-        child: FScaffold(
+      builder: (context, state) {
+        return CustomOverlay(
+          isLoading: state is LoadingState,
+          child: FScaffold(
           appBarWidget: Row(
             children: [
               BackWidget(color: kGreyColor),
@@ -179,9 +174,10 @@ class _EditProfileState extends State<EditProfile> {
                 32.verticalSpace,
               ],
             ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

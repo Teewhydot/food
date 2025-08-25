@@ -6,6 +6,8 @@ import 'package:food/food/components/permission_dialog.dart';
 import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/components/texts.dart';
 import 'package:food/food/core/constants/app_constants.dart';
+import 'package:food/food/core/bloc/managers/simplified_enhanced_bloc_manager.dart';
+import 'package:food/food/core/bloc/base/base_state.dart';
 import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/features/auth/presentation/widgets/custom_overlay.dart';
 import 'package:food/food/features/onboarding/presentation/widgets/food_container.dart';
@@ -15,7 +17,6 @@ import 'package:permission_handler/permission_handler.dart';
 
 import '../../../../../generated/assets.dart';
 import '../../../../components/image.dart';
-import '../../../../core/bloc/bloc_manager.dart';
 import '../../../../core/routes/routes.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../core/utils/app_utils.dart';
@@ -36,32 +37,34 @@ class _LocationState extends State<Location> {
     super.initState();
     // Check if location permission is already granted
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<LocationBloc>().add(LocationPermissionCheckEvent());
+      context.read<LocationBloc>().checkLocationPermission();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocManager<LocationBloc, LocationState>(
+    return SimplifiedEnhancedBlocManager<LocationBloc, BaseState<dynamic>>(
       bloc: context.read<LocationBloc>(),
-      listener: (context, state) {
-        if (state is LocationPermissionRequired) {
-          _showPermissionDialog(context);
-        } else if (state is LocationPermissionGranted) {
-          // Permission is already granted, proceed with location request
-          context.read<LocationBloc>().add(LocationRequestedEvent());
-        }
-      },
-      isError: (state) => state is LocationError,
-      getErrorMessage: (state) => (state as LocationError).errorMessage,
-      isSuccess: (state) => state is LocationSuccess,
+      child: const SizedBox.shrink(),
+      showLoadingIndicator: true,
       onSuccess: (context, state) {
         // Handle any additional success logic if needed
         DFoodUtils.showSnackBar("Location access granted", kSuccessColor);
         nav.navigateAndReplaceAll(Routes.home);
       },
-      child: CustomOverlay(
-        isLoading: context.watch<LocationBloc>().state is LocationLoading,
+      builder: (context, state) {
+        // Handle permission states
+        if (state is LoadedState && state.data is String) {
+          final message = state.data as String;
+          if (message.contains("permission")) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _showPermissionDialog(context);
+            });
+          }
+        }
+        
+        return CustomOverlay(
+          isLoading: state is LoadingState,
         child: FScaffold(
           body: Center(
             child: Column(
@@ -84,7 +87,7 @@ class _LocationState extends State<Location> {
                     height: 32,
                   ),
                   onPressed: () {
-                    context.read<LocationBloc>().add(LocationRequestedEvent());
+                    context.read<LocationBloc>().requestLocation();
                   },
                 ),
                 37.verticalSpace,
@@ -100,7 +103,8 @@ class _LocationState extends State<Location> {
             ),
           ),
         ),
-      ),
+      );
+      },
     );
   }
 
@@ -117,7 +121,7 @@ class _LocationState extends State<Location> {
       isMandatory: true, // Making it mandatory
       onGranted: () {
         // When permission is granted, request the location
-        context.read<LocationBloc>().add(LocationRequestedEvent());
+        context.read<LocationBloc>().requestLocation();
       },
       onDenied: () {
         // Show a message that location is required

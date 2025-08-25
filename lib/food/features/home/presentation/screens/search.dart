@@ -3,7 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/components/texts.dart';
-import 'package:food/food/core/bloc/bloc_manager.dart';
+import 'package:food/food/core/bloc/managers/simplified_enhanced_bloc_manager.dart';
+import 'package:food/food/core/bloc/base/base_state.dart';
 import 'package:food/food/core/helpers/extensions.dart';
 import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/features/auth/presentation/widgets/back_widget.dart';
@@ -20,6 +21,7 @@ import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../payments/presentation/manager/cart/cart_cubit.dart';
 import '../../domain/entities/food.dart';
 import '../../domain/entities/restaurant.dart';
+import '../../domain/entities/search_result.dart'; // SearchResultEntity
 import '../manager/search_bloc/search_bloc.dart';
 import '../manager/search_bloc/search_event.dart';
 import '../manager/search_bloc/search_state.dart';
@@ -58,17 +60,12 @@ class _SearchState extends State<Search> {
   }
 
   Widget _buildSuggestedFoodsSection() {
-    return BlocManager<SearchBloc, SearchState>(
+    return SimplifiedEnhancedBlocManager<SearchBloc, BaseState<dynamic>>(
       bloc: context.read<SearchBloc>(),
-      child: SizedBox.shrink(),
-      isError: (state) => state is SearchError,
-      getErrorMessage:
-          (state) =>
-              state is SearchError
-                  ? state.message
-                  : AppConstants.defaultErrorMessage,
+      child: const SizedBox.shrink(),
+      showLoadingIndicator: true,
       builder: (context, state) {
-        if (state is SearchLoading) {
+        if (state is LoadingState) {
           return SizedBox(
             height: 250.h,
             child: Center(
@@ -77,7 +74,7 @@ class _SearchState extends State<Search> {
           );
         }
 
-        final foods = state is SearchAllLoaded ? state.foods : <FoodEntity>[];
+        final foods = state.hasData ? (state.data is SearchResultEntity ? (state.data as SearchResultEntity).foods : <FoodEntity>[]) : <FoodEntity>[];
 
         if (foods.isEmpty && searchQuery.isNotEmpty) {
           return Center(
@@ -127,17 +124,12 @@ class _SearchState extends State<Search> {
   }
 
   Widget _buildSuggestedRestaurantsSection() {
-    return BlocManager<SearchBloc, SearchState>(
+    return SimplifiedEnhancedBlocManager<SearchBloc, BaseState<dynamic>>(
       bloc: context.read<SearchBloc>(),
-      child: SizedBox.shrink(),
-      isError: (state) => state is SearchError,
-      getErrorMessage:
-          (state) =>
-              state is SearchError
-                  ? state.message
-                  : AppConstants.defaultErrorMessage,
+      child: const SizedBox.shrink(),
+      showLoadingIndicator: true,
       builder: (context, state) {
-        if (state is SearchLoading) {
+        if (state is LoadingState) {
           return Column(
             children: List.generate(
               3,
@@ -145,7 +137,7 @@ class _SearchState extends State<Search> {
                 height: 100.h,
                 margin: EdgeInsets.only(bottom: 16.h),
                 decoration: BoxDecoration(
-                  color: kGreyColor.withOpacity(0.2),
+                  color: kGreyColor.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
@@ -153,8 +145,7 @@ class _SearchState extends State<Search> {
           );
         }
 
-        final restaurants =
-            state is SearchAllLoaded ? state.restaurants : <Restaurant>[];
+        final restaurants = state.hasData ? (state.data is SearchResultEntity ? (state.data as SearchResultEntity).restaurants : <Restaurant>[]) : <Restaurant>[];
 
         if (restaurants.isEmpty && searchQuery.isNotEmpty) {
           return Center(
@@ -241,16 +232,12 @@ class _SearchState extends State<Search> {
             25.verticalSpace,
             SectionHead(title: "Recent Keywords", isActionVisible: false),
             20.verticalSpace,
-            BlocManager<RecentKeywordsCubit, RecentKeywordsState>(
+            SimplifiedEnhancedBlocManager<RecentKeywordsCubit, BaseState<dynamic>>(
               bloc: context.read<RecentKeywordsCubit>(),
-              isError: (state) => state is RecentKeywordsError,
-              getErrorMessage:
-                  (state) =>
-                      state is RecentKeywordsError
-                          ? state.errorMessage
-                          : AppConstants.defaultErrorMessage,
+              child: const SizedBox.shrink(),
+              showLoadingIndicator: true,
               builder: (context, state) {
-                if (state is RecentKeywordsLoading) {
+                if (state is LoadingState) {
                   return SizedBox(
                     height: 56.h,
                     child: ListView.separated(
@@ -262,8 +249,9 @@ class _SearchState extends State<Search> {
                       },
                     ),
                   ).skeletonize();
-                } else if (state is RecentKeywordsLoaded) {
-                  if (state.keywords.isEmpty) {
+                } else if (state.hasData) {
+                  final keywords = state.data as List;
+                  if (keywords.isEmpty) {
                     return Center(
                       child: FText(
                         text: "No recent keywords found",
@@ -278,14 +266,14 @@ class _SearchState extends State<Search> {
                     child: ListView.separated(
                       separatorBuilder: (context, index) => 10.horizontalSpace,
                       scrollDirection: Axis.horizontal,
-                      itemCount: state.keywords.length,
+                      itemCount: keywords.length,
                       itemBuilder: (context, index) {
                         return KeywordWidget(
-                          keyword: state.keywords[index].keyword,
+                          keyword: keywords[index].keyword,
                           onTap: () {
                             searchController.text =
-                                state.keywords[index].keyword;
-                            updateSearchQuery(state.keywords[index].keyword);
+                                keywords[index].keyword;
+                            updateSearchQuery(keywords[index].keyword);
                           },
                         );
                       },
@@ -295,7 +283,6 @@ class _SearchState extends State<Search> {
                   return SizedBox();
                 }
               },
-              child: Container(),
             ),
             30.verticalSpace,
             SectionHead(title: "Suggested Restaurants", isActionVisible: false),

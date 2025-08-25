@@ -5,7 +5,8 @@ import 'package:food/food/components/buttons.dart';
 import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/components/textfields.dart';
 import 'package:food/food/components/texts.dart';
-import 'package:food/food/core/bloc/bloc_manager.dart';
+import 'package:food/food/core/bloc/managers/simplified_enhanced_bloc_manager.dart';
+import 'package:food/food/core/bloc/base/base_state.dart';
 import 'package:food/food/core/constants/app_constants.dart';
 import 'package:food/food/core/helpers/extensions.dart';
 import 'package:food/food/core/services/floor_db_service/user_profile/user_profile_database_service.dart';
@@ -71,22 +72,17 @@ class _AddAddressState extends State<AddAddress> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocManager<AddressCubit, AddressState>(
+    return SimplifiedEnhancedBlocManager<AddressCubit, BaseState<dynamic>>(
       bloc: context.read<AddressCubit>(),
-      isError: (state) => state is AddressError,
-      getErrorMessage: (state) => (state as AddressError).errorMessage,
-      isSuccess: (state) => state is AddressAdded || state is AddressUpdated,
+      child: const SizedBox.shrink(),
+      showLoadingIndicator: true,
       onSuccess: (context, state) {
         nav.goBack();
-        state is AddressAdded
-            ? DFoodUtils.showSnackBar((state).successMessage, kSuccessColor)
-            : DFoodUtils.showSnackBar(
-              (state as AddressUpdated).successMessage,
-              kSuccessColor,
-            );
+        DFoodUtils.showSnackBar("Address saved successfully", kSuccessColor);
       },
-      child: CustomOverlay(
-        isLoading: context.watch<AddressCubit>().state is AddressLoading,
+      builder: (context, state) {
+        return CustomOverlay(
+          isLoading: state is LoadingState,
         child: FScaffold(
           customScroll: false,
           resizeToAvoidBottomInset: false,
@@ -239,7 +235,8 @@ class _AddAddressState extends State<AddAddress> {
             bottom: AppConstants.defaultPadding,
           ),
         ),
-      ),
+      );
+      },
     );
   }
 }

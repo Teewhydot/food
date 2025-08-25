@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/texts.dart';
-import 'package:food/food/core/bloc/bloc_manager.dart';
+import 'package:food/food/core/bloc/managers/simplified_enhanced_bloc_manager.dart';
+import 'package:food/food/core/bloc/base/base_state.dart';
 import 'package:food/food/core/constants/app_constants.dart';
 import 'package:food/food/features/home/domain/entities/food.dart';
 import 'package:food/food/features/home/presentation/widgets/circle_widget.dart';
@@ -36,14 +37,12 @@ class _FoodDetailsState extends State<FoodDetails> {
   Widget build(BuildContext context) {
     final nav = GetIt.instance<NavigationService>();
 
-    return BlocManager<CartCubit, CartState>(
+    return SimplifiedEnhancedBlocManager<CartCubit, BaseState<dynamic>>(
       bloc: context.read<CartCubit>(),
-      isError: (state) => state is CartError,
-      getErrorMessage: (state) => (state as CartError).errorMessage,
-      isSuccess: (state) => state is CartLoaded,
-      child: Container(),
+      child: const SizedBox.shrink(),
+      showLoadingIndicator: true,
       builder: (context, state) {
-        if (state is CartLoaded) {
+        if (state.hasData) {
           return DetailsSkeletonWidget(
             hasBottomWidget: true,
             hasIndicator: false,

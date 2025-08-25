@@ -1,26 +1,31 @@
-import 'package:bloc/bloc.dart';
-import 'package:food/food/core/bloc/app_state.dart';
+import 'package:food/food/core/bloc/base/base_bloc.dart';
+import 'package:food/food/core/bloc/base/base_state.dart';
 import 'package:meta/meta.dart';
 
 import '../../../../domain/use_cases/auth_usecase.dart';
 
 part 'email_verification_event.dart';
-part 'email_verification_state.dart';
+// part 'email_verification_state.dart'; // Commented out - using BaseState now
 
+/// Migrated EmailVerificationBloc to use BaseState<void>
 class EmailVerificationBloc
-    extends Bloc<EmailVerificationEvent, EmailVerificationState> {
+    extends BaseBloC<EmailVerificationEvent, BaseState<void>> {
   final _authUseCase = AuthUseCase();
 
-  EmailVerificationBloc() : super(EmailVerificationInitialState()) {
+  EmailVerificationBloc() : super(const InitialState<void>()) {
     on<SendEmailVerificationEvent>((event, emit) async {
-      emit(EmailVerificationLoadingState());
+      emit(const LoadingState<void>(message: 'Sending verification email...'));
       final result = await _authUseCase.sendEmailVerification(event.email);
       result.fold(
         (failure) => emit(
-          EmailVerificationFailureState(errorMessage: failure.failureMessage),
+          ErrorState<void>(
+            errorMessage: failure.failureMessage,
+            errorCode: 'email_verification_failed',
+            isRetryable: true,
+          ),
         ),
         (_) => emit(
-          EmailVerificationSuccessState(
+          const SuccessState<void>(
             successMessage: 'Verification email sent successfully',
           ),
         ),

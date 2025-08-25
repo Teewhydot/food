@@ -1,13 +1,18 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:food/food/core/bloc/base/base_bloc.dart';
+import 'package:food/food/core/bloc/base/base_state.dart';
 
+import '../../../domain/entities/card_entity.dart';
+import '../../../domain/entities/payment_method_entity.dart';
 import '../../../domain/use_cases/payment_usecase.dart';
 import 'payment_event.dart';
-import 'payment_state.dart';
+// import 'payment_state.dart'; // Commented out - using BaseState now
 
-class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
+/// Migrated PaymentBloc to use BaseState<dynamic>
+class PaymentBloc extends BaseBloC<PaymentEvent, BaseState<dynamic>> {
   final PaymentUseCase paymentUseCase;
 
-  PaymentBloc({required this.paymentUseCase}) : super(PaymentInitial()) {
+  PaymentBloc({required this.paymentUseCase}) : super(const InitialState<dynamic>()) {
     on<GetPaymentMethodsEvent>(_onGetPaymentMethods);
     on<GetSavedCardsEvent>(_onGetSavedCards);
     on<SaveCardEvent>(_onSaveCard);
@@ -17,57 +22,111 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
 
   Future<void> _onGetPaymentMethods(
     GetPaymentMethodsEvent event,
-    Emitter<PaymentState> emit,
+    Emitter<BaseState<dynamic>> emit,
   ) async {
-    emit(PaymentLoading());
+    emit(const LoadingState<List<PaymentMethodEntity>>(message: 'Loading payment methods...'));
     final result = await paymentUseCase.getPaymentMethods();
     result.fold(
-      (failure) => emit(PaymentError(failure.failureMessage)),
-      (paymentMethods) => emit(PaymentMethodsLoaded(paymentMethods)),
+      (failure) => emit(
+        ErrorState<List<PaymentMethodEntity>>(
+          errorMessage: failure.failureMessage,
+          errorCode: 'payment_methods_fetch_failed',
+          isRetryable: true,
+        ),
+      ),
+      (paymentMethods) => paymentMethods.isEmpty
+          ? emit(const EmptyState<List<PaymentMethodEntity>>(message: 'No payment methods available'))
+          : emit(
+              LoadedState<List<PaymentMethodEntity>>(
+                data: paymentMethods,
+                lastUpdated: DateTime.now(),
+              ),
+            ),
     );
   }
 
   Future<void> _onGetSavedCards(
     GetSavedCardsEvent event,
-    Emitter<PaymentState> emit,
+    Emitter<BaseState<dynamic>> emit,
   ) async {
-    emit(PaymentLoading());
+    emit(const LoadingState<List<CardEntity>>(message: 'Loading saved cards...'));
     final result = await paymentUseCase.getSavedCards(event.userId);
     result.fold(
-      (failure) => emit(PaymentError(failure.failureMessage)),
-      (cards) => emit(SavedCardsLoaded(cards)),
+      (failure) => emit(
+        ErrorState<List<CardEntity>>(
+          errorMessage: failure.failureMessage,
+          errorCode: 'saved_cards_fetch_failed',
+          isRetryable: true,
+        ),
+      ),
+      (cards) => cards.isEmpty
+          ? emit(const EmptyState<List<CardEntity>>(message: 'No saved cards found'))
+          : emit(
+              LoadedState<List<CardEntity>>(
+                data: cards,
+                lastUpdated: DateTime.now(),
+              ),
+            ),
     );
   }
 
   Future<void> _onSaveCard(
     SaveCardEvent event,
-    Emitter<PaymentState> emit,
+    Emitter<BaseState<dynamic>> emit,
   ) async {
-    emit(PaymentLoading());
+    emit(const LoadingState<CardEntity>(message: 'Saving card...'));
     final result = await paymentUseCase.saveCard(event.card);
     result.fold(
-      (failure) => emit(PaymentError(failure.failureMessage)),
-      (card) => emit(CardSaved(card)),
+      (failure) => emit(
+        ErrorState<CardEntity>(
+          errorMessage: failure.failureMessage,
+          errorCode: 'save_card_failed',
+          isRetryable: true,
+        ),
+      ),
+      (card) {
+        emit(
+          LoadedState<CardEntity>(
+            data: card,
+            lastUpdated: DateTime.now(),
+          ),
+        );
+        emit(
+          const SuccessState<CardEntity>(
+            successMessage: 'Card saved successfully',
+          ),
+        );
+      },
     );
   }
 
   Future<void> _onDeleteCard(
     DeleteCardEvent event,
-    Emitter<PaymentState> emit,
+    Emitter<BaseState<dynamic>> emit,
   ) async {
-    emit(PaymentLoading());
+    emit(const LoadingState<void>(message: 'Deleting card...'));
     final result = await paymentUseCase.deleteCard(event.cardId);
     result.fold(
-      (failure) => emit(PaymentError(failure.failureMessage)),
-      (_) => emit(CardDeleted()),
+      (failure) => emit(
+        ErrorState<void>(
+          errorMessage: failure.failureMessage,
+          errorCode: 'delete_card_failed',
+          isRetryable: true,
+        ),
+      ),
+      (_) => emit(
+        const SuccessState<void>(
+          successMessage: 'Card deleted successfully',
+        ),
+      ),
     );
   }
 
   Future<void> _onProcessPayment(
     ProcessPaymentEvent event,
-    Emitter<PaymentState> emit,
+    Emitter<BaseState<dynamic>> emit,
   ) async {
-    emit(PaymentLoading());
+    emit(const LoadingState<String>(message: 'Processing payment...'));
     final result = await paymentUseCase.processPayment(
       paymentMethodId: event.paymentMethodId,
       amount: event.amount,
@@ -75,8 +134,26 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       metadata: event.metadata,
     );
     result.fold(
-      (failure) => emit(PaymentError(failure.failureMessage)),
-      (transactionId) => emit(PaymentProcessed(transactionId)),
+      (failure) => emit(
+        ErrorState<String>(
+          errorMessage: failure.failureMessage,
+          errorCode: 'payment_process_failed',
+          isRetryable: true,
+        ),
+      ),
+      (transactionId) {
+        emit(
+          LoadedState<String>(
+            data: transactionId,
+            lastUpdated: DateTime.now(),
+          ),
+        );
+        emit(
+          const SuccessState<String>(
+            successMessage: 'Payment processed successfully',
+          ),
+        );
+      },
     );
   }
 }

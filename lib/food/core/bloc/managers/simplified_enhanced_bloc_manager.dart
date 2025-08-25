@@ -75,7 +75,7 @@ class SimplifiedEnhancedBlocManager<T extends BlocBase<S>, S extends BaseState>
           if (showLoadingIndicator && state.isLoading) {
             return LoadingOverlay(
               isLoading: true,
-              color: kPrimaryColor.withOpacity(0.5),
+              color: kPrimaryColor.withValues(alpha: 0.5),
               progressIndicator:
                   loadingWidget ??
                   const SpinKitCircle(color: kWhiteColor, size: 50.0),

@@ -1,63 +1,124 @@
-import 'package:bloc/bloc.dart';
-import 'package:food/food/core/bloc/app_state.dart';
+import 'package:food/food/core/bloc/base/base_bloc.dart';
+import 'package:food/food/core/bloc/base/base_state.dart';
 import 'package:food/food/core/services/floor_db_service/user_profile/user_profile_database_service.dart';
 import 'package:food/food/core/utils/logger.dart';
 import 'package:food/food/features/auth/domain/use_cases/auth_usecase.dart';
 import 'package:food/food/features/home/domain/entities/profile.dart';
-import 'package:meta/meta.dart';
 
-part 'user_profile_state.dart';
+// part 'user_profile_state.dart'; // Commented out - using BaseState now
 
-class UserProfileCubit extends Cubit<UserProfileState> {
-  UserProfileCubit() : super(UserProfileInitial());
+/// Migrated UserProfileCubit to use BaseState<UserProfileEntity>
+class UserProfileCubit extends BaseCubit<BaseState<UserProfileEntity>> {
+  UserProfileCubit() : super(const InitialState<UserProfileEntity>());
   final db = UserProfileDatabaseService();
   final authUseCase = AuthUseCase();
 
   void saveUserProfile(UserProfileEntity userProfile) async {
-    emit(UserProfileLoading());
+    emit(const LoadingState<UserProfileEntity>(message: 'Saving profile...'));
     try {
       Logger.logSuccess(
         "Saving details: ${userProfile.firstName} ${userProfile.lastName} ${userProfile.email} ${userProfile.phoneNumber} ${userProfile.bio} ${userProfile.firstTimeLogin}",
       );
       await (await db.database).userProfileDao.saveUserProfile(userProfile);
-      // emit(UserProfileLoaded(userProfile: userProfile));
-      loadUserProfile();
+      
+      // Emit loaded state with saved profile
+      emit(
+        LoadedState<UserProfileEntity>(
+          data: userProfile,
+          lastUpdated: DateTime.now(),
+        ),
+      );
+      
+      // Also emit success notification
+      emit(
+        const SuccessState<UserProfileEntity>(
+          successMessage: 'Profile saved successfully',
+        ),
+      );
     } catch (e) {
-      emit(UserProfileError(errorMessage: e.toString()));
+      emit(
+        ErrorState<UserProfileEntity>(
+          errorMessage: e.toString(),
+          errorCode: 'save_profile_failed',
+          isRetryable: true,
+        ),
+      );
     }
   }
 
   void updateUserProfile(UserProfileEntity userProfile) async {
-    emit(UserProfileLoading());
+    emit(const LoadingState<UserProfileEntity>(message: 'Updating profile...'));
     try {
       Logger.logSuccess(
         "Updated details: ${userProfile.firstName} ${userProfile.lastName} ${userProfile.email} ${userProfile.phoneNumber} ${userProfile.bio}",
       );
       await (await db.database).userProfileDao.updateUserProfile(userProfile);
-      // emit(UserProfileLoaded(userProfile: userProfile));
-      loadUserProfile();
+      
+      // Emit loaded state with updated profile
+      emit(
+        LoadedState<UserProfileEntity>(
+          data: userProfile,
+          lastUpdated: DateTime.now(),
+        ),
+      );
+      
+      // Also emit success notification
+      emit(
+        const SuccessState<UserProfileEntity>(
+          successMessage: 'Profile updated successfully',
+        ),
+      );
     } catch (e) {
-      emit(UserProfileError(errorMessage: e.toString()));
+      emit(
+        ErrorState<UserProfileEntity>(
+          errorMessage: e.toString(),
+          errorCode: 'update_profile_failed',
+          isRetryable: true,
+        ),
+      );
     }
   }
 
   void clearUserProfile() async {
-    emit(UserProfileLoading());
+    emit(const LoadingState<UserProfileEntity>(message: 'Clearing profile...'));
     try {
       await (await db.database).userProfileDao.deleteUserProfile();
+      
+      // Emit success after clearing
+      emit(
+        const SuccessState<UserProfileEntity>(
+          successMessage: 'Profile cleared successfully',
+        ),
+      );
+      
+      // Reset to initial state
+      emit(const InitialState<UserProfileEntity>());
     } catch (e) {
-      emit(UserProfileError(errorMessage: e.toString()));
+      emit(
+        ErrorState<UserProfileEntity>(
+          errorMessage: e.toString(),
+          errorCode: 'clear_profile_failed',
+          isRetryable: true,
+        ),
+      );
     }
   }
 
   void loadUserProfile() async {
-    emit(UserProfileLoading());
+    emit(const LoadingState<UserProfileEntity>(message: 'Loading profile...'));
     try {
       // If not in database, fetch from remote using AuthUseCase
       final result = await authUseCase.getCurrentUser();
       result.fold(
         (failure) {
           Logger.logError("Failed to get user: ${failure.failureMessage}");
+          emit(
+            ErrorState<UserProfileEntity>(
+              errorMessage: failure.failureMessage,
+              errorCode: 'load_profile_failed',
+              isRetryable: true,
+            ),
+          );
         },
         (userProfile) async {
           // Success - save to database and emit loaded state
@@ -65,11 +126,23 @@ class UserProfileCubit extends Cubit<UserProfileState> {
             "User fetched from server: ${userProfile.firstName} ${userProfile.lastName}",
           );
           await (await db.database).userProfileDao.saveUserProfile(userProfile);
-          emit(UserProfileLoaded(userProfile: userProfile));
+          
+          emit(
+            LoadedState<UserProfileEntity>(
+              data: userProfile,
+              lastUpdated: DateTime.now(),
+            ),
+          );
         },
       );
     } catch (e) {
-      emit(UserProfileError(errorMessage: e.toString()));
+      emit(
+        ErrorState<UserProfileEntity>(
+          errorMessage: e.toString(),
+          errorCode: 'load_profile_failed',
+          isRetryable: true,
+        ),
+      );
       Logger.logError("Error loading user profile: ${e.toString()}");
     }
   }

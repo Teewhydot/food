@@ -1,46 +1,91 @@
-import 'package:bloc/bloc.dart';
-import 'package:food/food/core/bloc/app_state.dart';
+import 'package:food/food/core/bloc/base/base_bloc.dart';
+import 'package:food/food/core/bloc/base/base_state.dart';
 import 'package:food/food/features/home/domain/entities/recent_keyword.dart';
-import 'package:meta/meta.dart';
 
 import '../../../../core/services/floor_db_service/recent_keywords/recent_keywords_database_service.dart';
 
-part 'recent_keywords_state.dart';
+// part 'recent_keywords_state.dart'; // Commented out - using BaseState now
 
-class RecentKeywordsCubit extends Cubit<RecentKeywordsState> {
-  RecentKeywordsCubit() : super(RecentKeywordsInitial());
+/// Migrated RecentKeywordsCubit to use BaseState<dynamic>
+class RecentKeywordsCubit extends BaseCubit<BaseState<dynamic>> {
+  RecentKeywordsCubit() : super(const InitialState<dynamic>());
 
   final db = RecentKeywordsDatabaseService();
   void addKeyword(String keyword) async {
-    emit(RecentKeywordsLoading());
+    emit(const LoadingState<RecentKeywordEntity>(message: 'Adding keyword...'));
     try {
       final recentKeyword = RecentKeywordEntity(keyword);
       await (await db.database).recentsKeywordsDao.insertKeyword(recentKeyword);
-      emit(RecentKeywordsAdded(recentKeyword));
+      
+      // Emit success notification
+      emit(
+        SuccessState<RecentKeywordEntity>(
+          successMessage: 'Keyword "$keyword" added successfully',
+        ),
+      );
+      
+      // Reload keywords to get updated list
       loadRecentKeywords();
     } catch (e) {
-      emit(RecentKeywordsError(e.toString()));
+      emit(
+        ErrorState<RecentKeywordEntity>(
+          errorMessage: e.toString(),
+          errorCode: 'add_keyword_failed',
+          isRetryable: true,
+        ),
+      );
     }
   }
 
   void loadRecentKeywords() async {
-    emit(RecentKeywordsLoading());
+    emit(const LoadingState<List<RecentKeywordEntity>>(message: 'Loading recent keywords...'));
     try {
       final keywords =
           await (await db.database).recentsKeywordsDao.getAllRecentKeywords();
-      emit(RecentKeywordsLoaded(keywords));
+      
+      if (keywords.isEmpty) {
+        emit(const EmptyState<List<RecentKeywordEntity>>(message: 'No recent keywords'));
+      } else {
+        emit(
+          LoadedState<List<RecentKeywordEntity>>(
+            data: keywords,
+            lastUpdated: DateTime.now(),
+          ),
+        );
+      }
     } catch (e) {
-      emit(RecentKeywordsError(e.toString()));
+      emit(
+        ErrorState<List<RecentKeywordEntity>>(
+          errorMessage: e.toString(),
+          errorCode: 'load_keywords_failed',
+          isRetryable: true,
+        ),
+      );
     }
   }
 
   void clearKeywords() async {
-    emit(RecentKeywordsLoading());
+    emit(const LoadingState<void>(message: 'Clearing keywords...'));
     try {
       await (await db.database).recentsKeywordsDao.clearRecentKeywords();
-      emit(RecentKeywordsCleared("All recent keywords cleared successfully"));
+      
+      // Emit success notification
+      emit(
+        const SuccessState<void>(
+          successMessage: 'All recent keywords cleared successfully',
+        ),
+      );
+      
+      // Reset to empty state
+      emit(const EmptyState<List<RecentKeywordEntity>>(message: 'No recent keywords'));
     } catch (e) {
-      emit(RecentKeywordsError(e.toString()));
+      emit(
+        ErrorState<void>(
+          errorMessage: e.toString(),
+          errorCode: 'clear_keywords_failed',
+          isRetryable: true,
+        ),
+      );
     }
   }
 }

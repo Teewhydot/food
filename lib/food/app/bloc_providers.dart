@@ -18,8 +18,8 @@ import '../features/auth/presentation/manager/auth_bloc/email_verification/email
 import '../features/auth/presentation/manager/auth_bloc/forgot_password/forgot_password_bloc.dart';
 import '../features/home/domain/use_cases/food_usecase.dart';
 import '../features/home/domain/use_cases/restaurant_usecase.dart';
-import '../features/home/presentation/manager/food_bloc/food_bloc.dart';
-import '../features/home/presentation/manager/restaurant_bloc/restaurant_bloc.dart';
+import '../features/home/presentation/manager/food_bloc/food_bloc.dart'; // Now FoodCubit
+import '../features/home/presentation/manager/restaurant_bloc/restaurant_bloc.dart'; // Now RestaurantCubit
 import '../features/home/presentation/manager/search_bloc/search_bloc.dart';
 import '../features/payments/domain/use_cases/order_usecase.dart';
 import '../features/payments/domain/use_cases/payment_usecase.dart';
@@ -61,15 +61,15 @@ final List<BlocProvider> blocs = [
   BlocProvider<ForgotPasswordBloc>(create: (context) => ForgotPasswordBloc()),
   BlocProvider<SignOutBloc>(create: (context) => SignOutBloc()),
 
-  // Home feature BLoCs
-  BlocProvider<RestaurantBloc>(
+  // Home feature Cubits (migrated from BLoCs)
+  BlocProvider<RestaurantCubit>(
     create:
-        (context) => RestaurantBloc(
+        (context) => RestaurantCubit(
           restaurantUseCase: GetIt.instance<RestaurantUseCase>(),
         ),
   ),
-  BlocProvider<FoodBloc>(
-    create: (context) => FoodBloc(foodUseCase: GetIt.instance<FoodUseCase>()),
+  BlocProvider<FoodCubit>(
+    create: (context) => FoodCubit(foodUseCase: GetIt.instance<FoodUseCase>()),
   ),
   BlocProvider<SearchBloc>(
     create:

@@ -3,8 +3,6 @@ import 'package:bloc/bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:dartz/dartz.dart';
 import '../../../../domain/failures/failures.dart';
-import '../../domain/entities/food.dart';
-import '../../domain/entities/restaurant.dart';
 import '../../domain/use_cases/favorites_usecase.dart';
 import 'favorites_state.dart';
 

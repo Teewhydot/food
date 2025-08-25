@@ -31,6 +31,7 @@ import '../../features/payments/presentation/screens/cart.dart';
 import '../../features/tracking/domain/entities/chat_entity.dart';
 import '../../features/tracking/presentation/screens/call_screen.dart';
 import '../../features/tracking/presentation/screens/chat_screen.dart';
+import '../../features/testing/presentation/screens/firebase_test_screen.dart';
 
 class GetXRouteModule {
   static const Transition _transition = Transition.rightToLeft;
@@ -204,6 +205,12 @@ class GetXRouteModule {
     GetPage(
       name: Routes.location,
       page: () => const Location(),
+      transition: _transition,
+      transitionDuration: _transitionDuration,
+    ),
+    GetPage(
+      name: Routes.firebaseTest,
+      page: () => const FirebaseTestScreen(),
       transition: _transition,
       transitionDuration: _transitionDuration,
     ),

@@ -1,51 +1,73 @@
-import 'package:bloc/bloc.dart';
-import 'package:food/food/core/bloc/app_state.dart';
+import 'package:food/food/core/bloc/base/base_bloc.dart';
+import 'package:food/food/core/bloc/base/base_state.dart';
 import 'package:food/food/core/utils/pretty_firebase_errors.dart';
+import 'package:food/food/features/home/domain/entities/profile.dart';
 import 'package:meta/meta.dart';
 
 import '../../../../domain/use_cases/auth_usecase.dart';
 
 part 'register_event.dart';
-part 'register_state.dart';
+// part 'register_state.dart'; // Commented out - using BaseState now
 
-class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
+/// Migrated RegisterBloc to use BaseState<UserProfileEntity> (converted to Cubit pattern)
+class RegisterBloc extends BaseCubit<BaseState<UserProfileEntity>> {
   final _authUseCase = AuthUseCase();
-  RegisterBloc() : super(RegisterInitial()) {
-    on<RegisterInitialEvent>((event, emit) async {
-      emit(RegisterLoading());
+  RegisterBloc() : super(const InitialState<UserProfileEntity>());
+
+  Future<void> register({
+    required String firstName,
+    required String lastName,
+    required String email,
+    required String password,
+    required String phoneNumber,
+  }) async {
+      emit(const LoadingState<UserProfileEntity>(message: 'Creating your account...'));
+      
       final result = await _authUseCase.register(
-        email: event.email,
-        password: event.password,
-        firstName: event.firstName,
-        lastName: event.lastName,
-        phoneNumber: event.phoneNumber,
+        email: email,
+        password: password,
+        firstName: firstName,
+        lastName: lastName,
+        phoneNumber: phoneNumber,
       );
 
       await result.fold(
         (failure) async {
           emit(
-            RegisterFailure(
+            ErrorState<UserProfileEntity>(
               errorMessage: getAuthErrorMessage(failure.failureMessage),
+              errorCode: failure.failureMessage,
+              isRetryable: true,
             ),
           );
         },
         (userProfile) async {
           // Send verification email after successful registration
           final verificationResult = await _authUseCase.sendEmailVerification(
-            event.email,
+            email,
           );
 
           await verificationResult.fold(
             (failure) async {
               emit(
-                RegisterFailure(
+                ErrorState<UserProfileEntity>(
                   errorMessage: getAuthErrorMessage(failure.failureMessage),
+                  errorCode: failure.failureMessage,
+                  isRetryable: true,
                 ),
               );
             },
             (_) async {
+              // First emit the loaded state with user data
               emit(
-                RegisterSuccess(
+                LoadedState<UserProfileEntity>(
+                  data: userProfile,
+                  lastUpdated: DateTime.now(),
+                ),
+              );
+              // Then emit success state for notification
+              emit(
+                const SuccessState<UserProfileEntity>(
                   successMessage:
                       'Registration successful. Please verify your email.',
                 ),
@@ -54,6 +76,5 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
           );
         },
       );
-    });
   }
 }

@@ -6,7 +6,8 @@ import 'package:food/food/components/buttons.dart';
 import 'package:food/food/components/image.dart';
 import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/components/texts.dart';
-import 'package:food/food/core/bloc/bloc_manager.dart';
+import 'package:food/food/core/bloc/managers/simplified_enhanced_bloc_manager.dart';
+import 'package:food/food/core/bloc/base/base_state.dart';
 import 'package:food/food/core/constants/app_constants.dart';
 import 'package:food/food/core/services/navigation_service/nav_config.dart';
 import 'package:food/food/core/theme/colors.dart';
@@ -28,10 +29,12 @@ class Food extends StatelessWidget {
   Widget build(BuildContext context) {
     final nav = GetIt.instance<NavigationService>();
 
-    return BlocManager<CartCubit, CartState>(
+    return SimplifiedEnhancedBlocManager<CartCubit, BaseState<dynamic>>(
       bloc: context.read<CartCubit>(),
+      child: const SizedBox.shrink(),
+      showLoadingIndicator: true,
       builder: (context, state) {
-        if (state is CartLoaded) {
+        if (state.hasData) {
           return FScaffold(
             customScroll: true,
             appBarWidget: Row(
@@ -282,7 +285,6 @@ class Food extends StatelessWidget {
         }
         return SizedBox();
       },
-      child: Container(),
     );
   }
 }

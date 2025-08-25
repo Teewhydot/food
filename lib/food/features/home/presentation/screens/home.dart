@@ -11,18 +11,16 @@ import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../../../components/buttons.dart';
-import '../../../../core/bloc/bloc_manager.dart';
+import '../../../../core/bloc/managers/simplified_enhanced_bloc_manager.dart';
+import '../../../../core/bloc/base/base_state.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../core/utils/app_utils.dart';
 import '../../../payments/presentation/manager/cart/cart_cubit.dart';
 import '../../domain/entities/food.dart';
-import '../manager/food_bloc/food_bloc.dart';
-import '../manager/food_bloc/food_event.dart';
-import '../manager/food_bloc/food_state.dart';
-import '../manager/restaurant_bloc/restaurant_bloc.dart';
-import '../manager/restaurant_bloc/restaurant_event.dart';
-import '../manager/restaurant_bloc/restaurant_state.dart';
+import '../../domain/entities/restaurant.dart';
+import '../manager/food_bloc/food_bloc.dart'; // Now FoodCubit
+import '../manager/restaurant_bloc/restaurant_bloc.dart'; // Now RestaurantCubit
 import '../widgets/cart_widget.dart';
 import '../widgets/category_widget.dart';
 import '../widgets/circle_widget.dart';
@@ -67,8 +65,8 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
     // Load restaurants and foods on init
-    context.read<RestaurantBloc>().add(GetRestaurantsEvent());
-    context.read<FoodBloc>().add(GetAllFoodsEvent());
+    context.read<RestaurantCubit>().getRestaurants();
+    context.read<FoodCubit>().getAllFoods();
   }
 
   @override
@@ -258,11 +256,9 @@ class _HomeState extends State<Home> {
                           });
                           // Optionally trigger category-specific food loading
                           if (category != "All") {
-                            context.read<FoodBloc>().add(
-                              GetFoodsByCategoryEvent(category),
-                            );
+                            context.read<FoodCubit>().getFoodsByCategory(category);
                           } else {
-                            context.read<FoodBloc>().add(GetAllFoodsEvent());
+                            context.read<FoodCubit>().getAllFoods();
                           }
                         },
                       );
@@ -270,30 +266,46 @@ class _HomeState extends State<Home> {
               ),
             ),
             32.verticalSpace,
-            BlocManager<FoodBloc, FoodState>(
-              bloc: context.read<FoodBloc>(),
-              child: SizedBox.shrink(),
-              isError: (state) => state is FoodError,
-              getErrorMessage:
-                  (state) =>
-                      state is FoodError
-                          ? state.errorMessage
-                          : AppConstants.defaultErrorMessage,
+            SimplifiedEnhancedBlocManager<FoodCubit, BaseState<dynamic>>(
+              bloc: context.read<FoodCubit>(),
+              child: const SizedBox.shrink(),
+              showLoadingIndicator: true,
               builder: (context, state) {
-                if (state is FoodLoading) {
+                if (state is LoadingState) {
                   return SizedBox(
                     height: 250.h,
                     child: Center(
                       child: CircularProgressIndicator(color: kPrimaryColor),
                     ),
                   );
-                } else if (state is FoodsLoaded) {
+                } else if (state.hasData && state.data is List<FoodEntity>) {
+                  final foods = state.data as List<FoodEntity>;
                   return buildFoodWidget(
                     selectedCategory,
-                    state.foods,
+                    foods,
                   ).paddingOnly(right: AppConstants.defaultPadding);
+                } else if (state is EmptyState) {
+                  return SizedBox(
+                    height: 250.h,
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.fastfood, size: 48, color: kGreyColor),
+                          16.verticalSpace,
+                          FText(
+                            text: state.message ?? 'No food available',
+                            fontSize: 16,
+                            color: kGreyColor,
+                            alignment: MainAxisAlignment.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
                 }
-                return SizedBox.shrink();
+                // Loading and error states are handled by SimplifiedEnhancedBlocManager
+                return const SizedBox.shrink();
               },
             ),
             32.verticalSpace,
@@ -302,17 +314,12 @@ class _HomeState extends State<Home> {
               isActionVisible: false,
             ).paddingOnly(right: AppConstants.defaultPadding.w),
             20.verticalSpace,
-            BlocManager<RestaurantBloc, RestaurantState>(
-              bloc: context.read<RestaurantBloc>(),
-              child: SizedBox.shrink(),
-              isError: (state) => state is RestaurantError,
-              getErrorMessage:
-                  (state) =>
-                      state is RestaurantError
-                          ? state.message
-                          : AppConstants.defaultErrorMessage,
+            SimplifiedEnhancedBlocManager<RestaurantCubit, BaseState<dynamic>>(
+              bloc: context.read<RestaurantCubit>(),
+              child: const SizedBox.shrink(),
+              showLoadingIndicator: true,
               builder: (context, state) {
-                if (state is RestaurantLoading) {
+                if (state is LoadingState) {
                   return Column(
                     children: List.generate(
                       3,
@@ -320,19 +327,20 @@ class _HomeState extends State<Home> {
                         height: 100.h,
                         margin: EdgeInsets.only(bottom: 16.h),
                         decoration: BoxDecoration(
-                          color: kGreyColor.withOpacity(0.2),
+                          color: kGreyColor.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
                     ),
                   ).paddingOnly(right: AppConstants.defaultPadding.w);
-                } else if (state is RestaurantsLoaded) {
+                } else if (state.hasData && state.data is List<Restaurant>) {
+                  final restaurants = state.data as List<Restaurant>;
                   return SingleChildScrollView(
                     scrollDirection: Axis.vertical,
                     child: Column(
                       spacing: 16,
                       children:
-                          state.restaurants.map((restaurant) {
+                          restaurants.map((restaurant) {
                             return RestaurantWidget(
                               restaurant: restaurant,
                               onTap: () {

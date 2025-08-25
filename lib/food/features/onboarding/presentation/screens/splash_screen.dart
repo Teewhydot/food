@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:food/food/components/image.dart';
 import 'package:food/food/core/utils/logger.dart';
+import 'package:food/food/core/bloc/base/base_state.dart';
 import 'package:food/food/core/utils/precache_assets.dart';
 import 'package:get_it/get_it.dart';
 
@@ -23,15 +24,16 @@ class _SplashScreenState extends State<SplashScreen> {
     final userProfileCubit = UserProfileCubit();
     userProfileCubit.loadUserProfile();
     userProfileCubit.stream.listen((state) {
-      if (state is UserProfileLoaded) {
-        if (state.userProfile.firstTimeLogin == true) {
+      if (state.hasData) {
+        final userProfile = state.data;
+        if (userProfile?.firstTimeLogin == true) {
           Logger.logSuccess("Welcome to Dfood");
           nav.navigateTo(Routes.onboarding);
         } else {
           Logger.logSuccess("Welcome back");
           nav.navigateTo(Routes.home);
         }
-      } else if (state is UserProfileError) {
+      } else if (state is ErrorState) {
         nav.navigateTo(Routes.onboarding);
       }
     });

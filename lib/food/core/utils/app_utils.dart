@@ -27,7 +27,7 @@ class DFoodUtils {
     showDialog(
       context: context,
       barrierDismissible: isDismissible,
-      barrierColor: kPrimaryColor.withOpacity(0.7),
+      barrierColor: kPrimaryColor.withValues(alpha: 0.7),
       builder: (context) {
         return PopScope(
           canPop: pop,

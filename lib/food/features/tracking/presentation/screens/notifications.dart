@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/scaffold.dart';
-import 'package:food/food/core/bloc/bloc_manager.dart';
+import 'package:food/food/core/bloc/managers/simplified_enhanced_bloc_manager.dart';
+import 'package:food/food/core/bloc/base/base_state.dart';
 import 'package:food/food/core/routes/routes.dart';
 import 'package:food/food/features/tracking/presentation/manager/chats_bloc/chats_cubit.dart';
 import 'package:food/food/features/tracking/presentation/manager/chats_bloc/chats_state.dart';
@@ -75,20 +76,16 @@ class _NotificationsState extends State<Notifications> {
                 physics: BouncingScrollPhysics(),
               ),
               views: [
-                BlocManager<NotificationCubit, NotificationState>(
+                SimplifiedEnhancedBlocManager<NotificationCubit, BaseState<dynamic>>(
                   bloc: context.read<NotificationCubit>(),
-                  child: Container(),
-                  isError: (state) => state is NotificationError,
-                  getErrorMessage:
-                      (state) =>
-                          state is NotificationError
-                              ? state.errorMessage
-                              : AppConstants.defaultErrorMessage,
+                  child: const SizedBox.shrink(),
+                  showLoadingIndicator: true,
                   builder: (context, state) {
-                    if (state is NotificationLoading) {
+                    if (state is LoadingState) {
                       return Center(child: CircularProgressIndicator());
-                    } else if (state is NotificationLoaded) {
-                      if (state.notifications.isEmpty) {
+                    } else if (state.hasData) {
+                      final notifications = state.data as List? ?? [];
+                      if (notifications.isEmpty) {
                         return Center(
                           child: FText(
                             text: "No notifications available",
@@ -101,7 +98,7 @@ class _NotificationsState extends State<Notifications> {
                       return SingleChildScrollView(
                         child: Column(
                           children:
-                              state.notifications
+                              notifications
                                   .map(
                                     (notification) => NotificationWidget(
                                       notificationEntity: notification,
@@ -130,21 +127,16 @@ class _NotificationsState extends State<Notifications> {
                     );
                   },
                 ),
-                BlocManager<ChatsCubit, ChatsState>(
+                SimplifiedEnhancedBlocManager<ChatsCubit, BaseState<dynamic>>(
                   bloc: context.read<ChatsCubit>(),
-                  child: Container(),
-                  isError: (state) => state is ChatsError,
-                  getErrorMessage:
-                      (state) =>
-                          state is ChatsError
-                              ? state.errorMessage
-                              : AppConstants.defaultErrorMessage,
-
+                  child: const SizedBox.shrink(),
+                  showLoadingIndicator: true,
                   builder: (context, state) {
-                    if (state is ChatsLoading) {
+                    if (state is LoadingState) {
                       return Center(child: CircularProgressIndicator());
-                    } else if (state is ChatsLoaded) {
-                      if (state.chats.isEmpty) {
+                    } else if (state.hasData) {
+                      final chats = state.data as List? ?? [];
+                      if (chats.isEmpty) {
                         return Center(
                           child: FText(
                             text: "No messages available",
@@ -157,7 +149,7 @@ class _NotificationsState extends State<Notifications> {
                       return SingleChildScrollView(
                         child: Column(
                           children:
-                              state.chats
+                              chats
                                   .map(
                                     (chat) => MessageWidget(
                                       chat: chat,

@@ -18,8 +18,8 @@ import '../features/home/manager/address/address_cubit.dart';
 import '../features/home/manager/favorites/favorites_cubit.dart';
 import '../features/home/manager/recent_keywords/recent_keywords_cubit.dart';
 import '../features/home/manager/user_profile/enhanced_user_profile_cubit.dart';
-import '../features/home/presentation/manager/food_bloc/food_bloc.dart';
-import '../features/home/presentation/manager/restaurant_bloc/restaurant_bloc.dart';
+import '../features/home/presentation/manager/food_bloc/food_bloc.dart'; // Now FoodCubit
+import '../features/home/presentation/manager/restaurant_bloc/restaurant_bloc.dart'; // Now RestaurantCubit
 import '../features/home/presentation/manager/search_bloc/search_bloc.dart';
 import '../features/payments/presentation/manager/cart/cart_cubit.dart';
 import '../features/payments/presentation/manager/order_bloc/order_bloc.dart';
@@ -159,21 +159,21 @@ class EnhancedBlocProviders {
       ),
     );
 
-    // Restaurant BLoC - scoped to home feature
-    _factoryManager.registerFactory<RestaurantBloc>(
+    // Restaurant Cubit - scoped to home feature
+    _factoryManager.registerFactory<RestaurantCubit>(
       ScopedBlocFactory(
-        () => RestaurantBloc(restaurantUseCase: GetIt.instance()),
+        () => RestaurantCubit(restaurantUseCase: GetIt.instance()),
         'home',
-        factoryName: 'RestaurantBloc',
+        factoryName: 'RestaurantCubit',
       ),
     );
 
-    // Food BLoC - scoped to home feature
-    _factoryManager.registerFactory<FoodBloc>(
+    // Food Cubit - scoped to home feature
+    _factoryManager.registerFactory<FoodCubit>(
       ScopedBlocFactory(
-        () => FoodBloc(foodUseCase: GetIt.instance()),
+        () => FoodCubit(foodUseCase: GetIt.instance()),
         'home',
-        factoryName: 'FoodBloc',
+        factoryName: 'FoodCubit',
       ),
     );
 
@@ -261,8 +261,8 @@ class EnhancedBlocProviders {
         .addFromRegistry<AddressCubit, dynamic>()
         .addFromRegistry<RecentKeywordsCubit, dynamic>()
         .addFromRegistry<FavoritesCubit, dynamic>()
-        .addFromRegistry<RestaurantBloc, dynamic>()
-        .addFromRegistry<FoodBloc, dynamic>()
+        .addFromRegistry<RestaurantCubit, dynamic>()
+        .addFromRegistry<FoodCubit, dynamic>()
         .addFromRegistry<SearchBloc, dynamic>()
         .addFromRegistry<UserProfileCubit, dynamic>()
         // Payment BLoCs
@@ -299,8 +299,8 @@ class EnhancedBlocProviders {
             .addFromRegistry<EnhancedUserProfileCubit, dynamic>()
             .addFromRegistry<AddressCubit, dynamic>()
             .addFromRegistry<FavoritesCubit, dynamic>()
-            .addFromRegistry<RestaurantBloc, dynamic>()
-            .addFromRegistry<FoodBloc, dynamic>()
+            .addFromRegistry<RestaurantCubit, dynamic>()
+            .addFromRegistry<FoodCubit, dynamic>()
             .addFromRegistry<SearchBloc, dynamic>()
             .build(child: child);
 

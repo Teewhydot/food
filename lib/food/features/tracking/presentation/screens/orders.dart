@@ -13,7 +13,8 @@ import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../../../../core/bloc/bloc_manager.dart';
+import '../../../../core/bloc/managers/simplified_enhanced_bloc_manager.dart';
+import '../../../../core/bloc/base/base_state.dart';
 import '../../../../core/routes/routes.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../payments/domain/entities/order_entity.dart';
@@ -69,23 +70,19 @@ class _OrdersState extends State<Orders> {
             ),
             tabs: [Text("Ongoing"), Text("History")],
             views: [
-              BlocManager<OrderBloc, OrderState>(
+              SimplifiedEnhancedBlocManager<OrderBloc, BaseState<dynamic>>(
                 bloc: context.read<OrderBloc>(),
-                child: SizedBox.shrink(),
-                isError: (state) => state is OrderError,
-                getErrorMessage:
-                    (state) =>
-                        state is OrderError
-                            ? state.message
-                            : AppConstants.defaultErrorMessage,
+                child: const SizedBox.shrink(),
+                showLoadingIndicator: true,
                 builder: (context, state) {
-                  if (state is OrderLoading) {
+                  if (state is LoadingState) {
                     return Center(
                       child: CircularProgressIndicator(color: kPrimaryColor),
                     );
-                  } else if (state is OrdersLoaded) {
+                  } else if (state.hasData) {
+                    final orders = state.data as List? ?? [];
                     final ongoingOrders =
-                        state.orders
+                        orders
                             .where(
                               (order) =>
                                   order.status == OrderStatus.pending ||
@@ -147,23 +144,19 @@ class _OrdersState extends State<Orders> {
                   return SizedBox.shrink();
                 },
               ),
-              BlocManager<OrderBloc, OrderState>(
+              SimplifiedEnhancedBlocManager<OrderBloc, BaseState<dynamic>>(
                 bloc: context.read<OrderBloc>(),
-                child: SizedBox.shrink(),
-                isError: (state) => state is OrderError,
-                getErrorMessage:
-                    (state) =>
-                        state is OrderError
-                            ? state.message
-                            : AppConstants.defaultErrorMessage,
+                child: const SizedBox.shrink(),
+                showLoadingIndicator: true,
                 builder: (context, state) {
-                  if (state is OrderLoading) {
+                  if (state is LoadingState) {
                     return Center(
                       child: CircularProgressIndicator(color: kPrimaryColor),
                     );
-                  } else if (state is OrdersLoaded) {
+                  } else if (state.hasData) {
+                    final orders = state.data as List? ?? [];
                     final historyOrders =
-                        state.orders
+                        state.data
                             .where(
                               (order) =>
                                   order.status == OrderStatus.delivered ||

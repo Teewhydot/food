@@ -4,7 +4,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/image.dart';
 import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/components/texts.dart';
-import 'package:food/food/core/bloc/bloc_manager.dart';
+import 'package:food/food/core/bloc/managers/simplified_enhanced_bloc_manager.dart';
+import 'package:food/food/core/bloc/base/base_state.dart';
 import 'package:food/food/core/constants/app_constants.dart';
 import 'package:food/food/core/helpers/extensions.dart';
 import 'package:food/food/core/routes/routes.dart';
@@ -26,17 +27,13 @@ class PersonalInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     final nav = GetIt.instance<NavigationService>();
     // done
-    return BlocManager<UserProfileCubit, UserProfileState>(
+    return SimplifiedEnhancedBlocManager<UserProfileCubit, BaseState<dynamic>>(
       bloc: context.read<UserProfileCubit>(),
-      child: Container(),
-      isError: (state) => state is UserProfileError,
-      getErrorMessage:
-          (state) =>
-              state is UserProfileError
-                  ? state.errorMessage
-                  : AppConstants.defaultErrorMessage,
+      child: const SizedBox.shrink(),
+      showLoadingIndicator: true,
       builder: (context, state) {
-        if (state is UserProfileLoaded) {
+        if (state.hasData) {
+          final userProfile = state.data;
           return FScaffold(
             customScroll: true,
             appBarWidget: GestureDetector(
@@ -67,7 +64,7 @@ class PersonalInfo extends StatelessWidget {
                   ).onTap(() {
                     nav.navigateTo(
                       Routes.editProfile,
-                      arguments: state.userProfile,
+                      arguments: userProfile,
                     );
                   }),
                 ],
@@ -86,7 +83,7 @@ class PersonalInfo extends StatelessWidget {
                           children: [
                             FText(
                               text:
-                                  "${state.userProfile.firstName} ${state.userProfile.lastName}",
+                                  "${userProfile.firstName} ${userProfile.lastName}",
                               fontSize: 20.sp,
                               fontWeight: FontWeight.w500,
                               color: kBlackColor,
@@ -94,7 +91,7 @@ class PersonalInfo extends StatelessWidget {
                             ),
                             8.verticalSpace,
                             FWrapText(
-                              text: state.userProfile.bio ?? "No bio",
+                              text: userProfile.bio ?? "No bio",
                               fontSize: 13.sp,
                               fontWeight: FontWeight.w400,
                               color: kContainerColor,
@@ -120,7 +117,7 @@ class PersonalInfo extends StatelessWidget {
                         PersonalInfoWidget(
                           field: 'full name',
                           value:
-                              "${state.userProfile.firstName} ${state.userProfile.lastName}",
+                              "${userProfile.firstName} ${userProfile.lastName}",
                           child: FImage(
                             assetPath: Assets.svgsPersonalInfo,
                             assetType: FoodAssetType.svg,
@@ -130,7 +127,7 @@ class PersonalInfo extends StatelessWidget {
                         ),
                         PersonalInfoWidget(
                           field: 'email',
-                          value: state.userProfile.email,
+                          value: userProfile.email,
                           child: FImage(
                             assetPath: Assets.svgsEmail,
                             assetType: FoodAssetType.svg,
@@ -140,7 +137,7 @@ class PersonalInfo extends StatelessWidget {
                         ),
                         PersonalInfoWidget(
                           field: 'phone number',
-                          value: state.userProfile.phoneNumber,
+                          value: userProfile.phoneNumber,
                           child: FImage(
                             assetPath: Assets.svgsPhoneNum,
                             assetType: FoodAssetType.svg,

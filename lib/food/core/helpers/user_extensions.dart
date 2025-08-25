@@ -8,8 +8,8 @@ extension UserProfileExtension on BuildContext {
   /// Get the current user profile if loaded, returns null otherwise
   UserProfileEntity? get currentUser {
     final state = read<UserProfileCubit>().state;
-    if (state is UserProfileLoaded) {
-      return state.userProfile;
+    if (state.hasData) {
+      return state.data;
     }
     return null;
   }
@@ -29,8 +29,8 @@ extension UserProfileExtension on BuildContext {
   /// Watch user profile changes (use in build method)
   UserProfileEntity? watchUser() {
     final state = watch<UserProfileCubit>().state;
-    if (state is UserProfileLoaded) {
-      return state.userProfile;
+    if (state.hasData) {
+      return state.data;
     }
     return null;
   }
