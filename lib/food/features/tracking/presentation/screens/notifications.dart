@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/scaffold.dart';
-import 'package:food/food/core/bloc/managers/simplified_enhanced_bloc_manager.dart';
 import 'package:food/food/core/bloc/base/base_state.dart';
 import 'package:food/food/core/routes/routes.dart';
 import 'package:food/food/features/tracking/presentation/manager/chats_bloc/chats_cubit.dart';
@@ -15,6 +14,7 @@ import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../components/texts.dart';
+import '../../../../core/bloc/managers/bloc_manager.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../core/theme/colors.dart';
@@ -76,7 +76,7 @@ class _NotificationsState extends State<Notifications> {
                 physics: BouncingScrollPhysics(),
               ),
               views: [
-                SimplifiedEnhancedBlocManager<NotificationCubit, BaseState<dynamic>>(
+                BlocManager<NotificationCubit, BaseState<dynamic>>(
                   bloc: context.read<NotificationCubit>(),
                   child: const SizedBox.shrink(),
                   showLoadingIndicator: true,
@@ -127,7 +127,7 @@ class _NotificationsState extends State<Notifications> {
                     );
                   },
                 ),
-                SimplifiedEnhancedBlocManager<ChatsCubit, BaseState<dynamic>>(
+                BlocManager<ChatsCubit, BaseState<dynamic>>(
                   bloc: context.read<ChatsCubit>(),
                   child: const SizedBox.shrink(),
                   showLoadingIndicator: true,

@@ -13,13 +13,13 @@ import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../../../components/texts.dart';
-import '../../../../core/bloc/managers/simplified_enhanced_bloc_manager.dart';
 import '../../../../core/bloc/base/base_state.dart';
+import '../../../../core/bloc/managers/bloc_manager.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../auth/presentation/widgets/back_widget.dart';
 import '../../domain/entities/chat_entity.dart';
-import '../manager/messaging_bloc/messaging_bloc.dart';
 import '../../domain/entities/message_entity.dart';
+import '../manager/messaging_bloc/messaging_bloc.dart';
 
 enum ChatType { text, image, video }
 
@@ -92,9 +92,8 @@ class _ChatScreenState extends State<ChatScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
-            child: SimplifiedEnhancedBlocManager<MessagingBloc, BaseState<List<MessageEntity>>>(
+            child: BlocManager<MessagingBloc, BaseState<List<MessageEntity>>>(
               bloc: context.read<MessagingBloc>(),
-              child: const SizedBox.shrink(),
               showLoadingIndicator: true,
               builder: (context, state) {
                 if (state.hasData) {
@@ -128,7 +127,9 @@ class _ChatScreenState extends State<ChatScreen> {
                 } else if (state is EmptyState) {
                   return Center(
                     child: FText(
-                      text: (state as EmptyState).message ?? "No messages yet. Start a conversation!",
+                      text:
+                          (state as EmptyState).message ??
+                          "No messages yet. Start a conversation!",
                       fontSize: 16,
                       color: kContainerColor,
                     ),
@@ -136,6 +137,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 }
                 return const SizedBox.shrink();
               },
+              child: const SizedBox.shrink(),
             ),
           ),
           FTextField(

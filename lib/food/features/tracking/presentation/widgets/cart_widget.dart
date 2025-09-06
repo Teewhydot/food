@@ -8,8 +8,8 @@ import 'package:food/food/features/payments/presentation/manager/cart/cart_cubit
 import 'package:get/get.dart';
 import 'package:ionicons/ionicons.dart';
 
-import '../../../../core/bloc/managers/simplified_enhanced_bloc_manager.dart';
 import '../../../../core/bloc/base/base_state.dart';
+import '../../../../core/bloc/managers/bloc_manager.dart';
 import '../../../home/domain/entities/food.dart';
 import '../../../home/presentation/widgets/circle_widget.dart';
 
@@ -27,9 +27,8 @@ class DFoodCartWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SimplifiedEnhancedBlocManager<CartCubit, BaseState<dynamic>>(
+    return BlocManager<CartCubit, BaseState<dynamic>>(
       bloc: context.read<CartCubit>(),
-      child: const SizedBox.shrink(),
       showLoadingIndicator: true,
       builder: (context, state) {
         return Row(
@@ -114,6 +113,7 @@ class DFoodCartWidget extends StatelessWidget {
           ],
         ).paddingOnly(bottom: 20);
       },
+      child: const SizedBox.shrink(),
     );
   }
 }

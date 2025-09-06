@@ -11,8 +11,8 @@ import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../../../components/buttons.dart';
-import '../../../../core/bloc/managers/simplified_enhanced_bloc_manager.dart';
 import '../../../../core/bloc/base/base_state.dart';
+import '../../../../core/bloc/managers/bloc_manager.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../core/utils/app_utils.dart';
@@ -256,7 +256,9 @@ class _HomeState extends State<Home> {
                           });
                           // Optionally trigger category-specific food loading
                           if (category != "All") {
-                            context.read<FoodCubit>().getFoodsByCategory(category);
+                            context.read<FoodCubit>().getFoodsByCategory(
+                              category,
+                            );
                           } else {
                             context.read<FoodCubit>().getAllFoods();
                           }
@@ -266,9 +268,8 @@ class _HomeState extends State<Home> {
               ),
             ),
             32.verticalSpace,
-            SimplifiedEnhancedBlocManager<FoodCubit, BaseState<dynamic>>(
+            BlocManager<FoodCubit, BaseState<dynamic>>(
               bloc: context.read<FoodCubit>(),
-              child: const SizedBox.shrink(),
               showLoadingIndicator: true,
               builder: (context, state) {
                 if (state is LoadingState) {
@@ -307,6 +308,7 @@ class _HomeState extends State<Home> {
                 // Loading and error states are handled by SimplifiedEnhancedBlocManager
                 return const SizedBox.shrink();
               },
+              child: const SizedBox.shrink(),
             ),
             32.verticalSpace,
             SectionHead(
@@ -314,9 +316,8 @@ class _HomeState extends State<Home> {
               isActionVisible: false,
             ).paddingOnly(right: AppConstants.defaultPadding.w),
             20.verticalSpace,
-            SimplifiedEnhancedBlocManager<RestaurantCubit, BaseState<dynamic>>(
+            BlocManager<RestaurantCubit, BaseState<dynamic>>(
               bloc: context.read<RestaurantCubit>(),
-              child: const SizedBox.shrink(),
               showLoadingIndicator: true,
               builder: (context, state) {
                 if (state is LoadingState) {
@@ -356,6 +357,7 @@ class _HomeState extends State<Home> {
                 }
                 return SizedBox.shrink();
               },
+              child: const SizedBox.shrink(),
             ),
           ],
         ).paddingOnly(left: AppConstants.defaultPadding.w),

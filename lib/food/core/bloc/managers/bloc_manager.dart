@@ -11,7 +11,7 @@ import '../base/base_state.dart';
 
 /// A simplified version of EnhancedBlocManager that maintains core functionality
 /// without excessive configuration options
-class SimplifiedEnhancedBlocManager<T extends BlocBase<S>, S extends BaseState>
+class BlocManager<T extends BlocBase<S>, S extends BaseState>
     extends StatelessWidget {
   /// The BLoC instance to manage
   final T bloc;
@@ -47,7 +47,7 @@ class SimplifiedEnhancedBlocManager<T extends BlocBase<S>, S extends BaseState>
   /// Pull-to-refresh callback
   final Future<void> Function()? onRefresh;
 
-  const SimplifiedEnhancedBlocManager({
+  const BlocManager({
     super.key,
     required this.bloc,
     required this.child,
@@ -76,9 +76,7 @@ class SimplifiedEnhancedBlocManager<T extends BlocBase<S>, S extends BaseState>
             return LoadingOverlay(
               isLoading: true,
               color: kPrimaryColor.withValues(alpha: 0.5),
-              progressIndicator:
-                  loadingWidget ??
-                  const SpinKitCircle(color: kWhiteColor, size: 50.0),
+              progressIndicator: SpinKitCircle(color: kWhiteColor, size: 50.0),
               child: contentWidget,
             );
           }
@@ -98,8 +96,9 @@ class SimplifiedEnhancedBlocManager<T extends BlocBase<S>, S extends BaseState>
           if (state.isError) {
             final String errorMessage =
                 state.errorMessage ?? AppConstants.defaultErrorMessage;
-            if (showResultErrorNotifications)
+            if (showResultErrorNotifications) {
               DFoodUtils.showSnackBar(errorMessage, kErrorColor);
+            }
             if (onError != null) {
               onError!(context, state);
             }

@@ -20,7 +20,7 @@ class EnhancedLoginBloc
     : _authUseCase = authUseCase ?? AuthUseCase(),
       super(const InitialState<UserProfileEntity>()) {
     on<LoginSubmitEvent>(_onLoginSubmit);
-    on<LoginRetryEvent>(_onLoginRetry);
+    // on<LoginRetryEvent>(_onLoginRetry);
     on<LoginResetEvent>(_onLoginReset);
     on<LoginValidateEvent>(_onLoginValidate);
   }
@@ -52,7 +52,7 @@ class EnhancedLoginBloc
           final errorState = ErrorState<UserProfileEntity>(
             errorMessage: errorMessage,
             errorCode: failure.failureMessage,
-            isRetryable: _isRetryableError(failure.failureMessage),
+            isRetryable: false,
           );
 
           emit(errorState);
@@ -91,14 +91,14 @@ class EnhancedLoginBloc
     }
   }
 
-  /// Handle login retry
-  Future<void> _onLoginRetry(
-    LoginRetryEvent event,
-    Emitter<BaseState<UserProfileEntity>> emit,
-  ) async {
-    Logger.logBasic('Retrying login attempt');
-    add(LoginSubmitEvent(email: event.email, password: event.password));
-  }
+  // /// Handle login retry
+  // Future<void> _onLoginRetry(
+  //   LoginRetryEvent event,
+  //   Emitter<BaseState<UserProfileEntity>> emit,
+  // ) async {
+  //   Logger.logBasic('Retrying login attempt');
+  //   add(LoginSubmitEvent(email: event.email, password: event.password));
+  // }
 
   /// Handle login reset (back to initial state)
   Future<void> _onLoginReset(
@@ -154,19 +154,6 @@ class EnhancedLoginBloc
   /// Check if email format is valid
   bool _isValidEmail(String email) {
     return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
-  }
-
-  /// Determine if an error is retryable
-  bool _isRetryableError(String errorCode) {
-    const nonRetryableErrors = [
-      'user-not-found',
-      'wrong-password',
-      'invalid-email',
-      'user-disabled',
-      'too-many-requests',
-    ];
-
-    return !nonRetryableErrors.contains(errorCode);
   }
 
   /// Convert state to JSON for caching (disabled for security)

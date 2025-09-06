@@ -4,8 +4,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/image.dart';
 import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/components/texts.dart';
-import 'package:food/food/core/bloc/managers/simplified_enhanced_bloc_manager.dart';
 import 'package:food/food/core/bloc/base/base_state.dart';
+import 'package:food/food/core/bloc/managers/bloc_manager.dart';
 import 'package:food/food/core/constants/app_constants.dart';
 import 'package:food/food/core/helpers/extensions.dart';
 import 'package:food/food/core/routes/routes.dart';
@@ -27,9 +27,8 @@ class PersonalInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     final nav = GetIt.instance<NavigationService>();
     // done
-    return SimplifiedEnhancedBlocManager<UserProfileCubit, BaseState<dynamic>>(
+    return BlocManager<UserProfileCubit, BaseState<dynamic>>(
       bloc: context.read<UserProfileCubit>(),
-      child: const SizedBox.shrink(),
       showLoadingIndicator: true,
       builder: (context, state) {
         if (state.hasData) {
@@ -60,13 +59,11 @@ class PersonalInfo extends StatelessWidget {
                     fontSize: 17.sp,
                     fontWeight: FontWeight.w400,
                     color: kPrimaryColor,
-                    decorations: [TextDecoration.underline],
-                  ).onTap(() {
-                    nav.navigateTo(
-                      Routes.editProfile,
-                      arguments: userProfile,
-                    );
-                  }),
+                    decoration: TextDecoration.underline,
+                    onTap: () {
+                      nav.navigateTo(Routes.editProfile, arguments: userProfile);
+                    },
+                  ),
                 ],
               ),
             ),
@@ -155,6 +152,7 @@ class PersonalInfo extends StatelessWidget {
         }
         return SizedBox();
       },
+      child: const SizedBox.shrink(),
     );
   }
 }

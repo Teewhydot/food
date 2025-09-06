@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:food/food/app/enhanced_bloc_providers.dart';
+import 'package:food/food/app/bloc_providers.dart';
 import 'package:food/food/app/init.dart';
 import 'package:food/food/core/routes/getx_route_module.dart';
 import 'package:food/food/core/theme/theme.dart';
@@ -11,7 +12,7 @@ import 'food/core/routes/routes.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Add this line
   await AppConfig.init(); // Await the initialization
-  runApp(EnhancedBlocProviders.createAppBlocProvider(child: const MyApp()));
+  runApp(MultiBlocProvider(providers: blocs, child: const MyApp()));
 }
 
 class MyApp extends StatefulWidget {

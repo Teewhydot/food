@@ -6,10 +6,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/buttons.dart';
 import 'package:food/food/components/texts.dart';
-import 'package:food/food/core/bloc/managers/simplified_enhanced_bloc_manager.dart';
 import 'package:food/food/core/bloc/base/base_state.dart';
 import 'package:food/food/core/constants/app_constants.dart';
-import 'package:food/food/core/helpers/extensions.dart';
 import 'package:food/food/core/routes/routes.dart';
 import 'package:food/food/core/services/navigation_service/nav_config.dart';
 import 'package:food/food/core/theme/colors.dart';
@@ -21,6 +19,8 @@ import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:timer_count_down/timer_controller.dart';
 import 'package:timer_count_down/timer_count_down.dart';
+
+import '../../../../core/bloc/managers/bloc_manager.dart';
 
 class EmailVerificationScreen extends StatefulWidget {
   const EmailVerificationScreen({super.key});
@@ -72,7 +72,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SimplifiedEnhancedBlocManager<VerifyEmailBloc, BaseState<dynamic>>(
+    return BlocManager<VerifyEmailBloc, BaseState<dynamic>>(
       bloc: context.watch<VerifyEmailBloc>(),
       child: const SizedBox.shrink(),
       showLoadingIndicator: true,
@@ -86,103 +86,104 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
       builder: (context, state) {
         return CustomOverlay(
           isLoading: state is LoadingState,
-        child: AuthTemplate(
-          title: "Email Verification",
-          subtitle: "We've sent a verification link to your email",
-          hasBackButton: true,
-          hasSvg: true,
-          containerTopHeight: 233,
-          child: Column(
-            children: [
-              Container(
-                padding: EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: kGreyColor,
-                  borderRadius: BorderRadius.circular(8),
+          child: AuthTemplate(
+            title: "Email Verification",
+            subtitle: "We've sent a verification link to your email",
+            hasBackButton: true,
+            hasSvg: true,
+            containerTopHeight: 233,
+            child: Column(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: kGreyColor,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(
+                    children: [
+                      FText(
+                        text: "Please check your email",
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      16.verticalSpace,
+                      FText(
+                        text: "We've sent a verification link to:",
+                        fontSize: 14,
+                        color: kTextColorDark,
+                      ),
+                      8.verticalSpace,
+                      FText(
+                        text: userEmail ?? "your email address",
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: kPrimaryColor,
+                      ),
+                      16.verticalSpace,
+                      FWrapText(
+                        text:
+                            "Click the link in the email to verify your account. "
+                            "If you don't see it, check your spam folder.",
+                        fontSize: 14,
+                        color: kTextColorDark,
+                      ),
+                    ],
+                  ),
                 ),
-                child: Column(
+                24.verticalSpace,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    FText(
-                      text: "Please check your email",
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    16.verticalSpace,
-                    FText(
-                      text: "We've sent a verification link to:",
-                      fontSize: 14,
-                      color: kTextColorDark,
-                    ),
-                    8.verticalSpace,
-                    FText(
-                      text: userEmail ?? "your email address",
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: kPrimaryColor,
-                    ),
-                    16.verticalSpace,
-                    FWrapText(
-                      text:
-                          "Click the link in the email to verify your account. "
-                          "If you don't see it, check your spam folder.",
-                      fontSize: 14,
-                      color: kTextColorDark,
+                    FText(text: "Didn't receive the email?", fontSize: 13),
+                    8.horizontalSpace,
+                    Countdown(
+                      seconds: 60,
+                      controller: _countdownController,
+                      build: (context, double time) {
+                        return time.toInt() == 0
+                            ? FText(
+                              text: "Resend",
+                              fontSize: 13,
+                              color: kPrimaryColor,
+                              decoration: TextDecoration.underline,
+                              onTap: () => _resendVerificationEmail(),
+                            )
+                            : FText(
+                              text: "Resend in ${time.toInt()}s",
+                              fontSize: 13,
+                              color: kTextColorDark,
+                            );
+                      },
+                      interval: Duration(seconds: 1),
                     ),
                   ],
                 ),
-              ),
-              24.verticalSpace,
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  FText(text: "Didn't receive the email?", fontSize: 13),
-                  8.horizontalSpace,
-                  Countdown(
-                    seconds: 60,
-                    controller: _countdownController,
-                    build: (context, double time) {
-                      return time.toInt() == 0
-                          ? FText(
-                            text: "Resend",
-                            fontSize: 13,
-                            color: kPrimaryColor,
-                            decorations: [TextDecoration.underline],
-                          ).onTap(() => _resendVerificationEmail())
-                          : FText(
-                            text: "Resend in ${time.toInt()}s",
-                            fontSize: 13,
-                            color: kTextColorDark,
-                          );
-                    },
-                    interval: Duration(seconds: 1),
-                  ),
-                ],
-              ),
-              24.verticalSpace,
-              FButton(
-                buttonText: "I've Verified My Email",
-                width: 1.sw,
-                onPressed: _checkEmailVerification,
-              ),
-              16.verticalSpace,
-              FButton(
-                buttonText: "Back to Login",
-                width: 1.sw,
-                color: kWhiteColor,
-                textColor: kPrimaryColor,
-                borderColor: kPrimaryColor,
-                onPressed: () {
-                  nav.navigateAndReplace(Routes.login);
-                },
-              ),
-            ],
-          ).paddingOnly(
-            left: AppConstants.defaultPadding,
-            top: AppConstants.defaultPadding,
-            right: AppConstants.defaultPadding,
+                24.verticalSpace,
+                FButton(
+                  buttonText: "I've Verified My Email",
+                  width: 1.sw,
+                  onPressed: _checkEmailVerification,
+                ),
+                16.verticalSpace,
+                FButton(
+                  buttonText: "Back to Login",
+                  width: 1.sw,
+                  color: kWhiteColor,
+                  textColor: kPrimaryColor,
+                  borderColor: kPrimaryColor,
+                  onPressed: () {
+                    nav.navigateAndReplace(Routes.login);
+                  },
+                ),
+              ],
+            ).paddingOnly(
+              left: AppConstants.defaultPadding,
+              top: AppConstants.defaultPadding,
+              right: AppConstants.defaultPadding,
+            ),
           ),
-        ),
-      );
+        );
       },
     );
   }

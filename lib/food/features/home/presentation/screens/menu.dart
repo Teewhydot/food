@@ -4,7 +4,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/image.dart';
 import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/components/texts.dart';
-import 'package:food/food/core/bloc/managers/simplified_enhanced_bloc_manager.dart';
 import 'package:food/food/core/bloc/base/base_state.dart';
 import 'package:food/food/core/constants/app_constants.dart';
 import 'package:food/food/core/routes/routes.dart';
@@ -17,6 +16,7 @@ import 'package:food/generated/assets.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 
+import '../../../../core/bloc/managers/bloc_manager.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 
 class Menu extends StatefulWidget {
@@ -38,9 +38,8 @@ class _MenuState extends State<Menu> {
   Widget build(BuildContext context) {
     final nav = GetIt.instance<NavigationService>();
 
-    return SimplifiedEnhancedBlocManager<UserProfileCubit, BaseState<dynamic>>(
+    return BlocManager<UserProfileCubit, BaseState<dynamic>>(
       bloc: context.read<UserProfileCubit>(),
-      child: const SizedBox.shrink(),
       showLoadingIndicator: true,
       builder: (context, state) {
         if (state.hasData) {
@@ -258,15 +257,10 @@ class _MenuState extends State<Menu> {
               ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
             ),
           );
-        } else if (state is LoadingState) {
-          return FScaffold(
-            body: Center(
-              child: CircularProgressIndicator(color: kPrimaryColor),
-            ),
-          );
         }
         return const SizedBox();
       },
+      child: const SizedBox.shrink(),
     );
   }
 }

@@ -28,7 +28,6 @@ import '../features/payments/presentation/manager/payment_bloc/payment_bloc.dart
 import '../features/tracking/domain/use_cases/chat_usecase.dart';
 
 final List<BlocProvider> blocs = [
-  // BlocProvider<LoginBloc>(create: (context) => LoginBloc()),
   BlocProvider<ForgotPasswordBloc>(create: (context) => ForgotPasswordBloc()),
   BlocProvider<RegisterBloc>(create: (context) => RegisterBloc()),
   BlocProvider<VerificationBloc>(create: (context) => VerificationBloc()),

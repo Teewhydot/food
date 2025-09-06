@@ -5,7 +5,6 @@ import 'package:food/food/components/buttons.dart';
 import 'package:food/food/components/image.dart';
 import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/components/textfields.dart';
-import 'package:food/food/core/bloc/managers/simplified_enhanced_bloc_manager.dart';
 import 'package:food/food/core/bloc/base/base_state.dart';
 import 'package:food/food/core/constants/app_constants.dart';
 import 'package:food/food/core/services/floor_db_service/user_profile/user_profile_database_service.dart';
@@ -19,6 +18,7 @@ import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../../../components/texts.dart';
+import '../../../../core/bloc/managers/bloc_manager.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../core/theme/colors.dart';
 import '../../../auth/presentation/widgets/back_widget.dart';
@@ -71,9 +71,8 @@ class _EditProfileState extends State<EditProfile> {
 
   @override
   Widget build(BuildContext context) {
-    return SimplifiedEnhancedBlocManager<UserProfileCubit, BaseState<UserProfileEntity>>(
+    return BlocManager<UserProfileCubit, BaseState<UserProfileEntity>>(
       bloc: context.read<UserProfileCubit>(),
-      child: const SizedBox.shrink(),
       showLoadingIndicator: true,
       onSuccess: (context, state) {
         Logger.logBasic("User profile updated successfully");
@@ -82,102 +81,103 @@ class _EditProfileState extends State<EditProfile> {
         return CustomOverlay(
           isLoading: state is LoadingState,
           child: FScaffold(
-          appBarWidget: Row(
-            children: [
-              BackWidget(color: kGreyColor),
-              20.horizontalSpace,
-              FText(
-                text: "Edit profile",
-                fontSize: 17.sp,
-                fontWeight: FontWeight.w400,
-                color: kBlackColor,
-              ),
-            ],
-          ),
-          customScroll: true,
-          body: SingleChildScrollView(
-            child: Column(
+            appBarWidget: Row(
               children: [
-                20.verticalSpace,
-                Stack(
-                  children: [
-                    CircleWidget(radius: 70, color: kPrimaryColor),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: CircleWidget(
-                        radius: 20,
-                        color: kBlackColor,
-                        child: FImage(
-                          assetPath: Assets.svgsPencil,
-                          assetType: FoodAssetType.svg,
-                          width: 16,
-                          height: 16,
-                          svgAssetColor: kWhiteColor,
+                BackWidget(color: kGreyColor),
+                20.horizontalSpace,
+                FText(
+                  text: "Edit profile",
+                  fontSize: 17.sp,
+                  fontWeight: FontWeight.w400,
+                  color: kBlackColor,
+                ),
+              ],
+            ),
+            customScroll: true,
+            body: SingleChildScrollView(
+              child: Column(
+                children: [
+                  20.verticalSpace,
+                  Stack(
+                    children: [
+                      CircleWidget(radius: 70, color: kPrimaryColor),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: CircleWidget(
+                          radius: 20,
+                          color: kBlackColor,
+                          child: FImage(
+                            assetPath: Assets.svgsPencil,
+                            assetType: FoodAssetType.svg,
+                            width: 16,
+                            height: 16,
+                            svgAssetColor: kWhiteColor,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                30.verticalSpace,
-                FTextField(
-                  hintText: "First Name",
-                  action: TextInputAction.next,
-                  label: "First Name",
-                  controller: firstNameController,
-                ),
-                24.verticalSpace,
-                FTextField(
-                  hintText: "Last Name",
-                  action: TextInputAction.next,
-                  label: "Last Name",
-                  controller: lastNameController,
-                ),
+                    ],
+                  ),
+                  30.verticalSpace,
+                  FTextField(
+                    hintText: "First Name",
+                    action: TextInputAction.next,
+                    label: "First Name",
+                    controller: firstNameController,
+                  ),
+                  24.verticalSpace,
+                  FTextField(
+                    hintText: "Last Name",
+                    action: TextInputAction.next,
+                    label: "Last Name",
+                    controller: lastNameController,
+                  ),
 
-                24.verticalSpace,
-                FTextField(
-                  hintText: "Phone",
-                  action: TextInputAction.next,
-                  label: "Phone",
-                  keyboardType: TextInputType.phone,
-                  controller: phoneController,
-                ),
-                24.verticalSpace,
-                FTextField(
-                  hintText: "",
-                  action: TextInputAction.next,
-                  label: "Bio",
-                  height: 103,
-                  maxLine: 5,
-                  controller: bioController,
-                ),
-                32.verticalSpace,
-                FButton(
-                  buttonText: "Save",
-                  width: 1.sw,
-                  onPressed: () {
-                    final updatedProfile = UserProfileEntity(
-                      id: id,
-                      firstName: firstNameController.text,
-                      lastName: lastNameController.text,
-                      email: email,
-                      phoneNumber: phoneController.text,
-                      bio: bioController.text,
-                      firstTimeLogin: widget.userProfile.firstTimeLogin,
-                    );
-                    context.read<UserProfileCubit>().updateUserProfile(
-                      updatedProfile,
-                    );
-                    nav.goBack();
-                  },
-                ),
-                32.verticalSpace,
-              ],
-            ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
+                  24.verticalSpace,
+                  FTextField(
+                    hintText: "Phone",
+                    action: TextInputAction.next,
+                    label: "Phone",
+                    keyboardType: TextInputType.phone,
+                    controller: phoneController,
+                  ),
+                  24.verticalSpace,
+                  FTextField(
+                    hintText: "",
+                    action: TextInputAction.next,
+                    label: "Bio",
+                    height: 103,
+                    maxLine: 5,
+                    controller: bioController,
+                  ),
+                  32.verticalSpace,
+                  FButton(
+                    buttonText: "Save",
+                    width: 1.sw,
+                    onPressed: () {
+                      final updatedProfile = UserProfileEntity(
+                        id: id,
+                        firstName: firstNameController.text,
+                        lastName: lastNameController.text,
+                        email: email,
+                        phoneNumber: phoneController.text,
+                        bio: bioController.text,
+                        firstTimeLogin: widget.userProfile.firstTimeLogin,
+                      );
+                      context.read<UserProfileCubit>().updateUserProfile(
+                        updatedProfile,
+                      );
+                      nav.goBack();
+                    },
+                  ),
+                  32.verticalSpace,
+                ],
+              ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
             ),
           ),
         );
       },
+      child: const SizedBox.shrink(),
     );
   }
 }

@@ -13,14 +13,13 @@ import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../../../../core/bloc/managers/simplified_enhanced_bloc_manager.dart';
 import '../../../../core/bloc/base/base_state.dart';
+import '../../../../core/bloc/managers/bloc_manager.dart';
 import '../../../../core/routes/routes.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../payments/domain/entities/order_entity.dart';
 import '../../../payments/presentation/manager/order_bloc/order_bloc.dart';
 import '../../../payments/presentation/manager/order_bloc/order_event.dart';
-import '../../../payments/presentation/manager/order_bloc/order_state.dart';
 
 enum OrderCategory { ongoing, history }
 
@@ -70,9 +69,8 @@ class _OrdersState extends State<Orders> {
             ),
             tabs: [Text("Ongoing"), Text("History")],
             views: [
-              SimplifiedEnhancedBlocManager<OrderBloc, BaseState<dynamic>>(
+              BlocManager<OrderBloc, BaseState<dynamic>>(
                 bloc: context.read<OrderBloc>(),
-                child: const SizedBox.shrink(),
                 showLoadingIndicator: true,
                 builder: (context, state) {
                   if (state is LoadingState) {
@@ -143,8 +141,9 @@ class _OrdersState extends State<Orders> {
                   }
                   return SizedBox.shrink();
                 },
+                child: const SizedBox.shrink(),
               ),
-              SimplifiedEnhancedBlocManager<OrderBloc, BaseState<dynamic>>(
+              BlocManager<OrderBloc, BaseState<dynamic>>(
                 bloc: context.read<OrderBloc>(),
                 child: const SizedBox.shrink(),
                 showLoadingIndicator: true,

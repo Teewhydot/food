@@ -1,4 +1,5 @@
 import 'package:food/food/core/routes/routes.dart';
+import 'package:food/food/core/middleware/auth_middleware.dart';
 import 'package:food/food/features/auth/presentation/screens/email_verification_screen.dart';
 import 'package:food/food/features/auth/presentation/screens/enhanced_login_screen.dart';
 import 'package:food/food/features/auth/presentation/screens/enhanced_register_screen.dart';
@@ -54,6 +55,7 @@ class GetXRouteModule {
       page: () => const EnhancedLoginScreen(),
       transition: _transition,
       transitionDuration: _transitionDuration,
+      middlewares: [AuthMiddleware()],
     ),
     GetPage(
       name: Routes.emailVerification,
@@ -66,6 +68,7 @@ class GetXRouteModule {
       page: () => const EnhancedRegisterScreen(),
       transition: _transition,
       transitionDuration: _transitionDuration,
+      middlewares: [AuthMiddleware()],
     ),
     GetPage(
       name: Routes.forgotPassword,
@@ -78,12 +81,14 @@ class GetXRouteModule {
       page: () => const Home(),
       transition: _transition,
       transitionDuration: _transitionDuration,
+      middlewares: [AuthMiddleware()],
     ),
     GetPage(
       name: Routes.search,
       page: () => const Search(),
       transition: _transition,
       transitionDuration: _transitionDuration,
+      middlewares: [AuthMiddleware()],
     ),
     GetPage(
       name: Routes.food,
@@ -124,6 +129,7 @@ class GetXRouteModule {
       page: () => const Cart(),
       transition: _transition,
       transitionDuration: _transitionDuration,
+      middlewares: [AuthMiddleware()],
     ),
     GetPage(
       name: Routes.paymentMethod,
@@ -170,6 +176,7 @@ class GetXRouteModule {
       page: () => const PersonalInfo(),
       transition: _transition,
       transitionDuration: _transitionDuration,
+      middlewares: [AuthMiddleware()],
     ),
     GetPage(
       name: Routes.editProfile,

@@ -6,7 +6,6 @@ import 'package:food/food/core/services/floor_db_service/user_profile/user_profi
 import '../core/services/floor_db_service/address/address_database_service.dart';
 import '../core/services/floor_db_service/recent_keywords/recent_keywords_database_service.dart';
 import '../dependency_injection/set_up.dart';
-import 'enhanced_bloc_providers.dart';
 
 class AppConfig {
   static Future<void> init() async {
@@ -14,10 +13,6 @@ class AppConfig {
     // For example, setting up environment variables, logging, etc.
     WidgetsFlutterBinding.ensureInitialized();
     setupDIService();
-    
-    // Initialize enhanced BLoC factories
-    EnhancedBlocProviders.initializeFactories();
-    
     await RecentKeywordsDatabaseService().database;
     await AddressDatabaseService().database;
     await UserProfileDatabaseService().database;

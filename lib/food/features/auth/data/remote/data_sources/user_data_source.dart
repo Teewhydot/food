@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:food/food/features/home/domain/entities/profile.dart';
-import 'package:uuid/uuid.dart';
+import '../../custom_exceptions/custom_exceptions.dart';
 
 abstract class UserDataSource {
   Future<UserProfileEntity> getCurrentUser();
@@ -14,28 +14,22 @@ class FirebaseUserDSI implements UserDataSource {
   @override
   Future<UserProfileEntity> getCurrentUser() async {
     final user = firebase.currentUser;
-    final userDetails = await database.collection('users').doc(user?.uid).get();
-    return user != null
-        ? UserProfileEntity(
-          id: user.uid,
-          firstName: userDetails.data()?['firstName'] ?? '',
-          lastName: userDetails.data()?['lastName'] ?? '',
-          email: user.email ?? '',
-          profileImageUrl: userDetails.data()?['profileImageUrl'] ?? '',
-          phoneNumber: user.phoneNumber ?? '',
-          bio: userDetails.data()?['bio'] ?? '',
-          firstTimeLogin: false,
-        )
-        : UserProfileEntity(
-          firstName: 'John',
-          lastName: 'Doe',
-          email: 'johndoe@gmail.com',
-          phoneNumber: '11111111111',
-          bio: 'Just a cool developer',
-          firstTimeLogin:
-              true, // Default values for a new user, App must redirect to onboarding screen so new user can register or login. Also usefull for anonymous login.
-          profileImageUrl: '',
-          id: Uuid().v4(),
-        );
+    
+    if (user == null) {
+      throw UserNotAuthenticatedException('No authenticated user found');
+    }
+    
+    final userDetails = await database.collection('users').doc(user.uid).get();
+    
+    return UserProfileEntity(
+      id: user.uid,
+      firstName: userDetails.data()?['firstName'] ?? '',
+      lastName: userDetails.data()?['lastName'] ?? '',
+      email: user.email ?? '',
+      profileImageUrl: userDetails.data()?['profileImageUrl'] ?? '',
+      phoneNumber: user.phoneNumber ?? '',
+      bio: userDetails.data()?['bio'] ?? '',
+      firstTimeLogin: false,
+    );
   }
 }

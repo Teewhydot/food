@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/texts.dart';
-import 'package:food/food/core/bloc/managers/simplified_enhanced_bloc_manager.dart';
 import 'package:food/food/core/bloc/base/base_state.dart';
 import 'package:food/food/core/constants/app_constants.dart';
 import 'package:food/food/features/home/domain/entities/food.dart';
@@ -17,6 +16,7 @@ import 'package:ionicons/ionicons.dart';
 import '../../../../../generated/assets.dart';
 import '../../../../components/buttons.dart';
 import '../../../../components/image.dart';
+import '../../../../core/bloc/managers/bloc_manager.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../core/theme/colors.dart';
 
@@ -37,7 +37,7 @@ class _FoodDetailsState extends State<FoodDetails> {
   Widget build(BuildContext context) {
     final nav = GetIt.instance<NavigationService>();
 
-    return SimplifiedEnhancedBlocManager<CartCubit, BaseState<dynamic>>(
+    return BlocManager<CartCubit, BaseState<dynamic>>(
       bloc: context.read<CartCubit>(),
       child: const SizedBox.shrink(),
       showLoadingIndicator: true,

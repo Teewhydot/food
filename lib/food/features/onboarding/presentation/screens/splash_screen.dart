@@ -27,14 +27,23 @@ class _SplashScreenState extends State<SplashScreen> {
       if (state.hasData) {
         final userProfile = state.data;
         if (userProfile?.firstTimeLogin == true) {
-          Logger.logSuccess("Welcome to Dfood");
+          Logger.logSuccess("First time user - redirecting to onboarding");
           nav.navigateTo(Routes.onboarding);
         } else {
-          Logger.logSuccess("Welcome back");
+          Logger.logSuccess("Welcome back - redirecting to home");
           nav.navigateTo(Routes.home);
         }
       } else if (state is ErrorState) {
-        nav.navigateTo(Routes.onboarding);
+        Logger.logError("Authentication error: ${state.errorMessage}");
+        // Check if it's an authentication error
+        if (state.errorMessage?.contains('UserNotAuthenticatedException') == true ||
+            state.errorMessage?.contains('No authenticated user found') == true) {
+          Logger.logBasic("No authenticated user - redirecting to login");
+          nav.navigateTo(Routes.login);
+        } else {
+          Logger.logBasic("General error - redirecting to onboarding");
+          nav.navigateTo(Routes.onboarding);
+        }
       }
     });
   }

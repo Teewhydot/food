@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/components/texts.dart';
-import 'package:food/food/core/bloc/managers/simplified_enhanced_bloc_manager.dart';
 import 'package:food/food/core/bloc/base/base_state.dart';
 import 'package:food/food/core/helpers/extensions.dart';
 import 'package:food/food/core/theme/colors.dart';
@@ -15,6 +14,7 @@ import 'package:food/food/features/home/presentation/widgets/search_widget.dart'
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 
+import '../../../../core/bloc/managers/bloc_manager.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/routes/routes.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
@@ -24,7 +24,6 @@ import '../../domain/entities/restaurant.dart';
 import '../../domain/entities/search_result.dart'; // SearchResultEntity
 import '../manager/search_bloc/search_bloc.dart';
 import '../manager/search_bloc/search_event.dart';
-import '../manager/search_bloc/search_state.dart';
 import '../widgets/keyword_widget.dart';
 import '../widgets/restaurant_widget.dart';
 import '../widgets/section_head.dart';
@@ -60,7 +59,7 @@ class _SearchState extends State<Search> {
   }
 
   Widget _buildSuggestedFoodsSection() {
-    return SimplifiedEnhancedBlocManager<SearchBloc, BaseState<dynamic>>(
+    return BlocManager<SearchBloc, BaseState<dynamic>>(
       bloc: context.read<SearchBloc>(),
       child: const SizedBox.shrink(),
       showLoadingIndicator: true,
@@ -74,7 +73,12 @@ class _SearchState extends State<Search> {
           );
         }
 
-        final foods = state.hasData ? (state.data is SearchResultEntity ? (state.data as SearchResultEntity).foods : <FoodEntity>[]) : <FoodEntity>[];
+        final foods =
+            state.hasData
+                ? (state.data is SearchResultEntity
+                    ? (state.data as SearchResultEntity).foods
+                    : <FoodEntity>[])
+                : <FoodEntity>[];
 
         if (foods.isEmpty && searchQuery.isNotEmpty) {
           return Center(
@@ -124,7 +128,7 @@ class _SearchState extends State<Search> {
   }
 
   Widget _buildSuggestedRestaurantsSection() {
-    return SimplifiedEnhancedBlocManager<SearchBloc, BaseState<dynamic>>(
+    return BlocManager<SearchBloc, BaseState<dynamic>>(
       bloc: context.read<SearchBloc>(),
       child: const SizedBox.shrink(),
       showLoadingIndicator: true,
@@ -145,7 +149,12 @@ class _SearchState extends State<Search> {
           );
         }
 
-        final restaurants = state.hasData ? (state.data is SearchResultEntity ? (state.data as SearchResultEntity).restaurants : <Restaurant>[]) : <Restaurant>[];
+        final restaurants =
+            state.hasData
+                ? (state.data is SearchResultEntity
+                    ? (state.data as SearchResultEntity).restaurants
+                    : <Restaurant>[])
+                : <Restaurant>[];
 
         if (restaurants.isEmpty && searchQuery.isNotEmpty) {
           return Center(
@@ -232,7 +241,7 @@ class _SearchState extends State<Search> {
             25.verticalSpace,
             SectionHead(title: "Recent Keywords", isActionVisible: false),
             20.verticalSpace,
-            SimplifiedEnhancedBlocManager<RecentKeywordsCubit, BaseState<dynamic>>(
+            BlocManager<RecentKeywordsCubit, BaseState<dynamic>>(
               bloc: context.read<RecentKeywordsCubit>(),
               child: const SizedBox.shrink(),
               showLoadingIndicator: true,
@@ -271,8 +280,7 @@ class _SearchState extends State<Search> {
                         return KeywordWidget(
                           keyword: keywords[index].keyword,
                           onTap: () {
-                            searchController.text =
-                                keywords[index].keyword;
+                            searchController.text = keywords[index].keyword;
                             updateSearchQuery(keywords[index].keyword);
                           },
                         );

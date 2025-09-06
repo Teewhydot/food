@@ -5,9 +5,8 @@ import 'package:food/food/components/buttons.dart';
 import 'package:food/food/components/permission_dialog.dart';
 import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/components/texts.dart';
-import 'package:food/food/core/constants/app_constants.dart';
-import 'package:food/food/core/bloc/managers/simplified_enhanced_bloc_manager.dart';
 import 'package:food/food/core/bloc/base/base_state.dart';
+import 'package:food/food/core/constants/app_constants.dart';
 import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/features/auth/presentation/widgets/custom_overlay.dart';
 import 'package:food/food/features/onboarding/presentation/widgets/food_container.dart';
@@ -17,6 +16,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 import '../../../../../generated/assets.dart';
 import '../../../../components/image.dart';
+import '../../../../core/bloc/managers/bloc_manager.dart';
 import '../../../../core/routes/routes.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../core/utils/app_utils.dart';
@@ -43,9 +43,8 @@ class _LocationState extends State<Location> {
 
   @override
   Widget build(BuildContext context) {
-    return SimplifiedEnhancedBlocManager<LocationBloc, BaseState<dynamic>>(
+    return BlocManager<LocationBloc, BaseState<dynamic>>(
       bloc: context.read<LocationBloc>(),
-      child: const SizedBox.shrink(),
       showLoadingIndicator: true,
       onSuccess: (context, state) {
         // Handle any additional success logic if needed
@@ -62,49 +61,50 @@ class _LocationState extends State<Location> {
             });
           }
         }
-        
+
         return CustomOverlay(
           isLoading: state is LoadingState,
-        child: FScaffold(
-          body: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                FoodContainer(
-                  height: 250,
-                  width: 206,
-                  borderRadius: 90,
-                  hasBorder: true,
-                  child: Container(),
-                ),
-                94.verticalSpace,
-                FButton(
-                  buttonText: "ACCESS LOCATION",
-                  icon: FImage(
-                    assetType: FoodAssetType.svg,
-                    assetPath: Assets.svgsLocationIcon,
-                    width: 32,
-                    height: 32,
+          child: FScaffold(
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  FoodContainer(
+                    height: 250,
+                    width: 206,
+                    borderRadius: 90,
+                    hasBorder: true,
+                    child: Container(),
                   ),
-                  onPressed: () {
-                    context.read<LocationBloc>().requestLocation();
-                  },
-                ),
-                37.verticalSpace,
-                FWrapText(
-                  text:
-                      "DFOOD WILL ACCESS YOUR LOCATION ONLY WHILE USING THE APP",
-                  color: kTextColorDark,
-                ).paddingOnly(
-                  left: AppConstants.defaultPadding.w,
-                  right: AppConstants.defaultPadding.w,
-                ),
-              ],
+                  94.verticalSpace,
+                  FButton(
+                    buttonText: "ACCESS LOCATION",
+                    icon: FImage(
+                      assetType: FoodAssetType.svg,
+                      assetPath: Assets.svgsLocationIcon,
+                      width: 32,
+                      height: 32,
+                    ),
+                    onPressed: () {
+                      context.read<LocationBloc>().requestLocation();
+                    },
+                  ),
+                  37.verticalSpace,
+                  FWrapText(
+                    text:
+                        "DFOOD WILL ACCESS YOUR LOCATION ONLY WHILE USING THE APP",
+                    color: kTextColorDark,
+                  ).paddingOnly(
+                    left: AppConstants.defaultPadding.w,
+                    right: AppConstants.defaultPadding.w,
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-      );
+        );
       },
+      child: const SizedBox.shrink(),
     );
   }
 

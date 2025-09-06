@@ -5,8 +5,8 @@ import 'package:get_it/get_it.dart';
 import '../../../../../generated/assets.dart';
 import '../../../../components/image.dart';
 import '../../../../components/texts.dart';
-import '../../../../core/bloc/managers/simplified_enhanced_bloc_manager.dart';
 import '../../../../core/bloc/base/base_state.dart';
+import '../../../../core/bloc/managers/bloc_manager.dart';
 import '../../../../core/routes/routes.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../core/theme/colors.dart';
@@ -47,9 +47,8 @@ class _CartWidgetState extends State<CartWidget> {
             radius: 10,
             color: kPrimaryColor,
             onTap: null,
-            child: SimplifiedEnhancedBlocManager<CartCubit, BaseState<dynamic>>(
+            child: BlocManager<CartCubit, BaseState<dynamic>>(
               bloc: context.read<CartCubit>(),
-              child: CupertinoActivityIndicator(radius: 5, color: kWhiteColor),
               showLoadingIndicator: false,
               builder: (context, state) {
                 if (state.hasData) {
@@ -65,6 +64,7 @@ class _CartWidgetState extends State<CartWidget> {
                   color: kWhiteColor,
                 );
               },
+              child: CupertinoActivityIndicator(radius: 5, color: kWhiteColor),
             ),
           ),
         ),

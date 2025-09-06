@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/components/texts.dart';
-import 'package:food/food/core/bloc/managers/simplified_enhanced_bloc_manager.dart';
 import 'package:food/food/core/bloc/base/base_state.dart';
 import 'package:food/food/core/helpers/extensions.dart';
 import 'package:food/food/core/routes/routes.dart';
@@ -16,6 +15,7 @@ import 'package:get_it/get_it.dart';
 
 import '../../../../components/buttons.dart';
 import '../../../../components/textfields.dart';
+import '../../../../core/bloc/managers/bloc_manager.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 
@@ -32,9 +32,8 @@ class _CartState extends State<Cart> {
   @override
   Widget build(BuildContext context) {
     final nav = GetIt.instance<NavigationService>();
-    return SimplifiedEnhancedBlocManager<CartCubit, BaseState<dynamic>>(
+    return BlocManager<CartCubit, BaseState<dynamic>>(
       bloc: context.read<CartCubit>(),
-      child: const SizedBox.shrink(),
       showLoadingIndicator: true,
       builder: (context, state) {
         if (state.hasData) {
@@ -81,12 +80,13 @@ class _CartState extends State<Cart> {
                   color: kPrimaryColor,
                   fontSize: 14,
                   fontWeight: FontWeight.w400,
-                  decorations: [TextDecoration.underline],
-                ).onTap(() {
-                  setState(() {
-                    editMode = !editMode;
-                  });
-                }),
+                  decoration: TextDecoration.underline,
+                  onTap: () {
+                    setState(() {
+                      editMode = !editMode;
+                    });
+                  },
+                ),
               ],
             ).paddingOnly(right: AppConstants.defaultPadding),
             backgroundColor: kScaffoldColorDark,
@@ -115,7 +115,7 @@ class _CartState extends State<Cart> {
                           fontSize: 14,
                           color: kPrimaryColor,
                           fontWeight: FontWeight.w400,
-                          decorations: [TextDecoration.underline],
+                          decoration: TextDecoration.underline,
                         ),
                       ],
                     ),
@@ -184,6 +184,7 @@ class _CartState extends State<Cart> {
         }
         return SizedBox();
       },
+      child: const SizedBox.shrink(),
     );
   }
 }

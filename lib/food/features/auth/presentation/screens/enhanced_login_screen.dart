@@ -6,7 +6,7 @@ import '../../../../components/buttons.dart';
 import '../../../../components/textfields.dart';
 import '../../../../components/texts.dart';
 import '../../../../core/bloc/base/base_state.dart';
-import '../../../../core/bloc/managers/simplified_enhanced_bloc_manager.dart';
+import '../../../../core/bloc/managers/bloc_manager.dart';
 import '../../../../core/theme/colors.dart';
 import '../../../../core/utils/spacings.dart';
 import '../../../home/domain/entities/profile.dart';
@@ -44,10 +44,7 @@ class _EnhancedLoginScreenState extends State<EnhancedLoginScreen> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => EnhancedLoginBloc(),
-      child: SimplifiedEnhancedBlocManager<
-        EnhancedLoginBloc,
-        BaseState<UserProfileEntity>
-      >(
+      child: BlocManager<EnhancedLoginBloc, BaseState<UserProfileEntity>>(
         bloc: BlocProvider.of<EnhancedLoginBloc>(context),
         showLoadingIndicator: true,
         onSuccess: (context, state) {

@@ -22,6 +22,47 @@ abstract class RestaurantRemoteDataSource {
 class FirebaseRestaurantRemoteDataSource implements RestaurantRemoteDataSource {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  /// Helper method to parse category data from Firebase
+  /// Since Firebase stores category as a simple String like "Fast Food",
+  /// we create a RestaurantFoodCategory object from it
+  List<RestaurantFoodCategory> _parseCategories(dynamic categoryData) {
+    if (categoryData == null) return [];
+    
+    if (categoryData is String && categoryData.isNotEmpty) {
+      // Create a simple category with just the name
+      return [RestaurantFoodCategory(category: categoryData, imageUrl: '', foods: [])];
+    }
+    
+    if (categoryData is List) {
+      return categoryData
+          .map((item) {
+            if (item is String && item.isNotEmpty) {
+              return RestaurantFoodCategory(category: item, imageUrl: '', foods: []);
+            } else if (item is Map<String, dynamic>) {
+              return RestaurantFoodCategory(
+                category: item['category'] ?? '',
+                imageUrl: item['imageUrl'] ?? '',
+                foods: item['foods'] != null && item['foods'] is List
+                    ? (item['foods'] as List)
+                        .map((food) => food is Map<String, dynamic> 
+                            ? FoodEntity.fromMap(food) 
+                            : null)
+                        .where((food) => food != null)
+                        .cast<FoodEntity>()
+                        .toList()
+                    : [],
+              );
+            }
+            return null;
+          })
+          .where((cat) => cat != null)
+          .cast<RestaurantFoodCategory>()
+          .toList();
+    }
+    
+    return [];
+  }
+
   @override
   Future<List<Restaurant>> getRestaurants() async {
     final snapshot =
@@ -42,7 +83,7 @@ class FirebaseRestaurantRemoteDataSource implements RestaurantRemoteDataSource {
         deliveryTime: data['deliveryTime'] ?? '',
         deliveryFee: data['deliveryFee']?.toDouble() ?? 0.0,
         imageUrl: data['imageUrl'] ?? '',
-        category: data['category'] ?? '',
+        category: _parseCategories(data['categories']),
         isOpen: data['isOpen'] ?? true,
         latitude: data['latitude']?.toDouble() ?? 0.0,
         longitude: data['longitude']?.toDouble() ?? 0.0,
@@ -95,7 +136,7 @@ class FirebaseRestaurantRemoteDataSource implements RestaurantRemoteDataSource {
         deliveryTime: data['deliveryTime'] ?? '',
         deliveryFee: data['deliveryFee']?.toDouble() ?? 0.0,
         imageUrl: data['imageUrl'] ?? '',
-        category: data['category'] ?? '',
+        category: _parseCategories(data['categories']),
         isOpen: data['isOpen'] ?? true,
         latitude: data['latitude']?.toDouble() ?? 0.0,
         longitude: data['longitude']?.toDouble() ?? 0.0,
@@ -161,7 +202,7 @@ class FirebaseRestaurantRemoteDataSource implements RestaurantRemoteDataSource {
             deliveryTime: data['deliveryTime'] ?? '',
             deliveryFee: data['deliveryFee']?.toDouble() ?? 0.0,
             imageUrl: data['imageUrl'] ?? '',
-            category: data['category'] ?? '',
+            category: _parseCategories(data['categories']),
             isOpen: data['isOpen'] ?? true,
             latitude: data['latitude']?.toDouble() ?? 0.0,
             longitude: data['longitude']?.toDouble() ?? 0.0,
@@ -189,9 +230,13 @@ class FirebaseRestaurantRemoteDataSource implements RestaurantRemoteDataSource {
         category: data['category'] ?? '',
         imageUrl: data['imageUrl'] ?? '',
         foods:
-            data['foods'] != null
+            data['foods'] != null && data['foods'] is List
                 ? (data['foods'] as List)
-                    .map((food) => FoodEntity.fromMap(food))
+                    .map((food) => food is Map<String, dynamic> 
+                        ? FoodEntity.fromMap(food) 
+                        : null)
+                    .where((food) => food != null)
+                    .cast<FoodEntity>()
                     .toList()
                 : [],
       );
@@ -218,7 +263,7 @@ class FirebaseRestaurantRemoteDataSource implements RestaurantRemoteDataSource {
         deliveryTime: data['deliveryTime'] ?? '',
         deliveryFee: data['deliveryFee']?.toDouble() ?? 0.0,
         imageUrl: data['imageUrl'] ?? '',
-        category: data['category'] ?? '',
+        category: _parseCategories(data['categories']),
         isOpen: data['isOpen'] ?? true,
         latitude: data['latitude']?.toDouble() ?? 0.0,
         longitude: data['longitude']?.toDouble() ?? 0.0,

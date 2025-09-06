@@ -6,7 +6,6 @@ import 'package:food/food/components/buttons.dart';
 import 'package:food/food/components/image.dart';
 import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/components/texts.dart';
-import 'package:food/food/core/bloc/managers/simplified_enhanced_bloc_manager.dart';
 import 'package:food/food/core/bloc/base/base_state.dart';
 import 'package:food/food/core/constants/app_constants.dart';
 import 'package:food/food/core/services/navigation_service/nav_config.dart';
@@ -19,6 +18,7 @@ import 'package:food/generated/assets.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 
+import '../../../../core/bloc/managers/bloc_manager.dart';
 import '../widgets/circle_widget.dart';
 import '../widgets/section_head.dart';
 
@@ -29,9 +29,8 @@ class Food extends StatelessWidget {
   Widget build(BuildContext context) {
     final nav = GetIt.instance<NavigationService>();
 
-    return SimplifiedEnhancedBlocManager<CartCubit, BaseState<dynamic>>(
+    return BlocManager<CartCubit, BaseState<dynamic>>(
       bloc: context.read<CartCubit>(),
-      child: const SizedBox.shrink(),
       showLoadingIndicator: true,
       builder: (context, state) {
         if (state.hasData) {
@@ -285,6 +284,7 @@ class Food extends StatelessWidget {
         }
         return SizedBox();
       },
+      child: const SizedBox.shrink(),
     );
   }
 }
