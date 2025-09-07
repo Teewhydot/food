@@ -15,13 +15,15 @@ class CircleWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        if (onTap != null) {
-          onTap!();
-        }
-      },
-      child: CircleAvatar(radius: radius, backgroundColor: color, child: child),
-    );
+    final circleAvatar = CircleAvatar(radius: radius, backgroundColor: color, child: child);
+    
+    if (onTap != null) {
+      return GestureDetector(
+        onTap: onTap,
+        child: circleAvatar,
+      );
+    }
+    
+    return circleAvatar;
   }
 }

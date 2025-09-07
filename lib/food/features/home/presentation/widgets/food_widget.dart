@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/texts.dart';
@@ -36,7 +37,20 @@ class _FoodWidgetState extends State<FoodWidget> {
         children: [
           Column(
             children: [
-              FoodContainer(width: 153, height: 130),
+              FoodContainer(
+                width: 153,
+                height: 130,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(
+                    12,
+                  ), // Adjust the radius as needed
+                  child: CachedNetworkImage(
+                    imageUrl: widget.image,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+              5.verticalSpace,
               FText(
                 text: widget.name,
                 fontSize: 12,

@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 
 import '../../../../components/texts.dart';
 import '../../../../core/theme/colors.dart';
-import 'circle_widget.dart';
 
 class CategoryWidget extends StatelessWidget {
   final String text;
@@ -23,10 +22,10 @@ class CategoryWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(40),
+      borderRadius: BorderRadius.circular(20),
       child: IntrinsicWidth(
         child: Container(
-          height: 60,
+          height: 50,
           decoration: BoxDecoration(
             color: isSelected ? kPrimaryColor : kWhiteColor,
             borderRadius: BorderRadius.circular(40),
@@ -38,22 +37,11 @@ class CategoryWidget extends StatelessWidget {
               ),
             ],
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (showImage)
-                CircleWidget(
-                  radius: 22,
-                  color: kGreyColor,
-                  child: Container(),
-                ).paddingOnly(left: 8),
-              Center(
-                child: FText(
-                  text: text,
-                  color: isSelected ? kWhiteColor : kTextColorDark,
-                ).paddingSymmetric(horizontal: 15.w, vertical: 10.h),
-              ),
-            ],
+          child: Center(
+            child: FText.bodySmall(
+              text,
+              color: isSelected ? kWhiteColor : kTextColorDark,
+            ).paddingSymmetric(horizontal: 15.w, vertical: 5.h),
           ).paddingOnly(right: 15),
         ).paddingAll(5),
       ),

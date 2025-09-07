@@ -9,7 +9,6 @@ import 'package:food/food/core/bloc/base/base_state.dart';
 import 'package:food/food/core/constants/app_constants.dart';
 import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/features/auth/presentation/widgets/custom_overlay.dart';
-import 'package:food/food/features/onboarding/presentation/widgets/food_container.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -19,7 +18,6 @@ import '../../../../components/image.dart';
 import '../../../../core/bloc/managers/bloc_manager.dart';
 import '../../../../core/routes/routes.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
-import '../../../../core/utils/app_utils.dart';
 import '../manager/location_bloc/location_bloc.dart';
 
 class Location extends StatefulWidget {
@@ -35,10 +33,6 @@ class _LocationState extends State<Location> {
   @override
   void initState() {
     super.initState();
-    // Check if location permission is already granted
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<LocationBloc>().checkLocationPermission();
-    });
   }
 
   @override
@@ -48,7 +42,6 @@ class _LocationState extends State<Location> {
       showLoadingIndicator: true,
       onSuccess: (context, state) {
         // Handle any additional success logic if needed
-        DFoodUtils.showSnackBar("Location access granted", kSuccessColor);
         nav.navigateAndReplaceAll(Routes.home);
       },
       builder: (context, state) {
@@ -69,12 +62,11 @@ class _LocationState extends State<Location> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  FoodContainer(
-                    height: 250,
-                    width: 206,
-                    borderRadius: 90,
-                    hasBorder: true,
-                    child: Container(),
+                  FImage(
+                    assetType: FoodAssetType.asset,
+                    assetPath: Assets.assetsSplashFoodLogo,
+                    width: 150,
+                    height: 150,
                   ),
                   94.verticalSpace,
                   FButton(

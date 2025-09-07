@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/image.dart';
@@ -25,7 +26,19 @@ class RestaurantWidget extends StatelessWidget {
       onTap: () => onTap(),
       child: Column(
         children: [
-          FoodContainer(height: 137, width: 1.sw, child: Container()),
+          FoodContainer(
+            height: 137,
+            width: 1.sw,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(
+                12,
+              ), // Adjust the radius as needed
+              child: CachedNetworkImage(
+                imageUrl: restaurant.imageUrl,
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
           8.verticalSpace,
           FText(
             text: restaurant.name,

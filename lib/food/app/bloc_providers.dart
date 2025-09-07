@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food/food/features/auth/presentation/manager/auth_bloc/delete_account/delete_account_bloc.dart';
 import 'package:food/food/features/auth/presentation/manager/auth_bloc/email_verification_status/email_verification_status_bloc.dart';
+import 'package:food/food/features/auth/presentation/manager/auth_bloc/login/enhanced_login_bloc.dart';
 import 'package:food/food/features/auth/presentation/manager/auth_bloc/otp_verification/verification_bloc.dart';
 import 'package:food/food/features/auth/presentation/manager/auth_bloc/register/register_bloc.dart';
 import 'package:food/food/features/auth/presentation/manager/auth_bloc/sign_out/sign_out_bloc.dart';
@@ -33,6 +34,8 @@ final List<BlocProvider> blocs = [
   BlocProvider<VerificationBloc>(create: (context) => VerificationBloc()),
   BlocProvider<LocationBloc>(create: (context) => LocationBloc()),
   BlocProvider<RecentKeywordsCubit>(create: (context) => RecentKeywordsCubit()),
+  BlocProvider<EnhancedLoginBloc>(create: (context) => EnhancedLoginBloc()),
+
   BlocProvider<CartCubit>(create: (context) => CartCubit()),
   BlocProvider<UserProfileCubit>(
     create: (context) => UserProfileCubit()..loadUserProfile(),

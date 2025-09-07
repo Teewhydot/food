@@ -9,10 +9,33 @@ import '../../../domain/use_cases/restaurant_usecase.dart';
 class RestaurantCubit extends BaseCubit<BaseState<dynamic>> {
   final RestaurantUseCase restaurantUseCase;
 
+  // Cache management
+  static const Duration _cacheValidDuration = Duration(minutes: 10);
+  DateTime? _lastFetchTime;
+  List<Restaurant>? _cachedRestaurants;
+
   RestaurantCubit({required this.restaurantUseCase})
     : super(const InitialState<dynamic>());
 
-  Future<void> getRestaurants() async {
+  /// Check if cache is still valid
+  bool get _isCacheValid => 
+    _lastFetchTime != null && 
+    DateTime.now().difference(_lastFetchTime!) < _cacheValidDuration;
+
+  /// Check if we have valid cached data
+  bool get _hasValidCachedRestaurants => _cachedRestaurants != null && _isCacheValid;
+
+  Future<void> getRestaurants({bool forceRefresh = false}) async {
+    // Return cached data if available and valid, unless force refresh
+    if (_hasValidCachedRestaurants && !forceRefresh) {
+      emit(LoadedState<List<Restaurant>>(
+        data: _cachedRestaurants!,
+        lastUpdated: _lastFetchTime!,
+        isFromCache: true,
+      ));
+      return;
+    }
+
     emit(const LoadingState<List<Restaurant>>(message: 'Loading restaurants...'));
     final result = await restaurantUseCase.getRestaurants();
     result.fold(
@@ -23,14 +46,21 @@ class RestaurantCubit extends BaseCubit<BaseState<dynamic>> {
           isRetryable: true,
         ),
       ),
-      (restaurants) => restaurants.isEmpty
-          ? emit(const EmptyState<List<Restaurant>>(message: 'No restaurants available'))
-          : emit(
-              LoadedState<List<Restaurant>>(
-                data: restaurants,
-                lastUpdated: DateTime.now(),
-              ),
-            ),
+      (restaurants) {
+        // Cache the successful result
+        _cachedRestaurants = restaurants;
+        _lastFetchTime = DateTime.now();
+        
+        if (restaurants.isEmpty) {
+          emit(const EmptyState<List<Restaurant>>(message: 'No restaurants available'));
+        } else {
+          emit(LoadedState<List<Restaurant>>(
+            data: restaurants,
+            lastUpdated: _lastFetchTime!,
+            isFromCache: false,
+          ));
+        }
+      },
     );
   }
 

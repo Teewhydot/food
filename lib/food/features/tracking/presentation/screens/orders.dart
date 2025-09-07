@@ -5,7 +5,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/buttons.dart';
 import 'package:food/food/components/texts.dart';
 import 'package:food/food/core/constants/app_constants.dart';
-import 'package:food/food/core/helpers/user_extensions.dart';
 import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/features/auth/presentation/widgets/back_widget.dart';
 import 'package:food/food/features/tracking/presentation/screens/tracking.dart';
@@ -17,6 +16,7 @@ import '../../../../core/bloc/base/base_state.dart';
 import '../../../../core/bloc/managers/bloc_manager.dart';
 import '../../../../core/routes/routes.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
+import '../../../home/manager/user_profile/user_profile_cubit.dart';
 import '../../../payments/domain/entities/order_entity.dart';
 import '../../../payments/presentation/manager/order_bloc/order_bloc.dart';
 import '../../../payments/presentation/manager/order_bloc/order_event.dart';
@@ -34,10 +34,15 @@ class _OrdersState extends State<Orders> {
   @override
   void initState() {
     super.initState();
-    // Load user orders
-    context.read<OrderBloc>().add(
-      GetUserOrdersEvent(context.currentUserId ?? ""),
-    );
+    // Load user orders after frame is built to ensure UserProfileCubit is loaded
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final userId = context.read<UserProfileCubit>().state.data?.id;
+      if (userId != null) {
+        context.read<OrderBloc>().add(
+          GetUserOrdersEvent(userId),
+        );
+      }
+    });
   }
 
   @override

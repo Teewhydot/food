@@ -22,23 +22,9 @@ enum TextVariant {
   labelSmall,
 }
 
-enum TextArrangement {
-  left,
-  right,
-  center,
-  justify,
-  start,
-  end,
-}
+enum TextArrangement { left, right, center, justify, start, end }
 
-enum TextWrap {
-  noWrap,
-  wrap,
-  ellipsis,
-  fade,
-  clip,
-  visible,
-}
+enum TextWrap { noWrap, wrap, ellipsis, fade, clip, visible }
 
 class FText extends StatelessWidget {
   const FText({
@@ -728,7 +714,7 @@ class FText extends StatelessWidget {
   final double? width;
   final EdgeInsetsGeometry? padding;
   final EdgeInsetsGeometry? margin;
-  
+
   // Legacy parameters for backward compatibility
   final MainAxisAlignment alignment;
   final List<TextDecoration> decorations;
@@ -753,15 +739,16 @@ class FText extends StatelessWidget {
 
     // Determine text alignment
     final effectiveTextAlign = textAlign ?? _getTextAlignFromArrangement();
-    
+
     // Determine overflow behavior - prioritize new wrap system over legacy
-    final effectiveOverflow = overflow ?? _getOverflowFromWrap() ?? textOverflow;
-    
+    final effectiveOverflow =
+        overflow ?? _getOverflowFromWrap() ?? textOverflow;
+
     // Determine soft wrap
     final effectiveSoftWrap = softWrap ?? _getSoftWrapFromWrap();
 
     Widget textWidget;
-    
+
     if (selectable) {
       textWidget = SelectableText(
         text,
@@ -786,54 +773,39 @@ class FText extends StatelessWidget {
 
     // Apply width constraint if specified
     if (width != null) {
-      textWidget = SizedBox(
-        width: width,
-        child: textWidget,
-      );
+      textWidget = SizedBox(width: width, child: textWidget);
     }
 
     // Apply padding if specified
     if (padding != null) {
-      textWidget = Padding(
-        padding: padding!,
-        child: textWidget,
-      );
+      textWidget = Padding(padding: padding!, child: textWidget);
     }
 
     // Apply margin if specified
     if (margin != null) {
-      textWidget = Container(
-        margin: margin,
-        child: textWidget,
-      );
+      textWidget = Container(margin: margin, child: textWidget);
     }
 
     // Apply tap handler
     if (onTap != null) {
-      textWidget = GestureDetector(
-        onTap: onTap,
-        child: textWidget,
-      );
+      textWidget = GestureDetector(onTap: onTap, child: textWidget);
     }
 
     // Apply arrangement-specific wrapping or legacy alignment
     if (arrangement == TextArrangement.center) {
       textWidget = Center(child: textWidget);
-    } else if (arrangement == TextArrangement.right || arrangement == TextArrangement.end) {
-      textWidget = Align(
-        alignment: Alignment.centerRight,
-        child: textWidget,
-      );
-    } else if (arrangement == TextArrangement.left || arrangement == TextArrangement.start) {
-      textWidget = Align(
-        alignment: Alignment.centerLeft,
-        child: textWidget,
-      );
+    } else if (arrangement == TextArrangement.right ||
+        arrangement == TextArrangement.end) {
+      textWidget = Align(alignment: Alignment.centerRight, child: textWidget);
+    } else if (arrangement == TextArrangement.left ||
+        arrangement == TextArrangement.start) {
+      textWidget = Align(alignment: Alignment.centerLeft, child: textWidget);
     } else {
       // Legacy alignment behavior for backward compatibility
       textWidget = Row(
+        mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: alignment,
-        children: [textWidget],
+        children: [Flexible(child: textWidget)],
       );
     }
 

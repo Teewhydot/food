@@ -74,12 +74,10 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
   Widget build(BuildContext context) {
     return BlocManager<VerifyEmailBloc, BaseState<dynamic>>(
       bloc: context.watch<VerifyEmailBloc>(),
-      child: const SizedBox.shrink(),
       showLoadingIndicator: true,
       onSuccess: (context, state) {
         if (state is SuccessState) {
           // Email verified successfully, navigate to location screen
-          DFoodUtils.showSnackBar("Email verified successfully", kSuccessColor);
           nav.navigateAndReplace(Routes.location);
         }
       },
@@ -185,6 +183,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
           ),
         );
       },
+      child: const SizedBox.shrink(),
     );
   }
 }

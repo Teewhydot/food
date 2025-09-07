@@ -2,6 +2,7 @@ import 'package:food/food/features/auth/data/remote/data_sources/register_data_s
 import 'package:get_it/get_it.dart';
 
 import '../core/services/firebase_service.dart';
+import '../core/services/geocoding_service.dart';
 import '../core/services/navigation_service/nav_config.dart';
 import '../features/auth/data/remote/data_sources/delete_user_account_data_source.dart';
 import '../features/auth/data/remote/data_sources/email_verification_data_source.dart';
@@ -50,9 +51,10 @@ import '../core/services/floor_db_service/user_profile/user_profile_database_ser
 final getIt = GetIt.instance;
 
 void setupDIService() {
-  // Register your classes here
+  // Register core services
   getIt.registerLazySingleton<NavigationService>(() => GetxNavigationService());
   getIt.registerLazySingleton<FirebaseService>(() => FirebaseService());
+  getIt.registerLazySingleton<GeocodingService>(() => GeocodingService());
   getIt.registerLazySingleton<LoginDataSource>(() => FirebaseLoginDSI());
   getIt.registerLazySingleton<RegisterDataSource>(() => FirebaseRegisterDSI());
   getIt.registerLazySingleton<EmailVerificationDataSource>(

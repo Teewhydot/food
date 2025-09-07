@@ -12,6 +12,8 @@ class FImage extends StatelessWidget {
   final FoodAssetType assetType;
   final Color? svgAssetColor;
   final MainAxisAlignment imageAlignment = MainAxisAlignment.center;
+  final Widget? placeholder;
+  final Widget? errorWidget;
 
   const FImage({
     super.key,
@@ -22,6 +24,8 @@ class FImage extends StatelessWidget {
     this.svgAssetColor,
     this.fit = BoxFit.cover,
     this.assetType = FoodAssetType.asset,
+    this.placeholder,
+    this.errorWidget,
   });
   @override
   Widget build(BuildContext context) {
@@ -39,10 +43,12 @@ class FImage extends StatelessWidget {
           width: width.w,
           height: height.h,
           fit: fit,
-          filterQuality: FilterQuality.high,
-          placeholder:
-              (context, url) =>
-                  const Center(child: CircularProgressIndicator.adaptive()),
+          placeholder: placeholder != null 
+            ? (context, url) => placeholder!
+            : (context, url) => const Center(child: CircularProgressIndicator()),
+          errorWidget: errorWidget != null 
+            ? (context, url, error) => errorWidget!
+            : (context, url, error) => const Icon(Icons.error),
         ),
         FoodAssetType.svg => Align(
           alignment: Alignment.center,
@@ -50,7 +56,9 @@ class FImage extends StatelessWidget {
             assetPath,
             width: width.w,
             height: height.h,
-            color: svgAssetColor,
+            colorFilter: svgAssetColor != null 
+              ? ColorFilter.mode(svgAssetColor!, BlendMode.srcIn)
+              : null,
           ),
         ),
       },

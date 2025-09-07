@@ -1,34 +1,39 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:food/food/core/constants/app_constants.dart';
+import 'package:food/food/core/utils/form_validators.dart';
+import 'package:get_it/get_it.dart';
 
 import '../../../../components/buttons.dart';
 import '../../../../components/textfields.dart';
 import '../../../../components/texts.dart';
 import '../../../../core/bloc/base/base_state.dart';
 import '../../../../core/bloc/managers/bloc_manager.dart';
+import '../../../../core/routes/routes.dart';
+import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../core/theme/colors.dart';
 import '../../../../core/utils/spacings.dart';
 import '../../../home/domain/entities/profile.dart';
 import '../manager/auth_bloc/login/enhanced_login_bloc.dart';
 import '../widgets/auth_template.dart';
 
-/// Enhanced Login Screen using the new BLoC management system
-class EnhancedLoginScreen extends StatefulWidget {
-  const EnhancedLoginScreen({super.key});
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
 
   @override
-  State<EnhancedLoginScreen> createState() => _EnhancedLoginScreenState();
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _EnhancedLoginScreenState extends State<EnhancedLoginScreen> {
+class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _emailFocusNode = FocusNode();
   final _passwordFocusNode = FocusNode();
+  String? emailError, passwordError;
+  final nav = GetIt.instance<NavigationService>();
 
-  bool _obscurePassword = true;
+  final bool _obscurePassword = true;
   bool _rememberMe = false;
 
   @override
@@ -42,24 +47,19 @@ class _EnhancedLoginScreenState extends State<EnhancedLoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => EnhancedLoginBloc(),
-      child: BlocManager<EnhancedLoginBloc, BaseState<UserProfileEntity>>(
-        bloc: BlocProvider.of<EnhancedLoginBloc>(context),
-        showLoadingIndicator: true,
-        onSuccess: (context, state) {
-          // Navigate to home screen on successful login
-          Navigator.of(context).pushReplacementNamed('/home');
-        },
-        onError: (context, state) {
-          // Additional error handling can be added here
-          _clearPasswordField();
-        },
-        child: AuthTemplate(
-          title: 'Welcome Back',
-          subtitle: 'Sign in to your account to continue',
-          child: _buildLoginForm(),
-        ),
+    return BlocManager<EnhancedLoginBloc, BaseState<UserProfileEntity>>(
+      bloc: BlocProvider.of<EnhancedLoginBloc>(context),
+      showLoadingIndicator: true,
+      onSuccess: (context, state) {
+        nav.navigateAndReplaceAll(Routes.home);
+      },
+      onError: (context, state) {
+        _clearPasswordField();
+      },
+      child: AuthTemplate(
+        title: 'Welcome Back',
+        subtitle: 'Sign in to your account to continue',
+        child: _buildLoginForm(),
       ),
     );
   }
@@ -68,7 +68,7 @@ class _EnhancedLoginScreenState extends State<EnhancedLoginScreen> {
     return Form(
       key: _formKey,
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(AppConstants.defaultPadding),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -80,6 +80,12 @@ class _EnhancedLoginScreenState extends State<EnhancedLoginScreen> {
                 hintText: 'Enter your email',
                 keyboardType: TextInputType.emailAddress,
                 action: TextInputAction.next,
+                borderColor: emailError != null ? kErrorColor : kContainerColor,
+                onChanged: (value) {
+                  setState(() {
+                    emailError = validateEmail(value);
+                  });
+                },
               ),
 
               16.verticalSpace,
@@ -91,6 +97,13 @@ class _EnhancedLoginScreenState extends State<EnhancedLoginScreen> {
                 hintText: 'Enter your password',
                 action: TextInputAction.done,
                 obscureText: _obscurePassword,
+                borderColor:
+                    passwordError != null ? kErrorColor : kContainerColor,
+                onChanged: (value) {
+                  setState(() {
+                    passwordError = validatePassword(value);
+                  });
+                },
               ),
 
               12.verticalSpace,
@@ -109,9 +122,7 @@ class _EnhancedLoginScreenState extends State<EnhancedLoginScreen> {
                   const FText(text: 'Remember me', fontSize: 14),
                   const Spacer(),
                   TextButton(
-                    onPressed:
-                        () =>
-                            Navigator.of(context).pushNamed('/forgot-password'),
+                    onPressed: () => nav.navigateTo(Routes.forgotPassword),
                     child: const FText(
                       text: 'Forgot Password?',
                       fontSize: 14,
@@ -143,8 +154,7 @@ class _EnhancedLoginScreenState extends State<EnhancedLoginScreen> {
                 children: [
                   const FText(text: 'Don\'t have an account? ', fontSize: 14),
                   TextButton(
-                    onPressed:
-                        () => Navigator.of(context).pushNamed('/register'),
+                    onPressed: () => nav.navigateTo(Routes.register),
                     child: const FText(
                       text: 'Sign Up',
                       fontSize: 14,
@@ -156,138 +166,10 @@ class _EnhancedLoginScreenState extends State<EnhancedLoginScreen> {
               ),
 
               16.verticalSpace,
-
-              // Social Login Options
-              _buildSocialLoginSection(),
-
-              // Debug Section (only in debug mode)
-              if (kDebugMode) ...[32.verticalSpace, _buildDebugSection()],
             ],
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildSocialLoginSection() {
-    return Column(
-      children: [
-        Row(
-          children: [
-            const Expanded(child: Divider()),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: FText(
-                text: 'Or continue with',
-                fontSize: 12,
-                color: Colors.grey,
-              ),
-            ),
-            const Expanded(child: Divider()),
-          ],
-        ),
-
-        16.verticalSpace,
-
-        Row(
-          children: [
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: () => _handleSocialLogin('google'),
-                icon: const Icon(Icons.g_mobiledata, size: 24),
-                label: const Text('Google'),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                ),
-              ),
-            ),
-            12.horizontalSpace,
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: () => _handleSocialLogin('facebook'),
-                icon: const Icon(Icons.facebook, size: 24),
-                label: const Text('Facebook'),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDebugSection() {
-    return BlocBuilder<EnhancedLoginBloc, BaseState<UserProfileEntity>>(
-      builder: (context, state) {
-        return Card(
-          color: Colors.grey.shade100,
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Debug Info',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                ),
-                4.verticalSpace,
-                Text(
-                  'State: ${state.runtimeType}',
-                  style: const TextStyle(fontSize: 10),
-                ),
-                Text(
-                  'Is Loading: ${state.isLoading}',
-                  style: const TextStyle(fontSize: 10),
-                ),
-                Text(
-                  'Is Error: ${state.isError}',
-                  style: const TextStyle(fontSize: 10),
-                ),
-                Text(
-                  'Has Data: ${state.hasData}',
-                  style: const TextStyle(fontSize: 10),
-                ),
-                if (state.errorMessage != null)
-                  Text(
-                    'Error: ${state.errorMessage}',
-                    style: const TextStyle(fontSize: 10, color: Colors.red),
-                  ),
-                8.verticalSpace,
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          _emailController.text = 'test@example.com';
-                          _passwordController.text = 'password123';
-                        },
-                        child: const Text(
-                          'Fill Test Data',
-                          style: TextStyle(fontSize: 10),
-                        ),
-                      ),
-                    ),
-                    8.horizontalSpace,
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          context.read<EnhancedLoginBloc>().resetLogin();
-                        },
-                        child: const Text(
-                          'Reset State',
-                          style: TextStyle(fontSize: 10),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      },
     );
   }
 
@@ -304,40 +186,7 @@ class _EnhancedLoginScreenState extends State<EnhancedLoginScreen> {
     }
   }
 
-  void _handleSocialLogin(String provider) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('$provider login is not implemented yet'),
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
-
   void _clearPasswordField() {
     _passwordController.clear();
-  }
-
-  String? _validateEmail(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Email is required';
-    }
-
-    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-      return 'Please enter a valid email address';
-    }
-
-    return null;
-  }
-
-  String? _validatePassword(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Password is required';
-    }
-
-    if (value.length < 6) {
-      return 'Password must be at least 6 characters long';
-    }
-
-    return null;
   }
 }

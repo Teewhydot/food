@@ -106,9 +106,7 @@ class BlocManager<T extends BlocBase<S>, S extends BaseState>
 
           // Handle success states
           if (state.isSuccess) {
-            Logger.logSuccess(
-              "Success condition met in SimplifiedEnhancedBlocManager",
-            );
+            Logger.logSuccess("Success condition met in BlocManager");
             if (onSuccess != null) {
               onSuccess!(context, state);
             }

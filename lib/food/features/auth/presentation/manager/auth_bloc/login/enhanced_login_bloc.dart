@@ -2,7 +2,6 @@ import 'package:bloc/bloc.dart';
 
 import '../../../../../../core/bloc/base/base_bloc.dart';
 import '../../../../../../core/bloc/base/base_state.dart';
-import '../../../../../../core/bloc/mixins/cacheable_bloc_mixin.dart';
 import '../../../../../../core/bloc/utils/state_utils.dart';
 import '../../../../../../core/utils/logger.dart';
 import '../../../../../../core/utils/pretty_firebase_errors.dart';
@@ -12,8 +11,7 @@ import 'login_event.dart';
 
 /// Enhanced Login BLoC with modern state management
 class EnhancedLoginBloc
-    extends BaseBloC<EnhancedLoginEvent, BaseState<UserProfileEntity>>
-    with CacheableBlocMixin<BaseState<UserProfileEntity>> {
+    extends BaseBloC<EnhancedLoginEvent, BaseState<UserProfileEntity>> {
   final AuthUseCase _authUseCase;
 
   EnhancedLoginBloc({AuthUseCase? authUseCase})
@@ -25,14 +23,6 @@ class EnhancedLoginBloc
     on<LoginValidateEvent>(_onLoginValidate);
   }
 
-  @override
-  String get cacheKey => 'enhanced_login_bloc';
-
-  @override
-  Duration get cacheTimeout => const Duration(minutes: 30);
-
-  @override
-  bool get enableCaching => false; // Don't cache login attempts for security
 
   /// Handle login submission
   Future<void> _onLoginSubmit(
@@ -156,19 +146,6 @@ class EnhancedLoginBloc
     return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
   }
 
-  /// Convert state to JSON for caching (disabled for security)
-  @override
-  Map<String, dynamic>? stateToJson(BaseState<UserProfileEntity> state) {
-    // Don't cache login states for security reasons
-    return null;
-  }
-
-  /// Create state from cached JSON (disabled for security)
-  @override
-  BaseState<UserProfileEntity>? stateFromJson(Map<String, dynamic> json) {
-    // Don't restore login states from cache for security reasons
-    return null;
-  }
 
   /// Quick login method for external use
   void quickLogin({required String email, required String password}) {

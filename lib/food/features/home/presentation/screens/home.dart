@@ -4,18 +4,19 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/image.dart';
 import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/components/texts.dart';
+import 'package:food/food/core/helpers/user_extensions.dart';
 import 'package:food/food/core/routes/routes.dart';
 import 'package:food/food/core/theme/colors.dart';
+import 'package:food/food/features/auth/domain/entities/location_data.dart';
+import 'package:food/food/features/auth/presentation/manager/location_bloc/location_bloc.dart';
 import 'package:food/generated/assets.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 
-import '../../../../components/buttons.dart';
 import '../../../../core/bloc/base/base_state.dart';
 import '../../../../core/bloc/managers/bloc_manager.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
-import '../../../../core/utils/app_utils.dart';
 import '../../../payments/presentation/manager/cart/cart_cubit.dart';
 import '../../domain/entities/food.dart';
 import '../../domain/entities/restaurant.dart';
@@ -64,9 +65,12 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    // Load restaurants and foods on init
-    context.read<RestaurantCubit>().getRestaurants();
-    context.read<FoodCubit>().getAllFoods();
+    // Load location data if not already loaded
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<LocationBloc>().requestLocation();
+      context.read<RestaurantCubit>().getRestaurants();
+      context.read<FoodCubit>().getAllFoods();
+    });
   }
 
   @override
@@ -74,92 +78,92 @@ class _HomeState extends State<Home> {
     return FScaffold(
       customScroll: true,
       appBarWidget: GestureDetector(
-        onTap: () {
-          DFoodUtils.showDialogContainer(
-            pop: true,
-            context: context,
-            contentPadding: EdgeInsets.zero,
-            child: Container(
-              height: 395.h,
-              width: 327.w,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(35).r,
-                gradient: const LinearGradient(
-                  colors: [kGradientColor2, kGradientColor1],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomCenter,
-                  stops: [0.1, 0.9],
-                ),
-              ),
-              child: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  Column(
-                    children: [
-                      37.verticalSpace,
-                      FImage(
-                        assetPath: Assets.svgsOfferBg,
-                        assetType: FoodAssetType.svg,
-                        width: 270,
-                        height: 190,
-                      ),
-                    ],
-                  ),
-                  Positioned(
-                    top: -15,
-                    right: -15,
-                    child: CircleWidget(
-                      radius: 22,
-                      color: kCloseColor,
-                      child: Icon(Icons.close, size: 10),
-                    ),
-                  ),
-                  Positioned(
-                    top: 82,
-                    left: 0,
-                    right: 0,
-                    child: Column(
-                      children: [
-                        FText(
-                          text: "Hurry now",
-                          fontSize: 41,
-                          color: kWhiteColor,
-                          fontWeight: FontWeight.w800,
-                        ),
-                        35.verticalSpace,
-                        FText(
-                          text: "#1234CD2",
-                          fontSize: 24,
-                          color: kWhiteColor,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        20.verticalSpace,
-                        FText(
-                          text: "Use the coupon to get 50% off",
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                          color: kWhiteColor,
-                        ),
-                        30.verticalSpace,
-                        FButton(
-                          buttonText: "GOT IT",
-                          onPressed: () {
-                            Get.back();
-                          },
-                          borderColor: kWhiteColor,
-                          color: Colors.transparent,
-                          textColor: kWhiteColor,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                        ).paddingSymmetric(horizontal: 35),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
+        // onTap: () {
+        //   DFoodUtils.showDialogContainer(
+        //     pop: true,
+        //     context: context,
+        //     contentPadding: EdgeInsets.zero,
+        //     child: Container(
+        //       height: 395.h,
+        //       width: 327.w,
+        //       decoration: BoxDecoration(
+        //         borderRadius: BorderRadius.circular(35).r,
+        //         gradient: const LinearGradient(
+        //           colors: [kGradientColor2, kGradientColor1],
+        //           begin: Alignment.topLeft,
+        //           end: Alignment.bottomCenter,
+        //           stops: [0.1, 0.9],
+        //         ),
+        //       ),
+        //       child: Stack(
+        //         clipBehavior: Clip.none,
+        //         children: [
+        //           Column(
+        //             children: [
+        //               37.verticalSpace,
+        //               FImage(
+        //                 assetPath: Assets.svgsOfferBg,
+        //                 assetType: FoodAssetType.svg,
+        //                 width: 270,
+        //                 height: 190,
+        //               ),
+        //             ],
+        //           ),
+        //           Positioned(
+        //             top: -15,
+        //             right: -15,
+        //             child: CircleWidget(
+        //               radius: 22,
+        //               color: kCloseColor,
+        //               child: Icon(Icons.close, size: 10),
+        //             ),
+        //           ),
+        //           Positioned(
+        //             top: 82,
+        //             left: 0,
+        //             right: 0,
+        //             child: Column(
+        //               children: [
+        //                 FText(
+        //                   text: "Hurry now",
+        //                   fontSize: 41,
+        //                   color: kWhiteColor,
+        //                   fontWeight: FontWeight.w800,
+        //                 ),
+        //                 35.verticalSpace,
+        //                 FText(
+        //                   text: "#1234CD2",
+        //                   fontSize: 24,
+        //                   color: kWhiteColor,
+        //                   fontWeight: FontWeight.w600,
+        //                 ),
+        //                 20.verticalSpace,
+        //                 FText(
+        //                   text: "Use the coupon to get 50% off",
+        //                   fontSize: 15,
+        //                   fontWeight: FontWeight.w700,
+        //                   color: kWhiteColor,
+        //                 ),
+        //                 30.verticalSpace,
+        //                 FButton(
+        //                   buttonText: "GOT IT",
+        //                   onPressed: () {
+        //                     Get.back();
+        //                   },
+        //                   borderColor: kWhiteColor,
+        //                   color: Colors.transparent,
+        //                   textColor: kWhiteColor,
+        //                   fontSize: 14,
+        //                   fontWeight: FontWeight.w700,
+        //                 ).paddingSymmetric(horizontal: 35),
+        //               ],
+        //             ),
+        //           ),
+        //         ],
+        //       ),
+        //     ),
+        //   );
+        // },
         child: Row(
           children: [
             Row(
@@ -188,10 +192,38 @@ class _HomeState extends State<Home> {
                     ),
                     Row(
                       children: [
-                        FText(
-                          text: "Lagos, Nigeria",
-                          fontSize: 14,
-                          color: kAddressColor,
+                        BlocBuilder<LocationBloc, BaseState<LocationData>>(
+                          builder: (context, state) {
+                            String locationText = "Lding...";
+
+                            if (state is LoadingState<LocationData>) {
+                              locationText = "Loading...";
+                            } else if (state is SuccessState<LocationData> &&
+                                state.data != null) {
+                              final location = state.data!;
+                              // Format as "City, Country" or just "City" if country is same as city
+                              if (location.city.isNotEmpty &&
+                                  location.country.isNotEmpty) {
+                                locationText =
+                                    "${location.city}, ${location.country}";
+                              } else if (location.city.isNotEmpty) {
+                                locationText = location.city;
+                              } else if (location.address.isNotEmpty) {
+                                // Fallback to address if city is not available
+                                locationText = location.address;
+                              } else {
+                                locationText = "Location unavailable";
+                              }
+                            } else if (state is ErrorState<LocationData>) {
+                              locationText = "Location unavailable";
+                            }
+
+                            return FText(
+                              text: locationText,
+                              fontSize: 14,
+                              color: kAddressColor,
+                            );
+                          },
                         ),
                         8.horizontalSpace,
                         FImage(
@@ -217,7 +249,7 @@ class _HomeState extends State<Home> {
             Row(
               children: [
                 FText(
-                  text: "Hello, John",
+                  text: "Hello, ${context.watchUser()?.lastName ?? 'Guest'}",
                   fontSize: 16,
                   fontWeight: FontWeight.w400,
                   color: kTextColorDark,

@@ -4,13 +4,37 @@ import 'package:food/food/core/bloc/base/base_state.dart';
 import '../../../domain/entities/food.dart';
 import '../../../domain/use_cases/food_usecase.dart';
 
-/// Migrated FoodBloc to FoodCubit using BaseState<List<FoodEntity>> and BaseState<FoodEntity>
+/// Migrated FoodBloc to FoodCubit using BaseState with List of FoodEntity and single FoodEntity
 class FoodCubit extends BaseCubit<BaseState<dynamic>> {
   final FoodUseCase foodUseCase;
 
+  // Cache management
+  static const Duration _cacheValidDuration = Duration(minutes: 10);
+  DateTime? _lastFetchTime;
+  List<FoodEntity>? _cachedFoods;
+  List<FoodEntity>? _cachedPopularFoods;
+
   FoodCubit({required this.foodUseCase}) : super(const InitialState<dynamic>());
 
-  Future<void> getAllFoods() async {
+  /// Check if cache is still valid
+  bool get _isCacheValid => 
+    _lastFetchTime != null && 
+    DateTime.now().difference(_lastFetchTime!) < _cacheValidDuration;
+
+  /// Check if we have valid cached data
+  bool get _hasValidCachedFoods => _cachedFoods != null && _isCacheValid;
+
+  Future<void> getAllFoods({bool forceRefresh = false}) async {
+    // Return cached data if available and valid, unless force refresh
+    if (_hasValidCachedFoods && !forceRefresh) {
+      emit(LoadedState<List<FoodEntity>>(
+        data: _cachedFoods!,
+        lastUpdated: _lastFetchTime!,
+        isFromCache: true,
+      ));
+      return;
+    }
+
     emit(const LoadingState<List<FoodEntity>>(message: 'Loading foods...'));
     final result = await foodUseCase.getAllFoods();
     result.fold(
@@ -21,18 +45,35 @@ class FoodCubit extends BaseCubit<BaseState<dynamic>> {
           isRetryable: true,
         ),
       ),
-      (foods) => foods.isEmpty
-          ? emit(const EmptyState<List<FoodEntity>>(message: 'No foods available'))
-          : emit(
-              LoadedState<List<FoodEntity>>(
-                data: foods,
-                lastUpdated: DateTime.now(),
-              ),
-            ),
+      (foods) {
+        // Cache the successful result
+        _cachedFoods = foods;
+        _lastFetchTime = DateTime.now();
+        
+        if (foods.isEmpty) {
+          emit(const EmptyState<List<FoodEntity>>(message: 'No foods available'));
+        } else {
+          emit(LoadedState<List<FoodEntity>>(
+            data: foods,
+            lastUpdated: _lastFetchTime!,
+            isFromCache: false,
+          ));
+        }
+      },
     );
   }
 
-  Future<void> getPopularFoods() async {
+  Future<void> getPopularFoods({bool forceRefresh = false}) async {
+    // Return cached popular foods if available and valid, unless force refresh
+    if (_cachedPopularFoods != null && _isCacheValid && !forceRefresh) {
+      emit(LoadedState<List<FoodEntity>>(
+        data: _cachedPopularFoods!,
+        lastUpdated: _lastFetchTime!,
+        isFromCache: true,
+      ));
+      return;
+    }
+
     emit(const LoadingState<List<FoodEntity>>(message: 'Loading popular foods...'));
     final result = await foodUseCase.getPopularFoods();
     result.fold(
@@ -43,14 +84,21 @@ class FoodCubit extends BaseCubit<BaseState<dynamic>> {
           isRetryable: true,
         ),
       ),
-      (foods) => foods.isEmpty
-          ? emit(const EmptyState<List<FoodEntity>>(message: 'No popular foods available'))
-          : emit(
-              LoadedState<List<FoodEntity>>(
-                data: foods,
-                lastUpdated: DateTime.now(),
-              ),
-            ),
+      (foods) {
+        // Cache the successful result
+        _cachedPopularFoods = foods;
+        _lastFetchTime = DateTime.now();
+        
+        if (foods.isEmpty) {
+          emit(const EmptyState<List<FoodEntity>>(message: 'No popular foods available'));
+        } else {
+          emit(LoadedState<List<FoodEntity>>(
+            data: foods,
+            lastUpdated: _lastFetchTime!,
+            isFromCache: false,
+          ));
+        }
+      },
     );
   }
 

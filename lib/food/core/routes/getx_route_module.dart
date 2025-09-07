@@ -1,10 +1,10 @@
-import 'package:food/food/core/routes/routes.dart';
 import 'package:food/food/core/middleware/auth_middleware.dart';
+import 'package:food/food/core/routes/routes.dart';
 import 'package:food/food/features/auth/presentation/screens/email_verification_screen.dart';
 import 'package:food/food/features/auth/presentation/screens/enhanced_login_screen.dart';
-import 'package:food/food/features/auth/presentation/screens/enhanced_register_screen.dart';
 import 'package:food/food/features/auth/presentation/screens/forgot_password.dart';
 import 'package:food/food/features/auth/presentation/screens/location.dart';
+import 'package:food/food/features/auth/presentation/screens/sign_up.dart';
 import 'package:food/food/features/home/domain/entities/address.dart';
 import 'package:food/food/features/home/domain/entities/profile.dart';
 import 'package:food/food/features/home/presentation/screens/add_address.dart';
@@ -29,10 +29,10 @@ import '../../features/home/domain/entities/food.dart';
 import '../../features/home/domain/entities/restaurant.dart';
 import '../../features/home/presentation/screens/home.dart';
 import '../../features/payments/presentation/screens/cart.dart';
+import '../../features/testing/presentation/screens/firebase_test_screen.dart';
 import '../../features/tracking/domain/entities/chat_entity.dart';
 import '../../features/tracking/presentation/screens/call_screen.dart';
 import '../../features/tracking/presentation/screens/chat_screen.dart';
-import '../../features/testing/presentation/screens/firebase_test_screen.dart';
 
 class GetXRouteModule {
   static const Transition _transition = Transition.rightToLeft;
@@ -52,7 +52,7 @@ class GetXRouteModule {
     ),
     GetPage(
       name: Routes.login,
-      page: () => const EnhancedLoginScreen(),
+      page: () => const LoginScreen(),
       transition: _transition,
       transitionDuration: _transitionDuration,
       middlewares: [AuthMiddleware()],
@@ -65,7 +65,7 @@ class GetXRouteModule {
     ),
     GetPage(
       name: Routes.register,
-      page: () => const EnhancedRegisterScreen(),
+      page: () => const SignUp(),
       transition: _transition,
       transitionDuration: _transitionDuration,
       middlewares: [AuthMiddleware()],

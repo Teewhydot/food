@@ -9,7 +9,7 @@ import '../../../../domain/use_cases/auth_usecase.dart';
 part 'sign_out_event.dart';
 // part 'sign_out_state.dart'; // Commented out - using BaseState now
 
-/// Migrated SignOutBloc to use BaseState<void>
+/// Migrated SignOutBloc to use BaseState with void type
 class SignOutBloc extends BaseBloC<SignOutEvent, BaseState<void>> {
   final _authUseCase = AuthUseCase();
   final _userProfileDatabaseService = UserProfileDatabaseService();
@@ -20,16 +20,18 @@ class SignOutBloc extends BaseBloC<SignOutEvent, BaseState<void>> {
 
       final result = await _authUseCase.signOut();
 
-      result.fold(
-        (failure) => emit(
-          ErrorState<void>(
-            errorMessage: failure.failureMessage,
-            errorCode: 'sign_out_failed',
-            isRetryable: true,
-          ),
-        ),
+      await result.fold(
+        (failure) async {
+          emit(
+            ErrorState<void>(
+              errorMessage: failure.failureMessage,
+              errorCode: 'sign_out_failed',
+              isRetryable: true,
+            ),
+          );
+        },
         (_) async {
-          // Clear user profile from database on successful sign out
+          // Clear only user profile from database on successful sign out
           try {
             final database = await _userProfileDatabaseService.database;
             await database.userProfileDao.deleteUserProfile();

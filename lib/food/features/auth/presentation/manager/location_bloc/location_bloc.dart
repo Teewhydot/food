@@ -1,13 +1,11 @@
-import 'dart:convert';
-
 import 'package:food/food/core/bloc/base/base_bloc.dart';
 import 'package:food/food/core/bloc/base/base_state.dart';
+import 'package:food/food/core/services/geocoding_service.dart';
 import 'package:food/food/core/services/permission_service/permission_repository.dart';
 import 'package:food/food/core/utils/logger.dart';
 import 'package:food/food/features/auth/domain/entities/location_data.dart';
-import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:http/http.dart' as http;
+import 'package:get_it/get_it.dart';
 import 'package:meta/meta.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -16,16 +14,17 @@ part 'location_event.dart';
 
 /// Migrated LocationBloc to use BaseState<LocationData> (converted from BLoC to Cubit for simplicity)
 class LocationBloc extends BaseCubit<BaseState<LocationData>> {
-  // OpenWeatherMap API key - replace this with your own API key
-  final String apiKey =
-      "ADD_YOUR_API_KEY_HERE"; // You should use environment variables for API keys
-
+  final GeocodingService _geocodingService = GetIt.instance<GeocodingService>();
   final PermissionRepository _permissionRepository = PermissionRepository();
 
   LocationBloc() : super(const InitialState<LocationData>());
 
   void checkLocationPermission() async {
-    emit(const LoadingState<LocationData>(message: 'Checking location permissions...'));
+    emit(
+      const LoadingState<LocationData>(
+        message: 'Checking location permissions...',
+      ),
+    );
 
     try {
       // Check database first for persisted permission status
@@ -46,7 +45,6 @@ class LocationBloc extends BaseCubit<BaseState<LocationData>> {
           const ErrorState<LocationData>(
             errorMessage: "Location permission required",
             errorCode: 'permission_required',
-            isRetryable: true,
           ),
         );
       }
@@ -56,7 +54,6 @@ class LocationBloc extends BaseCubit<BaseState<LocationData>> {
         ErrorState<LocationData>(
           errorMessage: "Error checking permission: ${e.toString()}",
           errorCode: 'permission_check_failed',
-          isRetryable: true,
         ),
       );
     }
@@ -134,7 +131,10 @@ class LocationBloc extends BaseCubit<BaseState<LocationData>> {
       // Get current position
       Logger.logBasic("Fetching current location...");
       final Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          distanceFilter: 100,
+        ),
       );
 
       final double latitude = position.latitude;
@@ -142,8 +142,11 @@ class LocationBloc extends BaseCubit<BaseState<LocationData>> {
 
       Logger.logSuccess("Location fetched: $latitude, $longitude");
 
-      // Get address details from reverse geocoding using OpenWeatherMap
-      final locationDetails = await _getAddressFromLatLng(latitude, longitude);
+      // Get address details using the independent GeocodingService
+      final locationDetails = await _geocodingService.getAddressFromCoordinates(
+        latitude: latitude,
+        longitude: longitude,
+      );
 
       final locationData = LocationData(
         latitude: latitude,
@@ -159,7 +162,7 @@ class LocationBloc extends BaseCubit<BaseState<LocationData>> {
           lastUpdated: DateTime.now(),
         ),
       );
-      
+
       // Also emit success state for notification
       emit(
         const SuccessState<LocationData>(
@@ -175,60 +178,6 @@ class LocationBloc extends BaseCubit<BaseState<LocationData>> {
           isRetryable: true,
         ),
       );
-    }
-  }
-
-  Future<Map<String, String>> _getAddressFromLatLng(
-    double latitude,
-    double longitude,
-  ) async {
-    try {
-      // First try using the geocoding package
-      try {
-        List<Placemark> placemarks = await placemarkFromCoordinates(
-          latitude,
-          longitude,
-        );
-        if (placemarks.isNotEmpty) {
-          Placemark place = placemarks[0];
-          return {
-            'address': '${place.street}, ${place.subLocality}',
-            'city': place.locality ?? '',
-            'country': place.country ?? '',
-          };
-        }
-      } catch (e) {
-        Logger.logError("Error with local geocoding: ${e.toString()}");
-        // Fall back to API if local geocoding fails
-      }
-
-      // Use OpenWeatherMap API for reverse geocoding as fallback
-      final response = await http.get(
-        Uri.parse(
-          'https://api.openweathermap.org/geo/1.0/reverse?lat=$latitude&lon=$longitude&limit=1&appid=$apiKey',
-        ),
-      );
-
-      if (response.statusCode == 200) {
-        List<dynamic> data = json.decode(response.body);
-        if (data.isNotEmpty) {
-          return {
-            'address': data[0]['name'] ?? '',
-            'city': data[0]['state'] ?? '',
-            'country': data[0]['country'] ?? '',
-          };
-        }
-      }
-
-      // If OpenWeatherMap fails, try another provider or return empty values
-      return {
-        'address': 'Unknown Address',
-        'city': 'Unknown City',
-        'country': 'Unknown Country',
-      };
-    } catch (e) {
-      Logger.logError("Error getting address details: ${e.toString()}");
-      return {'address': 'Error getting address', 'city': '', 'country': ''};
     }
   }
 }

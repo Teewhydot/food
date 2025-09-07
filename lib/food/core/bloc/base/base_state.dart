@@ -22,10 +22,12 @@ sealed class BaseState<T> extends Equatable {
   bool get hasData => this is DataState && (this as DataState).data != null;
 
   /// Get error message if this is an error state
-  String? get errorMessage => isError ? (this as ErrorState).errorMessage : null;
+  String? get errorMessage =>
+      isError ? (this as ErrorState).errorMessage : null;
 
   /// Get success message if this is a success state
-  String? get successMessage => isSuccess ? (this as SuccessState).successMessage : null;
+  String? get successMessage =>
+      isSuccess ? (this as SuccessState).successMessage : null;
 
   /// Get data if this is a data state
   T? get data => hasData ? (this as DataState<T>).data : null;
@@ -65,10 +67,7 @@ final class SuccessState<T> extends BaseState<T> implements AppSuccessState {
   final String successMessage;
   final Map<String, dynamic>? metadata;
 
-  const SuccessState({
-    required this.successMessage,
-    this.metadata,
-  });
+  const SuccessState({required this.successMessage, this.metadata});
 
   @override
   List<Object?> get props => [successMessage, metadata];
@@ -92,7 +91,7 @@ final class ErrorState<T> extends BaseState<T> implements AppErrorState {
     this.exception,
     this.stackTrace,
     this.errorCode,
-    this.isRetryable = true,
+    this.isRetryable = false,
   });
 
   @override
@@ -153,11 +152,7 @@ sealed class AsyncState<T> extends DataState<T> {
   final bool isRefreshing;
   final String? operationId;
 
-  const AsyncState({
-    super.data,
-    this.isRefreshing = false,
-    this.operationId,
-  });
+  const AsyncState({super.data, this.isRefreshing = false, this.operationId});
 
   @override
   List<Object?> get props => [data, isRefreshing, operationId];
@@ -178,10 +173,17 @@ final class AsyncLoadingState<T> extends AsyncState<T> {
   });
 
   @override
-  List<Object?> get props => [data, message, progress, isRefreshing, operationId];
+  List<Object?> get props => [
+    data,
+    message,
+    progress,
+    isRefreshing,
+    operationId,
+  ];
 
   @override
-  String toString() => 'AsyncLoadingState(data: ${data != null}, message: $message)';
+  String toString() =>
+      'AsyncLoadingState(data: ${data != null}, message: $message)';
 }
 
 /// Async loaded state - successfully loaded with data
@@ -199,10 +201,17 @@ final class AsyncLoadedState<T> extends AsyncState<T> {
   });
 
   @override
-  List<Object?> get props => [data, lastUpdated, isFromCache, isRefreshing, operationId];
+  List<Object?> get props => [
+    data,
+    lastUpdated,
+    isFromCache,
+    isRefreshing,
+    operationId,
+  ];
 
   @override
-  String toString() => 'AsyncLoadedState(data: $data, lastUpdated: $lastUpdated)';
+  String toString() =>
+      'AsyncLoadedState(data: $data, lastUpdated: $lastUpdated)';
 }
 
 /// Async error state - error with optional existing data
@@ -226,15 +235,16 @@ final class AsyncErrorState<T> extends AsyncState<T> implements AppErrorState {
 
   @override
   List<Object?> get props => [
-        data,
-        errorMessage,
-        exception,
-        errorCode,
-        isRetryable,
-        isRefreshing,
-        operationId,
-      ];
+    data,
+    errorMessage,
+    exception,
+    errorCode,
+    isRetryable,
+    isRefreshing,
+    operationId,
+  ];
 
   @override
-  String toString() => 'AsyncErrorState(data: ${data != null}, error: $errorMessage)';
+  String toString() =>
+      'AsyncErrorState(data: ${data != null}, error: $errorMessage)';
 }

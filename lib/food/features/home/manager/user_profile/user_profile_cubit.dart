@@ -107,34 +107,52 @@ class UserProfileCubit extends BaseCubit<BaseState<UserProfileEntity>> {
   void loadUserProfile() async {
     emit(const LoadingState<UserProfileEntity>(message: 'Loading profile...'));
     try {
-      // If not in database, fetch from remote using AuthUseCase
-      final result = await authUseCase.getCurrentUser();
-      result.fold(
-        (failure) {
-          Logger.logError("Failed to get user: ${failure.failureMessage}");
-          emit(
-            ErrorState<UserProfileEntity>(
-              errorMessage: failure.failureMessage,
-              errorCode: 'load_profile_failed',
-              isRetryable: true,
-            ),
-          );
-        },
-        (userProfile) async {
-          // Success - save to database and emit loaded state
-          Logger.logSuccess(
-            "User fetched from server: ${userProfile.firstName} ${userProfile.lastName}",
-          );
-          await (await db.database).userProfileDao.saveUserProfile(userProfile);
-          
-          emit(
-            LoadedState<UserProfileEntity>(
-              data: userProfile,
-              lastUpdated: DateTime.now(),
-            ),
-          );
-        },
-      );
+      // First check local database for cached profile
+      final localProfiles = await (await db.database).userProfileDao.getUserProfile();
+      
+      if (localProfiles.isNotEmpty) {
+        final localProfile = localProfiles.first;
+        // Emit local profile immediately for instant UI update
+        Logger.logSuccess("User loaded from local database: ${localProfile.firstName} ${localProfile.lastName}");
+        emit(
+          LoadedState<UserProfileEntity>(
+            data: localProfile,
+            lastUpdated: DateTime.now(),
+          ),
+        );
+        
+        // Then fetch fresh data from server in background (optional)
+        _fetchAndUpdateFromServer();
+      } else {
+        // No local data, fetch from server
+        final result = await authUseCase.getCurrentUser();
+        result.fold(
+          (failure) {
+            Logger.logError("Failed to get user: ${failure.failureMessage}");
+            emit(
+              ErrorState<UserProfileEntity>(
+                errorMessage: failure.failureMessage,
+                errorCode: 'load_profile_failed',
+                isRetryable: true,
+              ),
+            );
+          },
+          (userProfile) async {
+            // Success - save to database and emit loaded state
+            Logger.logSuccess(
+              "User fetched from server: ${userProfile.firstName} ${userProfile.lastName}",
+            );
+            await (await db.database).userProfileDao.saveUserProfile(userProfile);
+            
+            emit(
+              LoadedState<UserProfileEntity>(
+                data: userProfile,
+                lastUpdated: DateTime.now(),
+              ),
+            );
+          },
+        );
+      }
     } catch (e) {
       emit(
         ErrorState<UserProfileEntity>(
@@ -144,6 +162,33 @@ class UserProfileCubit extends BaseCubit<BaseState<UserProfileEntity>> {
         ),
       );
       Logger.logError("Error loading user profile: ${e.toString()}");
+    }
+  }
+  
+  /// Fetch fresh data from server and update local cache
+  void _fetchAndUpdateFromServer() async {
+    try {
+      final result = await authUseCase.getCurrentUser();
+      result.fold(
+        (failure) {
+          // Silent fail - we already have local data
+          Logger.logError("Background sync failed: ${failure.failureMessage}");
+        },
+        (userProfile) async {
+          // Update local database and emit fresh data
+          await (await db.database).userProfileDao.updateUserProfile(userProfile);
+          emit(
+            LoadedState<UserProfileEntity>(
+              data: userProfile,
+              lastUpdated: DateTime.now(),
+            ),
+          );
+          Logger.logSuccess("User profile synced from server");
+        },
+      );
+    } catch (e) {
+      // Silent fail - we already have local data
+      Logger.logError("Background sync error: ${e.toString()}");
     }
   }
 }

@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/core/bloc/base/base_state.dart';
 import 'package:food/food/core/routes/routes.dart';
-import 'package:food/food/core/utils/app_utils.dart';
 import 'package:food/food/features/auth/presentation/manager/auth_bloc/register/register_bloc.dart';
 import 'package:food/food/features/auth/presentation/widgets/auth_template.dart';
 import 'package:food/food/features/auth/presentation/widgets/custom_overlay.dart';
@@ -59,7 +58,6 @@ class _LoginState extends State<SignUp> {
       showLoadingIndicator: true,
       onSuccess: (context, state) {
         // Handle any additional success logic if needed
-        DFoodUtils.showSnackBar("Registration successful", kSuccessColor);
         nav.navigateTo(Routes.emailVerification);
       },
       builder: (context, state) {

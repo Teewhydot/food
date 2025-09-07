@@ -7,6 +7,7 @@ class FoodContainer extends StatelessWidget {
   final double height, width, borderRadius, borderWidth;
   final Color color, borderColor;
   final bool hasBorder;
+  final String? networkImage;
   const FoodContainer({
     super.key,
     this.child,
@@ -14,6 +15,7 @@ class FoodContainer extends StatelessWidget {
     this.width = 0.0,
     this.borderRadius = 10.0,
     this.borderWidth = 0.0,
+    this.networkImage,
     this.color = kContainerColor,
     this.borderColor = kContainerColor,
     this.hasBorder = false,
@@ -27,6 +29,13 @@ class FoodContainer extends StatelessWidget {
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(borderRadius).r,
+        image:
+            networkImage != null
+                ? DecorationImage(
+                  image: NetworkImage(networkImage!),
+                  fit: BoxFit.cover,
+                )
+                : null,
         border:
             hasBorder
                 ? Border.all(color: borderColor, width: borderWidth.w)

@@ -126,6 +126,8 @@ class _RestaurantDetailsState extends State<RestaurantDetails> {
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisSize: MainAxisSize.max,
               spacing: 16,
               children:
                   categories.map((category) {

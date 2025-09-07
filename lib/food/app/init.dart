@@ -1,6 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:food/firebase_options.dart';
+import 'package:food/food/core/constants/env.dart';
 import 'package:food/food/core/services/floor_db_service/user_profile/user_profile_database_service.dart';
 
 import '../core/services/floor_db_service/address/address_database_service.dart';
@@ -16,7 +18,20 @@ class AppConfig {
     await RecentKeywordsDatabaseService().database;
     await AddressDatabaseService().database;
     await UserProfileDatabaseService().database;
-    // await dotenv.load(fileName: ".env");
+    try {
+      await dotenv.load(fileName: ".env");
+      debugPrint('✅ Environment variables loaded successfully');
+      
+      // Validate required environment variables
+      if (!Env.validateRequiredEnvVars()) {
+        debugPrint('⚠️ Some required environment variables are missing');
+        debugPrint('Please check your .env file and ensure all required variables are set');
+      }
+    } catch (e) {
+      debugPrint('⚠️ Warning: Could not load .env file: $e');
+      debugPrint('Continuing with default environment configuration...');
+      debugPrint('Please ensure .env file exists in project root with required variables');
+    }
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
