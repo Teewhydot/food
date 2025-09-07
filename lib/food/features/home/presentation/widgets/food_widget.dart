@@ -29,9 +29,15 @@ class _FoodWidgetState extends State<FoodWidget> {
   bool tapped = false;
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 130.w,
+    return Container(
+      width: 150.w,
       height: 250.h,
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+      decoration: BoxDecoration(
+        color: kWhiteColor,
+        border: Border.all(color: kGreyColor),
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

@@ -24,104 +24,122 @@ class RestaurantWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => onTap(),
-      child: Column(
-        children: [
-          FoodContainer(
-            height: 137,
-            width: 1.sw,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(
-                12,
-              ), // Adjust the radius as needed
-              child: CachedNetworkImage(
-                imageUrl: restaurant.imageUrl,
-                fit: BoxFit.cover,
-              ),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.3),
+              spreadRadius: 2,
+              blurRadius: 5,
+              offset: const Offset(0, 3), // changes position of shadow
             ),
-          ),
-          8.verticalSpace,
-          FText(
-            text: restaurant.name,
-            fontSize: 16,
-            fontWeight: FontWeight.w400,
-            alignment: MainAxisAlignment.start,
-          ),
-          4.verticalSpace,
-          Row(
-            children:
-                restaurant.category.asMap().entries.map((entry) {
-                  final index = entry.key;
-                  final category = entry.value.category;
-                  return FText(
-                    text:
-                        index == restaurant.category.length - 1
-                            ? category
-                            : "$category-",
-                    fontSize: 12,
-                    fontWeight: FontWeight.w400,
-                    color: Colors.grey,
-                  );
-                }).toList(),
-          ),
-          16.verticalSpace,
-          Row(
-            spacing: 24,
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  FImage(
-                    assetPath: Assets.svgsRating,
-                    assetType: FoodAssetType.svg,
-                    width: 20,
-                    height: 20,
+              FoodContainer(
+                height: 137,
+                width: 1.sw,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(
+                    12,
+                  ), // Adjust the radius as needed
+                  child: CachedNetworkImage(
+                    imageUrl: restaurant.imageUrl,
+                    fit: BoxFit.cover,
                   ),
-                  4.horizontalSpace,
-                  FText(
-                    text: restaurant.rating.toString(),
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: kTextColorDark,
+                ),
+              ),
+              8.verticalSpace,
+              FText(
+                text: restaurant.name,
+                fontSize: 16,
+                fontWeight: FontWeight.w400,
+                alignment: MainAxisAlignment.start,
+              ),
+              4.verticalSpace,
+              Row(
+                children:
+                    restaurant.category.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final category = entry.value.category;
+                      return FText(
+                        text:
+                            index == restaurant.category.length - 1
+                                ? category
+                                : "$category-",
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.grey,
+                      );
+                    }).toList(),
+              ),
+              16.verticalSpace,
+              Row(
+                spacing: 24,
+                children: [
+                  Row(
+                    children: [
+                      FImage(
+                        assetPath: Assets.svgsRating,
+                        assetType: FoodAssetType.svg,
+                        width: 20,
+                        height: 20,
+                      ),
+                      4.horizontalSpace,
+                      FText(
+                        text: restaurant.rating.toString(),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: kTextColorDark,
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      FImage(
+                        assetPath: Assets.svgsTruck,
+                        assetType: FoodAssetType.svg,
+                        width: 20,
+                        height: 20,
+                      ),
+                      4.horizontalSpace,
+                      FText(
+                        text: restaurant.distance.toString(),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: kTextColorDark,
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      FImage(
+                        assetPath: Assets.svgsClock,
+                        assetType: FoodAssetType.svg,
+                        width: 20,
+                        height: 20,
+                      ),
+                      4.horizontalSpace,
+                      FText(
+                        text: restaurant.deliveryTime.toString(),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: kTextColorDark,
+                      ),
+                    ],
                   ),
                 ],
               ),
-              Row(
-                children: [
-                  FImage(
-                    assetPath: Assets.svgsTruck,
-                    assetType: FoodAssetType.svg,
-                    width: 20,
-                    height: 20,
-                  ),
-                  4.horizontalSpace,
-                  FText(
-                    text: restaurant.distance.toString(),
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: kTextColorDark,
-                  ),
-                ],
-              ),
-              Row(
-                children: [
-                  FImage(
-                    assetPath: Assets.svgsClock,
-                    assetType: FoodAssetType.svg,
-                    width: 20,
-                    height: 20,
-                  ),
-                  4.horizontalSpace,
-                  FText(
-                    text: restaurant.deliveryTime.toString(),
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: kTextColorDark,
-                  ),
-                ],
-              ),
+              30.verticalSpace,
             ],
           ),
-          30.verticalSpace,
-        ],
+        ),
       ),
     );
   }
