@@ -19,6 +19,7 @@ import '../../../../components/image.dart';
 import '../../../../core/bloc/managers/bloc_manager.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../core/theme/colors.dart';
+import '../../../../core/utils/detail_image_cache.dart';
 
 class FoodDetails extends StatefulWidget {
   final FoodEntity foodEntity;
@@ -43,10 +44,12 @@ class _FoodDetailsState extends State<FoodDetails> {
       builder: (context, state) {
         if (state.hasData) {
           return DetailsSkeletonWidget(
+            key: ValueKey('food_detail_${widget.foodEntity.id}'),
             hasBottomWidget: true,
             hasIndicator: false,
             isRestaurant: false,
             imageUrl: widget.foodEntity.imageUrl,
+            cacheKey: DetailImageCache.getDetailCacheKey(type: 'food', id: widget.foodEntity.id),
             icon: Icons.favorite,
             bottomWidget: IntrinsicHeight(
               child: Container(
@@ -63,10 +66,11 @@ class _FoodDetailsState extends State<FoodDetails> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        FText(
+                        FText.legacy(
                           text: "\$${widget.foodEntity.price * foodQuantity}",
                           fontSize: 28,
                           fontWeight: FontWeight.w400,
+                          alignment: MainAxisAlignment.start,
                         ),
                         FoodContainer(
                           width: 125,
@@ -132,6 +136,8 @@ class _FoodDetailsState extends State<FoodDetails> {
               ),
             ),
             bodyWidget: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+
               children: [
                 // Add your body widget here
                 FText(

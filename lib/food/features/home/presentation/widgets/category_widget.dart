@@ -40,6 +40,7 @@ class CategoryWidget extends StatelessWidget {
           child: Center(
             child: FText.bodySmall(
               text,
+              overflow: TextOverflow.fade,
               color: isSelected ? kWhiteColor : kTextColorDark,
             ).paddingSymmetric(horizontal: 15.w, vertical: 5.h),
           ).paddingOnly(right: 15),

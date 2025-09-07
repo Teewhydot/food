@@ -15,6 +15,8 @@ class DetailsSkeletonWidget extends StatefulWidget {
   final IconData icon;
   final Widget bottomWidget, bodyWidget;
   final String imageUrl;
+  final String? cacheKey; // Add cache key for stable identity
+  
   const DetailsSkeletonWidget({
     super.key,
     this.hasBottomWidget = true,
@@ -22,6 +24,7 @@ class DetailsSkeletonWidget extends StatefulWidget {
     this.isRestaurant = true,
     this.icon = Ionicons.heart,
     this.imageUrl = '',
+    this.cacheKey,
     this.bottomWidget = const SizedBox(),
     this.bodyWidget = const SizedBox(),
   });
@@ -35,6 +38,13 @@ class _DetailsSkeletonWidgetState extends State<DetailsSkeletonWidget> {
   final CarouselSliderController carouselController =
       CarouselSliderController();
   int currentPage = 0;
+  @override
+  void initState() {
+    super.initState();
+    // Preload logic moved to onTap events in list screens
+    // to avoid conflicts with direct navigation
+  }
+
   @override
   void dispose() {
     super.dispose();
@@ -70,7 +80,27 @@ class _DetailsSkeletonWidgetState extends State<DetailsSkeletonWidget> {
               ),
               child: CachedNetworkImage(
                 imageUrl: widget.imageUrl,
+                key: ValueKey(widget.cacheKey ?? 'detail_image_${widget.imageUrl}'),
                 fit: BoxFit.cover,
+                placeholder: (context, url) => Container(
+                  color: kContainerColor.withValues(alpha: 0.1),
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      color: kPrimaryColor,
+                      strokeWidth: 2,
+                    ),
+                  ),
+                ),
+                errorWidget: (context, url, error) => Container(
+                  color: kContainerColor.withValues(alpha: 0.1),
+                  child: Center(
+                    child: Icon(
+                      Ionicons.image_outline,
+                      color: kGreyColor,
+                      size: 40,
+                    ),
+                  ),
+                ),
               ),
             ),
           ),

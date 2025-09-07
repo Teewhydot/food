@@ -7,6 +7,7 @@ import 'package:food/food/features/home/domain/entities/restaurant.dart';
 import 'package:food/food/features/home/domain/entities/restaurant_food_category.dart';
 import 'package:food/food/features/home/presentation/widgets/details_skeleton_widget.dart';
 import 'package:get_it/get_it.dart';
+import '../../../../core/utils/detail_image_cache.dart';
 import 'package:ionicons/ionicons.dart';
 
 import '../../../../../generated/assets.dart';
@@ -47,11 +48,13 @@ class _RestaurantDetailsState extends State<RestaurantDetails> {
   @override
   Widget build(BuildContext context) {
     return DetailsSkeletonWidget(
+      key: ValueKey('restaurant_detail_${widget.restaurant.id}'),
       hasBottomWidget: false,
       hasIndicator: true,
       isRestaurant: true,
       icon: Ionicons.menu,
       imageUrl: widget.restaurant.imageUrl,
+      cacheKey: DetailImageCache.getDetailCacheKey(type: 'restaurant', id: widget.restaurant.id),
       bodyWidget: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -199,6 +202,12 @@ class _RestaurantDetailsState extends State<RestaurantDetails> {
                   context.read<CartCubit>().addFood(food);
                 },
                 onTap: () {
+                  // Preload detail image for smooth navigation
+                  DetailImageCache.preloadDetailImage(
+                    context: context,
+                    imageUrl: food.imageUrl,
+                    cacheKey: DetailImageCache.getDetailCacheKey(type: 'food', id: food.id),
+                  );
                   nav.navigateTo(Routes.foodDetails, arguments: food);
                 },
                 rating: food.rating.toStringAsFixed(

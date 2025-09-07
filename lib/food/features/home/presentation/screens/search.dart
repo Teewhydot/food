@@ -14,6 +14,7 @@ import 'package:food/food/features/home/presentation/widgets/food_widget.dart';
 import 'package:food/food/features/home/presentation/widgets/search_widget.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
+import '../../../../core/utils/detail_image_cache.dart';
 
 import '../../../../core/bloc/managers/bloc_manager.dart';
 import '../../../../core/constants/app_constants.dart';
@@ -110,6 +111,12 @@ class _SearchState extends State<Search> {
                         context.read<CartCubit>().addFood(food);
                       },
                       onTap: () {
+                        // Preload detail image for smooth navigation
+                        DetailImageCache.preloadDetailImage(
+                          context: context,
+                          imageUrl: food.imageUrl,
+                          cacheKey: DetailImageCache.getDetailCacheKey(type: 'food', id: food.id),
+                        );
                         nav.navigateTo(Routes.foodDetails, arguments: food);
                       },
                     );
