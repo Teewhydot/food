@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:food/food/components/no_items_found_widget.dart';
 import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/components/texts.dart';
 import 'package:food/food/core/bloc/base/base_state.dart';
@@ -81,13 +82,10 @@ class _SearchState extends State<Search> {
                 : <FoodEntity>[];
 
         if (foods.isEmpty && searchQuery.isNotEmpty) {
-          return Center(
-            child: FText(
-              text: "No foods matches your search query",
-              color: kPrimaryColor,
-              fontSize: 12.sp,
-              fontWeight: FontWeight.normal,
-            ),
+          return NoItemsFoundWidget(
+            type: NoItemsType.search,
+            customMessage: "No foods match your search query",
+            height: 120.h,
           );
         } else if (foods.isNotEmpty) {
           return Column(
@@ -102,6 +100,8 @@ class _SearchState extends State<Search> {
                   itemBuilder: (context, index) {
                     final food = foods[index];
                     return FoodWidget(
+                      key: ValueKey('search_food_${food.id}'),
+                      id: food.id,
                       name: food.name,
                       rating: food.rating.toString(),
                       price: food.price.toString(),
@@ -157,13 +157,10 @@ class _SearchState extends State<Search> {
                 : <Restaurant>[];
 
         if (restaurants.isEmpty && searchQuery.isNotEmpty) {
-          return Center(
-            child: FText(
-              text: "No Restaurants matches your search query",
-              color: kPrimaryColor,
-              fontSize: 12.sp,
-              fontWeight: FontWeight.normal,
-            ),
+          return NoItemsFoundWidget(
+            type: NoItemsType.search,
+            customMessage: "No restaurants match your search query",
+            height: 120.h,
           );
         } else if (restaurants.isNotEmpty) {
           return Column(
@@ -261,13 +258,10 @@ class _SearchState extends State<Search> {
                 } else if (state.hasData) {
                   final keywords = state.data as List;
                   if (keywords.isEmpty) {
-                    return Center(
-                      child: FText(
-                        text: "No recent keywords found",
-                        color: kPrimaryColor,
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.normal,
-                      ),
+                    return NoItemsFoundWidget(
+                      type: NoItemsType.generic,
+                      customMessage: "No recent keywords found",
+                      height: 80.h,
                     );
                   }
                   return SizedBox(

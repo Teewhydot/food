@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:food/food/components/no_items_found_widget.dart';
 import 'package:food/food/components/texts.dart';
 import 'package:food/food/features/home/domain/entities/restaurant.dart';
 import 'package:food/food/features/home/domain/entities/restaurant_food_category.dart';
@@ -50,7 +51,9 @@ class _RestaurantDetailsState extends State<RestaurantDetails> {
       hasIndicator: true,
       isRestaurant: true,
       icon: Ionicons.menu,
+      imageUrl: widget.restaurant.imageUrl,
       bodyWidget: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Add your body widget here
           FText(
@@ -173,12 +176,10 @@ class _RestaurantDetailsState extends State<RestaurantDetails> {
     }
 
     if (filteredFoodList.isEmpty) {
-      return Center(
-        child: FText(
-          text: "No food available in this category.",
-          fontSize: 16,
-          color: kPrimaryColor,
-        ),
+      return NoItemsFoundWidget(
+        type: NoItemsType.food,
+        customMessage: "No food available in this category",
+        height: 200.h,
       );
     }
 
@@ -190,6 +191,8 @@ class _RestaurantDetailsState extends State<RestaurantDetails> {
         children:
             filteredFoodList.map((food) {
               return FoodWidget(
+                key: ValueKey('restaurant_detail_food_${food.id}'),
+                id: food.id,
                 image: food.imageUrl,
                 name: food.name,
                 onAddTapped: () {

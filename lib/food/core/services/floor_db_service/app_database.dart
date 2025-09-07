@@ -24,11 +24,13 @@ import 'chat/chat_dao.dart';
 import 'chat/chat_entity.dart';
 import 'message/message_dao.dart';
 import 'message/message_entity.dart';
+import 'location/location_dao.dart';
+import 'location/location_entity.dart';
 
 part 'app_database.g.dart'; // the generated code will be there
 
 @Database(
-  version: 3,
+  version: 4,
   entities: [
     RecentKeywordEntity,
     UserProfileEntity,
@@ -39,6 +41,7 @@ part 'app_database.g.dart'; // the generated code will be there
     OrderFloorEntity,
     ChatFloorEntity,
     MessageFloorEntity,
+    LocationFloorEntity,
   ],
 )
 @TypeConverters([StringListConverter, OrderItemsConverter, RestaurantCategoryConverter])
@@ -52,6 +55,7 @@ abstract class AppDatabase extends FloorDatabase {
   OrderDao get orderDao;
   ChatDao get chatDao;
   MessageDao get messageDao;
+  LocationDao get locationDao;
 }
 
 // flutter packages pub run build_runner build

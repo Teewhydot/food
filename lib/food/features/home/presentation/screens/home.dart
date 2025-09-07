@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/image.dart';
+import 'package:food/food/components/no_items_found_widget.dart';
 import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/components/texts.dart';
 import 'package:food/food/core/helpers/user_extensions.dart';
@@ -18,6 +19,7 @@ import '../../../../core/bloc/managers/bloc_manager.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../core/utils/logger.dart';
+import '../../../../core/utils/cached_widget_builder.dart';
 import '../../../payments/presentation/manager/cart/cart_cubit.dart';
 import '../../domain/entities/food.dart';
 import '../../domain/entities/restaurant.dart';
@@ -39,6 +41,8 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   String selectedCategory = "All";
+  List<FoodEntity>? _cachedFoodList;
+  List<Restaurant>? _cachedRestaurantList;
   final nav = GetIt.instance<NavigationService>();
   final List<String> categories = [
     "All",
@@ -66,12 +70,38 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    // Load location data if not already loaded
+    // Load cached location data first, then other data
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Try to load cached location first (won't trigger network call)
       context.read<LocationBloc>().requestLocation();
       context.read<RestaurantCubit>().getRestaurants();
       context.read<FoodCubit>().getAllFoods();
+      
+      // Pre-warm image cache with initial data (disabled for now)
+      // _preWarmImageCache();
     });
+  }
+  
+  void _preWarmImageCache() async {
+    // Wait a bit for data to load then pre-warm cache
+    await Future.delayed(const Duration(seconds: 1));
+    
+    final List<String> imageUrls = [];
+    
+    // Add food images to prewarming list
+    if (_cachedFoodList != null) {
+      imageUrls.addAll(_cachedFoodList!.map((food) => food.imageUrl));
+    }
+    
+    // Add restaurant images to prewarming list
+    if (_cachedRestaurantList != null) {
+      imageUrls.addAll(_cachedRestaurantList!.map((restaurant) => restaurant.imageUrl));
+    }
+    
+    // Pre-warm the cache
+    if (imageUrls.isNotEmpty && mounted) {
+      CachedWidgetBuilder.preWarmImageCache(imageUrls);
+    }
   }
 
   @override
@@ -265,16 +295,20 @@ class _HomeState extends State<Home> {
                         text: category,
                         isSelected: selectedCategory == category,
                         onTap: () {
-                          setState(() {
-                            selectedCategory = category;
-                          });
-                          // Optionally trigger category-specific food loading
-                          if (category != "All") {
-                            context.read<FoodCubit>().getFoodsByCategory(
-                              category,
-                            );
-                          } else {
-                            context.read<FoodCubit>().getAllFoods();
+                          if (selectedCategory != category) {
+                            // Clear widget cache when category changes
+                            CachedWidgetBuilder.clearCache('food_list_$selectedCategory');
+                            setState(() {
+                              selectedCategory = category;
+                            });
+                            // Optionally trigger category-specific food loading
+                            if (category != "All") {
+                              context.read<FoodCubit>().getFoodsByCategory(
+                                category,
+                              );
+                            } else {
+                              context.read<FoodCubit>().getAllFoods();
+                            }
                           }
                         },
                       );
@@ -295,28 +329,15 @@ class _HomeState extends State<Home> {
                   );
                 } else if (state.hasData && state.data is List<FoodEntity>) {
                   final foods = state.data as List<FoodEntity>;
-                  return buildFoodWidget(
+                  _cachedFoodList = foods; // Cache the food list
+                  return buildOptimizedFoodWidget(
                     selectedCategory,
                     foods,
                   ).paddingOnly(right: AppConstants.defaultPadding);
                 } else if (state is EmptyState) {
-                  return SizedBox(
-                    height: 250.h,
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.fastfood, size: 48, color: kGreyColor),
-                          16.verticalSpace,
-                          FText(
-                            text: state.message ?? 'No food available',
-                            fontSize: 16,
-                            color: kGreyColor,
-                            alignment: MainAxisAlignment.center,
-                          ),
-                        ],
-                      ),
-                    ),
+                  return NoItemsFoundWidget(
+                    type: NoItemsType.food,
+                    customMessage: state.message,
                   );
                 }
                 // Loading and error states are handled by SimplifiedEnhancedBlocManager
@@ -350,24 +371,13 @@ class _HomeState extends State<Home> {
                   ).paddingOnly(right: AppConstants.defaultPadding.w);
                 } else if (state.hasData && state.data is List<Restaurant>) {
                   final restaurants = state.data as List<Restaurant>;
-                  return SingleChildScrollView(
-                    scrollDirection: Axis.vertical,
-                    child: Column(
-                      spacing: 16,
-                      children:
-                          restaurants.map((restaurant) {
-                            return RestaurantWidget(
-                              restaurant: restaurant,
-                              onTap: () {
-                                nav.navigateTo(
-                                  Routes.restaurantDetails,
-                                  arguments: restaurant,
-                                );
-                              },
-                            );
-                          }).toList(),
-                    ).paddingOnly(right: AppConstants.defaultPadding.w),
-                  );
+                  _cachedRestaurantList = restaurants; // Cache the restaurant list
+                  return buildOptimizedRestaurantList(restaurants);
+                } else if (state is EmptyState) {
+                  return NoItemsFoundWidget(
+                    type: NoItemsType.restaurant,
+                    customMessage: state.message,
+                  ).paddingOnly(right: AppConstants.defaultPadding.w);
                 }
                 return SizedBox.shrink();
               },
@@ -379,7 +389,7 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget buildFoodWidget(String category, List<FoodEntity> foods) {
+  Widget buildOptimizedFoodWidget(String category, List<FoodEntity> foods) {
     Widget foodWidget;
     List<FoodEntity> filteredFoodList;
 
@@ -405,25 +415,45 @@ class _HomeState extends State<Home> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         spacing: 20,
-        children:
-            filteredFoodList.map((food) {
-              return FoodWidget(
-                image: food.imageUrl,
-                name: food.name,
-                onAddTapped: () {
-                  context.read<CartCubit>().addFood(food);
-                },
-                onTap: () {
-                  nav.navigateTo(Routes.foodDetails, arguments: food);
-                },
-                rating: food.rating.toStringAsFixed(
-                  2,
-                ), // Assuming a default rating for now
-                price: "\$${food.price.toStringAsFixed(2)}",
-              );
-            }).toList(),
+        children: filteredFoodList.map((food) {
+          return FoodWidget(
+            key: ValueKey('food_${food.id}'),
+            id: food.id,
+            image: food.imageUrl,
+            name: food.name,
+            onAddTapped: () {
+              context.read<CartCubit>().addFood(food);
+            },
+            onTap: () {
+              nav.navigateTo(Routes.foodDetails, arguments: food);
+            },
+            rating: food.rating.toStringAsFixed(2),
+            price: "\$${food.price.toStringAsFixed(2)}",
+          );
+        }).toList(),
       ),
     );
     return foodWidget;
+  }
+  
+  Widget buildOptimizedRestaurantList(List<Restaurant> restaurants) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.vertical,
+      child: Column(
+        spacing: 16,
+        children: restaurants.map((restaurant) {
+          return RestaurantWidget(
+            key: ValueKey('restaurant_${restaurant.id}'),
+            restaurant: restaurant,
+            onTap: () {
+              nav.navigateTo(
+                Routes.restaurantDetails,
+                arguments: restaurant,
+              );
+            },
+          );
+        }).toList(),
+      ).paddingOnly(right: AppConstants.defaultPadding.w),
+    );
   }
 }

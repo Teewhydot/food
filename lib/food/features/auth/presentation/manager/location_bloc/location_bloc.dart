@@ -1,5 +1,6 @@
 import 'package:food/food/core/bloc/base/base_bloc.dart';
 import 'package:food/food/core/bloc/base/base_state.dart';
+import 'package:food/food/core/services/floor_db_service/location/location_database_service.dart';
 import 'package:food/food/core/services/permission_service/permission_repository.dart';
 import 'package:food/food/core/utils/logger.dart';
 import 'package:food/food/features/auth/domain/entities/location_data.dart';
@@ -17,8 +18,63 @@ part 'location_event.dart';
 class LocationBloc extends BaseCubit<BaseState<LocationData>> {
   final GeocodingUseCase _geocodingUseCase = GetIt.instance<GeocodingUseCase>();
   final PermissionRepository _permissionRepository = PermissionRepository();
+  final LocationDatabaseService _locationDatabaseService = LocationDatabaseService();
 
   LocationBloc() : super(const InitialState<LocationData>());
+
+  /// Load cached location data if available and valid
+  Future<void> loadCachedLocation() async {
+    try {
+      final cachedLocation = await _locationDatabaseService.getCachedLocation();
+
+      if (cachedLocation != null) {
+        Logger.logSuccess(
+          "Loaded cached location: ${cachedLocation.city}, ${cachedLocation.country}",
+        );
+        emit(
+          LoadedState<LocationData>(
+            data: cachedLocation,
+            lastUpdated: DateTime.now(),
+          ),
+        );
+      }
+    } catch (e) {
+      Logger.logWarning("Error loading cached location: ${e.toString()}");
+    }
+  }
+
+  /// Request fresh location data (forces new location fetch)
+  Future<void> requestFreshLocation() async {
+    await _requestLocationData(forceFresh: true);
+  }
+
+  /// Request location data (checks cache first unless forced)
+  Future<void> requestLocation({bool forceFresh = false}) async {
+    // If not forcing fresh and we already have loaded data, don't request again
+    if (!forceFresh && state is LoadedState<LocationData>) {
+      return;
+    }
+
+    // Check cache first unless forcing fresh
+    if (!forceFresh) {
+      final cachedLocation = await _locationDatabaseService.getCachedLocation();
+      if (cachedLocation != null) {
+        Logger.logSuccess(
+          "Using cached location: ${cachedLocation.city}, ${cachedLocation.country}",
+        );
+        emit(
+          LoadedState<LocationData>(
+            data: cachedLocation,
+            lastUpdated: DateTime.now(),
+          ),
+        );
+        return;
+      }
+    }
+
+    // No valid cache or forced fresh - request new location
+    await _requestLocationData(forceFresh: forceFresh);
+  }
 
   void checkLocationPermission() async {
     emit(
@@ -60,7 +116,7 @@ class LocationBloc extends BaseCubit<BaseState<LocationData>> {
     }
   }
 
-  Future<void> requestLocation() async {
+  Future<void> _requestLocationData({bool forceFresh = false}) async {
     emit(const LoadingState<LocationData>(message: 'Getting your location...'));
 
     try {
@@ -166,6 +222,9 @@ class LocationBloc extends BaseCubit<BaseState<LocationData>> {
           country: geocodingResult.country,
         );
 
+        // Cache the location data for future use
+        await _locationDatabaseService.cacheLocation(locationData);
+
         emit(
           LoadedState<LocationData>(
             data: locationData,
@@ -185,6 +244,9 @@ class LocationBloc extends BaseCubit<BaseState<LocationData>> {
           city: 'City unavailable',
           country: 'Country unavailable',
         );
+
+        // Cache the location data even if geocoding failed
+        await _locationDatabaseService.cacheLocation(locationData);
 
         emit(
           LoadedState<LocationData>(

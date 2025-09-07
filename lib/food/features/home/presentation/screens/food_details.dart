@@ -39,7 +39,6 @@ class _FoodDetailsState extends State<FoodDetails> {
 
     return BlocManager<CartCubit, BaseState<dynamic>>(
       bloc: context.read<CartCubit>(),
-      child: const SizedBox.shrink(),
       showLoadingIndicator: true,
       builder: (context, state) {
         if (state.hasData) {
@@ -47,6 +46,7 @@ class _FoodDetailsState extends State<FoodDetails> {
             hasBottomWidget: true,
             hasIndicator: false,
             isRestaurant: false,
+            imageUrl: widget.foodEntity.imageUrl,
             icon: Icons.favorite,
             bottomWidget: IntrinsicHeight(
               child: Container(
@@ -273,6 +273,7 @@ class _FoodDetailsState extends State<FoodDetails> {
         }
         return SizedBox();
       },
+      child: const SizedBox.shrink(),
     );
   }
 }

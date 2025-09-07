@@ -66,6 +66,26 @@ class BlocManager<T extends BlocBase<S>, S extends BaseState>
     return BlocProvider<T>.value(
       value: bloc,
       child: BlocConsumer<T, S>(
+        buildWhen: (previous, current) {
+          // Always rebuild for initial load, loading states, errors, and empty states
+          if (previous is InitialState || 
+              current is InitialState ||
+              current is LoadingState || 
+              current is ErrorState ||
+              current is EmptyState) {
+            return true;
+          }
+          
+          // For loaded states, check if we should rebuild
+          if (current is LoadedState && previous is LoadedState) {
+            // Don't rebuild if returning cached data with same content
+            if (current.isFromCache == true && previous.data == current.data) {
+              return false;
+            }
+          }
+          
+          return true;
+        },
         builder: (context, state) {
           // Handle custom builder if provided
           final Widget contentWidget =

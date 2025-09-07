@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -13,12 +14,14 @@ class DetailsSkeletonWidget extends StatefulWidget {
   final bool hasBottomWidget, hasIndicator, isRestaurant;
   final IconData icon;
   final Widget bottomWidget, bodyWidget;
+  final String imageUrl;
   const DetailsSkeletonWidget({
     super.key,
     this.hasBottomWidget = true,
     this.hasIndicator = true,
     this.isRestaurant = true,
     this.icon = Ionicons.heart,
+    this.imageUrl = '',
     this.bottomWidget = const SizedBox(),
     this.bodyWidget = const SizedBox(),
   });
@@ -56,105 +59,21 @@ class _DetailsSkeletonWidgetState extends State<DetailsSkeletonWidget> {
               ],
             ),
           ),
-          widget.isRestaurant
-              ? CarouselSlider(
-                items: [
-                  Container(
-                    height: 301,
-                    width: 1.sw,
-                    decoration: BoxDecoration(
-                      color: kContainerColor,
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(30.r),
-                        bottomRight: Radius.circular(30.r),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    width: 1.sw,
-                    decoration: BoxDecoration(
-                      color: kContainerColor,
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(30.r),
-                        bottomRight: Radius.circular(30.r),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    width: 1.sw,
-                    decoration: BoxDecoration(
-                      color: kContainerColor,
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(30.r),
-                        bottomRight: Radius.circular(30.r),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    width: 1.sw,
-                    decoration: BoxDecoration(
-                      color: kContainerColor,
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(30.r),
-                        bottomRight: Radius.circular(30.r),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    width: 1.sw,
-                    decoration: BoxDecoration(
-                      color: kContainerColor,
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(30.r),
-                        bottomRight: Radius.circular(30.r),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    width: 1.sw,
-                    decoration: BoxDecoration(
-                      color: kContainerColor,
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(30.r),
-                        bottomRight: Radius.circular(30.r),
-                      ),
-                    ),
-                  ),
-                ],
-                carouselController: carouselController,
-                options: CarouselOptions(
-                  height: 300,
-                  pauseAutoPlayOnManualNavigate: true,
-                  pauseAutoPlayOnTouch: true,
-                  initialPage: 0,
-                  enableInfiniteScroll: false,
-                  reverse: false,
-                  autoPlay: true,
-                  autoPlayInterval: Duration(seconds: 3),
-                  autoPlayAnimationDuration: Duration(milliseconds: 800),
-                  autoPlayCurve: Curves.fastOutSlowIn,
-                  enlargeCenterPage: false,
-                  onPageChanged: (index, reason) {
-                    setState(() {
-                      currentPage = index;
-                    });
-                  },
-                  scrollDirection: Axis.horizontal,
-                  viewportFraction: 1.0,
-                ),
-              )
-              : Container(
-                width: 1.sw,
-                height: 301,
-                decoration: BoxDecoration(
-                  color: kContainerColor,
-
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(30.r),
-                    bottomRight: Radius.circular(30.r),
-                  ),
-                ),
+          Container(
+            width: 1.sw,
+            height: 301,
+            decoration: BoxDecoration(color: kContainerColor),
+            child: ClipRRect(
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(10.r),
+                bottomRight: Radius.circular(10.r),
               ),
+              child: CachedNetworkImage(
+                imageUrl: widget.imageUrl,
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
           Positioned(top: 50, left: 24, child: BackWidget()),
           if (widget.hasIndicator)
             Positioned(

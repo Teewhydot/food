@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/image.dart';
+import 'package:food/food/components/no_items_found_widget.dart';
 import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/core/bloc/base/base_state.dart';
 import 'package:food/food/core/constants/app_constants.dart';
@@ -65,13 +66,8 @@ class _AddressState extends State<Address> {
               ),
               body: Stack(
                 children: [
-                  Center(
-                    child: FText(
-                      text: "No addresses found",
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w400,
-                      color: kGreyColor,
-                    ),
+                  NoItemsFoundWidget(
+                    type: NoItemsType.address,
                   ),
                   Positioned(
                     bottom: 10,

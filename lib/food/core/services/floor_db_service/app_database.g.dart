@@ -90,13 +90,15 @@ class _$AppDatabase extends AppDatabase {
 
   MessageDao? _messageDaoInstance;
 
+  LocationDao? _locationDaoInstance;
+
   Future<sqflite.Database> open(
     String path,
     List<Migration> migrations, [
     Callback? callback,
   ]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 3,
+      version: 4,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -116,7 +118,7 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `user_profile` (`id` TEXT, `firstName` TEXT NOT NULL, `lastName` TEXT NOT NULL, `email` TEXT NOT NULL, `phoneNumber` TEXT NOT NULL, `bio` TEXT, `firstTimeLogin` INTEGER NOT NULL, `profileImageUrl` TEXT, PRIMARY KEY (`id`))');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `addresses` (`id` TEXT NOT NULL, `street` TEXT NOT NULL, `city` TEXT NOT NULL, `state` TEXT NOT NULL, `zipCode` TEXT NOT NULL, `type` TEXT NOT NULL, `address` TEXT NOT NULL, `apartment` TEXT NOT NULL, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `addresses` (`id` TEXT NOT NULL, `street` TEXT NOT NULL, `city` TEXT NOT NULL, `state` TEXT NOT NULL, `zipCode` TEXT NOT NULL, `type` TEXT NOT NULL, `address` TEXT NOT NULL, `apartment` TEXT NOT NULL, `title` TEXT, `latitude` REAL, `longitude` REAL, `isDefault` INTEGER NOT NULL, PRIMARY KEY (`id`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `PermissionEntity` (`permissionName` TEXT NOT NULL, `isGranted` INTEGER NOT NULL, `lastUpdated` TEXT NOT NULL, PRIMARY KEY (`permissionName`))');
         await database.execute(
@@ -129,6 +131,8 @@ class _$AppDatabase extends AppDatabase {
             'CREATE TABLE IF NOT EXISTS `chats` (`id` TEXT NOT NULL, `senderID` TEXT NOT NULL, `receiverID` TEXT NOT NULL, `name` TEXT NOT NULL, `lastMessage` TEXT NOT NULL, `imageUrl` TEXT NOT NULL, `lastMessageTime` INTEGER NOT NULL, `orderId` TEXT NOT NULL, PRIMARY KEY (`id`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `messages` (`id` TEXT NOT NULL, `chatId` TEXT NOT NULL, `content` TEXT NOT NULL, `senderId` TEXT NOT NULL, `receiverId` TEXT NOT NULL, `timestamp` INTEGER NOT NULL, `isRead` INTEGER NOT NULL, PRIMARY KEY (`id`))');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `cached_locations` (`id` INTEGER NOT NULL, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `address` TEXT NOT NULL, `city` TEXT NOT NULL, `country` TEXT NOT NULL, `timestamp` INTEGER NOT NULL, PRIMARY KEY (`id`))');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -181,6 +185,11 @@ class _$AppDatabase extends AppDatabase {
   @override
   MessageDao get messageDao {
     return _messageDaoInstance ??= _$MessageDao(database, changeListener);
+  }
+
+  @override
+  LocationDao get locationDao {
+    return _locationDaoInstance ??= _$LocationDao(database, changeListener);
   }
 }
 
@@ -328,7 +337,11 @@ class _$AddressDao extends AddressDao {
                   'zipCode': item.zipCode,
                   'type': item.type,
                   'address': item.address,
-                  'apartment': item.apartment
+                  'apartment': item.apartment,
+                  'title': item.title,
+                  'latitude': item.latitude,
+                  'longitude': item.longitude,
+                  'isDefault': item.isDefault ? 1 : 0
                 }),
         _addressEntityUpdateAdapter = UpdateAdapter(
             database,
@@ -342,7 +355,11 @@ class _$AddressDao extends AddressDao {
                   'zipCode': item.zipCode,
                   'type': item.type,
                   'address': item.address,
-                  'apartment': item.apartment
+                  'apartment': item.apartment,
+                  'title': item.title,
+                  'latitude': item.latitude,
+                  'longitude': item.longitude,
+                  'isDefault': item.isDefault ? 1 : 0
                 }),
         _addressEntityDeletionAdapter = DeletionAdapter(
             database,
@@ -356,7 +373,11 @@ class _$AddressDao extends AddressDao {
                   'zipCode': item.zipCode,
                   'type': item.type,
                   'address': item.address,
-                  'apartment': item.apartment
+                  'apartment': item.apartment,
+                  'title': item.title,
+                  'latitude': item.latitude,
+                  'longitude': item.longitude,
+                  'isDefault': item.isDefault ? 1 : 0
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -382,7 +403,11 @@ class _$AddressDao extends AddressDao {
             zipCode: row['zipCode'] as String,
             address: row['address'] as String,
             apartment: row['apartment'] as String,
-            type: row['type'] as String));
+            type: row['type'] as String,
+            title: row['title'] as String?,
+            latitude: row['latitude'] as double?,
+            longitude: row['longitude'] as double?,
+            isDefault: (row['isDefault'] as int) != 0));
   }
 
   @override
@@ -1564,6 +1589,66 @@ class _$MessageDao extends MessageDao {
   @override
   Future<void> deleteMessage(MessageFloorEntity message) async {
     await _messageFloorEntityDeletionAdapter.delete(message);
+  }
+}
+
+class _$LocationDao extends LocationDao {
+  _$LocationDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database),
+        _locationFloorEntityInsertionAdapter = InsertionAdapter(
+            database,
+            'cached_locations',
+            (LocationFloorEntity item) => <String, Object?>{
+                  'id': item.id,
+                  'latitude': item.latitude,
+                  'longitude': item.longitude,
+                  'address': item.address,
+                  'city': item.city,
+                  'country': item.country,
+                  'timestamp': item.timestamp
+                });
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<LocationFloorEntity>
+      _locationFloorEntityInsertionAdapter;
+
+  @override
+  Future<LocationFloorEntity?> getCachedLocation() async {
+    return _queryAdapter.query(
+        'SELECT * FROM cached_locations WHERE id = 1 LIMIT 1',
+        mapper: (Map<String, Object?> row) => LocationFloorEntity(
+            id: row['id'] as int,
+            latitude: row['latitude'] as double,
+            longitude: row['longitude'] as double,
+            address: row['address'] as String,
+            city: row['city'] as String,
+            country: row['country'] as String,
+            timestamp: row['timestamp'] as int));
+  }
+
+  @override
+  Future<void> clearLocationCache() async {
+    await _queryAdapter.queryNoReturn('DELETE FROM cached_locations');
+  }
+
+  @override
+  Future<int?> hasLocationCache() async {
+    return _queryAdapter.query(
+        'SELECT COUNT(*) FROM cached_locations WHERE id = 1',
+        mapper: (Map<String, Object?> row) => row.values.first as int);
+  }
+
+  @override
+  Future<void> cacheLocation(LocationFloorEntity location) async {
+    await _locationFloorEntityInsertionAdapter.insert(
+        location, OnConflictStrategy.replace);
   }
 }
 

@@ -9,17 +9,19 @@ import 'package:food/food/features/onboarding/presentation/widgets/food_containe
 import 'package:get/get.dart';
 
 class FoodWidget extends StatefulWidget {
+  final String id;
   final String image, name, price, rating;
   final Function onTap, onAddTapped;
   const FoodWidget({
-    super.key,
+    Key? key,
+    required this.id,
     required this.image,
     required this.name,
     required this.price,
     required this.rating,
     required this.onTap,
     required this.onAddTapped,
-  });
+  }) : super(key: key);
 
   @override
   State<FoodWidget> createState() => _FoodWidgetState();
@@ -53,6 +55,26 @@ class _FoodWidgetState extends State<FoodWidget> {
                   child: CachedNetworkImage(
                     imageUrl: widget.image,
                     fit: BoxFit.cover,
+                    key: ValueKey('food_image_${widget.id}'),
+                    memCacheWidth: 300,
+                    memCacheHeight: 260,
+                    placeholder: (context, url) => Container(
+                      color: kGreyColor.withValues(alpha: 0.1),
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          color: kPrimaryColor,
+                          strokeWidth: 2,
+                        ),
+                      ),
+                    ),
+                    errorWidget: (context, url, error) => Container(
+                      color: kGreyColor.withValues(alpha: 0.1),
+                      child: Icon(
+                        Icons.image_not_supported,
+                        color: kGreyColor,
+                        size: 40,
+                      ),
+                    ),
                   ),
                 ),
               ),
