@@ -1,9 +1,9 @@
 import 'package:food/food/core/bloc/base/base_bloc.dart';
 import 'package:food/food/core/bloc/base/base_state.dart';
-import 'package:food/food/core/services/geocoding_service.dart';
 import 'package:food/food/core/services/permission_service/permission_repository.dart';
 import 'package:food/food/core/utils/logger.dart';
 import 'package:food/food/features/auth/domain/entities/location_data.dart';
+import 'package:food/food/features/geocoding/domain/use_cases/geocoding_usecase.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
 import 'package:meta/meta.dart';
@@ -12,9 +12,10 @@ import 'package:permission_handler/permission_handler.dart';
 part 'location_event.dart';
 // part 'location_state.dart'; // Commented out - using BaseState now
 
-/// Migrated LocationBloc to use BaseState<LocationData> (converted from BLoC to Cubit for simplicity)
+/// Migrated LocationBloc to use BaseState\<LocationData> (converted from BLoC to Cubit for simplicity)
+/// Updated to use new GeocodingUseCase instead of deprecated GeocodingService
 class LocationBloc extends BaseCubit<BaseState<LocationData>> {
-  final GeocodingService _geocodingService = GetIt.instance<GeocodingService>();
+  final GeocodingUseCase _geocodingUseCase = GetIt.instance<GeocodingUseCase>();
   final PermissionRepository _permissionRepository = PermissionRepository();
 
   LocationBloc() : super(const InitialState<LocationData>());
@@ -142,33 +143,56 @@ class LocationBloc extends BaseCubit<BaseState<LocationData>> {
 
       Logger.logSuccess("Location fetched: $latitude, $longitude");
 
-      // Get address details using the independent GeocodingService
-      final locationDetails = await _geocodingService.getAddressFromCoordinates(
-        latitude: latitude,
-        longitude: longitude,
-      );
-
-      final locationData = LocationData(
-        latitude: latitude,
-        longitude: longitude,
-        address: locationDetails['address'] ?? '',
-        city: locationDetails['city'] ?? '',
-        country: locationDetails['country'] ?? '',
-      );
-
+      // Get address details using the new GeocodingUseCase
       emit(
-        LoadedState<LocationData>(
-          data: locationData,
-          lastUpdated: DateTime.now(),
-        ),
+        const LoadingState<LocationData>(message: 'Getting address details...'),
       );
 
-      // Also emit success state for notification
-      emit(
-        const SuccessState<LocationData>(
-          successMessage: "Location fetched successfully",
-        ),
-      );
+      try {
+        final geocodingResult = await _geocodingUseCase
+            .getAddressFromCoordinates(
+              latitude: latitude,
+              longitude: longitude,
+            );
+        Logger.logSuccess(
+          "Location fetched: ${geocodingResult.city}, ${geocodingResult.country}",
+        );
+
+        final locationData = LocationData(
+          latitude: latitude,
+          longitude: longitude,
+          address: geocodingResult.address,
+          city: geocodingResult.city,
+          country: geocodingResult.country,
+        );
+
+        emit(
+          LoadedState<LocationData>(
+            data: locationData,
+            lastUpdated: DateTime.now(),
+          ),
+        );
+      } catch (geocodingError) {
+        Logger.logWarning(
+          "Geocoding failed, using coordinates only: ${geocodingError.toString()}",
+        );
+
+        // Still provide location data even if geocoding fails
+        final locationData = LocationData(
+          latitude: latitude,
+          longitude: longitude,
+          address: 'Address unavailable',
+          city: 'City unavailable',
+          country: 'Country unavailable',
+        );
+
+        emit(
+          LoadedState<LocationData>(
+            data: locationData,
+            lastUpdated: DateTime.now(),
+          ),
+        );
+      }
     } catch (e) {
       Logger.logError("Error fetching location: ${e.toString()}");
       emit(

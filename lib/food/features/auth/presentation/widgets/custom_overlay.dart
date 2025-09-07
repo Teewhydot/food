@@ -14,11 +14,15 @@ class CustomOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LoadingOverlay(
-      isLoading: isLoading,
-      color: kPrimaryColor.withValues(alpha: 0.5),
-      progressIndicator: SpinKitFadingCircle(color: kWhiteColor),
-      child: child,
+    return SizedBox(
+      width: double.infinity,
+      height: double.infinity,
+      child: LoadingOverlay(
+        isLoading: isLoading,
+        color: kPrimaryColor.withValues(alpha: 0.5),
+        progressIndicator: SpinKitFadingCircle(color: kWhiteColor),
+        child: child,
+      ),
     );
   }
 }

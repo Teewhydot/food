@@ -73,11 +73,15 @@ class BlocManager<T extends BlocBase<S>, S extends BaseState>
 
           // Apply loading overlay if needed
           if (showLoadingIndicator && state.isLoading) {
-            return LoadingOverlay(
-              isLoading: true,
-              color: kPrimaryColor.withValues(alpha: 0.5),
-              progressIndicator: SpinKitCircle(color: kWhiteColor, size: 50.0),
-              child: contentWidget,
+            return SizedBox(
+              width: double.infinity,
+              height: double.infinity,
+              child: LoadingOverlay(
+                isLoading: true,
+                color: kPrimaryColor.withValues(alpha: 0.5),
+                progressIndicator: SpinKitCircle(color: kWhiteColor, size: 50.0),
+                child: contentWidget,
+              ),
             );
           }
 

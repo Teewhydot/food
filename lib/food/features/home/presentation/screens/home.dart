@@ -17,6 +17,7 @@ import '../../../../core/bloc/base/base_state.dart';
 import '../../../../core/bloc/managers/bloc_manager.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
+import '../../../../core/utils/logger.dart';
 import '../../../payments/presentation/manager/cart/cart_cubit.dart';
 import '../../domain/entities/food.dart';
 import '../../domain/entities/restaurant.dart';
@@ -194,43 +195,24 @@ class _HomeState extends State<Home> {
                       children: [
                         BlocBuilder<LocationBloc, BaseState<LocationData>>(
                           builder: (context, state) {
-                            String locationText = "Lding...";
-
-                            if (state is LoadingState<LocationData>) {
+                            String locationText = "";
+                            if (state is LoadingState) {
                               locationText = "Loading...";
-                            } else if (state is SuccessState<LocationData> &&
-                                state.data != null) {
-                              final location = state.data!;
-                              // Format as "City, Country" or just "City" if country is same as city
-                              if (location.city.isNotEmpty &&
-                                  location.country.isNotEmpty) {
-                                locationText =
-                                    "${location.city}, ${location.country}";
-                              } else if (location.city.isNotEmpty) {
-                                locationText = location.city;
-                              } else if (location.address.isNotEmpty) {
-                                // Fallback to address if city is not available
-                                locationText = location.address;
-                              } else {
-                                locationText = "Location unavailable";
-                              }
-                            } else if (state is ErrorState<LocationData>) {
-                              locationText = "Location unavailable";
+                            } else if (state is LoadedState) {
+                              final geocodingData = state.data!;
+                              locationText =
+                                  "${geocodingData.city}, ${geocodingData.country}";
+                              Logger.logSuccess(locationText);
+                              Logger.logSuccess(geocodingData.address);
+                            } else if (state is ErrorState) {
+                              locationText = "Address Unavailable";
                             }
-
                             return FText(
                               text: locationText,
                               fontSize: 14,
                               color: kAddressColor,
                             );
                           },
-                        ),
-                        8.horizontalSpace,
-                        FImage(
-                          assetPath: Assets.svgsArrowDown,
-                          assetType: FoodAssetType.svg,
-                          width: 10,
-                          height: 10,
                         ),
                       ],
                     ),

@@ -1,7 +1,11 @@
 import 'package:food/food/features/auth/data/remote/data_sources/register_data_source.dart';
+import 'package:food/food/features/geocoding/data/remote/data_sources/geocoding_datasource.dart';
 import 'package:get_it/get_it.dart';
+import 'package:http/http.dart' as http;
 
 import '../core/services/firebase_service.dart';
+import '../core/services/floor_db_service/address/address_database_service.dart';
+import '../core/services/floor_db_service/user_profile/user_profile_database_service.dart';
 import '../core/services/geocoding_service.dart';
 import '../core/services/navigation_service/nav_config.dart';
 import '../features/auth/data/remote/data_sources/delete_user_account_data_source.dart';
@@ -11,14 +15,30 @@ import '../features/auth/data/remote/data_sources/login_data_source.dart';
 import '../features/auth/data/remote/data_sources/password_reset_data_source.dart';
 import '../features/auth/data/remote/data_sources/sign_out_data_source.dart';
 import '../features/auth/data/remote/data_sources/user_data_source.dart';
+import '../features/geocoding/data/repositories/geocoding_repository_impl.dart';
+import '../features/geocoding/domain/repositories/geocoding_repository.dart';
+import '../features/geocoding/domain/use_cases/coordinate_validation_usecase.dart';
+import '../features/geocoding/domain/use_cases/geocoding_usecase.dart';
+import '../features/home/data/remote/data_sources/address_remote_data_source.dart';
+import '../features/home/data/remote/data_sources/favorites_remote_data_source.dart';
 import '../features/home/data/remote/data_sources/food_remote_data_source.dart';
 import '../features/home/data/remote/data_sources/restaurant_remote_data_source.dart';
+import '../features/home/data/remote/data_sources/user_profile_remote_data_source.dart';
+import '../features/home/data/repositories/address_repository_impl.dart';
+import '../features/home/data/repositories/favorites_repository_impl.dart';
 import '../features/home/data/repositories/food_repository_impl.dart';
 import '../features/home/data/repositories/restaurant_repository_impl.dart';
+import '../features/home/data/repositories/user_profile_repository_impl.dart';
+import '../features/home/domain/repositories/address_repository.dart';
+import '../features/home/domain/repositories/favorites_repository.dart';
 import '../features/home/domain/repositories/food_repository.dart';
 import '../features/home/domain/repositories/restaurant_repository.dart';
+import '../features/home/domain/repositories/user_profile_repository.dart';
+import '../features/home/domain/use_cases/address_usecase.dart';
+import '../features/home/domain/use_cases/favorites_usecase.dart';
 import '../features/home/domain/use_cases/food_usecase.dart';
 import '../features/home/domain/use_cases/restaurant_usecase.dart';
+import '../features/home/domain/use_cases/user_profile_usecase.dart';
 import '../features/payments/data/remote/data_sources/order_remote_data_source.dart';
 import '../features/payments/data/remote/data_sources/payment_remote_data_source.dart';
 import '../features/payments/data/repositories/payment_repository_impl.dart';
@@ -33,20 +53,6 @@ import '../features/tracking/domain/repositories/chat_repository.dart';
 import '../features/tracking/domain/repositories/notification_repository.dart';
 import '../features/tracking/domain/use_cases/chat_usecase.dart';
 import '../features/tracking/domain/use_cases/notification_usecase.dart';
-import '../features/home/data/remote/data_sources/address_remote_data_source.dart';
-import '../features/home/data/remote/data_sources/user_profile_remote_data_source.dart';
-import '../features/home/data/remote/data_sources/favorites_remote_data_source.dart';
-import '../features/home/data/repositories/address_repository_impl.dart';
-import '../features/home/data/repositories/user_profile_repository_impl.dart';
-import '../features/home/data/repositories/favorites_repository_impl.dart';
-import '../features/home/domain/repositories/address_repository.dart';
-import '../features/home/domain/repositories/user_profile_repository.dart';
-import '../features/home/domain/repositories/favorites_repository.dart';
-import '../features/home/domain/use_cases/address_usecase.dart';
-import '../features/home/domain/use_cases/user_profile_usecase.dart';
-import '../features/home/domain/use_cases/favorites_usecase.dart';
-import '../core/services/floor_db_service/address/address_database_service.dart';
-import '../core/services/floor_db_service/user_profile/user_profile_database_service.dart';
 
 final getIt = GetIt.instance;
 
@@ -54,6 +60,7 @@ void setupDIService() {
   // Register core services
   getIt.registerLazySingleton<NavigationService>(() => GetxNavigationService());
   getIt.registerLazySingleton<FirebaseService>(() => FirebaseService());
+  // TODO: Deprecate GeocodingService after migration
   getIt.registerLazySingleton<GeocodingService>(() => GeocodingService());
   getIt.registerLazySingleton<LoginDataSource>(() => FirebaseLoginDSI());
   getIt.registerLazySingleton<RegisterDataSource>(() => FirebaseRegisterDSI());
@@ -71,7 +78,25 @@ void setupDIService() {
   );
   getIt.registerLazySingleton<SignOutDataSource>(() => FirebaseSignOutDSI());
   getIt.registerLazySingleton<UserDataSource>(() => FirebaseUserDSI());
-  
+
+  // HTTP client for API calls
+  getIt.registerLazySingleton<http.Client>(() => http.Client());
+
+  // Geocoding feature dependencies - Using a simplified approach for now
+  // TODO: Add local data source integration with Floor database
+  getIt.registerLazySingleton<GeocodingDataSource>(
+    () => DeviceGeocodingRemoteDataSourceImpl(),
+  );
+  getIt.registerLazySingleton<GeocodingRepository>(
+    () => GeocodingRepositoryImpl(),
+  );
+  getIt.registerLazySingleton<GeocodingUseCase>(
+    () => GeocodingUseCase(getIt<GeocodingRepository>()),
+  );
+  getIt.registerLazySingleton<CoordinateValidationUseCase>(
+    () => CoordinateValidationUseCase(),
+  );
+
   // Home feature dependencies
   getIt.registerLazySingleton<RestaurantRemoteDataSource>(
     () => FirebaseRestaurantRemoteDataSource(),
@@ -85,9 +110,7 @@ void setupDIService() {
     ),
   );
   getIt.registerLazySingleton<FoodRepository>(
-    () => FoodRepositoryImpl(
-      remoteDataSource: getIt<FoodRemoteDataSource>(),
-    ),
+    () => FoodRepositoryImpl(remoteDataSource: getIt<FoodRemoteDataSource>()),
   );
   getIt.registerLazySingleton<RestaurantUseCase>(
     () => RestaurantUseCase(getIt<RestaurantRepository>()),
@@ -95,7 +118,7 @@ void setupDIService() {
   getIt.registerLazySingleton<FoodUseCase>(
     () => FoodUseCase(getIt<FoodRepository>()),
   );
-  
+
   // Payment feature dependencies
   getIt.registerLazySingleton<PaymentRemoteDataSource>(
     () => FirebasePaymentRemoteDataSource(),
@@ -115,20 +138,18 @@ void setupDIService() {
   getIt.registerLazySingleton<OrderUseCase>(
     () => OrderUseCase(getIt<PaymentRepository>()),
   );
-  
+
   // Chat/Tracking feature dependencies
   getIt.registerLazySingleton<ChatRemoteDataSource>(
     () => FirebaseChatRemoteDataSource(),
   );
   getIt.registerLazySingleton<ChatRepository>(
-    () => ChatRepositoryImpl(
-      remoteDataSource: getIt<ChatRemoteDataSource>(),
-    ),
+    () => ChatRepositoryImpl(remoteDataSource: getIt<ChatRemoteDataSource>()),
   );
   getIt.registerLazySingleton<ChatUseCase>(
     () => ChatUseCase(getIt<ChatRepository>()),
   );
-  
+
   // Notification dependencies
   getIt.registerLazySingleton<NotificationRemoteDataSource>(
     () => FirebaseNotificationRemoteDataSource(),
@@ -141,7 +162,7 @@ void setupDIService() {
   getIt.registerLazySingleton<NotificationUseCase>(
     () => NotificationUseCase(getIt<NotificationRepository>()),
   );
-  
+
   // Address dependencies
   getIt.registerLazySingleton<AddressRemoteDataSource>(
     () => FirebaseAddressRemoteDataSource(),
@@ -158,7 +179,7 @@ void setupDIService() {
   getIt.registerLazySingleton<AddressUseCase>(
     () => AddressUseCase(getIt<AddressRepository>()),
   );
-  
+
   // User Profile dependencies
   getIt.registerLazySingleton<UserProfileRemoteDataSource>(
     () => FirebaseUserProfileRemoteDataSource(),
@@ -175,7 +196,7 @@ void setupDIService() {
   getIt.registerLazySingleton<UserProfileUseCase>(
     () => UserProfileUseCase(getIt<UserProfileRepository>()),
   );
-  
+
   // Favorites dependencies
   getIt.registerLazySingleton<FavoritesRemoteDataSource>(
     () => FirebaseFavoritesRemoteDataSource(),
