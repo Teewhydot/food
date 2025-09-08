@@ -5,7 +5,7 @@ import 'package:food/food/domain/failures/failures.dart';
 import 'package:food/food/features/auth/domain/repositories/auth_repository.dart';
 import 'package:get_it/get_it.dart';
 
-import '../../../../core/utils/handle_exceptions.dart';
+import '../../../../core/utils/error_handler.dart';
 import '../../../home/domain/entities/profile.dart';
 import '../remote/data_sources/delete_user_account_data_source.dart';
 import '../remote/data_sources/email_verification_data_source.dart';
@@ -30,17 +30,21 @@ class AuthRepoImpl implements AuthRepository {
   final userProfileService = GetIt.instance<UserDataSource>();
   @override
   Future<Either<Failure, void>> deleteUserAccount() {
-    return handleExceptions(() async {
-      await deleteAccountService.deleteUserAccount();
-    });
+    return ErrorHandler.handle(
+      () async => await deleteAccountService.deleteUserAccount(),
+      operationName: 'Delete User Account',
+    );
   }
 
   @override
   Future<Either<Failure, String>> forgotPassword(String email) {
-    return handleExceptions(() async {
-      await passwordResetService.sendPasswordResetEmail(email);
-      return 'Password reset email sent to $email';
-    });
+    return ErrorHandler.handle(
+      () async {
+        await passwordResetService.sendPasswordResetEmail(email);
+        return 'Password reset email sent to $email';
+      },
+      operationName: 'Forgot Password',
+    );
   }
 
   @override
@@ -58,7 +62,7 @@ class AuthRepoImpl implements AuthRepository {
     String email,
     String password,
   ) {
-    return handleExceptions(() async {
+    return ErrorHandler.handle(() async {
       final user = await loginService.logUserInFirebase(email, password);
       return UserProfileEntity(
         email: user.user?.email ?? '',
@@ -79,7 +83,7 @@ class AuthRepoImpl implements AuthRepository {
     required String phoneNumber,
     required String password,
   }) {
-    return handleExceptions(() async {
+    return ErrorHandler.handle(() async {
       final user = await registerService.registerUser(email, password);
       if (user.user != null) {
         await firebase.collection('users').doc(user.user!.uid).set({
@@ -105,28 +109,28 @@ class AuthRepoImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, void>> sendEmailVerification(String email) {
-    return handleExceptions(() async {
+    return ErrorHandler.handle(() async {
       await emailVerificationService.sendEmailVerification(email);
     });
   }
 
   @override
   Future<Either<Failure, void>> sendPasswordResetEmail(String email) {
-    return handleExceptions(() async {
+    return ErrorHandler.handle(() async {
       await passwordResetService.sendPasswordResetEmail(email);
     });
   }
 
   @override
   Future<Either<Failure, void>> signOut() {
-    return handleExceptions(() async {
+    return ErrorHandler.handle(() async {
       await signOutService.signOut();
     });
   }
 
   @override
   Future<Either<Failure, UserProfileEntity>> verifyEmail() {
-    return handleExceptions(() async {
+    return ErrorHandler.handle(() async {
       final userProfile =
           await emailVerificationStatusService.checkEmailVerification();
       return userProfile;
@@ -135,7 +139,7 @@ class AuthRepoImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, UserProfileEntity>> getCurrentUser() {
-    return handleExceptions(() async {
+    return ErrorHandler.handle(() async {
       final userProfile = await userProfileService.getCurrentUser();
       return userProfile;
     });

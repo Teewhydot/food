@@ -7,6 +7,14 @@ class ServerFailure extends Failure {
   ServerFailure({required super.failureMessage});
 }
 
+class AuthFailure extends Failure {
+  AuthFailure({required super.failureMessage});
+}
+
+class ValidationFailure extends Failure {
+  ValidationFailure({required super.failureMessage});
+}
+
 class CacheFailure extends Failure {
   CacheFailure({required super.failureMessage});
 }

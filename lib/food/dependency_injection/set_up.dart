@@ -3,10 +3,11 @@ import 'package:food/food/features/geocoding/data/remote/data_sources/geocoding_
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 
-import '../core/services/firebase_service.dart';
+import '../core/services/endpoint_service.dart';
+import '../core/services/file_upload_service.dart';
 import '../core/services/floor_db_service/address/address_database_service.dart';
 import '../core/services/floor_db_service/user_profile/user_profile_database_service.dart';
-import '../core/services/geocoding_service.dart';
+import '../core/services/imagekit/imagekit_config.dart';
 import '../core/services/navigation_service/nav_config.dart';
 import '../features/auth/data/remote/data_sources/delete_user_account_data_source.dart';
 import '../features/auth/data/remote/data_sources/email_verification_data_source.dart';
@@ -15,6 +16,13 @@ import '../features/auth/data/remote/data_sources/login_data_source.dart';
 import '../features/auth/data/remote/data_sources/password_reset_data_source.dart';
 import '../features/auth/data/remote/data_sources/sign_out_data_source.dart';
 import '../features/auth/data/remote/data_sources/user_data_source.dart';
+import '../features/file_upload/data/remote/data_sources/imagekit_remote_data_source.dart';
+import '../features/file_upload/data/repositories/file_upload_repository_impl.dart';
+import '../features/file_upload/domain/repositories/file_upload_repository.dart';
+import '../features/file_upload/domain/use_cases/delete_file_usecase.dart';
+import '../features/file_upload/domain/use_cases/generate_file_url_usecase.dart';
+import '../features/file_upload/domain/use_cases/generate_link_from_uploaded_file_usecase.dart';
+import '../features/file_upload/domain/use_cases/upload_file_usecase.dart';
 import '../features/geocoding/data/repositories/geocoding_repository_impl.dart';
 import '../features/geocoding/domain/repositories/geocoding_repository.dart';
 import '../features/geocoding/domain/use_cases/coordinate_validation_usecase.dart';
@@ -53,25 +61,16 @@ import '../features/tracking/domain/repositories/chat_repository.dart';
 import '../features/tracking/domain/repositories/notification_repository.dart';
 import '../features/tracking/domain/use_cases/chat_usecase.dart';
 import '../features/tracking/domain/use_cases/notification_usecase.dart';
-import '../core/services/imagekit/imagekit_config.dart';
-import '../features/file_upload/data/remote/data_sources/imagekit_remote_data_source.dart';
-import '../features/file_upload/data/repositories/file_upload_repository_impl.dart';
-import '../features/file_upload/domain/repositories/file_upload_repository.dart';
-import '../features/file_upload/domain/use_cases/upload_file_usecase.dart';
-import '../features/file_upload/domain/use_cases/delete_file_usecase.dart';
-import '../features/file_upload/domain/use_cases/generate_file_url_usecase.dart';
-import '../features/file_upload/domain/use_cases/generate_link_from_uploaded_file_usecase.dart';
-import '../core/services/file_upload_service.dart';
 
 final getIt = GetIt.instance;
 
 void setupDIService() {
   // Register core services
   getIt.registerLazySingleton<NavigationService>(() => GetxNavigationService());
-  getIt.registerLazySingleton<FirebaseService>(() => FirebaseService());
+  getIt.registerLazySingleton<EndpointService>(() => EndpointService());
   getIt.registerLazySingleton<FileUploadService>(() => FileUploadService());
   // TODO: Deprecate GeocodingService after migration
-  getIt.registerLazySingleton<GeocodingService>(() => GeocodingService());
+  // getIt.registerLazySingleton<GeocodingService>(() => GeocodingService());
   getIt.registerLazySingleton<LoginDataSource>(() => FirebaseLoginDSI());
   getIt.registerLazySingleton<RegisterDataSource>(() => FirebaseRegisterDSI());
   getIt.registerLazySingleton<EmailVerificationDataSource>(
@@ -226,7 +225,9 @@ void setupDIService() {
     () => ImageKitRemoteDataSourceImpl(config: getIt<ImageKitConfig>()),
   );
   getIt.registerLazySingleton<FileUploadRepository>(
-    () => FileUploadRepositoryImpl(remoteDataSource: getIt<ImageKitRemoteDataSource>()),
+    () => FileUploadRepositoryImpl(
+      remoteDataSource: getIt<ImageKitRemoteDataSource>(),
+    ),
   );
   getIt.registerLazySingleton<UploadFileUseCase>(
     () => UploadFileUseCase(repository: getIt<FileUploadRepository>()),
