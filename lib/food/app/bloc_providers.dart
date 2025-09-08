@@ -27,6 +27,9 @@ import '../features/payments/domain/use_cases/payment_usecase.dart';
 import '../features/payments/presentation/manager/order_bloc/order_bloc.dart';
 import '../features/payments/presentation/manager/payment_bloc/payment_bloc.dart';
 import '../features/tracking/domain/use_cases/chat_usecase.dart';
+import '../features/file_upload/presentation/manager/file_upload_bloc/file_upload_bloc.dart';
+import '../features/file_upload/domain/use_cases/upload_file_usecase.dart';
+import '../features/file_upload/domain/use_cases/delete_file_usecase.dart';
 
 final List<BlocProvider> blocs = [
   BlocProvider<ForgotPasswordBloc>(create: (context) => ForgotPasswordBloc()),
@@ -90,5 +93,13 @@ final List<BlocProvider> blocs = [
   BlocProvider<OrderBloc>(
     create:
         (context) => OrderBloc(orderUseCase: GetIt.instance<OrderUseCase>()),
+  ),
+
+  // File upload feature BLoC
+  BlocProvider<FileUploadBloc>(
+    create: (context) => FileUploadBloc(
+      uploadFileUseCase: GetIt.instance<UploadFileUseCase>(),
+      deleteFileUseCase: GetIt.instance<DeleteFileUseCase>(),
+    ),
   ),
 ];

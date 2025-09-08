@@ -9,12 +9,11 @@ import '../remote/data_sources/geocoding_datasource.dart';
 /// Implementation of geocoding repository with multiple data sources and caching
 class GeocodingRepositoryImpl implements GeocodingRepository {
   final _deviceDataSource = GetIt.instance<GeocodingDataSource>();
-  final double _coordinateTolerance;
 
   GeocodingRepositoryImpl({
     GeocodingLocalDataSource? localDataSource, // Made optional
     double coordinateTolerance = 0.001,
-  }) : _coordinateTolerance = coordinateTolerance;
+  });
 
   @override
   Future<GeocodingData> getAddressFromCoordinates({

@@ -94,7 +94,6 @@ class OpenWeatherMapImpl implements GeocodingDataSource {
     }
   }
 
-  @override
   Future<bool> isAvailable() async {
     return apiKey != null && apiKey!.isNotEmpty;
   }
@@ -207,7 +206,6 @@ class DeviceGeocodingRemoteDataSourceImpl implements GeocodingDataSource {
     }
   }
 
-  @override
   Future<bool> isAvailable() async {
     try {
       // Try a basic geocoding call to test availability

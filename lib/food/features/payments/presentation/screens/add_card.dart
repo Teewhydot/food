@@ -8,9 +8,6 @@ import 'package:food/food/core/constants/app_constants.dart';
 import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/features/auth/presentation/widgets/back_widget.dart';
 import 'package:get/get_utils/get_utils.dart';
-import 'package:get_it/get_it.dart';
-
-import '../../../../core/services/navigation_service/nav_config.dart';
 
 class AddCard extends StatelessWidget {
   const AddCard({super.key});

@@ -78,7 +78,6 @@ class _NotificationsState extends State<Notifications> {
               views: [
                 BlocManager<NotificationCubit, BaseState<dynamic>>(
                   bloc: context.read<NotificationCubit>(),
-                  child: const SizedBox.shrink(),
                   showLoadingIndicator: true,
                   builder: (context, state) {
                     if (state is LoadingState) {
@@ -126,10 +125,10 @@ class _NotificationsState extends State<Notifications> {
                       ),
                     );
                   },
+                  child: const SizedBox.shrink(),
                 ),
                 BlocManager<ChatsCubit, BaseState<dynamic>>(
                   bloc: context.read<ChatsCubit>(),
-                  child: const SizedBox.shrink(),
                   showLoadingIndicator: true,
                   builder: (context, state) {
                     if (state is LoadingState) {
@@ -183,6 +182,7 @@ class _NotificationsState extends State<Notifications> {
                       ),
                     );
                   },
+                  child: const SizedBox.shrink(),
                 ),
               ],
             ),

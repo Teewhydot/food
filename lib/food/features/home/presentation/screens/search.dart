@@ -213,7 +213,6 @@ class _SearchState extends State<Search> {
   Widget _buildSuggestedRestaurantsSection() {
     return BlocManager<RestaurantCubit, BaseState<dynamic>>(
       bloc: context.read<RestaurantCubit>(),
-      child: const SizedBox.shrink(),
       showLoadingIndicator: true,
       builder: (context, state) {
         if (state is LoadingState) {
@@ -299,6 +298,7 @@ class _SearchState extends State<Search> {
           ],
         );
       },
+      child: const SizedBox.shrink(),
     );
   }
 
@@ -407,7 +407,7 @@ class _SearchState extends State<Search> {
             10.verticalSpace,
             _buildSuggestedRestaurantsSection(),
           ],
-        ).paddingOnly(left: AppConstants.defaultPadding.w),
+        ).paddingSymmetric(horizontal: AppConstants.defaultPadding.w),
       ),
     );
   }

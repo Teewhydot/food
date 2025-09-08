@@ -40,12 +40,6 @@ class _TrackingOrderState extends State<TrackingOrder> {
     zoom: 14.4746,
   );
 
-  static const CameraPosition _kLake = CameraPosition(
-    bearing: 192.8334901395799,
-    target: LatLng(37.43296265331129, -122.08832357078792),
-    tilt: 59.440717697143555,
-    zoom: 19.151926040649414,
-  );
   @override
   Widget build(BuildContext context) {
     return FScaffold(

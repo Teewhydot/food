@@ -7,7 +7,9 @@ import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/components/textfields.dart';
 import 'package:food/food/core/bloc/base/base_state.dart';
 import 'package:food/food/core/constants/app_constants.dart';
+import 'package:food/food/core/services/file_upload_service.dart';
 import 'package:food/food/core/services/floor_db_service/user_profile/user_profile_database_service.dart';
+import 'package:food/food/core/utils/app_utils.dart';
 import 'package:food/food/core/utils/logger.dart';
 import 'package:food/food/features/auth/presentation/widgets/custom_overlay.dart';
 import 'package:food/food/features/home/domain/entities/profile.dart';
@@ -22,6 +24,8 @@ import '../../../../core/bloc/managers/bloc_manager.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../core/theme/colors.dart';
 import '../../../auth/presentation/widgets/back_widget.dart';
+import '../../../file_upload/presentation/manager/file_upload_bloc/file_upload_bloc.dart';
+import '../../../file_upload/presentation/manager/file_upload_bloc/file_upload_event.dart';
 
 class EditProfile extends StatefulWidget {
   final UserProfileEntity userProfile;
@@ -33,6 +37,7 @@ class EditProfile extends StatefulWidget {
 
 class _EditProfileState extends State<EditProfile> {
   final nav = GetIt.instance<NavigationService>();
+  final fileUploadService = FileUploadService();
   //controllers
   final firstNameController = TextEditingController();
   final lastNameController = TextEditingController();
@@ -107,6 +112,19 @@ class _EditProfileState extends State<EditProfile> {
                         child: CircleWidget(
                           radius: 20,
                           color: kBlackColor,
+                          onTap: () async {
+                            final result =
+                                await fileUploadService.pickImageFromGallery();
+                            if (result != null && context.mounted) {
+                              context.read<FileUploadBloc>().add(
+                                UploadFileEvent(file: result),
+                              );
+                            }
+                            DFoodUtils.showSnackBar(
+                              "Error uploading selected file",
+                              kErrorColor,
+                            );
+                          },
                           child: FImage(
                             assetPath: Assets.svgsPencil,
                             assetType: FoodAssetType.svg,

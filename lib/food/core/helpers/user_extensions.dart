@@ -26,4 +26,13 @@ extension UserProfileExtension on BuildContext {
     }
     return null;
   }
+
+  /// Read user profile once (use outside build method)
+  UserProfileEntity? readUser() {
+    final state = read<UserProfileCubit>().state;
+    if (state.hasData) {
+      return state.data;
+    }
+    return null;
+  }
 }

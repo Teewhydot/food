@@ -38,9 +38,7 @@ class _OrdersState extends State<Orders> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final userId = context.read<UserProfileCubit>().state.data?.id;
       if (userId != null) {
-        context.read<OrderBloc>().add(
-          GetUserOrdersEvent(userId),
-        );
+        context.read<OrderBloc>().add(GetUserOrdersEvent(userId));
       }
     });
   }
@@ -150,7 +148,6 @@ class _OrdersState extends State<Orders> {
               ),
               BlocManager<OrderBloc, BaseState<dynamic>>(
                 bloc: context.read<OrderBloc>(),
-                child: const SizedBox.shrink(),
                 showLoadingIndicator: true,
                 builder: (context, state) {
                   if (state is LoadingState) {
@@ -158,7 +155,7 @@ class _OrdersState extends State<Orders> {
                       child: CircularProgressIndicator(color: kPrimaryColor),
                     );
                   } else if (state.hasData) {
-                    final orders = state.data as List? ?? [];
+                    final _ = state.data as List? ?? [];
                     final historyOrders =
                         state.data
                             .where(
@@ -211,6 +208,7 @@ class _OrdersState extends State<Orders> {
                   }
                   return SizedBox.shrink();
                 },
+                child: const SizedBox.shrink(),
               ),
             ],
           ),

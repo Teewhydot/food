@@ -28,8 +28,10 @@
     <!-- Wake lock permission to keep the app active during order tracking -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     
-    <!-- For Android 13+ photo picker -->
+    <!-- For Android 13+ media permissions (API 33+) -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
     
     <application
         android:label="food"

@@ -53,6 +53,15 @@ import '../features/tracking/domain/repositories/chat_repository.dart';
 import '../features/tracking/domain/repositories/notification_repository.dart';
 import '../features/tracking/domain/use_cases/chat_usecase.dart';
 import '../features/tracking/domain/use_cases/notification_usecase.dart';
+import '../core/services/imagekit/imagekit_config.dart';
+import '../features/file_upload/data/remote/data_sources/imagekit_remote_data_source.dart';
+import '../features/file_upload/data/repositories/file_upload_repository_impl.dart';
+import '../features/file_upload/domain/repositories/file_upload_repository.dart';
+import '../features/file_upload/domain/use_cases/upload_file_usecase.dart';
+import '../features/file_upload/domain/use_cases/delete_file_usecase.dart';
+import '../features/file_upload/domain/use_cases/generate_file_url_usecase.dart';
+import '../features/file_upload/domain/use_cases/generate_link_from_uploaded_file_usecase.dart';
+import '../core/services/file_upload_service.dart';
 
 final getIt = GetIt.instance;
 
@@ -60,6 +69,7 @@ void setupDIService() {
   // Register core services
   getIt.registerLazySingleton<NavigationService>(() => GetxNavigationService());
   getIt.registerLazySingleton<FirebaseService>(() => FirebaseService());
+  getIt.registerLazySingleton<FileUploadService>(() => FileUploadService());
   // TODO: Deprecate GeocodingService after migration
   getIt.registerLazySingleton<GeocodingService>(() => GeocodingService());
   getIt.registerLazySingleton<LoginDataSource>(() => FirebaseLoginDSI());
@@ -208,5 +218,29 @@ void setupDIService() {
   );
   getIt.registerLazySingleton<FavoritesUseCase>(
     () => FavoritesUseCase(getIt<FavoritesRepository>()),
+  );
+
+  // File upload dependencies
+  getIt.registerLazySingleton<ImageKitConfig>(() => ImageKitConfig());
+  getIt.registerLazySingleton<ImageKitRemoteDataSource>(
+    () => ImageKitRemoteDataSourceImpl(config: getIt<ImageKitConfig>()),
+  );
+  getIt.registerLazySingleton<FileUploadRepository>(
+    () => FileUploadRepositoryImpl(remoteDataSource: getIt<ImageKitRemoteDataSource>()),
+  );
+  getIt.registerLazySingleton<UploadFileUseCase>(
+    () => UploadFileUseCase(repository: getIt<FileUploadRepository>()),
+  );
+  getIt.registerLazySingleton<DeleteFileUseCase>(
+    () => DeleteFileUseCase(repository: getIt<FileUploadRepository>()),
+  );
+  getIt.registerLazySingleton<GenerateFileUrlUseCase>(
+    () => GenerateFileUrlUseCase(repository: getIt<FileUploadRepository>()),
+  );
+  getIt.registerLazySingleton<GenerateLinkFromUploadedFileUseCase>(
+    () => GenerateLinkFromUploadedFileUseCase(
+      uploadFileUseCase: getIt<UploadFileUseCase>(),
+      generateFileUrlUseCase: getIt<GenerateFileUrlUseCase>(),
+    ),
   );
 }

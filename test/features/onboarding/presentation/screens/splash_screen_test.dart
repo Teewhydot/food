@@ -1,32 +1,32 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:food/food/core/bloc/base/base_state.dart';
 import 'package:food/food/core/routes/routes.dart';
-import 'package:food/food/features/auth/data/custom_exceptions/custom_exceptions.dart';
 import 'package:food/food/features/home/domain/entities/profile.dart';
 
 void main() {
   group('SplashScreen Authentication Logic', () {
-
     group('Error State Handling', () {
       test('should detect UserNotAuthenticatedException in error message', () {
         const errorState = ErrorState<UserProfileEntity>(
-          errorMessage: 'UserNotAuthenticatedException: No authenticated user found',
+          errorMessage:
+              'UserNotAuthenticatedException: No authenticated user found',
           errorCode: 'auth_error',
         );
 
         expect(
-          errorState.errorMessage?.contains('UserNotAuthenticatedException'),
+          errorState.errorMessage.contains('UserNotAuthenticatedException'),
           isTrue,
         );
         expect(
-          errorState.errorMessage?.contains('No authenticated user found'),
+          errorState.errorMessage.contains('No authenticated user found'),
           isTrue,
         );
       });
 
       test('should detect various authentication error formats', () {
         const errorState1 = ErrorState<UserProfileEntity>(
-          errorMessage: 'UserNotAuthenticatedException: No authenticated user found',
+          errorMessage:
+              'UserNotAuthenticatedException: No authenticated user found',
           errorCode: 'auth_error',
         );
 
@@ -36,13 +36,21 @@ void main() {
         );
 
         // Test the logic from splash_screen.dart
-        bool shouldRedirectToLogin1 = 
-          errorState1.errorMessage?.contains('UserNotAuthenticatedException') == true ||
-          errorState1.errorMessage?.contains('No authenticated user found') == true;
+        bool shouldRedirectToLogin1 =
+            errorState1.errorMessage.contains(
+                  'UserNotAuthenticatedException',
+                ) ==
+                true ||
+            errorState1.errorMessage.contains('No authenticated user found') ==
+                true;
 
-        bool shouldRedirectToLogin2 = 
-          errorState2.errorMessage?.contains('UserNotAuthenticatedException') == true ||
-          errorState2.errorMessage?.contains('No authenticated user found') == true;
+        bool shouldRedirectToLogin2 =
+            errorState2.errorMessage.contains(
+                  'UserNotAuthenticatedException',
+                ) ==
+                true ||
+            errorState2.errorMessage.contains('No authenticated user found') ==
+                true;
 
         expect(shouldRedirectToLogin1, isTrue);
         expect(shouldRedirectToLogin2, isTrue);
@@ -114,18 +122,32 @@ void main() {
       test('should determine correct route for different user states', () {
         // Test route decision logic from SplashScreen
         final firstTimeUser = UserProfileEntity(
-          id: 'user1', email: 'test1@test.com', firstName: 'Test', lastName: 'User',
-          phoneNumber: '1234567890', firstTimeLogin: true,
+          id: 'user1',
+          email: 'test1@test.com',
+          firstName: 'Test',
+          lastName: 'User',
+          phoneNumber: '1234567890',
+          firstTimeLogin: true,
         );
 
         final returningUser = UserProfileEntity(
-          id: 'user2', email: 'test2@test.com', firstName: 'Test', lastName: 'User',
-          phoneNumber: '1234567890', firstTimeLogin: false,
+          id: 'user2',
+          email: 'test2@test.com',
+          firstName: 'Test',
+          lastName: 'User',
+          phoneNumber: '1234567890',
+          firstTimeLogin: false,
         );
 
         // Logic: if firstTimeLogin is true -> onboarding, else -> home
-        String routeForFirstTime = firstTimeUser.firstTimeLogin == true ? Routes.onboarding : Routes.home;
-        String routeForReturning = returningUser.firstTimeLogin == true ? Routes.onboarding : Routes.home;
+        String routeForFirstTime =
+            firstTimeUser.firstTimeLogin == true
+                ? Routes.onboarding
+                : Routes.home;
+        String routeForReturning =
+            returningUser.firstTimeLogin == true
+                ? Routes.onboarding
+                : Routes.home;
 
         expect(routeForFirstTime, equals(Routes.onboarding));
         expect(routeForReturning, equals(Routes.home));

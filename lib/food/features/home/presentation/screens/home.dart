@@ -43,8 +43,6 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   String selectedCategory = "All";
-  List<FoodEntity>? _cachedFoodList;
-  List<Restaurant>? _cachedRestaurantList;
   final nav = GetIt.instance<NavigationService>();
   final List<String> categories = [
     "All",
@@ -310,7 +308,7 @@ class _HomeState extends State<Home> {
                   );
                 } else if (state.hasData && state.data is List<FoodEntity>) {
                   final foods = state.data as List<FoodEntity>;
-                  _cachedFoodList = foods; // Cache the food list
+                  // Cache the food list
                   return buildOptimizedFoodWidget(
                     selectedCategory,
                     foods,
@@ -352,8 +350,7 @@ class _HomeState extends State<Home> {
                   ).paddingOnly(right: AppConstants.defaultPadding.w);
                 } else if (state.hasData && state.data is List<Restaurant>) {
                   final restaurants = state.data as List<Restaurant>;
-                  _cachedRestaurantList =
-                      restaurants; // Cache the restaurant list
+                  // Cache the restaurant list
                   return buildOptimizedRestaurantList(restaurants);
                 } else if (state is EmptyState) {
                   return NoItemsFoundWidget(

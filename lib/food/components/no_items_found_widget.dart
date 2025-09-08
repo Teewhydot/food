@@ -30,8 +30,13 @@ class NoItemsFoundWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
       height: height ?? 250.h,
+      width: 1.sw,
+      decoration: BoxDecoration(
+        border: Border.all(color: kPrimaryColor),
+        borderRadius: BorderRadius.circular(8.r),
+      ),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

@@ -14,14 +14,14 @@ part 'messaging_event.dart';
 class MessagingBloc extends BaseCubit<BaseState<List<MessageEntity>>> {
   final ChatUseCase chatUseCase;
   StreamSubscription<List<MessageEntity>>? _messagesSubscription;
-  String? _currentChatId;
 
-  MessagingBloc({required this.chatUseCase}) : super(const InitialState<List<MessageEntity>>());
+  MessagingBloc({required this.chatUseCase})
+    : super(const InitialState<List<MessageEntity>>());
 
   void loadMessages(String chatId) async {
-    emit(const LoadingState<List<MessageEntity>>(message: 'Loading messages...'));
-
-    _currentChatId = chatId;
+    emit(
+      const LoadingState<List<MessageEntity>>(message: 'Loading messages...'),
+    );
 
     // Cancel any existing subscription
     _messagesSubscription?.cancel();
@@ -32,7 +32,11 @@ class MessagingBloc extends BaseCubit<BaseState<List<MessageEntity>>> {
         .listen(
           (messages) {
             if (messages.isEmpty) {
-              emit(const EmptyState<List<MessageEntity>>(message: 'No messages yet'));
+              emit(
+                const EmptyState<List<MessageEntity>>(
+                  message: 'No messages yet',
+                ),
+              );
             } else {
               emit(
                 LoadedState<List<MessageEntity>>(
@@ -72,7 +76,9 @@ class MessagingBloc extends BaseCubit<BaseState<List<MessageEntity>>> {
     }
 
     // Show loading state briefly for sending
-    emit(const LoadingState<List<MessageEntity>>(message: 'Sending message...'));
+    emit(
+      const LoadingState<List<MessageEntity>>(message: 'Sending message...'),
+    );
 
     final result = await chatUseCase.sendMessage(
       chatId: chatId,
@@ -103,8 +109,10 @@ class MessagingBloc extends BaseCubit<BaseState<List<MessageEntity>>> {
   }
 
   Future<void> deleteMessage(String messageId) async {
-    emit(const LoadingState<List<MessageEntity>>(message: 'Deleting message...'));
-    
+    emit(
+      const LoadingState<List<MessageEntity>>(message: 'Deleting message...'),
+    );
+
     final result = await chatUseCase.deleteMessage(messageId);
 
     result.fold(

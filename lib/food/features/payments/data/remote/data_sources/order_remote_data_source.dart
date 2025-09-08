@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import '../../../domain/entities/order_entity.dart';
 
 abstract class OrderRemoteDataSource {
@@ -12,7 +12,6 @@ abstract class OrderRemoteDataSource {
 
 class FirebaseOrderRemoteDataSource implements OrderRemoteDataSource {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   Future<OrderEntity> createOrder(OrderEntity order) async {
@@ -20,14 +19,19 @@ class FirebaseOrderRemoteDataSource implements OrderRemoteDataSource {
       'userId': order.userId,
       'restaurantId': order.restaurantId,
       'restaurantName': order.restaurantName,
-      'items': order.items.map((item) => {
-        'foodId': item.foodId,
-        'foodName': item.foodName,
-        'price': item.price,
-        'quantity': item.quantity,
-        'total': item.total,
-        'specialInstructions': item.specialInstructions,
-      }).toList(),
+      'items':
+          order.items
+              .map(
+                (item) => {
+                  'foodId': item.foodId,
+                  'foodName': item.foodName,
+                  'price': item.price,
+                  'quantity': item.quantity,
+                  'total': item.total,
+                  'specialInstructions': item.specialInstructions,
+                },
+              )
+              .toList(),
       'subtotal': order.subtotal,
       'deliveryFee': order.deliveryFee,
       'tax': order.tax,
@@ -40,7 +44,7 @@ class FirebaseOrderRemoteDataSource implements OrderRemoteDataSource {
     };
 
     final docRef = await _firestore.collection('orders').add(orderData);
-    
+
     return OrderEntity(
       id: docRef.id,
       userId: order.userId,
@@ -61,11 +65,12 @@ class FirebaseOrderRemoteDataSource implements OrderRemoteDataSource {
 
   @override
   Future<List<OrderEntity>> getUserOrders(String userId) async {
-    final snapshot = await _firestore
-        .collection('orders')
-        .where('userId', isEqualTo: userId)
-        .orderBy('createdAt', descending: true)
-        .get();
+    final snapshot =
+        await _firestore
+            .collection('orders')
+            .where('userId', isEqualTo: userId)
+            .orderBy('createdAt', descending: true)
+            .get();
 
     return snapshot.docs.map((doc) => _orderFromFirestore(doc)).toList();
   }
@@ -73,7 +78,7 @@ class FirebaseOrderRemoteDataSource implements OrderRemoteDataSource {
   @override
   Future<OrderEntity> getOrderById(String orderId) async {
     final doc = await _firestore.collection('orders').doc(orderId).get();
-    
+
     if (!doc.exists) {
       throw Exception('Order not found');
     }
@@ -110,22 +115,23 @@ class FirebaseOrderRemoteDataSource implements OrderRemoteDataSource {
 
   OrderEntity _orderFromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
-    
+
     return OrderEntity(
       id: doc.id,
       userId: data['userId'] ?? '',
       restaurantId: data['restaurantId'] ?? '',
       restaurantName: data['restaurantName'] ?? '',
-      items: (data['items'] as List<dynamic>? ?? []).map((item) {
-        return OrderItem(
-          foodId: item['foodId'] ?? '',
-          foodName: item['foodName'] ?? '',
-          price: (item['price'] ?? 0).toDouble(),
-          quantity: item['quantity'] ?? 0,
-          total: (item['total'] ?? 0).toDouble(),
-          specialInstructions: item['specialInstructions'],
-        );
-      }).toList(),
+      items:
+          (data['items'] as List<dynamic>? ?? []).map((item) {
+            return OrderItem(
+              foodId: item['foodId'] ?? '',
+              foodName: item['foodName'] ?? '',
+              price: (item['price'] ?? 0).toDouble(),
+              quantity: item['quantity'] ?? 0,
+              total: (item['total'] ?? 0).toDouble(),
+              specialInstructions: item['specialInstructions'],
+            );
+          }).toList(),
       subtotal: (data['subtotal'] ?? 0).toDouble(),
       deliveryFee: (data['deliveryFee'] ?? 0).toDouble(),
       tax: (data['tax'] ?? 0).toDouble(),

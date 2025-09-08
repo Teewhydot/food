@@ -13,7 +13,10 @@
       "Bash(mv:*)",
       "Bash(rm:*)",
       "Bash(flutter build:*)",
-      "Bash(flutter clean:*)"
+      "Bash(flutter clean:*)",
+      "Bash(flutter compile:*)",
+      "Bash(flutter run:*)",
+      "Bash(flutter:*)"
     ],
     "deny": []
   }

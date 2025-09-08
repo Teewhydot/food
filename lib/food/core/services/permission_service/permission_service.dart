@@ -88,38 +88,82 @@ class PermissionService {
     }
   }
 
-  /// Request storage/photos permission
+  /// Request storage/media access permission
+  /// This handles both legacy storage permissions and modern granular media permissions
   Future<bool> requestStoragePermission() async {
-    Logger.logBasic('Requesting storage permission');
+    Logger.logBasic('Requesting storage/media access permission');
 
-    // Different permissions for different platforms
-    Permission storagePermission;
-
-    // Platform-specific permission handling
     if (GetPlatform.isIOS) {
-      // iOS uses photos permission
-      storagePermission = Permission.photos;
+      return await _requestIOSPhotosPermission();
     } else {
-      // Android and other platforms use storage permission
-      storagePermission = Permission.storage;
+      return await _requestAndroidMediaPermission();
     }
+  }
 
-    final status = await storagePermission.request();
+  /// Request iOS photos permission
+  Future<bool> _requestIOSPhotosPermission() async {
+    final status = await Permission.photos.request();
     final isGranted = status.isGranted;
 
-    // Save status to database
-    await _repository.savePermissionStatus(storagePermission, isGranted);
+    await _repository.savePermissionStatus(Permission.photos, isGranted);
 
     if (isGranted) {
-      Logger.logSuccess('Storage permission granted');
+      Logger.logSuccess('iOS Photos permission granted');
       return true;
     } else if (status.isPermanentlyDenied) {
-      Logger.logError('Storage permission permanently denied');
+      Logger.logError('iOS Photos permission permanently denied');
       return false;
     } else {
-      Logger.logError('Storage permission denied: $status');
+      Logger.logError('iOS Photos permission denied: $status');
       return false;
     }
+  }
+
+  /// Request Android media permissions with fallback logic
+  Future<bool> _requestAndroidMediaPermission() async {
+    // For Android 13+ (API 33+), try granular media permissions first
+    
+    // Request photos permission (covers images and videos)
+    final photosStatus = await Permission.photos.request();
+    Logger.logBasic('Photos permission status: $photosStatus');
+    
+    if (photosStatus.isGranted) {
+      Logger.logSuccess('Android Photos permission granted');
+      await _repository.savePermissionStatus(Permission.photos, true);
+      return true;
+    }
+    
+    // If photos permission denied, try videos permission for video files
+    final videosStatus = await Permission.videos.request();
+    Logger.logBasic('Videos permission status: $videosStatus');
+    
+    if (videosStatus.isGranted) {
+      Logger.logSuccess('Android Videos permission granted');
+      await _repository.savePermissionStatus(Permission.videos, true);
+      return true;
+    }
+    
+    // Fallback to legacy storage permission for older devices or when granular permissions fail
+    Logger.logBasic('Falling back to legacy storage permission');
+    final storageStatus = await Permission.storage.request();
+    Logger.logBasic('Storage permission status: $storageStatus');
+    
+    final isStorageGranted = storageStatus.isGranted;
+    await _repository.savePermissionStatus(Permission.storage, isStorageGranted);
+
+    if (isStorageGranted) {
+      Logger.logSuccess('Android Storage permission granted');
+      return true;
+    }
+    
+    // Check if any permission was permanently denied
+    if (storageStatus.isPermanentlyDenied || photosStatus.isPermanentlyDenied || videosStatus.isPermanentlyDenied) {
+      Logger.logError('Media permissions permanently denied');
+      return false;
+    }
+    
+    Logger.logError('All media permissions denied - Storage: $storageStatus, Photos: $photosStatus, Videos: $videosStatus');
+    return false;
   }
 
   /// Request notification permission
@@ -138,6 +182,35 @@ class PermissionService {
     } else {
       Logger.logError('Notification permission denied: $status');
       return false;
+    }
+  }
+
+  /// Request audio permission for audio file access
+  Future<bool> requestAudioPermission() async {
+    Logger.logBasic('Requesting audio permission');
+
+    if (GetPlatform.isIOS) {
+      // On iOS, audio files are typically accessed through document picker
+      // which doesn't require special permissions
+      return true;
+    } else {
+      // For Android 13+, request audio permission
+      final audioStatus = await Permission.audio.request();
+      final isGranted = audioStatus.isGranted;
+
+      await _repository.savePermissionStatus(Permission.audio, isGranted);
+
+      if (isGranted) {
+        Logger.logSuccess('Audio permission granted');
+        return true;
+      } else if (audioStatus.isPermanentlyDenied) {
+        Logger.logError('Audio permission permanently denied');
+        return false;
+      } else {
+        Logger.logError('Audio permission denied: $audioStatus');
+        // Fallback to general storage permission
+        return await requestStoragePermission();
+      }
     }
   }
 

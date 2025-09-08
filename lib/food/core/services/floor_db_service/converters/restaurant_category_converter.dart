@@ -74,7 +74,7 @@ class RestaurantCategoryConverter
       rating: (json['rating'] as num).toDouble(),
       isAvailable: json['isAvailable'] as bool,
       quantity: json['quantity'] as int? ?? 0,
-      preparationTime: json['preparationTime'] as String ?? '',
+      preparationTime: json['preparationTime'] as String,
       isVegetarian: json['isVegetarian'] as bool? ?? false,
       isVegan: json['isVegan'] as bool? ?? false,
     );
