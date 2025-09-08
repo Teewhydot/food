@@ -15,10 +15,10 @@ class RestaurantWidget extends StatelessWidget {
   final Function onTap;
 
   const RestaurantWidget({
-    Key? key,
+    super.key,
     required this.restaurant,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -53,25 +53,25 @@ class RestaurantWidget extends StatelessWidget {
                     imageUrl: restaurant.imageUrl,
                     fit: BoxFit.cover,
                     key: ValueKey('restaurant_image_${restaurant.id}'),
-                    memCacheWidth: 400,
-                    memCacheHeight: 274,
-                    placeholder: (context, url) => Container(
-                      color: kGreyColor.withValues(alpha: 0.1),
-                      child: Center(
-                        child: CircularProgressIndicator(
-                          color: kPrimaryColor,
-                          strokeWidth: 2,
+                    placeholder:
+                        (context, url) => Container(
+                          color: kGreyColor.withValues(alpha: 0.1),
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              color: kPrimaryColor,
+                              strokeWidth: 2,
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                    errorWidget: (context, url, error) => Container(
-                      color: kGreyColor.withValues(alpha: 0.1),
-                      child: Icon(
-                        Icons.image_not_supported,
-                        color: kGreyColor,
-                        size: 40,
-                      ),
-                    ),
+                    errorWidget:
+                        (context, url, error) => Container(
+                          color: kGreyColor.withValues(alpha: 0.1),
+                          child: Icon(
+                            Icons.image_not_supported,
+                            color: kGreyColor,
+                            size: 40,
+                          ),
+                        ),
                   ),
                 ),
               ),

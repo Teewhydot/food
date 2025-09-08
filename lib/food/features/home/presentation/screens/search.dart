@@ -341,7 +341,6 @@ class _SearchState extends State<Search> {
                 });
               },
               onEditingComplete: () {
-                // Keyword addition is now handled by updateSearchQuery with debouncing
                 FocusScope.of(context).unfocus();
                 context.read<RecentKeywordsCubit>().addKeyword(
                   searchQuery.trim(),

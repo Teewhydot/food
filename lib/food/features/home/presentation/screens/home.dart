@@ -78,34 +78,7 @@ class _HomeState extends State<Home> {
       context.read<LocationBloc>().requestLocation();
       context.read<RestaurantCubit>().getRestaurants();
       context.read<FoodCubit>().getAllFoods();
-
-      // Pre-warm image cache with initial data (disabled for now)
-      // _preWarmImageCache();
     });
-  }
-
-  void _preWarmImageCache() async {
-    // Wait a bit for data to load then pre-warm cache
-    await Future.delayed(const Duration(seconds: 1));
-
-    final List<String> imageUrls = [];
-
-    // Add food images to prewarming list
-    if (_cachedFoodList != null) {
-      imageUrls.addAll(_cachedFoodList!.map((food) => food.imageUrl));
-    }
-
-    // Add restaurant images to prewarming list
-    if (_cachedRestaurantList != null) {
-      imageUrls.addAll(
-        _cachedRestaurantList!.map((restaurant) => restaurant.imageUrl),
-      );
-    }
-
-    // Pre-warm the cache
-    if (imageUrls.isNotEmpty && mounted) {
-      CachedWidgetBuilder.preWarmImageCache(imageUrls);
-    }
   }
 
   @override
