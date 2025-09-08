@@ -22,28 +22,23 @@ class CategoryWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(10),
       child: IntrinsicWidth(
         child: Container(
           height: 50,
           decoration: BoxDecoration(
-            color: isSelected ? kPrimaryColor : kWhiteColor,
-            borderRadius: BorderRadius.circular(40),
-            boxShadow: [
-              BoxShadow(
-                color: kGreyColor.withOpacity(0.2),
-                blurRadius: 30,
-                offset: const Offset(2, 4),
-              ),
-            ],
+            color: kWhiteColor,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: isSelected ? kPrimaryColor : kLightGreyColor,
+              width: 1.5,
+            ),
           ),
-          child: Center(
-            child: FText.bodySmall(
-              text,
-              overflow: TextOverflow.fade,
-              color: isSelected ? kWhiteColor : kTextColorDark,
-            ).paddingSymmetric(horizontal: 15.w, vertical: 5.h),
-          ).paddingOnly(right: 15),
+          child: FText(
+            text: text,
+            color: kTextColorDark,
+            alignment: MainAxisAlignment.center,
+          ).paddingSymmetric(horizontal: 5.w, vertical: 5.h),
         ).paddingAll(5),
       ),
     );

@@ -13,6 +13,7 @@ import 'package:food/food/features/auth/presentation/manager/location_bloc/locat
 import 'package:food/generated/assets.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../../../core/bloc/base/base_state.dart';
 import '../../../../core/bloc/managers/bloc_manager.dart';
@@ -226,7 +227,7 @@ class _HomeState extends State<Home> {
                     ),
                     Row(
                       children: [
-                        BlocBuilder<LocationBloc, BaseState<LocationData>>(
+                        BlocManager<LocationBloc, BaseState<LocationData>>(
                           builder: (context, state) {
                             String locationText = "";
                             if (state is LoadingState) {
@@ -246,6 +247,8 @@ class _HomeState extends State<Home> {
                               color: kAddressColor,
                             );
                           },
+                          bloc: context.read<LocationBloc>(),
+                          child: const SizedBox.shrink(),
                         ),
                       ],
                     ),
@@ -320,8 +323,16 @@ class _HomeState extends State<Home> {
                 if (state is LoadingState) {
                   return SizedBox(
                     height: 250.h,
-                    child: Center(
-                      child: CircularProgressIndicator(color: kPrimaryColor),
+                    child: Skeletonizer(
+                      child: FoodWidget(
+                        id: "id",
+                        image: "image",
+                        name: "name",
+                        price: "price",
+                        rating: "rating",
+                        onTap: () {},
+                        onAddTapped: () {},
+                      ),
                     ),
                   );
                 } else if (state.hasData && state.data is List<FoodEntity>) {
@@ -408,37 +419,40 @@ class _HomeState extends State<Home> {
       );
     }
 
-    foodWidget = SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        spacing: 20,
-        children:
-            filteredFoodList.map((food) {
-              return FoodWidget(
-                key: ValueKey('food_${food.id}'),
-                id: food.id,
-                image: food.imageUrl,
-                name: food.name,
-                onAddTapped: () {
-                  context.read<CartCubit>().addFood(food);
-                },
-                onTap: () {
-                  // Preload detail image for smooth navigation
-                  DetailImageCache.preloadDetailImage(
-                    context: context,
-                    imageUrl: food.imageUrl,
-                    cacheKey: DetailImageCache.getDetailCacheKey(
-                      type: 'food',
-                      id: food.id,
-                    ),
-                  );
-                  nav.navigateTo(Routes.foodDetails, arguments: food);
-                },
-                rating: food.rating.toStringAsFixed(2),
-                price: "\$${food.price.toStringAsFixed(2)}",
-              );
-            }).toList(),
+    foodWidget = Align(
+      alignment: Alignment.centerLeft,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          spacing: 20,
+          children:
+              filteredFoodList.map((food) {
+                return FoodWidget(
+                  key: ValueKey('food_${food.id}'),
+                  id: food.id,
+                  image: food.imageUrl,
+                  name: food.name,
+                  onAddTapped: () {
+                    context.read<CartCubit>().addFood(food);
+                  },
+                  onTap: () {
+                    // Preload detail image for smooth navigation
+                    DetailImageCache.preloadDetailImage(
+                      context: context,
+                      imageUrl: food.imageUrl,
+                      cacheKey: DetailImageCache.getDetailCacheKey(
+                        type: 'food',
+                        id: food.id,
+                      ),
+                    );
+                    nav.navigateTo(Routes.foodDetails, arguments: food);
+                  },
+                  rating: food.rating.toStringAsFixed(2),
+                  price: "\$${food.price.toStringAsFixed(2)}",
+                );
+              }).toList(),
+        ),
       ),
     );
     return foodWidget;

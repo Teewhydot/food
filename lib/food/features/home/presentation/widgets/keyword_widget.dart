@@ -17,7 +17,7 @@ class KeywordWidget extends StatelessWidget {
         height: 46.h,
         decoration: BoxDecoration(
           color: kWhiteColor,
-          borderRadius: BorderRadius.circular(33.r),
+          borderRadius: BorderRadius.circular(13.r),
           border: Border.all(color: kGreyColor, width: 2),
           boxShadow: [
             BoxShadow(
