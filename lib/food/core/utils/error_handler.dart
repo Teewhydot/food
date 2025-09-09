@@ -22,49 +22,39 @@ class ErrorHandler {
       return Right(result);
     } on FirebaseAuthException catch (e) {
       final message = _getFirebaseAuthMessage(e);
-      Logger.logError('Firebase Auth Error${operationName != null ? " in $operationName" : ""}: ${e.code} - $message');
+      Logger.logError(
+        'Firebase Auth Error${operationName != null ? " in $operationName" : ""}: ${e.code} - $message',
+      );
       return Left(AuthFailure(failureMessage: message));
     } on FirebaseException catch (e) {
       final message = _getFirebaseMessage(e);
-      Logger.logError('Firebase Error${operationName != null ? " in $operationName" : ""}: ${e.code} - $message');
+      Logger.logError(
+        'Firebase Error${operationName != null ? " in $operationName" : ""}: ${e.code} - $message',
+      );
       return Left(ServerFailure(failureMessage: message));
     } on SocketException catch (_) {
       final message = 'Please check your internet connection and try again';
-      Logger.logError('Network Error${operationName != null ? " in $operationName" : ""}: No internet connection');
+      Logger.logError(
+        'Network Error${operationName != null ? " in $operationName" : ""}: No internet connection',
+      );
       return Left(NoInternetFailure(failureMessage: message));
     } on TimeoutException catch (_) {
       final message = 'Request timed out. Please try again';
-      Logger.logError('Timeout Error${operationName != null ? " in $operationName" : ""}: Operation timed out');
+      Logger.logError(
+        'Timeout Error${operationName != null ? " in $operationName" : ""}: Operation timed out',
+      );
       return Left(TimeoutFailure(failureMessage: message));
     } on FormatException catch (e) {
       final message = 'Invalid data format. Please try again';
-      Logger.logError('Format Error${operationName != null ? " in $operationName" : ""}: ${e.message}');
+      Logger.logError(
+        'Format Error${operationName != null ? " in $operationName" : ""}: ${e.message}',
+      );
       return Left(UnknownFailure(failureMessage: message));
     } catch (e) {
       final message = 'Something went wrong. Please try again';
-      Logger.logError('Unknown Error${operationName != null ? " in $operationName" : ""}: $e');
-      return Left(UnknownFailure(failureMessage: message));
-    }
-  }
-
-  /// Handle sync operations (for validation, etc.)
-  static Either<Failure, T> handleSync<T>(
-    T Function() operation, {
-    String? operationName,
-  }) {
-    try {
-      final result = operation();
-      if (operationName != null) {
-        Logger.logSuccess('$operationName completed successfully');
-      }
-      return Right(result);
-    } on FormatException catch (e) {
-      final message = 'Invalid data format';
-      Logger.logError('Format Error${operationName != null ? " in $operationName" : ""}: ${e.message}');
-      return Left(ValidationFailure(failureMessage: message));
-    } catch (e) {
-      final message = 'Operation failed';
-      Logger.logError('Error${operationName != null ? " in $operationName" : ""}: $e');
+      Logger.logError(
+        'Unknown Error${operationName != null ? " in $operationName" : ""}: $e',
+      );
       return Left(UnknownFailure(failureMessage: message));
     }
   }
@@ -74,8 +64,8 @@ class ErrorHandler {
     switch (e.code) {
       case 'user-not-found':
         return 'No account found with this email address';
-      case 'wrong-password':
-        return 'Incorrect password. Please try again';
+      case 'invalid-credential':
+        return 'Incorrect login credentials. Please try again';
       case 'email-already-in-use':
         return 'An account already exists with this email';
       case 'weak-password':
@@ -101,6 +91,83 @@ class ErrorHandler {
       default:
         return e.message ?? 'Authentication failed. Please try again';
     }
+  }
+
+  /// Handle stream operations and convert exceptions to Either stream
+  static Stream<Either<Failure, T>> handleStream<T>(
+    Stream<T> Function() streamOperation, {
+    String? operationName,
+  }) {
+    final controller = StreamController<Either<Failure, T>>();
+
+    try {
+      final stream = streamOperation();
+
+      stream.listen(
+        (data) {
+          if (operationName != null) {
+            Logger.logSuccess('$operationName: Data received');
+          }
+          controller.add(Right(data));
+        },
+        onError: (error, stackTrace) {
+          if (error is FirebaseAuthException) {
+            final message = _getFirebaseAuthMessage(error);
+            Logger.logError(
+              'Stream Firebase Auth Error${operationName != null ? " in $operationName" : ""}: ${error.code} - $message',
+            );
+            controller.add(Left(AuthFailure(failureMessage: message)));
+          } else if (error is FirebaseException) {
+            final message = _getFirebaseMessage(error);
+            Logger.logError(
+              'Stream Firebase Error${operationName != null ? " in $operationName" : ""}: ${error.code} - $message',
+            );
+            controller.add(Left(ServerFailure(failureMessage: message)));
+          } else if (error is SocketException) {
+            final message =
+                'Please check your internet connection and try again';
+            Logger.logError(
+              'Stream Network Error${operationName != null ? " in $operationName" : ""}: No internet connection',
+            );
+            controller.add(Left(NoInternetFailure(failureMessage: message)));
+          } else if (error is TimeoutException) {
+            final message = 'Stream timed out. Please try again';
+            Logger.logError(
+              'Stream Timeout Error${operationName != null ? " in $operationName" : ""}: Operation timed out',
+            );
+            controller.add(Left(TimeoutFailure(failureMessage: message)));
+          } else if (error is FormatException) {
+            final message = 'Invalid data format in stream';
+            Logger.logError(
+              'Stream Format Error${operationName != null ? " in $operationName" : ""}: ${error.message}',
+            );
+            controller.add(Left(UnknownFailure(failureMessage: message)));
+          } else {
+            final message = 'Stream error occurred. Please try again';
+            Logger.logError(
+              'Stream Unknown Error${operationName != null ? " in $operationName" : ""}: $error',
+            );
+            controller.add(Left(UnknownFailure(failureMessage: message)));
+          }
+        },
+        onDone: () {
+          if (operationName != null) {
+            Logger.logBasic('$operationName: Stream completed');
+          }
+          controller.close();
+        },
+        cancelOnError: false, // Continue stream even after errors
+      );
+    } catch (e) {
+      final message = 'Failed to initialize stream';
+      Logger.logError(
+        'Stream Initialization Error${operationName != null ? " in $operationName" : ""}: $e',
+      );
+      controller.add(Left(UnknownFailure(failureMessage: message)));
+      controller.close();
+    }
+
+    return controller.stream;
   }
 
   /// Get user-friendly Firebase error messages

@@ -317,7 +317,7 @@ class _HomeState extends State<Home> {
                   return NoItemsFoundWidget(
                     type: NoItemsType.food,
                     customMessage: state.message,
-                  );
+                  ).paddingOnly(right: AppConstants.defaultPadding);
                 }
                 // Loading and error states are handled by SimplifiedEnhancedBlocManager
                 return const SizedBox.shrink();
