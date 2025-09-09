@@ -1,0 +1,6 @@
+[build]
+  command = "flutter build web --dart-define=GOOGLE_MAPS_API_KEY=$GOOGLE_MAPS_API_KEY --dart-define=OPENWEATHERMAP_API_KEY=$OPENWEATHERMAP_API_KEY --dart-define=IMAGEKIT_PUBLIC_KEY=$IMAGEKIT_PUBLIC_KEY --dart-define=IMAGEKIT_PRIVATE_KEY=$IMAGEKIT_PRIVATE_KEY --dart-define=IMAGEKIT_URL_ENDPOINT=$IMAGEKIT_URL_ENDPOINT"
+  publish = "build/web"
+
+[build.environment]
+  FLUTTER_ROOT = "/opt/buildhome/flutter"

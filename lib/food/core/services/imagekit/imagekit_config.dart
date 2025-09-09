@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ImageKitConfig {
@@ -6,19 +7,29 @@ class ImageKitConfig {
   ImageKitConfig._internal();
 
   /// ImageKit public key
-  String get publicKey => dotenv.env['IMAGEKIT_PUBLIC_KEY'] ?? '';
+  String get publicKey => kIsWeb
+      ? const String.fromEnvironment('IMAGEKIT_PUBLIC_KEY', defaultValue: '')
+      : dotenv.env['IMAGEKIT_PUBLIC_KEY'] ?? '';
   
   /// ImageKit private key (used for server-side operations)
-  String get privateKey => dotenv.env['IMAGEKIT_PRIVATE_KEY'] ?? '';
+  String get privateKey => kIsWeb
+      ? const String.fromEnvironment('IMAGEKIT_PRIVATE_KEY', defaultValue: '')
+      : dotenv.env['IMAGEKIT_PRIVATE_KEY'] ?? '';
   
   /// ImageKit URL endpoint
-  String get urlEndpoint => dotenv.env['IMAGEKIT_URL_ENDPOINT'] ?? '';
+  String get urlEndpoint => kIsWeb
+      ? const String.fromEnvironment('IMAGEKIT_URL_ENDPOINT', defaultValue: '')
+      : dotenv.env['IMAGEKIT_URL_ENDPOINT'] ?? '';
 
   /// Default upload directory
-  String get defaultFolder => dotenv.env['IMAGEKIT_DEFAULT_FOLDER'] ?? '/food-app/';
+  String get defaultFolder => kIsWeb
+      ? const String.fromEnvironment('IMAGEKIT_DEFAULT_FOLDER', defaultValue: '/food-app/')
+      : dotenv.env['IMAGEKIT_DEFAULT_FOLDER'] ?? '/food-app/';
 
   /// Maximum file size (5MB default)
-  int get maxFileSizeInBytes => int.tryParse(dotenv.env['IMAGEKIT_MAX_FILE_SIZE'] ?? '') ?? 5 * 1024 * 1024;
+  int get maxFileSizeInBytes => kIsWeb
+      ? int.tryParse(const String.fromEnvironment('IMAGEKIT_MAX_FILE_SIZE', defaultValue: '')) ?? 5 * 1024 * 1024
+      : int.tryParse(dotenv.env['IMAGEKIT_MAX_FILE_SIZE'] ?? '') ?? 5 * 1024 * 1024;
 
   /// Allowed file types
   List<String> get allowedFileTypes => [

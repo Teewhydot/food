@@ -112,4 +112,3 @@ flutter:
   assets:
     - assets/svgs/
     - assets/
-    - .env
