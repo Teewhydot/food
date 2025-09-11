@@ -8,7 +8,7 @@ import 'package:food/food/features/auth/presentation/manager/auth_bloc/sign_out/
 import 'package:food/food/features/auth/presentation/manager/location_bloc/location_bloc.dart';
 import 'package:food/food/features/home/manager/address/address_cubit.dart';
 import 'package:food/food/features/home/manager/recent_keywords/recent_keywords_cubit.dart';
-import 'package:food/food/features/home/manager/user_profile/user_profile_cubit.dart';
+import 'package:food/food/features/home/manager/user_profile/enhanced_user_profile_cubit.dart';
 import 'package:food/food/features/payments/presentation/manager/cart/cart_cubit.dart';
 import 'package:food/food/features/tracking/presentation/manager/chats_bloc/chats_cubit.dart';
 import 'package:food/food/features/tracking/presentation/manager/messaging_bloc/messaging_bloc.dart';
@@ -17,6 +17,9 @@ import 'package:get_it/get_it.dart';
 
 import '../features/auth/presentation/manager/auth_bloc/email_verification/email_verification_bloc.dart';
 import '../features/auth/presentation/manager/auth_bloc/forgot_password/forgot_password_bloc.dart';
+import '../features/file_upload/domain/use_cases/delete_file_usecase.dart';
+import '../features/file_upload/domain/use_cases/upload_file_usecase.dart';
+import '../features/file_upload/presentation/manager/file_upload_bloc/file_upload_bloc.dart';
 import '../features/home/domain/use_cases/food_usecase.dart';
 import '../features/home/domain/use_cases/restaurant_usecase.dart';
 import '../features/home/presentation/manager/food_bloc/food_bloc.dart'; // Now FoodCubit
@@ -27,9 +30,6 @@ import '../features/payments/domain/use_cases/payment_usecase.dart';
 import '../features/payments/presentation/manager/order_bloc/order_bloc.dart';
 import '../features/payments/presentation/manager/payment_bloc/payment_bloc.dart';
 import '../features/tracking/domain/use_cases/chat_usecase.dart';
-import '../features/file_upload/presentation/manager/file_upload_bloc/file_upload_bloc.dart';
-import '../features/file_upload/domain/use_cases/upload_file_usecase.dart';
-import '../features/file_upload/domain/use_cases/delete_file_usecase.dart';
 
 final List<BlocProvider> blocs = [
   BlocProvider<ForgotPasswordBloc>(create: (context) => ForgotPasswordBloc()),
@@ -40,8 +40,8 @@ final List<BlocProvider> blocs = [
   BlocProvider<EnhancedLoginBloc>(create: (context) => EnhancedLoginBloc()),
 
   BlocProvider<CartCubit>(create: (context) => CartCubit()),
-  BlocProvider<UserProfileCubit>(
-    create: (context) => UserProfileCubit()..loadUserProfile(),
+  BlocProvider<EnhancedUserProfileCubit>(
+    create: (context) => EnhancedUserProfileCubit()..loadUserProfile(),
   ),
   BlocProvider<AddressCubit>(
     create: (context) => AddressCubit()..loadAddresses(),
@@ -97,9 +97,10 @@ final List<BlocProvider> blocs = [
 
   // File upload feature BLoC
   BlocProvider<FileUploadBloc>(
-    create: (context) => FileUploadBloc(
-      uploadFileUseCase: GetIt.instance<UploadFileUseCase>(),
-      deleteFileUseCase: GetIt.instance<DeleteFileUseCase>(),
-    ),
+    create:
+        (context) => FileUploadBloc(
+          uploadFileUseCase: GetIt.instance<UploadFileUseCase>(),
+          deleteFileUseCase: GetIt.instance<DeleteFileUseCase>(),
+        ),
   ),
 ];

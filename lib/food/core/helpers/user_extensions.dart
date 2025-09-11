@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food/food/features/home/domain/entities/profile.dart';
-
-import '../../features/home/manager/user_profile/user_profile_cubit.dart';
+import 'package:food/food/features/home/manager/user_profile/enhanced_user_profile_cubit.dart';
 
 extension UserProfileExtension on BuildContext {
   /// Get the current user ID if available
@@ -20,7 +19,7 @@ extension UserProfileExtension on BuildContext {
 
   /// Watch user profile changes (use in build method)
   UserProfileEntity? watchUser() {
-    final state = watch<UserProfileCubit>().state;
+    final state = watch<EnhancedUserProfileCubit>().state;
     if (state.hasData) {
       return state.data;
     }
@@ -29,7 +28,7 @@ extension UserProfileExtension on BuildContext {
 
   /// Read user profile once (use outside build method)
   UserProfileEntity? readUser() {
-    final state = read<UserProfileCubit>().state;
+    final state = read<EnhancedUserProfileCubit>().state;
     if (state.hasData) {
       return state.data;
     }
