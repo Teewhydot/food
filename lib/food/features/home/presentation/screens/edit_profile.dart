@@ -13,7 +13,6 @@ import 'package:food/food/core/utils/app_utils.dart';
 import 'package:food/food/core/utils/logger.dart';
 import 'package:food/food/features/auth/presentation/widgets/custom_overlay.dart';
 import 'package:food/food/features/home/domain/entities/profile.dart';
-import 'package:food/food/features/home/manager/user_profile/user_profile_cubit.dart';
 import 'package:food/food/features/home/presentation/widgets/circle_widget.dart';
 import 'package:food/generated/assets.dart';
 import 'package:get/get.dart';
@@ -26,6 +25,7 @@ import '../../../../core/theme/colors.dart';
 import '../../../auth/presentation/widgets/back_widget.dart';
 import '../../../file_upload/presentation/manager/file_upload_bloc/file_upload_bloc.dart';
 import '../../../file_upload/presentation/manager/file_upload_bloc/file_upload_event.dart';
+import '../../manager/user_profile/enhanced_user_profile_cubit.dart';
 
 class EditProfile extends StatefulWidget {
   final UserProfileEntity userProfile;
@@ -76,8 +76,8 @@ class _EditProfileState extends State<EditProfile> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocManager<UserProfileCubit, BaseState<UserProfileEntity>>(
-      bloc: context.read<UserProfileCubit>(),
+    return BlocManager<EnhancedUserProfileCubit, BaseState<UserProfileEntity>>(
+      bloc: context.read<EnhancedUserProfileCubit>(),
       showLoadingIndicator: true,
       onSuccess: (context, state) {
         Logger.logBasic("User profile updated successfully");
@@ -182,9 +182,9 @@ class _EditProfileState extends State<EditProfile> {
                         bio: bioController.text,
                         firstTimeLogin: widget.userProfile.firstTimeLogin,
                       );
-                      context.read<UserProfileCubit>().updateUserProfile(
-                        updatedProfile,
-                      );
+                      context
+                          .read<EnhancedUserProfileCubit>()
+                          .updateUserProfile(updatedProfile);
                       nav.goBack();
                     },
                   ),

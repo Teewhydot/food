@@ -2,6 +2,8 @@ import 'package:food/food/core/services/floor_db_service/app_database.dart';
 import 'package:food/food/features/home/domain/entities/recent_keyword.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:flutter/foundation.dart';
+import 'package:food/food/core/services/platform_database_path_service.dart';
 
 class RecentKeywordsDatabaseService {
   static final RecentKeywordsDatabaseService _instance =
@@ -19,8 +21,13 @@ class RecentKeywordsDatabaseService {
   }
 
   Future<AppDatabase> _initDatabase() async {
-    final documentsDir = await getApplicationDocumentsDirectory();
-    final dbPath = p.join(documentsDir.path, 'recents_database.db');
+    final String dbPath;
+    if (kIsWeb) {
+      dbPath = PlatformDatabasePathService.getDbPath('recents_database.db');
+    } else {
+      final documentsDir = await getApplicationDocumentsDirectory();
+      dbPath = p.join(documentsDir.path, 'recents_database.db');
+    }
     return await $FloorAppDatabase.databaseBuilder(dbPath).build();
   }
 

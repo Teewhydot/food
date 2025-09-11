@@ -11,6 +11,7 @@ import 'package:food/food/core/routes/routes.dart';
 import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/features/auth/presentation/manager/auth_bloc/sign_out/sign_out_bloc.dart';
 import 'package:food/food/features/auth/presentation/widgets/back_widget.dart';
+import 'package:food/food/features/home/manager/user_profile/enhanced_user_profile_cubit.dart';
 import 'package:food/food/features/home/presentation/widgets/circle_widget.dart';
 import 'package:food/food/features/home/presentation/widgets/menu_section_widget.dart';
 import 'package:food/generated/assets.dart';
@@ -19,7 +20,6 @@ import 'package:get_it/get_it.dart';
 
 import '../../../../core/bloc/managers/bloc_manager.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
-import '../../manager/user_profile/user_profile_cubit.dart';
 
 class Menu extends StatefulWidget {
   const Menu({super.key});
@@ -33,11 +33,11 @@ class _MenuState extends State<Menu> {
   void initState() {
     super.initState();
   }
-  
+
   void _resetUserData(BuildContext context) {
     try {
       // Clear only user profile data
-      context.read<UserProfileCubit>().clearUserProfile();
+      context.read<EnhancedUserProfileCubit>().clearUserProfile();
     } catch (e) {
       // Continue even if reset fails
       debugPrint("Error resetting user data: $e");
@@ -81,9 +81,12 @@ class _MenuState extends State<Menu> {
                       children: [
                         FText(
                           text:
-                              "${context.watchUser()?.firstName ?? ''} ${context.watchUser()?.lastName ?? ''}".trim().isEmpty 
-                                  ? "Guest User" 
-                                  : "${context.watchUser()?.firstName ?? ''} ${context.watchUser()?.lastName ?? ''}".trim(),
+                              "${context.watchUser()?.firstName ?? ''} ${context.watchUser()?.lastName ?? ''}"
+                                      .trim()
+                                      .isEmpty
+                                  ? "Guest User"
+                                  : "${context.watchUser()?.firstName ?? ''} ${context.watchUser()?.lastName ?? ''}"
+                                      .trim(),
                           fontSize: 20.sp,
                           fontWeight: FontWeight.w500,
                           color: kBlackColor,

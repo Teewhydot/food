@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:food/food/components/image.dart';
-import 'package:food/food/core/utils/logger.dart';
 import 'package:food/food/core/bloc/base/base_state.dart';
+import 'package:food/food/core/utils/logger.dart';
 import 'package:food/food/core/utils/precache_assets.dart';
+import 'package:food/food/features/home/manager/user_profile/enhanced_user_profile_cubit.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../../../../generated/assets.dart';
 import '../../../../components/scaffold.dart';
 import '../../../../core/routes/routes.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
-import '../../../home/manager/user_profile/user_profile_cubit.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -21,7 +21,7 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   final nav = GetIt.instance<NavigationService>();
   void checkLoggedIn() async {
-    final userProfileCubit = UserProfileCubit();
+    final userProfileCubit = EnhancedUserProfileCubit();
     userProfileCubit.loadUserProfile();
     userProfileCubit.stream.listen((state) {
       if (state.hasData) {
@@ -36,8 +36,10 @@ class _SplashScreenState extends State<SplashScreen> {
       } else if (state is ErrorState) {
         Logger.logError("Authentication error: ${state.errorMessage}");
         // Check if it's an authentication error
-        if (state.errorMessage?.contains('UserNotAuthenticatedException') == true ||
-            state.errorMessage?.contains('No authenticated user found') == true) {
+        if (state.errorMessage?.contains('UserNotAuthenticatedException') ==
+                true ||
+            state.errorMessage?.contains('No authenticated user found') ==
+                true) {
           Logger.logBasic("No authenticated user - redirecting to login");
           nav.navigateTo(Routes.login);
         } else {
