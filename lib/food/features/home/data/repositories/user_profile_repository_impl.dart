@@ -1,5 +1,7 @@
 import 'dart:io';
+
 import 'package:dartz/dartz.dart';
+
 import '../../../../core/services/floor_db_service/user_profile/user_profile_database_service.dart';
 import '../../../../core/utils/handle_exceptions.dart';
 import '../../../../domain/failures/failures.dart';
@@ -22,10 +24,10 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
       try {
         // Try to get from remote first
         final remoteProfile = await remoteDataSource.getUserProfile(userId);
-        
+
         // Save to local database
         await localDataSource.insertUserProfile(remoteProfile);
-        
+
         return remoteProfile;
       } catch (e) {
         // If remote fails, get from local
@@ -39,24 +41,32 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
   }
 
   @override
-  Future<Either<Failure, UserProfileEntity>> updateUserProfile(UserProfileEntity profile) {
+  Future<Either<Failure, UserProfileEntity>> updateUserProfile(
+    UserProfileEntity profile,
+  ) {
     return handleExceptions(() async {
       // Update remote first
       final updatedProfile = await remoteDataSource.updateUserProfile(profile);
-      
+
       // Then update local
       await localDataSource.updateUserProfile(updatedProfile);
-      
+
       return updatedProfile;
     });
   }
 
   @override
-  Future<Either<Failure, String>> uploadProfileImage(String userId, File imageFile) {
+  Future<Either<Failure, String>> uploadProfileImage(
+    String userId,
+    File imageFile,
+  ) {
     return handleExceptions(() async {
       // Upload to remote storage
-      final imageUrl = await remoteDataSource.uploadProfileImage(userId, imageFile);
-      
+      final imageUrl = await remoteDataSource.uploadProfileImage(
+        userId,
+        imageFile,
+      );
+
       // Update local profile with new image URL
       final currentProfile = await localDataSource.getUserProfile();
       if (currentProfile != null) {
@@ -71,7 +81,7 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
         );
         await localDataSource.updateUserProfile(updatedProfile);
       }
-      
+
       return imageUrl;
     });
   }
@@ -81,7 +91,7 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
     return handleExceptions(() async {
       // Delete from remote storage
       await remoteDataSource.deleteProfileImage(userId);
-      
+
       // Update local profile to remove image URL
       final currentProfile = await localDataSource.getUserProfile();
       if (currentProfile != null) {
@@ -107,11 +117,15 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
   ) {
     return handleExceptions(() async {
       // Update remote first
-      final updatedProfile = await remoteDataSource.updateProfileField(userId, field, value);
-      
+      final updatedProfile = await remoteDataSource.updateProfileField(
+        userId,
+        field,
+        value,
+      );
+
       // Then update local
       await localDataSource.updateUserProfile(updatedProfile);
-      
+
       return updatedProfile;
     });
   }
@@ -119,27 +133,22 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
   @override
   Stream<Either<Failure, UserProfileEntity>> watchUserProfile(String userId) {
     try {
-      return remoteDataSource.watchUserProfile(userId).map<Either<Failure, UserProfileEntity>>((profile) {
-        // Update local database with the latest data
-        localDataSource.insertUserProfile(profile);
-        return Right(profile);
-      }).handleError((error) {
-        return Stream.value(Left<Failure, UserProfileEntity>(ServerFailure(failureMessage: error.toString())));
-      });
+      return remoteDataSource
+          .watchUserProfile(userId)
+          .map<Either<Failure, UserProfileEntity>>((profile) {
+            // Update local database with the latest data
+            localDataSource.insertUserProfile(profile);
+            return Right(profile);
+          })
+          .handleError((error) {
+            return Stream.value(
+              Left<Failure, UserProfileEntity>(
+                ServerFailure(failureMessage: error.toString()),
+              ),
+            );
+          });
     } catch (e) {
       return Stream.value(Left(ServerFailure(failureMessage: e.toString())));
     }
-  }
-
-  @override
-  Future<Either<Failure, void>> syncLocalProfile(UserProfileEntity profile) {
-    return handleExceptions(() async {
-      // Sync local changes to remote
-      await remoteDataSource.syncLocalProfile(profile);
-      
-      // Update local profile with any server changes
-      final remoteProfile = await remoteDataSource.getUserProfile(profile.id!);
-      await localDataSource.updateUserProfile(remoteProfile);
-    });
   }
 }

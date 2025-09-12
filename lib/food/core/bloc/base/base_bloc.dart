@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 
@@ -7,7 +8,8 @@ import 'base_state.dart';
 
 /// Base BLoC class that provides common functionality
 /// All BLoCs should extend this class for consistency
-abstract class BaseBloC<Event, State extends BaseState> extends Bloc<Event, State> {
+abstract class BaseBloC<Event, State extends BaseState>
+    extends Bloc<Event, State> {
   BaseBloC(super.initialState) {
     // Add common transformers and middleware
     _setupCommonHandlers();
@@ -17,11 +19,11 @@ abstract class BaseBloC<Event, State extends BaseState> extends Bloc<Event, Stat
     // Log state transitions for debugging
     stream.listen((state) {
       Logger.logBasic('$runtimeType: $state');
-      
+
       if (state.isError) {
         Logger.logError('$runtimeType Error: ${state.errorMessage}');
       }
-      
+
       if (state.isSuccess) {
         Logger.logSuccess('$runtimeType Success: ${state.successMessage}');
       }
@@ -62,7 +64,9 @@ abstract class BaseBloC<Event, State extends BaseState> extends Bloc<Event, Stat
   @override
   void onTransition(Transition<Event, State> transition) {
     super.onTransition(transition);
-    Logger.logBasic('$runtimeType Transition: ${transition.currentState} -> ${transition.nextState}');
+    Logger.logBasic(
+      '$runtimeType Transition: ${transition.currentState} -> ${transition.nextState}',
+    );
   }
 
   @override
@@ -83,11 +87,11 @@ abstract class BaseCubit<State extends BaseState> extends Cubit<State> {
     // Log state transitions for debugging
     stream.listen((state) {
       Logger.logBasic('$runtimeType: $state');
-      
+
       if (state.isError) {
         Logger.logError('$runtimeType Error: ${state.errorMessage}');
       }
-      
+
       if (state.isSuccess) {
         Logger.logSuccess('$runtimeType Success: ${state.successMessage}');
       }
@@ -98,37 +102,14 @@ abstract class BaseCubit<State extends BaseState> extends Cubit<State> {
   @protected
   void handleException(Exception exception, [StackTrace? stackTrace]) {
     Logger.logError('$runtimeType Exception: $exception');
-    emitError(exception.toString(), exception: exception, stackTrace: stackTrace);
-  }
-
-  /// Emit loading state with optional message
-  @protected
-  void emitLoading([String? message, double? progress]) {
-    emit(LoadingState<dynamic>(message: message, progress: progress) as State);
-  }
-
-  /// Emit success state with message
-  @protected
-  void emitSuccess(String message, [Map<String, dynamic>? metadata]) {
-    emit(SuccessState<dynamic>(successMessage: message, metadata: metadata) as State);
-  }
-
-  /// Emit error state with message and optional exception
-  @protected
-  void emitError(
-    String message, {
-    Exception? exception,
-    StackTrace? stackTrace,
-    String? errorCode,
-    bool isRetryable = true,
-  }) {
-    emit(ErrorState<dynamic>(
-      errorMessage: message,
-      exception: exception,
-      stackTrace: stackTrace,
-      errorCode: errorCode,
-      isRetryable: isRetryable,
-    ) as State);
+    emit(
+      ErrorState<dynamic>(
+            errorMessage: exception.toString(),
+            exception: exception,
+            stackTrace: stackTrace,
+          )
+          as State,
+    );
   }
 
   /// Execute an async operation with automatic error handling
@@ -141,13 +122,13 @@ abstract class BaseCubit<State extends BaseState> extends Cubit<State> {
     String? successMessage,
   }) async {
     try {
-      emitLoading(loadingMessage);
+      emit(LoadingState<dynamic>() as State);
       final result = await operation();
-      
+
       if (onSuccess != null) {
         onSuccess(result);
       } else if (successMessage != null) {
-        emitSuccess(successMessage);
+        emit(SuccessState<dynamic>(successMessage: successMessage) as State);
       }
     } on Exception catch (e, stackTrace) {
       if (onError != null) {
@@ -161,7 +142,9 @@ abstract class BaseCubit<State extends BaseState> extends Cubit<State> {
   @override
   void onChange(Change<State> change) {
     super.onChange(change);
-    Logger.logBasic('$runtimeType Change: ${change.currentState} -> ${change.nextState}');
+    Logger.logBasic(
+      '$runtimeType Change: ${change.currentState} -> ${change.nextState}',
+    );
   }
 
   @override

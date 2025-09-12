@@ -122,7 +122,7 @@ class PersonalInfo extends StatelessWidget {
                   ),
                   PersonalInfoWidget(
                     field: 'phone number',
-                    value: context.watchUser()!.phoneNumber,
+                    value: context.watchUser()?.phoneNumber ?? "",
                     child: FImage(
                       assetPath: Assets.svgsPhoneNum,
                       assetType: FoodAssetType.svg,

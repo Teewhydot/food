@@ -166,7 +166,7 @@ class EnhancedUserProfileCubit extends BaseCubit<BaseState<UserProfileEntity>>
           await saveStateToCache(loadedState);
 
           // Also emit a success message
-          emitSuccess('Profile updated successfully');
+          _emitSuccessState('Profile updated successfully');
 
           Logger.logSuccess(
             'Profile updated: ${profile.firstName} ${profile.lastName}',
@@ -206,7 +206,7 @@ class EnhancedUserProfileCubit extends BaseCubit<BaseState<UserProfileEntity>>
       emit(loadedState);
       await saveStateToCache(loadedState);
 
-      emitSuccess('Profile saved successfully');
+      _emitSuccessState('Profile saved successfully');
       Logger.logSuccess(
         'Profile saved: ${profile.firstName} ${profile.lastName}',
       );
@@ -224,7 +224,7 @@ class EnhancedUserProfileCubit extends BaseCubit<BaseState<UserProfileEntity>>
       await clearCache();
 
       emit(const InitialState<UserProfileEntity>());
-      emitSuccess('Profile cleared successfully');
+      _emitSuccessState('Profile cleared successfully');
 
       Logger.logBasic('User profile cleared');
     } catch (e, stackTrace) {
@@ -346,6 +346,14 @@ class EnhancedUserProfileCubit extends BaseCubit<BaseState<UserProfileEntity>>
     }
 
     return null;
+  }
+
+  /// Properly typed success state emitter
+  void _emitSuccessState(String message, [Map<String, dynamic>? metadata]) {
+    emit(SuccessState<UserProfileEntity>(
+      successMessage: message,
+      metadata: metadata,
+    ));
   }
 
   @override

@@ -79,8 +79,14 @@ class _EditProfileState extends State<EditProfile> {
     return BlocManager<EnhancedUserProfileCubit, BaseState<UserProfileEntity>>(
       bloc: context.read<EnhancedUserProfileCubit>(),
       showLoadingIndicator: true,
+      onError: (context, state) {
+        if (state is ErrorState) {
+          DFoodUtils.showSnackBar(state.errorMessage ?? "", kErrorColor);
+        }
+      },
       onSuccess: (context, state) {
-        Logger.logBasic("User profile updated successfully");
+        nav.goBack();
+        Logger.logSuccess("User profile updated successfully");
       },
       builder: (context, state) {
         return CustomOverlay(
@@ -185,7 +191,6 @@ class _EditProfileState extends State<EditProfile> {
                       context
                           .read<EnhancedUserProfileCubit>()
                           .updateUserProfile(updatedProfile);
-                      nav.goBack();
                     },
                   ),
                   32.verticalSpace,

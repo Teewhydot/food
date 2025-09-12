@@ -1,7 +1,9 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'dart:io';
+
 import '../../../domain/entities/profile.dart';
 
 abstract class UserProfileRemoteDataSource {
@@ -9,12 +11,16 @@ abstract class UserProfileRemoteDataSource {
   Future<UserProfileEntity> updateUserProfile(UserProfileEntity profile);
   Future<String> uploadProfileImage(String userId, File imageFile);
   Future<void> deleteProfileImage(String userId);
-  Future<UserProfileEntity> updateProfileField(String userId, String field, dynamic value);
+  Future<UserProfileEntity> updateProfileField(
+    String userId,
+    String field,
+    dynamic value,
+  );
   Stream<UserProfileEntity> watchUserProfile(String userId);
-  Future<void> syncLocalProfile(UserProfileEntity profile);
 }
 
-class FirebaseUserProfileRemoteDataSource implements UserProfileRemoteDataSource {
+class FirebaseUserProfileRemoteDataSource
+    implements UserProfileRemoteDataSource {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
@@ -22,7 +28,7 @@ class FirebaseUserProfileRemoteDataSource implements UserProfileRemoteDataSource
   @override
   Future<UserProfileEntity> getUserProfile(String userId) async {
     final doc = await _firestore.collection('users').doc(userId).get();
-    
+
     if (!doc.exists) {
       throw Exception('User profile not found');
     }
@@ -51,7 +57,7 @@ class FirebaseUserProfileRemoteDataSource implements UserProfileRemoteDataSource
       await _auth.currentUser!.updateDisplayName(
         '${profile.firstName} ${profile.lastName}',
       );
-      
+
       if (profile.profileImageUrl != null) {
         await _auth.currentUser!.updatePhotoURL(profile.profileImageUrl);
       }
@@ -71,10 +77,10 @@ class FirebaseUserProfileRemoteDataSource implements UserProfileRemoteDataSource
 
       // Upload the file
       final uploadTask = await storageRef.putFile(imageFile);
-      
+
       // Get the download URL
       final downloadUrl = await uploadTask.ref.getDownloadURL();
-      
+
       // Update the user's profile with the new image URL
       await _firestore.collection('users').doc(userId).update({
         'profileImageUrl': downloadUrl,
@@ -100,7 +106,7 @@ class FirebaseUserProfileRemoteDataSource implements UserProfileRemoteDataSource
           .ref()
           .child('profile_images')
           .child('$userId.jpg');
-      
+
       await storageRef.delete();
 
       // Update the user's profile to remove the image URL
@@ -145,32 +151,9 @@ class FirebaseUserProfileRemoteDataSource implements UserProfileRemoteDataSource
         .map((doc) => _profileFromFirestore(doc));
   }
 
-  @override
-  Future<void> syncLocalProfile(UserProfileEntity profile) async {
-    final userId = _auth.currentUser?.uid;
-    if (userId == null) throw Exception('User not authenticated');
-
-    // This method is used to sync local changes to remote
-    // It's useful when the app has been offline and needs to sync changes
-    final profileData = {
-      'firstName': profile.firstName,
-      'lastName': profile.lastName,
-      'email': profile.email,
-      'phoneNumber': profile.phoneNumber,
-      'profileImageUrl': profile.profileImageUrl ?? '',
-      'lastSyncedAt': FieldValue.serverTimestamp(),
-      'updatedAt': FieldValue.serverTimestamp(),
-    };
-
-    await _firestore.collection('users').doc(userId).set(
-      profileData,
-      SetOptions(merge: true),
-    );
-  }
-
   UserProfileEntity _profileFromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
-    
+
     return UserProfileEntity(
       id: doc.id,
       firstName: data['firstName'] ?? '',
