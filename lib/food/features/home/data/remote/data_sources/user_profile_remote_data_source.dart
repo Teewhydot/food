@@ -44,9 +44,8 @@ class FirebaseUserProfileRemoteDataSource
     final profileData = {
       'firstName': profile.firstName,
       'lastName': profile.lastName,
-      'email': profile.email,
-      'phoneNumber': profile.phoneNumber,
       'profileImageUrl': profile.profileImageUrl ?? '',
+      'bio': profile.bio ?? '',
       'updatedAt': FieldValue.serverTimestamp(),
     };
 
@@ -160,6 +159,7 @@ class FirebaseUserProfileRemoteDataSource
       lastName: data['lastName'] ?? '',
       email: data['email'] ?? '',
       phoneNumber: data['phoneNumber'] ?? '',
+      bio: data['bio'],
       profileImageUrl: data['profileImageUrl'],
       firstTimeLogin: data['firstTimeLogin'] ?? false,
     );

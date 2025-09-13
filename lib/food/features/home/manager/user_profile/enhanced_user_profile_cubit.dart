@@ -122,21 +122,8 @@ class EnhancedUserProfileCubit extends BaseCubit<BaseState<UserProfileEntity>>
   /// Update user profile
   Future<void> updateUserProfile(UserProfileEntity updatedProfile) async {
     // Show loading with existing data if available
+    emit(const LoadingState<UserProfileEntity>());
     final currentData = state.data;
-    if (currentData != null) {
-      emit(
-        StateUtils.createRefreshingState(
-          currentData,
-          message: 'Updating profile...',
-          operationId: 'update_profile',
-        ),
-      );
-    } else {
-      emit(
-        const LoadingState<UserProfileEntity>(message: 'Updating profile...'),
-      );
-    }
-
     try {
       // Update via use case (handles both remote and local)
       final result = await _userProfileUseCase.updateUserProfile(
@@ -148,24 +135,12 @@ class EnhancedUserProfileCubit extends BaseCubit<BaseState<UserProfileEntity>>
           final errorMessage =
               'Failed to update profile: ${failure.failureMessage}';
 
-          if (currentData != null) {
-            emit(
-              StateUtils.createErrorWithDataState(
-                currentData,
-                errorMessage,
-                isRetryable: true,
-                operationId: 'update_profile',
-              ),
-            );
-          } else {
-            emit(
-              ErrorState<UserProfileEntity>(
-                errorMessage: errorMessage,
-                isRetryable: true,
-              ),
-            );
-          }
-
+          emit(
+            ErrorState<UserProfileEntity>(
+              errorMessage: errorMessage,
+              isRetryable: false,
+            ),
+          );
           Logger.logError(errorMessage);
         },
         (profile) async {
@@ -176,10 +151,6 @@ class EnhancedUserProfileCubit extends BaseCubit<BaseState<UserProfileEntity>>
 
           emit(loadedState);
           await saveStateToCache(loadedState);
-
-          // Also emit a success message
-          _emitSuccessState('Profile updated successfully');
-
           Logger.logSuccess(
             'Profile updated: ${profile.firstName} ${profile.lastName}',
           );

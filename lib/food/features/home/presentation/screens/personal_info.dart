@@ -4,7 +4,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/image.dart';
 import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/components/texts.dart';
-import 'package:food/food/core/bloc/managers/bloc_manager.dart';
 import 'package:food/food/core/constants/app_constants.dart';
 import 'package:food/food/core/helpers/user_extensions.dart';
 import 'package:food/food/core/routes/routes.dart';
@@ -17,7 +16,6 @@ import 'package:food/generated/assets.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 
-import '../../../../core/bloc/base/base_state.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 
 class PersonalInfo extends StatelessWidget {
@@ -27,122 +25,145 @@ class PersonalInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     final nav = GetIt.instance<NavigationService>();
     // done
-    return BlocManager<EnhancedUserProfileCubit, BaseState<dynamic>>(
-      bloc: context.read<EnhancedUserProfileCubit>(),
-      child: FScaffold(
-        customScroll: true,
-        appBarWidget: GestureDetector(
-          onTap: () {
-            nav.navigateTo(Routes.home);
-          },
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  BackWidget(color: kGreyColor),
-                  20.horizontalSpace,
-                  FText(
-                    text: "Personal Info",
-                    fontSize: 17.sp,
-                    fontWeight: FontWeight.w400,
-                    color: kBlackColor,
-                  ),
-                ],
-              ),
-              FText(
-                text: "Edit".toUpperCase(),
-                fontSize: 17.sp,
-                fontWeight: FontWeight.w400,
-                color: kPrimaryColor,
-                decoration: TextDecoration.underline,
-                onTap: () {
-                  nav.navigateTo(
-                    Routes.editProfile,
-                    arguments: context.readUser(),
-                  );
-                },
-              ),
-            ],
-          ),
-        ),
-        body: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              CircleWidget(radius: 80, color: kPrimaryColor),
-              32.verticalSpace,
-              Column(
-                children: [
-                  FText(
-                    text:
-                        "${context.watchUser()?.firstName} ${context.watchUser()?.lastName}",
-                    fontSize: 20.sp,
-                    fontWeight: FontWeight.w500,
-                    color: kBlackColor,
-                    textAlign: TextAlign.center,
-                    alignment: MainAxisAlignment.center,
-                  ),
-                  8.verticalSpace,
-                  FWrapText(
-                    text: context.watchUser()?.bio ?? "No bio",
-                    fontSize: 13.sp,
-                    fontWeight: FontWeight.w400,
-                    color: kContainerColor,
-                    textAlign: TextAlign.start,
-                  ),
-                ],
-              ),
-              Container(
-                width: 1.sw,
-                decoration: BoxDecoration(
-                  color: kLightGreyColor,
+    return StreamBuilder(
+      stream: context.read<EnhancedUserProfileCubit>().watchUserProfile(
+        context.currentUserId ?? "",
+      ),
 
-                  borderRadius: BorderRadius.all(Radius.circular(16)),
-                ),
-                child: Column(
-                  spacing: 16,
-                  mainAxisAlignment: MainAxisAlignment.center,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        final profile = snapshot.data!;
+
+        return FScaffold(
+          customScroll: true,
+          appBarWidget: GestureDetector(
+            onTap: () {
+              nav.navigateTo(Routes.home);
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
                   children: [
-                    PersonalInfoWidget(
-                      field: 'full name',
-                      value:
-                          "${context.watchUser()?.firstName} ${context.watchUser()?.lastName}",
-                      child: FImage(
-                        assetPath: Assets.svgsPersonalInfo,
-                        assetType: FoodAssetType.svg,
-                        width: 12,
-                        height: 14,
-                      ),
-                    ),
-                    PersonalInfoWidget(
-                      field: 'email',
-                      value: context.currentUserEmail ?? "",
-                      child: FImage(
-                        assetPath: Assets.svgsEmail,
-                        assetType: FoodAssetType.svg,
-                        width: 12,
-                        height: 14,
-                      ),
-                    ),
-                    PersonalInfoWidget(
-                      field: 'phone number',
-                      value: context.watchUser()?.phoneNumber ?? "",
-                      child: FImage(
-                        assetPath: Assets.svgsPhoneNum,
-                        assetType: FoodAssetType.svg,
-                        width: 12,
-                        height: 14,
-                      ),
+                    BackWidget(color: kGreyColor),
+                    20.horizontalSpace,
+                    FText(
+                      text: "Personal Info",
+                      fontSize: 17.sp,
+                      fontWeight: FontWeight.w400,
+                      color: kBlackColor,
                     ),
                   ],
-                ).paddingAll(20),
-              ),
-            ],
-          ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
-        ),
-      ),
+                ),
+                FText(
+                  text: "Edit".toUpperCase(),
+                  fontSize: 17.sp,
+                  fontWeight: FontWeight.w400,
+                  color: kPrimaryColor,
+                  decoration: TextDecoration.underline,
+                  onTap: () {
+                    nav.navigateTo(
+                      Routes.editProfile,
+                      arguments: context.readUser(),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+          body: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircleWidget(radius: 80, color: kPrimaryColor),
+                32.verticalSpace,
+                Column(
+                  children: [
+                    FText(
+                      text: profile.fold(
+                        (l) => 'Guest User',
+                        (r) => '${r.firstName} ${r.lastName}'.trim(),
+                      ),
+                      fontSize: 20.sp,
+                      fontWeight: FontWeight.w500,
+                      color: kBlackColor,
+                      alignment: MainAxisAlignment.start,
+                    ),
+                    8.verticalSpace,
+                    FWrapText(
+                      text: profile.fold(
+                        (l) => 'Guest User',
+                        (r) => '${r.bio}'.trim(),
+                      ),
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w400,
+                      color: kContainerColor,
+                      textAlign: TextAlign.start,
+                    ),
+                    18.verticalSpace,
+                  ],
+                ),
+                Container(
+                  width: 1.sw,
+                  decoration: BoxDecoration(
+                    color: kLightGreyColor,
+
+                    borderRadius: BorderRadius.all(Radius.circular(16)),
+                  ),
+                  child: Column(
+                    spacing: 16,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      PersonalInfoWidget(
+                        field: 'full name',
+                        value: profile.fold(
+                          (l) => 'Dev: Abubakar Issa',
+                          (r) => '${r.firstName} ${r.lastName}'.trim(),
+                        ),
+                        child: FImage(
+                          assetPath: Assets.svgsPersonalInfo,
+                          assetType: FoodAssetType.svg,
+                          width: 12,
+                          height: 14,
+                        ),
+                      ),
+                      PersonalInfoWidget(
+                        field: 'email',
+                        value: profile.fold(
+                          (l) => 'Dev: tchipsical@gmail.com',
+                          (r) => r.email.trim(),
+                        ),
+                        child: FImage(
+                          assetPath: Assets.svgsEmail,
+                          assetType: FoodAssetType.svg,
+                          width: 12,
+                          height: 14,
+                        ),
+                      ),
+                      PersonalInfoWidget(
+                        field: 'phone number',
+                        value: profile.fold(
+                          (l) => 'Dev: 08068787087',
+                          (r) => r.phoneNumber.trim(),
+                        ),
+                        child: FImage(
+                          assetPath: Assets.svgsPhoneNum,
+                          assetType: FoodAssetType.svg,
+                          width: 12,
+                          height: 14,
+                        ),
+                      ),
+                    ],
+                  ).paddingAll(20),
+                ),
+              ],
+            ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
+          ),
+        );
+      },
     );
   }
 }

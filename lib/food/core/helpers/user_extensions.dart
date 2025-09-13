@@ -30,6 +30,7 @@ extension UserProfileExtension on BuildContext {
   UserProfileEntity? readUser() {
     final state = read<EnhancedUserProfileCubit>().state;
     if (state.hasData) {
+      print("Reading user: ${state.data}");
       return state.data;
     }
     return null;

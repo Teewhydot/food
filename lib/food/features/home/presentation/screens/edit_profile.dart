@@ -159,11 +159,12 @@ class _EditProfileState extends State<EditProfile> {
 
                   24.verticalSpace,
                   FTextField(
-                    hintText: "Phone",
+                    hintText: widget.userProfile.phoneNumber,
                     action: TextInputAction.next,
                     label: "Phone",
                     keyboardType: TextInputType.phone,
                     controller: phoneController,
+                    isReadOnly: true,
                   ),
                   24.verticalSpace,
                   FTextField(
@@ -186,7 +187,7 @@ class _EditProfileState extends State<EditProfile> {
                         email: email,
                         phoneNumber: phoneController.text,
                         bio: bioController.text,
-                        firstTimeLogin: widget.userProfile.firstTimeLogin,
+                        firstTimeLogin: false,
                       );
                       context
                           .read<EnhancedUserProfileCubit>()

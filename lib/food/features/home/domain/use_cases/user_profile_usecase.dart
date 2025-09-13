@@ -136,8 +136,7 @@ class UserProfileUseCase {
   bool _validateProfile(UserProfileEntity profile) {
     return profile.firstName.trim().isNotEmpty &&
         profile.lastName.trim().isNotEmpty &&
-        _isValidEmail(profile.email) &&
-        _isValidPhoneNumber(profile.phoneNumber);
+        _isValidEmail(profile.email);
   }
 
   bool _isValidEmail(String email) {

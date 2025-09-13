@@ -29,17 +29,6 @@ class Menu extends StatefulWidget {
 }
 
 class _MenuState extends State<Menu> {
-  @override
-  void initState() {
-    super.initState();
-    // Fetch user profile data when the menu screen is initialized
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final userId = context.watchUser()?.id ?? "";
-      if (userId.isNotEmpty) {}
-      context.read<EnhancedUserProfileCubit>().watchUserProfile(userId);
-    });
-  }
-
   void _resetUserData(BuildContext context) {
     try {
       // Clear only user profile data
