@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/image.dart';
-import 'package:food/food/components/no_items_found_widget.dart';
 import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/core/bloc/base/base_state.dart';
 import 'package:food/food/core/constants/app_constants.dart';
@@ -47,56 +46,8 @@ class _AddressState extends State<Address> {
       bloc: context.read<AddressCubit>(),
       showLoadingIndicator: true,
       builder: (context, state) {
-        if (state.hasData) {
+        if (state is LoadedState) {
           final addresses = state.data as List? ?? [];
-          if (addresses.isEmpty) {
-            return FScaffold(
-              customScroll: false,
-              appBarWidget: Row(
-                children: [
-                  BackWidget(color: kGreyColor),
-                  20.horizontalSpace,
-                  FText(
-                    text: "Address",
-                    fontSize: 17.sp,
-                    fontWeight: FontWeight.w400,
-                    color: kBlackColor,
-                  ),
-                ],
-              ),
-              body: Stack(
-                children: [
-                  NoItemsFoundWidget(
-                    type: NoItemsType.address,
-                  ),
-                  Positioned(
-                    bottom: 10,
-                    left: 0,
-                    right: 0,
-                    child: FButton(
-                      buttonText: "Add new address",
-                      width: 1.sw,
-                      onPressed: () {
-                        nav.navigateTo(
-                          Routes.addAddress,
-                          arguments: AddressEntity(
-                            id: '',
-                            street: '',
-                            city: '',
-                            state: '',
-                            zipCode: '',
-                            type: 'home',
-                            address: '',
-                            apartment: '',
-                          ),
-                        );
-                      },
-                    ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
-                  ),
-                ],
-              ),
-            );
-          }
           return FScaffold(
             customScroll: false,
             appBarWidget: Row(
@@ -167,45 +118,89 @@ class _AddressState extends State<Address> {
             ),
           );
         }
-        return FScaffold(
-          customScroll: false,
-          appBarWidget: Row(
-            children: [
-              BackWidget(color: kGreyColor),
-              20.horizontalSpace,
-              FText(
-                text: "Address",
-                fontSize: 17.sp,
-                fontWeight: FontWeight.w400,
-                color: kBlackColor,
-              ),
-            ],
-          ),
-          body: Stack(
-            children: [
-              Center(
-                child: FText(
-                  text: "Loading addresses...",
-                  fontSize: 16.sp,
+        if (state is EmptyState) {
+          return FScaffold(
+            customScroll: false,
+            appBarWidget: Row(
+              children: [
+                BackWidget(color: kGreyColor),
+                20.horizontalSpace,
+                FText(
+                  text: "Address",
+                  fontSize: 17.sp,
                   fontWeight: FontWeight.w400,
-                  color: kGreyColor,
+                  color: kBlackColor,
                 ),
-              ),
-              Positioned(
-                bottom: 10,
-                left: 0,
-                right: 0,
-                child: FButton(
-                  buttonText: "Add new address",
-                  width: 1.sw,
-                  onPressed: () {
-                    nav.navigateTo(Routes.addAddress);
-                  },
-                ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
-              ),
-            ],
-          ),
-        );
+              ],
+            ),
+            body: Stack(
+              children: [
+                Center(
+                  child: FText(
+                    text: "No addresses found.",
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w400,
+                    color: kGreyColor,
+                  ),
+                ),
+                Positioned(
+                  bottom: 10,
+                  left: 0,
+                  right: 0,
+                  child: FButton(
+                    buttonText: "Add new address",
+                    width: 1.sw,
+                    onPressed: () {
+                      nav.navigateTo(Routes.addAddress);
+                    },
+                  ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
+                ),
+              ],
+            ),
+          );
+        }
+        if (state is LoadingState) {
+          return FScaffold(
+            customScroll: false,
+            appBarWidget: Row(
+              children: [
+                BackWidget(color: kGreyColor),
+                20.horizontalSpace,
+                FText(
+                  text: "Address",
+                  fontSize: 17.sp,
+                  fontWeight: FontWeight.w400,
+                  color: kBlackColor,
+                ),
+              ],
+            ),
+            body: Stack(
+              children: [
+                Center(
+                  child: FText(
+                    text: "Loading addresses...",
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w400,
+                    color: kGreyColor,
+                  ),
+                ),
+                Positioned(
+                  bottom: 10,
+                  left: 0,
+                  right: 0,
+                  child: FButton(
+                    buttonText: "Add new address",
+                    width: 1.sw,
+                    onPressed: () {
+                      nav.navigateTo(Routes.addAddress);
+                    },
+                  ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
+                ),
+              ],
+            ),
+          );
+        }
+        return const SizedBox.shrink();
       },
       child: const SizedBox.shrink(),
     );

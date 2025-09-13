@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+
 import '../../../domain/entities/address.dart';
 
 abstract class AddressRemoteDataSource {
@@ -9,7 +10,6 @@ abstract class AddressRemoteDataSource {
   Future<void> deleteAddress(String addressId);
   Future<AddressEntity?> getDefaultAddress(String userId);
   Future<void> setDefaultAddress(String userId, String addressId);
-  Stream<List<AddressEntity>> watchUserAddresses(String userId);
 }
 
 class FirebaseAddressRemoteDataSource implements AddressRemoteDataSource {
@@ -18,12 +18,13 @@ class FirebaseAddressRemoteDataSource implements AddressRemoteDataSource {
 
   @override
   Future<List<AddressEntity>> getUserAddresses(String userId) async {
-    final snapshot = await _firestore
-        .collection('users')
-        .doc(userId)
-        .collection('addresses')
-        .orderBy('createdAt', descending: true)
-        .get();
+    final snapshot =
+        await _firestore
+            .collection('users')
+            .doc(userId)
+            .collection('addresses')
+            .orderBy('createdAt', descending: true)
+            .get();
 
     return snapshot.docs.map((doc) => _addressFromFirestore(doc)).toList();
   }
@@ -109,12 +110,13 @@ class FirebaseAddressRemoteDataSource implements AddressRemoteDataSource {
     if (userId == null) throw Exception('User not authenticated');
 
     // Check if this is the default address
-    final addressDoc = await _firestore
-        .collection('users')
-        .doc(userId)
-        .collection('addresses')
-        .doc(addressId)
-        .get();
+    final addressDoc =
+        await _firestore
+            .collection('users')
+            .doc(userId)
+            .collection('addresses')
+            .doc(addressId)
+            .get();
 
     final wasDefault = addressDoc.data()?['isDefault'] == true;
 
@@ -137,13 +139,14 @@ class FirebaseAddressRemoteDataSource implements AddressRemoteDataSource {
 
   @override
   Future<AddressEntity?> getDefaultAddress(String userId) async {
-    final snapshot = await _firestore
-        .collection('users')
-        .doc(userId)
-        .collection('addresses')
-        .where('isDefault', isEqualTo: true)
-        .limit(1)
-        .get();
+    final snapshot =
+        await _firestore
+            .collection('users')
+            .doc(userId)
+            .collection('addresses')
+            .where('isDefault', isEqualTo: true)
+            .limit(1)
+            .get();
 
     if (snapshot.docs.isEmpty) return null;
 
@@ -161,23 +164,7 @@ class FirebaseAddressRemoteDataSource implements AddressRemoteDataSource {
         .doc(userId)
         .collection('addresses')
         .doc(addressId)
-        .update({
-      'isDefault': true,
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
-  }
-
-  @override
-  Stream<List<AddressEntity>> watchUserAddresses(String userId) {
-    return _firestore
-        .collection('users')
-        .doc(userId)
-        .collection('addresses')
-        .orderBy('createdAt', descending: true)
-        .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => _addressFromFirestore(doc))
-            .toList());
+        .update({'isDefault': true, 'updatedAt': FieldValue.serverTimestamp()});
   }
 
   Future<void> _updateOtherAddressesDefault(
@@ -185,12 +172,13 @@ class FirebaseAddressRemoteDataSource implements AddressRemoteDataSource {
     String excludeAddressId,
     bool isDefault,
   ) async {
-    final snapshot = await _firestore
-        .collection('users')
-        .doc(userId)
-        .collection('addresses')
-        .where('isDefault', isEqualTo: true)
-        .get();
+    final snapshot =
+        await _firestore
+            .collection('users')
+            .doc(userId)
+            .collection('addresses')
+            .where('isDefault', isEqualTo: true)
+            .get();
 
     final batch = _firestore.batch();
     for (final doc in snapshot.docs) {
@@ -206,7 +194,7 @@ class FirebaseAddressRemoteDataSource implements AddressRemoteDataSource {
 
   AddressEntity _addressFromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
-    
+
     return AddressEntity(
       id: doc.id,
       street: data['street'] ?? '',

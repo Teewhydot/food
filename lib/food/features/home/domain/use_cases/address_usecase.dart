@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+
 import '../../../../domain/failures/failures.dart';
 import '../entities/address.dart';
 import '../repositories/address_repository.dart';
@@ -14,27 +15,27 @@ class AddressUseCase {
 
   Future<Either<Failure, AddressEntity>> saveAddress(AddressEntity address) {
     if (!_validateAddress(address)) {
-      return Future.value(Left(UnknownFailure(
-        failureMessage: 'Invalid address data'
-      )));
+      return Future.value(
+        Left(UnknownFailure(failureMessage: 'Invalid address data')),
+      );
     }
     return repository.saveAddress(address);
   }
 
   Future<Either<Failure, AddressEntity>> updateAddress(AddressEntity address) {
     if (!_validateAddress(address)) {
-      return Future.value(Left(UnknownFailure(
-        failureMessage: 'Invalid address data'
-      )));
+      return Future.value(
+        Left(UnknownFailure(failureMessage: 'Invalid address data')),
+      );
     }
     return repository.updateAddress(address);
   }
 
   Future<Either<Failure, void>> deleteAddress(String addressId) {
     if (addressId.isEmpty) {
-      return Future.value(Left(UnknownFailure(
-        failureMessage: 'Address ID cannot be empty'
-      )));
+      return Future.value(
+        Left(UnknownFailure(failureMessage: 'Address ID cannot be empty')),
+      );
     }
     return repository.deleteAddress(addressId);
   }
@@ -43,17 +44,20 @@ class AddressUseCase {
     return repository.getDefaultAddress(userId);
   }
 
-  Future<Either<Failure, void>> setDefaultAddress(String userId, String addressId) {
+  Future<Either<Failure, void>> setDefaultAddress(
+    String userId,
+    String addressId,
+  ) {
     if (userId.isEmpty || addressId.isEmpty) {
-      return Future.value(Left(UnknownFailure(
-        failureMessage: 'User ID and Address ID cannot be empty'
-      )));
+      return Future.value(
+        Left(
+          UnknownFailure(
+            failureMessage: 'User ID and Address ID cannot be empty',
+          ),
+        ),
+      );
     }
     return repository.setDefaultAddress(userId, addressId);
-  }
-
-  Stream<Either<Failure, List<AddressEntity>>> watchUserAddresses(String userId) {
-    return repository.watchUserAddresses(userId);
   }
 
   Future<Either<Failure, void>> syncLocalAddresses(String userId) {
@@ -62,9 +66,9 @@ class AddressUseCase {
 
   bool _validateAddress(AddressEntity address) {
     return (address.title?.trim().isNotEmpty ?? false) &&
-           address.fullAddress.trim().isNotEmpty &&
-           (address.latitude != null && address.latitude != 0.0) &&
-           (address.longitude != null && address.longitude != 0.0);
+        address.fullAddress.trim().isNotEmpty &&
+        (address.latitude != null && address.latitude != 0.0) &&
+        (address.longitude != null && address.longitude != 0.0);
   }
 
   Future<Either<Failure, AddressEntity>> createHomeAddress({
@@ -92,7 +96,7 @@ class AddressUseCase {
       longitude: longitude,
       isDefault: isDefault,
     );
-    
+
     return saveAddress(addressEntity);
   }
 
@@ -121,7 +125,7 @@ class AddressUseCase {
       longitude: longitude,
       isDefault: isDefault,
     );
-    
+
     return saveAddress(addressEntity);
   }
 
@@ -152,7 +156,7 @@ class AddressUseCase {
       longitude: longitude,
       isDefault: isDefault,
     );
-    
+
     return saveAddress(addressEntity);
   }
 }

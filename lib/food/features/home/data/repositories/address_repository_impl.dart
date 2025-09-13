@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+
 import '../../../../core/services/floor_db_service/address/address_database_service.dart';
 import '../../../../core/utils/handle_exceptions.dart';
 import '../../../../domain/failures/failures.dart';
@@ -21,12 +22,12 @@ class AddressRepositoryImpl implements AddressRepository {
       try {
         // Try to get from remote first
         final remoteAddresses = await remoteDataSource.getUserAddresses(userId);
-        
+
         // Save to local database
         for (final address in remoteAddresses) {
           await localDataSource.insertAddress(address);
         }
-        
+
         return remoteAddresses;
       } catch (e) {
         // If remote fails, get from local
@@ -40,10 +41,10 @@ class AddressRepositoryImpl implements AddressRepository {
     return handleExceptions(() async {
       // Save to remote first
       final savedAddress = await remoteDataSource.saveAddress(address);
-      
+
       // Then save to local
       await localDataSource.insertAddress(savedAddress);
-      
+
       return savedAddress;
     });
   }
@@ -53,10 +54,10 @@ class AddressRepositoryImpl implements AddressRepository {
     return handleExceptions(() async {
       // Update remote first
       final updatedAddress = await remoteDataSource.updateAddress(address);
-      
+
       // Then update local
       await localDataSource.updateAddress(updatedAddress);
-      
+
       return updatedAddress;
     });
   }
@@ -66,10 +67,11 @@ class AddressRepositoryImpl implements AddressRepository {
     return handleExceptions(() async {
       // Delete from remote first
       await remoteDataSource.deleteAddress(addressId);
-      
+
       // Get the address from local to delete it properly
       final addresses = await localDataSource.getAllAddresses();
-      final addressToDelete = addresses.where((addr) => addr.id == addressId).firstOrNull;
+      final addressToDelete =
+          addresses.where((addr) => addr.id == addressId).firstOrNull;
       if (addressToDelete != null) {
         await localDataSource.deleteAddress(addressToDelete);
       }
@@ -90,31 +92,17 @@ class AddressRepositoryImpl implements AddressRepository {
   }
 
   @override
-  Future<Either<Failure, void>> setDefaultAddress(String userId, String addressId) {
+  Future<Either<Failure, void>> setDefaultAddress(
+    String userId,
+    String addressId,
+  ) {
     return handleExceptions(() async {
       // Update remote first
       await remoteDataSource.setDefaultAddress(userId, addressId);
-      
+
       // Then update local
       await localDataSource.setDefaultAddress(addressId);
     });
-  }
-
-  @override
-  Stream<Either<Failure, List<AddressEntity>>> watchUserAddresses(String userId) {
-    try {
-      return remoteDataSource.watchUserAddresses(userId).map<Either<Failure, List<AddressEntity>>>((addresses) {
-        // Update local database with the latest data
-        for (final address in addresses) {
-          localDataSource.insertAddress(address);
-        }
-        return Right(addresses);
-      }).handleError((error) {
-        return Stream.value(Left<Failure, List<AddressEntity>>(ServerFailure(failureMessage: error.toString())));
-      });
-    } catch (e) {
-      return Stream.value(Left(ServerFailure(failureMessage: e.toString())));
-    }
   }
 
   @override
@@ -122,16 +110,21 @@ class AddressRepositoryImpl implements AddressRepository {
     return handleExceptions(() async {
       // Get local addresses that might not be synced
       final localAddresses = await localDataSource.getAllAddresses();
-      
+
       // Get remote addresses
       final remoteAddresses = await remoteDataSource.getUserAddresses(userId);
       final remoteIds = remoteAddresses.map((a) => a.id).toSet();
-      
+
       // Find local addresses that are not in remote
-      final unsyncedAddresses = localAddresses.where(
-        (local) => !remoteIds.contains(local.id) && local.id.startsWith('local_')
-      ).toList();
-      
+      final unsyncedAddresses =
+          localAddresses
+              .where(
+                (local) =>
+                    !remoteIds.contains(local.id) &&
+                    local.id.startsWith('local_'),
+              )
+              .toList();
+
       // Sync unsynced addresses to remote
       for (final address in unsyncedAddresses) {
         try {
