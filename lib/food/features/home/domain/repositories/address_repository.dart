@@ -4,6 +4,9 @@ import '../../../../domain/failures/failures.dart';
 import '../entities/address.dart';
 
 abstract class AddressRepository {
+  Stream<Either<Failure, List<AddressEntity>>> watchUserAddresses(
+    String userId,
+  );
   Future<Either<Failure, List<AddressEntity>>> getUserAddresses(String userId);
   Future<Either<Failure, AddressEntity>> saveAddress(AddressEntity address);
   Future<Either<Failure, AddressEntity>> updateAddress(AddressEntity address);

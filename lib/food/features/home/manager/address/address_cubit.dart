@@ -31,6 +31,31 @@ class AddressCubit extends BaseCubit<BaseState<dynamic>> {
     );
   }
 
+  void watchAddresses(String userId) {
+    emit(
+      const LoadingState<List<AddressEntity>>(message: 'Watching addresses...'),
+    );
+
+    addressUseCase.watchUserAddresses(userId).listen(
+      (result) {
+        result.fold(
+          (failure) {
+            emit(
+              ErrorState<List<AddressEntity>>(
+                errorMessage: failure.failureMessage,
+                errorCode: 'watch_addresses_failed',
+                isRetryable: true,
+              ),
+            );
+          },
+          (addresses) {
+            emit(LoadedState<List<AddressEntity>>(data: addresses));
+          },
+        );
+      },
+    );
+  }
+
   void loadAddresses(String userId) async {
     emit(
       const LoadingState<List<AddressEntity>>(message: 'Loading addresses...'),

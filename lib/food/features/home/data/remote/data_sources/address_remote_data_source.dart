@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../../domain/entities/address.dart';
 
 abstract class AddressRemoteDataSource {
+  Stream<List<AddressEntity>> watchUserAddresses(String userId);
   Future<List<AddressEntity>> getUserAddresses(String userId);
   Future<AddressEntity> saveAddress(AddressEntity address);
   Future<AddressEntity> updateAddress(AddressEntity address);
@@ -15,6 +16,18 @@ abstract class AddressRemoteDataSource {
 class FirebaseAddressRemoteDataSource implements AddressRemoteDataSource {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  @override
+  Stream<List<AddressEntity>> watchUserAddresses(String userId) {
+    return _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('addresses')
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snapshot) =>
+            snapshot.docs.map((doc) => _addressFromFirestore(doc)).toList());
+  }
 
   @override
   Future<List<AddressEntity>> getUserAddresses(String userId) async {

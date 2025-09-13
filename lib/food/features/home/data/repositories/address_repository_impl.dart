@@ -13,6 +13,17 @@ class AddressRepositoryImpl implements AddressRepository {
   final localDataSource = GetIt.instance<AddressLocalDataSource>();
 
   @override
+  Stream<Either<Failure, List<AddressEntity>>> watchUserAddresses(
+    String userId,
+  ) {
+    return remoteDataSource.watchUserAddresses(userId).map((addresses) {
+      return Right<Failure, List<AddressEntity>>(addresses);
+    }).onErrorReturnWith((error, stackTrace) {
+      return Left(handleError(error));
+    });
+  }
+
+  @override
   Future<Either<Failure, List<AddressEntity>>> getUserAddresses(String userId) {
     return handleExceptions(() async {
       try {

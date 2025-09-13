@@ -6,6 +6,10 @@ import '../entities/address.dart';
 
 class AddressUseCase {
   final repository = AddressRepositoryImpl();
+  Stream<Either<Failure, List<AddressEntity>>> watchUserAddresses(String userId) {
+    return repository.watchUserAddresses(userId);
+  }
+
   Future<Either<Failure, List<AddressEntity>>> getUserAddresses(String userId) {
     return repository.getUserAddresses(userId);
   }
