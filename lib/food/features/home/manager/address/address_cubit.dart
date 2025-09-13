@@ -9,7 +9,6 @@ class AddressCubit extends BaseCubit<BaseState<dynamic>> {
 
   void addAddress(AddressEntity address) async {
     emit(const LoadingState<AddressEntity>(message: 'Adding address...'));
-    await Future.delayed(const Duration(seconds: 5));
     final result = await addressUseCase.saveAddress(address);
     result.fold(
       (failure) {

@@ -40,7 +40,13 @@ class FirebaseAddressRemoteDataSource implements AddressRemoteDataSource {
 
     final addressData = {
       'title': address.title,
-      'fullAddress': address.fullAddress,
+      'city': address.city,
+      'state': address.state,
+      'zipCode': address.zipCode,
+      'street': address.street,
+      'apartment': address.apartment,
+      'type': address.type,
+      'address': address.address,
       'latitude': address.latitude,
       'longitude': address.longitude,
       'isDefault': isDefault,

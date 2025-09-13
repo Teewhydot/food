@@ -8,7 +8,6 @@ import 'package:food/food/components/texts.dart';
 import 'package:food/food/core/bloc/base/base_state.dart';
 import 'package:food/food/core/constants/app_constants.dart';
 import 'package:food/food/core/helpers/extensions.dart';
-import 'package:food/food/core/services/floor_db_service/user_profile/user_profile_database_service.dart';
 import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/features/auth/presentation/widgets/back_widget.dart';
 import 'package:food/food/features/auth/presentation/widgets/custom_overlay.dart';
@@ -20,7 +19,6 @@ import 'package:uuid/uuid.dart';
 
 import '../../../../core/bloc/managers/bloc_manager.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
-import '../../../../core/utils/app_utils.dart';
 
 class AddAddress extends StatefulWidget {
   final AddressEntity addressEntity;
@@ -40,7 +38,6 @@ class _AddAddressState extends State<AddAddress> {
   final postCodeController = TextEditingController();
   final apartmentController = TextEditingController();
   final addressController = TextEditingController();
-  final db = UserProfileDatabaseService();
   String? selectedLabel;
   List<String> labels = ["home", "work", "other"];
 
@@ -77,7 +74,6 @@ class _AddAddressState extends State<AddAddress> {
       showLoadingIndicator: true,
       onSuccess: (context, state) {
         nav.goBack();
-        DFoodUtils.showSnackBar("Address saved successfully", kSuccessColor);
       },
       builder: (context, state) {
         return CustomOverlay(

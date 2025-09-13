@@ -62,10 +62,11 @@ class AddressUseCase {
   }
 
   bool _validateAddress(AddressEntity address) {
-    return (address.title?.trim().isNotEmpty ?? false) &&
-        address.fullAddress.trim().isNotEmpty &&
-        (address.latitude != null && address.latitude != 0.0) &&
-        (address.longitude != null && address.longitude != 0.0);
+    return address.street.isNotEmpty &&
+        address.city.isNotEmpty &&
+        address.state.isNotEmpty &&
+        address.zipCode.isNotEmpty &&
+        address.address.isNotEmpty;
   }
 
   Future<Either<Failure, AddressEntity>> createHomeAddress({

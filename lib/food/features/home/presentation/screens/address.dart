@@ -36,8 +36,9 @@ class _AddressState extends State<Address> {
   @override
   void initState() {
     super.initState();
-    final addressCubit = AddressCubit();
-    addressCubit.loadAddresses(context.currentUserId ?? "");
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AddressCubit>().loadAddresses(context.readUser()?.id ?? "");
+    });
   }
 
   @override
@@ -46,8 +47,14 @@ class _AddressState extends State<Address> {
     return BlocManager<AddressCubit, BaseState<dynamic>>(
       bloc: context.read<AddressCubit>(),
       showLoadingIndicator: true,
+      enablePullToRefresh: true,
+      onRefresh: () async {
+        context.read<AddressCubit>().loadAddresses(
+          context.readUser()?.id ?? "",
+        );
+      },
       builder: (context, state) {
-        if (state is LoadedState) {
+        if (state is LoadedState || state is SuccessState) {
           final addresses = state.data as List? ?? [];
           return FScaffold(
             customScroll: false,
