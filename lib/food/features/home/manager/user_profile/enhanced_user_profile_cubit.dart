@@ -1,3 +1,4 @@
+import 'package:dartz/dartz.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../../../core/bloc/base/base_bloc.dart';
@@ -7,6 +8,7 @@ import '../../../../core/bloc/mixins/refreshable_bloc_mixin.dart';
 import '../../../../core/bloc/utils/state_utils.dart';
 import '../../../../core/services/floor_db_service/user_profile/user_profile_database_service.dart';
 import '../../../../core/utils/logger.dart';
+import '../../../../domain/failures/failures.dart';
 import '../../../auth/domain/use_cases/auth_usecase.dart';
 import '../../domain/entities/profile.dart';
 import '../../domain/use_cases/user_profile_usecase.dart';
@@ -60,6 +62,16 @@ class EnhancedUserProfileCubit extends BaseCubit<BaseState<UserProfileEntity>>
 
     // Load fresh data
     await loadUserProfile();
+  }
+
+  Stream<Either<Failure, UserProfileEntity>> watchUserProfile(
+    String userId,
+  ) async* {
+    try {
+      yield* _userProfileUseCase.watchUserProfile(userId);
+    } catch (e, stackTrace) {
+      handleException(Exception(e.toString()), stackTrace);
+    }
   }
 
   /// Load user profile from remote and cache it
@@ -350,10 +362,12 @@ class EnhancedUserProfileCubit extends BaseCubit<BaseState<UserProfileEntity>>
 
   /// Properly typed success state emitter
   void _emitSuccessState(String message, [Map<String, dynamic>? metadata]) {
-    emit(SuccessState<UserProfileEntity>(
-      successMessage: message,
-      metadata: metadata,
-    ));
+    emit(
+      SuccessState<UserProfileEntity>(
+        successMessage: message,
+        metadata: metadata,
+      ),
+    );
   }
 
   @override

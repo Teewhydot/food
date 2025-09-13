@@ -32,6 +32,12 @@ class _MenuState extends State<Menu> {
   @override
   void initState() {
     super.initState();
+    // Fetch user profile data when the menu screen is initialized
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final userId = context.watchUser()?.id ?? "";
+      if (userId.isNotEmpty) {}
+      context.read<EnhancedUserProfileCubit>().watchUserProfile(userId);
+    });
   }
 
   void _resetUserData(BuildContext context) {
@@ -47,7 +53,6 @@ class _MenuState extends State<Menu> {
   @override
   Widget build(BuildContext context) {
     final nav = GetIt.instance<NavigationService>();
-
     return BlocManager<SignOutBloc, BaseState<dynamic>>(
       bloc: context.read<SignOutBloc>(),
       showLoadingIndicator: true,
@@ -79,18 +84,33 @@ class _MenuState extends State<Menu> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        FText(
-                          text:
-                              "${context.watchUser()?.firstName ?? ''} ${context.watchUser()?.lastName ?? ''}"
-                                      .trim()
-                                      .isEmpty
-                                  ? "Guest User"
-                                  : "${context.watchUser()?.firstName ?? ''} ${context.watchUser()?.lastName ?? ''}"
-                                      .trim(),
-                          fontSize: 20.sp,
-                          fontWeight: FontWeight.w500,
-                          color: kBlackColor,
-                          alignment: MainAxisAlignment.start,
+                        StreamBuilder(
+                          stream: context
+                              .read<EnhancedUserProfileCubit>()
+                              .watchUserProfile(context.watchUser()!.id ?? ""),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return CircularProgressIndicator();
+                            }
+                            if (snapshot.hasError) {
+                              return Text('Error: ${snapshot.error}');
+                            }
+                            if (!snapshot.hasData) {
+                              return Text('No profile data');
+                            }
+                            final profile = snapshot.data!;
+                            return FText(
+                              text: profile.fold(
+                                (l) => 'Guest User',
+                                (r) => '${r.firstName} ${r.lastName}'.trim(),
+                              ),
+                              fontSize: 20.sp,
+                              fontWeight: FontWeight.w500,
+                              color: kBlackColor,
+                              alignment: MainAxisAlignment.start,
+                            );
+                          },
                         ),
                         8.verticalSpace,
                         FWrapText(
