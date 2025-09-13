@@ -1,14 +1,11 @@
 import 'package:dartz/dartz.dart';
+import 'package:food/food/features/home/data/repositories/address_repository_impl.dart';
 
 import '../../../../domain/failures/failures.dart';
 import '../entities/address.dart';
-import '../repositories/address_repository.dart';
 
 class AddressUseCase {
-  final AddressRepository repository;
-
-  AddressUseCase(this.repository);
-
+  final repository = AddressRepositoryImpl();
   Future<Either<Failure, List<AddressEntity>>> getUserAddresses(String userId) {
     return repository.getUserAddresses(userId);
   }

@@ -6,6 +6,7 @@ import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/core/bloc/base/base_state.dart';
 import 'package:food/food/core/constants/app_constants.dart';
 import 'package:food/food/core/helpers/extensions.dart';
+import 'package:food/food/core/helpers/user_extensions.dart';
 import 'package:food/food/core/routes/routes.dart';
 import 'package:food/food/features/home/domain/entities/address.dart';
 import 'package:food/food/features/home/manager/address/address_cubit.dart';
@@ -36,7 +37,7 @@ class _AddressState extends State<Address> {
   void initState() {
     super.initState();
     final addressCubit = AddressCubit();
-    addressCubit.loadAddresses();
+    addressCubit.loadAddresses(context.currentUserId ?? "");
   }
 
   @override

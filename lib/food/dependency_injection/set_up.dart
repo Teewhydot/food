@@ -1,5 +1,6 @@
 import 'package:food/food/features/auth/data/remote/data_sources/register_data_source.dart';
 import 'package:food/food/features/geocoding/data/remote/data_sources/geocoding_datasource.dart';
+import 'package:food/food/features/home/data/local/data_source/address_local_data_source.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 
@@ -32,12 +33,10 @@ import '../features/home/data/remote/data_sources/favorites_remote_data_source.d
 import '../features/home/data/remote/data_sources/food_remote_data_source.dart';
 import '../features/home/data/remote/data_sources/restaurant_remote_data_source.dart';
 import '../features/home/data/remote/data_sources/user_profile_remote_data_source.dart';
-import '../features/home/data/repositories/address_repository_impl.dart';
 import '../features/home/data/repositories/favorites_repository_impl.dart';
 import '../features/home/data/repositories/food_repository_impl.dart';
 import '../features/home/data/repositories/restaurant_repository_impl.dart';
 import '../features/home/data/repositories/user_profile_repository_impl.dart';
-import '../features/home/domain/repositories/address_repository.dart';
 import '../features/home/domain/repositories/favorites_repository.dart';
 import '../features/home/domain/repositories/food_repository.dart';
 import '../features/home/domain/repositories/restaurant_repository.dart';
@@ -73,6 +72,13 @@ void setupDIService() {
   // getIt.registerLazySingleton<GeocodingService>(() => GeocodingService());
   getIt.registerLazySingleton<LoginDataSource>(() => FirebaseLoginDSI());
   getIt.registerLazySingleton<RegisterDataSource>(() => FirebaseRegisterDSI());
+  getIt.registerLazySingleton<AddressLocalDataSource>(
+    () => FloorDbLocalImplementation(),
+  );
+  getIt.registerLazySingleton<FirebaseAddressRemoteDataSource>(
+    () => FirebaseAddressRemoteDataSource(),
+  );
+
   getIt.registerLazySingleton<EmailVerificationDataSource>(
     () => FirebaseEmailVerificationDSI(),
   );
@@ -179,15 +185,8 @@ void setupDIService() {
   getIt.registerLazySingleton<AddressDatabaseService>(
     () => AddressDatabaseService(),
   );
-  getIt.registerLazySingleton<AddressRepository>(
-    () => AddressRepositoryImpl(
-      remoteDataSource: getIt<AddressRemoteDataSource>(),
-      localDataSource: getIt<AddressDatabaseService>(),
-    ),
-  );
-  getIt.registerLazySingleton<AddressUseCase>(
-    () => AddressUseCase(getIt<AddressRepository>()),
-  );
+
+  getIt.registerLazySingleton<AddressUseCase>(() => AddressUseCase());
 
   // User Profile dependencies
   getIt.registerLazySingleton<UserProfileRemoteDataSource>(

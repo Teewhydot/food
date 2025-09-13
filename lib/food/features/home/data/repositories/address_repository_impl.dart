@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
+import 'package:food/food/features/home/data/local/data_source/address_local_data_source.dart';
+import 'package:get_it/get_it.dart';
 
-import '../../../../core/services/floor_db_service/address/address_database_service.dart';
 import '../../../../core/utils/handle_exceptions.dart';
 import '../../../../domain/failures/failures.dart';
 import '../../domain/entities/address.dart';
@@ -8,13 +9,8 @@ import '../../domain/repositories/address_repository.dart';
 import '../remote/data_sources/address_remote_data_source.dart';
 
 class AddressRepositoryImpl implements AddressRepository {
-  final AddressRemoteDataSource remoteDataSource;
-  final AddressDatabaseService localDataSource;
-
-  AddressRepositoryImpl({
-    required this.remoteDataSource,
-    required this.localDataSource,
-  });
+  final remoteDataSource = GetIt.instance<AddressRemoteDataSource>();
+  final localDataSource = GetIt.instance<AddressLocalDataSource>();
 
   @override
   Future<Either<Failure, List<AddressEntity>>> getUserAddresses(String userId) {
@@ -25,13 +21,13 @@ class AddressRepositoryImpl implements AddressRepository {
 
         // Save to local database
         for (final address in remoteAddresses) {
-          await localDataSource.insertAddress(address);
+          await localDataSource.saveAddress(address);
         }
 
         return remoteAddresses;
       } catch (e) {
         // If remote fails, get from local
-        return await localDataSource.getAllAddresses();
+        return await localDataSource.loadAddresses();
       }
     });
   }
@@ -43,7 +39,7 @@ class AddressRepositoryImpl implements AddressRepository {
       final savedAddress = await remoteDataSource.saveAddress(address);
 
       // Then save to local
-      await localDataSource.insertAddress(savedAddress);
+      await localDataSource.saveAddress(savedAddress);
 
       return savedAddress;
     });
@@ -69,7 +65,7 @@ class AddressRepositoryImpl implements AddressRepository {
       await remoteDataSource.deleteAddress(addressId);
 
       // Get the address from local to delete it properly
-      final addresses = await localDataSource.getAllAddresses();
+      final addresses = await localDataSource.loadAddresses();
       final addressToDelete =
           addresses.where((addr) => addr.id == addressId).firstOrNull;
       if (addressToDelete != null) {
@@ -81,13 +77,7 @@ class AddressRepositoryImpl implements AddressRepository {
   @override
   Future<Either<Failure, AddressEntity?>> getDefaultAddress(String userId) {
     return handleExceptions(() async {
-      try {
-        // Try remote first
-        return await remoteDataSource.getDefaultAddress(userId);
-      } catch (e) {
-        // If remote fails, get from local
-        return await localDataSource.getDefaultAddress();
-      }
+      return await remoteDataSource.getDefaultAddress(userId);
     });
   }
 
@@ -99,9 +89,6 @@ class AddressRepositoryImpl implements AddressRepository {
     return handleExceptions(() async {
       // Update remote first
       await remoteDataSource.setDefaultAddress(userId, addressId);
-
-      // Then update local
-      await localDataSource.setDefaultAddress(addressId);
     });
   }
 
@@ -109,7 +96,7 @@ class AddressRepositoryImpl implements AddressRepository {
   Future<Either<Failure, void>> syncLocalAddresses(String userId) {
     return handleExceptions(() async {
       // Get local addresses that might not be synced
-      final localAddresses = await localDataSource.getAllAddresses();
+      final localAddresses = await localDataSource.loadAddresses();
 
       // Get remote addresses
       final remoteAddresses = await remoteDataSource.getUserAddresses(userId);
@@ -131,7 +118,7 @@ class AddressRepositoryImpl implements AddressRepository {
           final syncedAddress = await remoteDataSource.saveAddress(address);
           // Remove the old local-only entry and add the synced one
           await localDataSource.deleteAddress(address);
-          await localDataSource.insertAddress(syncedAddress);
+          await localDataSource.saveAddress(syncedAddress);
         } catch (e) {
           // If sync fails, continue with next address
           continue;

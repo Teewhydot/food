@@ -43,9 +43,7 @@ final List<BlocProvider> blocs = [
   BlocProvider<EnhancedUserProfileCubit>(
     create: (context) => EnhancedUserProfileCubit()..loadUserProfile(),
   ),
-  BlocProvider<AddressCubit>(
-    create: (context) => AddressCubit()..loadAddresses(),
-  ),
+  BlocProvider<AddressCubit>(create: (context) => AddressCubit()),
   BlocProvider<NotificationCubit>(
     create: (context) => NotificationCubit()..loadNotifications(),
   ),
