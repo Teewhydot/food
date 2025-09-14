@@ -4,10 +4,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/image.dart';
 import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/core/bloc/base/base_state.dart';
+import 'package:food/food/core/bloc/managers/bloc_manager.dart';
 import 'package:food/food/core/constants/app_constants.dart';
 import 'package:food/food/core/helpers/extensions.dart';
 import 'package:food/food/core/helpers/user_extensions.dart';
 import 'package:food/food/core/routes/routes.dart';
+import 'package:food/food/features/auth/presentation/widgets/custom_overlay.dart';
 import 'package:food/food/features/home/domain/entities/address.dart';
 import 'package:food/food/features/home/manager/address/address_cubit.dart';
 import 'package:food/food/features/home/presentation/widgets/circle_widget.dart';
@@ -18,7 +20,6 @@ import 'package:get_it/get_it.dart';
 
 import '../../../../components/buttons.dart';
 import '../../../../components/texts.dart';
-import '../../../../core/bloc/managers/bloc_manager.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../core/theme/colors.dart';
 import '../../../auth/presentation/widgets/back_widget.dart';
@@ -34,183 +35,145 @@ class Address extends StatefulWidget {
 
 class _AddressState extends State<Address> {
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<AddressCubit>().loadAddresses(context.readUser()?.id ?? "");
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     final nav = GetIt.instance<NavigationService>();
-    return BlocManager<AddressCubit, BaseState<dynamic>>(
-      bloc: context.read<AddressCubit>(),
-      showLoadingIndicator: true,
-      enablePullToRefresh: true,
-      onRefresh: () async {
-        context.read<AddressCubit>().loadAddresses(
-          context.readUser()?.id ?? "",
+    return StreamBuilder(
+      stream: context.read<AddressCubit>().watchAddresses(
+        context.readUser()?.id ?? "",
+      ),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return FScaffold(
+            appBarWidget: Row(
+              children: [
+                BackWidget(color: kGreyColor),
+                20.horizontalSpace,
+                FText(
+                  text: "Address",
+                  fontSize: 17.sp,
+                  fontWeight: FontWeight.w400,
+                  color: kBlackColor,
+                ),
+              ],
+            ),
+            body: const Center(child: CircularProgressIndicator()),
+          );
+        }
+        if (snapshot.hasData) {
+          final addresses = snapshot.data!;
+          return BlocManager<AddressCubit, BaseState<dynamic>>(
+            bloc: context.read<AddressCubit>(),
+            builder: (context, state) {
+              return CustomOverlay(
+                isLoading: state is LoadingState,
+                child: FScaffold(
+                  customScroll: false,
+                  appBarWidget: Row(
+                    children: [
+                      BackWidget(color: kGreyColor),
+                      20.horizontalSpace,
+                      FText(
+                        text: "Address",
+                        fontSize: 17.sp,
+                        fontWeight: FontWeight.w400,
+                        color: kBlackColor,
+                      ),
+                    ],
+                  ),
+                  body: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      addresses.fold(
+                        (l) => Container(),
+                        (addressess) =>
+                            addressess.isEmpty
+                                ? Center(
+                                  child: FText(
+                                    text: 'No addresses found.',
+                                    fontSize: 16,
+                                    color: kGreyColor,
+                                  ),
+                                )
+                                : SingleChildScrollView(
+                                  child: Column(
+                                    children:
+                                        addressess.map((address) {
+                                          return AddressWidget(
+                                            addressType:
+                                                address.type == 'home'
+                                                    ? AddressType.home
+                                                    : AddressType.work,
+                                            address: address,
+                                            onTapDelete: () {
+                                              context
+                                                  .read<AddressCubit>()
+                                                  .deleteAddress(address);
+                                            },
+                                            onTapEdit: () {
+                                              nav.navigateTo(
+                                                Routes.addAddress,
+                                                arguments: address,
+                                              );
+                                            },
+                                          );
+                                        }).toList(),
+                                  ).paddingSymmetric(
+                                    horizontal: AppConstants.defaultPadding,
+                                  ),
+                                ),
+                      ),
+
+                      Positioned(
+                        bottom: 10,
+                        left: 0,
+                        right: 0,
+                        child: FButton(
+                          buttonText: "Add new address",
+                          width: 1.sw,
+                          onPressed: () {
+                            nav.navigateTo(
+                              Routes.addAddress,
+                              arguments: AddressEntity(
+                                id: '',
+                                street: '',
+                                city: '',
+                                state: '',
+                                zipCode: '',
+                                type: 'home',
+                                address: '',
+                                apartment: '',
+                              ),
+                            );
+                          },
+                        ).paddingSymmetric(
+                          horizontal: AppConstants.defaultPadding,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+            child: SizedBox.expand(),
+          );
+        }
+        if (snapshot.hasError) {
+          return Center(
+            child: FText(
+              text: 'Error: ${snapshot.error}',
+              fontSize: 16,
+              color: kErrorColor,
+            ),
+          );
+        }
+        return const Center(
+          child: FText(
+            text: 'No addresses found.',
+            fontSize: 16,
+            color: kGreyColor,
+          ),
         );
       },
-      builder: (context, state) {
-        if (state is LoadedState || state is SuccessState) {
-          final addresses = state.data as List? ?? [];
-          return FScaffold(
-            customScroll: false,
-            appBarWidget: Row(
-              children: [
-                BackWidget(color: kGreyColor),
-                20.horizontalSpace,
-                FText(
-                  text: "Address",
-                  fontSize: 17.sp,
-                  fontWeight: FontWeight.w400,
-                  color: kBlackColor,
-                ),
-              ],
-            ),
-            body: Stack(
-              fit: StackFit.expand,
-              children: [
-                SingleChildScrollView(
-                  child: Column(
-                    children:
-                        addresses.map((address) {
-                          return AddressWidget(
-                            addressType:
-                                address.type == 'home'
-                                    ? AddressType.home
-                                    : AddressType.work,
-                            address: address,
-                            onTapDelete: () {
-                              context.read<AddressCubit>().deleteAddress(
-                                address,
-                              );
-                            },
-                            onTapEdit: () {
-                              nav.navigateTo(
-                                Routes.addAddress,
-                                arguments: address,
-                              );
-                            },
-                          );
-                        }).toList(),
-                  ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
-                ),
-                Positioned(
-                  bottom: 10,
-                  left: 0,
-                  right: 0,
-                  child: FButton(
-                    buttonText: "Add new address",
-                    width: 1.sw,
-                    onPressed: () {
-                      nav.navigateTo(
-                        Routes.addAddress,
-                        arguments: AddressEntity(
-                          id: '',
-                          street: '',
-                          city: '',
-                          state: '',
-                          zipCode: '',
-                          type: 'home',
-                          address: '',
-                          apartment: '',
-                        ),
-                      );
-                    },
-                  ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
-                ),
-              ],
-            ),
-          );
-        }
-        if (state is EmptyState) {
-          return FScaffold(
-            customScroll: false,
-            appBarWidget: Row(
-              children: [
-                BackWidget(color: kGreyColor),
-                20.horizontalSpace,
-                FText(
-                  text: "Address",
-                  fontSize: 17.sp,
-                  fontWeight: FontWeight.w400,
-                  color: kBlackColor,
-                ),
-              ],
-            ),
-            body: Stack(
-              children: [
-                Center(
-                  child: FText(
-                    text: "No addresses found.",
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w400,
-                    color: kGreyColor,
-                  ),
-                ),
-                Positioned(
-                  bottom: 10,
-                  left: 0,
-                  right: 0,
-                  child: FButton(
-                    buttonText: "Add new address",
-                    width: 1.sw,
-                    onPressed: () {
-                      nav.navigateTo(Routes.addAddress);
-                    },
-                  ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
-                ),
-              ],
-            ),
-          );
-        }
-        if (state is LoadingState) {
-          return FScaffold(
-            customScroll: false,
-            appBarWidget: Row(
-              children: [
-                BackWidget(color: kGreyColor),
-                20.horizontalSpace,
-                FText(
-                  text: "Address",
-                  fontSize: 17.sp,
-                  fontWeight: FontWeight.w400,
-                  color: kBlackColor,
-                ),
-              ],
-            ),
-            body: Stack(
-              children: [
-                Center(
-                  child: FText(
-                    text: "Loading addresses...",
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w400,
-                    color: kGreyColor,
-                  ),
-                ),
-                Positioned(
-                  bottom: 10,
-                  left: 0,
-                  right: 0,
-                  child: FButton(
-                    buttonText: "Add new address",
-                    width: 1.sw,
-                    onPressed: () {
-                      nav.navigateTo(Routes.addAddress);
-                    },
-                  ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
-                ),
-              ],
-            ),
-          );
-        }
-        return const SizedBox.shrink();
-      },
-      child: const SizedBox.shrink(),
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:food/food/core/utils/error_handler.dart';
 import 'package:food/food/features/home/data/local/data_source/address_local_data_source.dart';
 import 'package:get_it/get_it.dart';
 
@@ -16,11 +17,10 @@ class AddressRepositoryImpl implements AddressRepository {
   Stream<Either<Failure, List<AddressEntity>>> watchUserAddresses(
     String userId,
   ) {
-    return remoteDataSource.watchUserAddresses(userId).map((addresses) {
-      return Right<Failure, List<AddressEntity>>(addresses);
-    }).onErrorReturnWith((error, stackTrace) {
-      return Left(handleError(error));
-    });
+    return ErrorHandler.handleStream(
+      () => remoteDataSource.watchUserAddresses(userId),
+      operationName: 'watchUserAddresses',
+    );
   }
 
   @override

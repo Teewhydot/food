@@ -35,8 +35,8 @@ class BlocManager<T extends BlocBase<S>, S extends BaseState>
   final bool showLoadingIndicator;
 
   /// Whether to show success or error messages
-  final bool showResultErrorNotifications = true;
-  final bool showResultSuccessNotifications = true;
+  final bool showResultErrorNotifications;
+  final bool showResultSuccessNotifications;
 
   /// Custom loading widget
   final Widget? loadingWidget;
@@ -56,6 +56,8 @@ class BlocManager<T extends BlocBase<S>, S extends BaseState>
     this.onError,
     this.onSuccess,
     this.showLoadingIndicator = true,
+    this.showResultErrorNotifications = true,
+    this.showResultSuccessNotifications = false,
     this.loadingWidget,
     this.enablePullToRefresh = false,
     this.onRefresh,
@@ -68,14 +70,14 @@ class BlocManager<T extends BlocBase<S>, S extends BaseState>
       child: BlocConsumer<T, S>(
         buildWhen: (previous, current) {
           // Always rebuild for initial load, loading states, errors, and empty states
-          if (previous is InitialState || 
+          if (previous is InitialState ||
               current is InitialState ||
-              current is LoadingState || 
+              current is LoadingState ||
               current is ErrorState ||
               current is EmptyState) {
             return true;
           }
-          
+
           // For loaded states, check if we should rebuild
           if (current is LoadedState && previous is LoadedState) {
             // Don't rebuild if returning cached data with same content
@@ -83,7 +85,7 @@ class BlocManager<T extends BlocBase<S>, S extends BaseState>
               return false;
             }
           }
-          
+
           return true;
         },
         builder: (context, state) {
@@ -99,7 +101,10 @@ class BlocManager<T extends BlocBase<S>, S extends BaseState>
               child: LoadingOverlay(
                 isLoading: true,
                 color: kPrimaryColor.withValues(alpha: 0.5),
-                progressIndicator: SpinKitCircle(color: kWhiteColor, size: 50.0),
+                progressIndicator: SpinKitCircle(
+                  color: kWhiteColor,
+                  size: 50.0,
+                ),
                 child: contentWidget,
               ),
             );

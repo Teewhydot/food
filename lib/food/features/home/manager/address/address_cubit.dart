@@ -1,7 +1,10 @@
+import 'package:dartz/dartz.dart';
 import 'package:food/food/core/bloc/base/base_bloc.dart';
 import 'package:food/food/core/bloc/base/base_state.dart';
 import 'package:food/food/features/home/domain/entities/address.dart';
 import 'package:food/food/features/home/domain/use_cases/address_usecase.dart';
+
+import '../../../../domain/failures/failures.dart';
 
 class AddressCubit extends BaseCubit<BaseState<dynamic>> {
   AddressCubit() : super(const InitialState<dynamic>());
@@ -31,36 +34,33 @@ class AddressCubit extends BaseCubit<BaseState<dynamic>> {
     );
   }
 
-  void watchAddresses(String userId) {
-    emit(
-      const LoadingState<List<AddressEntity>>(message: 'Watching addresses...'),
-    );
-
-    addressUseCase.watchUserAddresses(userId).listen(
-      (result) {
-        result.fold(
-          (failure) {
-            emit(
-              ErrorState<List<AddressEntity>>(
-                errorMessage: failure.failureMessage,
-                errorCode: 'watch_addresses_failed',
-                isRetryable: true,
-              ),
-            );
-          },
-          (addresses) {
-            emit(LoadedState<List<AddressEntity>>(data: addresses));
-          },
-        );
-      },
-    );
+  Stream<Either<Failure, List<AddressEntity>>> watchAddresses(
+    String userId,
+  ) async* {
+    yield* addressUseCase.watchUserAddresses(userId);
+    // addressUseCase.watchUserAddresses(userId).listen((result) {
+    //   //Unneeded emission of states here as StreamBuilder will handle it
+    //   // result.fold(
+    //   //   (failure) {
+    //   //     emit(
+    //   //       ErrorState<List<AddressEntity>>(
+    //   //         errorMessage: failure.failureMessage,
+    //   //         errorCode: 'watch_addresses_failed',
+    //   //         isRetryable: true,
+    //   //       ),
+    //   //     );
+    //   //   },
+    //   //   (addresses) {
+    //   //     emit(LoadedState<List<AddressEntity>>(data: addresses));
+    //   //   },
+    //   // );
+    // });
   }
 
-  void loadAddresses(String userId) async {
+  Future<List<AddressEntity>> loadAddresses(String userId) async {
     emit(
       const LoadingState<List<AddressEntity>>(message: 'Loading addresses...'),
     );
-
     final result = await addressUseCase.getUserAddresses(userId);
     result.fold(
       (failure) {
@@ -76,6 +76,7 @@ class AddressCubit extends BaseCubit<BaseState<dynamic>> {
         emit(LoadedState<List<AddressEntity>>(data: addresses));
       },
     );
+    return result.getOrElse(() => []);
   }
 
   void updateAddress(AddressEntity address) async {
@@ -104,7 +105,7 @@ class AddressCubit extends BaseCubit<BaseState<dynamic>> {
 
   void deleteAddress(AddressEntity address) async {
     emit(const LoadingState<void>(message: 'Deleting address...'));
-    final result = await addressUseCase.deleteAddress(address.id!);
+    final result = await addressUseCase.deleteAddress(address.id);
     result.fold(
       (failure) {
         emit(
