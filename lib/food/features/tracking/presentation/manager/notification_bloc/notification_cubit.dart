@@ -1,19 +1,22 @@
 import 'package:food/food/core/bloc/base/base_bloc.dart';
 import 'package:food/food/core/bloc/base/base_state.dart';
 import 'package:food/food/features/tracking/domain/entities/notification_entity.dart';
-// import 'package:food/food/features/tracking/presentation/manager/notification_bloc/notification_state.dart'; // Commented out - using BaseState now
 
-/// Migrated NotificationCubit to use BaseState<List<NotificationEntity>>
 class NotificationCubit extends BaseCubit<BaseState<List<NotificationEntity>>> {
   NotificationCubit() : super(const InitialState<List<NotificationEntity>>());
+  // final notificationsUseCase = NotificationsUseCase();
 
   void loadNotifications() async {
-    emit(const LoadingState<List<NotificationEntity>>(message: 'Loading notifications...'));
-    
+    emit(
+      const LoadingState<List<NotificationEntity>>(
+        message: 'Loading notifications...',
+      ),
+    );
+
     try {
       // Simulate a network call
       await Future.delayed(const Duration(seconds: 2));
-      
+
       // Sample notifications - in real app this would come from a service
       final notifications = [
         NotificationEntity(
@@ -29,9 +32,13 @@ class NotificationCubit extends BaseCubit<BaseState<List<NotificationEntity>>> {
           createdAt: DateTime.now().subtract(const Duration(days: 1)),
         ),
       ];
-      
+
       if (notifications.isEmpty) {
-        emit(const EmptyState<List<NotificationEntity>>(message: 'No notifications'));
+        emit(
+          const EmptyState<List<NotificationEntity>>(
+            message: 'No notifications',
+          ),
+        );
       } else {
         emit(
           LoadedState<List<NotificationEntity>>(
@@ -50,31 +57,32 @@ class NotificationCubit extends BaseCubit<BaseState<List<NotificationEntity>>> {
       );
     }
   }
-  
+
   /// Mark notification as read
   void markAsRead(String notificationId) async {
     if (state.hasData) {
       final currentNotifications = state.data!;
-      final updatedNotifications = currentNotifications.map((notification) {
-        if (notification.id == notificationId) {
-          return NotificationEntity(
-            id: notification.id,
-            title: notification.title,
-            body: notification.body,
-            createdAt: notification.createdAt,
-            isRead: true,
-          );
-        }
-        return notification;
-      }).toList();
-      
+      final updatedNotifications =
+          currentNotifications.map((notification) {
+            if (notification.id == notificationId) {
+              return NotificationEntity(
+                id: notification.id,
+                title: notification.title,
+                body: notification.body,
+                createdAt: notification.createdAt,
+                isRead: true,
+              );
+            }
+            return notification;
+          }).toList();
+
       emit(
         LoadedState<List<NotificationEntity>>(
           data: updatedNotifications,
           lastUpdated: DateTime.now(),
         ),
       );
-      
+
       emit(
         const SuccessState<List<NotificationEntity>>(
           successMessage: 'Notification marked as read',
@@ -82,22 +90,28 @@ class NotificationCubit extends BaseCubit<BaseState<List<NotificationEntity>>> {
       );
     }
   }
-  
+
   /// Clear all notifications
   void clearAllNotifications() async {
-    emit(const LoadingState<List<NotificationEntity>>(message: 'Clearing notifications...'));
-    
+    emit(
+      const LoadingState<List<NotificationEntity>>(
+        message: 'Clearing notifications...',
+      ),
+    );
+
     try {
       // Simulate network call to clear notifications
       await Future.delayed(const Duration(milliseconds: 500));
-      
+
       emit(
         const SuccessState<List<NotificationEntity>>(
           successMessage: 'All notifications cleared',
         ),
       );
-      
-      emit(const EmptyState<List<NotificationEntity>>(message: 'No notifications'));
+
+      emit(
+        const EmptyState<List<NotificationEntity>>(message: 'No notifications'),
+      );
     } catch (e) {
       emit(
         ErrorState<List<NotificationEntity>>(

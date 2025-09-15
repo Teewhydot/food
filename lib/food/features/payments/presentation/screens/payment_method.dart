@@ -17,6 +17,7 @@ import 'package:get/utils.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../../../components/texts.dart';
+import '../../../../core/bloc/base/base_state.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../core/utils/app_utils.dart';
 import '../../domain/entities/card_entity.dart';
@@ -24,7 +25,6 @@ import '../manager/cart/cart_cubit.dart';
 import '../manager/order_bloc/order_bloc.dart';
 import '../manager/payment_bloc/payment_bloc.dart';
 import '../manager/payment_bloc/payment_event.dart';
-import '../../../../core/bloc/base/base_state.dart';
 
 class PaymentMethod extends StatefulWidget {
   const PaymentMethod({super.key});
@@ -37,12 +37,6 @@ class _PaymentMethodState extends State<PaymentMethod> {
   final nav = GetIt.instance<NavigationService>();
 
   List<PaymentMethodEntity> methods = [
-    PaymentMethodEntity(
-      id: '1',
-      name: 'Cash',
-      type: 'cash',
-      iconUrl: Assets.svgsCash,
-    ),
     PaymentMethodEntity(
       id: '2',
       name: 'Visa',
@@ -170,7 +164,8 @@ class _PaymentMethodState extends State<PaymentMethod> {
       context: context,
       child: BlocListener<OrderBloc, BaseState<dynamic>>(
         listener: (context, orderState) {
-          if (orderState is SuccessState && orderState.successMessage.contains('Order created')) {
+          if (orderState is SuccessState &&
+              orderState.successMessage.contains('Order created')) {
             // Process payment after order is created
             context.read<PaymentBloc>().add(
               ProcessPaymentEvent(
@@ -187,7 +182,8 @@ class _PaymentMethodState extends State<PaymentMethod> {
         },
         child: BlocListener<PaymentBloc, BaseState<dynamic>>(
           listener: (context, paymentState) {
-            if (paymentState is SuccessState && paymentState.successMessage.contains('Payment processed')) {
+            if (paymentState is SuccessState &&
+                paymentState.successMessage.contains('Payment processed')) {
               nav.goBack();
               // Clear cart
               // context.read<CartCubit>().clearCart();
