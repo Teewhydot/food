@@ -17,8 +17,6 @@ import 'package:get_it/get_it.dart';
 
 import '../features/auth/presentation/manager/auth_bloc/email_verification/email_verification_bloc.dart';
 import '../features/auth/presentation/manager/auth_bloc/forgot_password/forgot_password_bloc.dart';
-import '../features/file_upload/domain/use_cases/delete_file_usecase.dart';
-import '../features/file_upload/domain/use_cases/upload_file_usecase.dart';
 import '../features/file_upload/presentation/manager/file_upload_bloc/file_upload_bloc.dart';
 import '../features/home/domain/use_cases/food_usecase.dart';
 import '../features/home/domain/use_cases/restaurant_usecase.dart';
@@ -94,11 +92,5 @@ final List<BlocProvider> blocs = [
   ),
 
   // File upload feature BLoC
-  BlocProvider<FileUploadBloc>(
-    create:
-        (context) => FileUploadBloc(
-          uploadFileUseCase: GetIt.instance<UploadFileUseCase>(),
-          deleteFileUseCase: GetIt.instance<DeleteFileUseCase>(),
-        ),
-  ),
+  BlocProvider<FileUploadCubit>(create: (context) => FileUploadCubit()),
 ];

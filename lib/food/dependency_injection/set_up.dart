@@ -20,10 +20,7 @@ import '../features/auth/data/remote/data_sources/user_data_source.dart';
 import '../features/file_upload/data/remote/data_sources/imagekit_remote_data_source.dart';
 import '../features/file_upload/data/repositories/file_upload_repository_impl.dart';
 import '../features/file_upload/domain/repositories/file_upload_repository.dart';
-import '../features/file_upload/domain/use_cases/delete_file_usecase.dart';
-import '../features/file_upload/domain/use_cases/generate_file_url_usecase.dart';
-import '../features/file_upload/domain/use_cases/generate_link_from_uploaded_file_usecase.dart';
-import '../features/file_upload/domain/use_cases/upload_file_usecase.dart';
+import '../features/file_upload/domain/use_cases/file_upload_usecase.dart';
 import '../features/geocoding/data/repositories/geocoding_repository_impl.dart';
 import '../features/geocoding/domain/repositories/geocoding_repository.dart';
 import '../features/geocoding/domain/use_cases/coordinate_validation_usecase.dart';
@@ -220,27 +217,10 @@ void setupDIService() {
 
   // File upload dependencies
   getIt.registerLazySingleton<ImageKitConfig>(() => ImageKitConfig());
-  getIt.registerLazySingleton<ImageKitRemoteDataSource>(
+  getIt.registerLazySingleton<FileUploadDataSource>(
     () => ImageKitRemoteDataSourceImpl(config: getIt<ImageKitConfig>()),
   );
   getIt.registerLazySingleton<FileUploadRepository>(
-    () => FileUploadRepositoryImpl(
-      remoteDataSource: getIt<ImageKitRemoteDataSource>(),
-    ),
-  );
-  getIt.registerLazySingleton<UploadFileUseCase>(
-    () => UploadFileUseCase(repository: getIt<FileUploadRepository>()),
-  );
-  getIt.registerLazySingleton<DeleteFileUseCase>(
-    () => DeleteFileUseCase(repository: getIt<FileUploadRepository>()),
-  );
-  getIt.registerLazySingleton<GenerateFileUrlUseCase>(
-    () => GenerateFileUrlUseCase(repository: getIt<FileUploadRepository>()),
-  );
-  getIt.registerLazySingleton<GenerateLinkFromUploadedFileUseCase>(
-    () => GenerateLinkFromUploadedFileUseCase(
-      uploadFileUseCase: getIt<UploadFileUseCase>(),
-      generateFileUrlUseCase: getIt<GenerateFileUrlUseCase>(),
-    ),
+    () => FileUploadRepositoryImpl(),
   );
 }

@@ -4,9 +4,10 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:food/food/features/file_upload/domain/entities/uploaded_file_entity.dart';
-import 'package:food/food/features/file_upload/domain/failures/file_upload_failures.dart' as domain;
+import 'package:food/food/features/file_upload/domain/failures/file_upload_failures.dart'
+    as domain;
 import 'package:food/food/features/file_upload/domain/use_cases/delete_file_usecase.dart';
-import 'package:food/food/features/file_upload/domain/use_cases/upload_file_usecase.dart';
+import 'package:food/food/features/file_upload/domain/use_cases/file_upload_usecase.dart';
 import 'package:food/food/features/file_upload/presentation/manager/file_upload_bloc/file_upload_bloc.dart';
 import 'package:food/food/features/file_upload/presentation/manager/file_upload_bloc/file_upload_event.dart';
 import 'package:food/food/features/file_upload/presentation/manager/file_upload_bloc/file_upload_state.dart';
@@ -20,7 +21,7 @@ class MockFile extends Mock implements File {}
 
 void main() {
   group('FileUploadBloc', () {
-    late FileUploadBloc fileUploadBloc;
+    late FileUploadCubit fileUploadBloc;
     late MockUploadFileUseCase mockUploadFileUseCase;
     late MockDeleteFileUseCase mockDeleteFileUseCase;
     late MockFile mockFile;
@@ -29,7 +30,7 @@ void main() {
       mockUploadFileUseCase = MockUploadFileUseCase();
       mockDeleteFileUseCase = MockDeleteFileUseCase();
       mockFile = MockFile();
-      fileUploadBloc = FileUploadBloc(
+      fileUploadBloc = FileUploadCubit(
         uploadFileUseCase: mockUploadFileUseCase,
         deleteFileUseCase: mockDeleteFileUseCase,
       );
@@ -57,7 +58,7 @@ void main() {
         tags: ['test'],
       );
 
-      blocTest<FileUploadBloc, FileUploadState>(
+      blocTest<FileUploadCubit, FileUploadState>(
         'emits [FileUploadLoading, FileUploadSuccess] when upload succeeds',
         build: () {
           when(
@@ -90,7 +91,7 @@ void main() {
         },
       );
 
-      blocTest<FileUploadBloc, FileUploadState>(
+      blocTest<FileUploadCubit, FileUploadState>(
         'emits [FileUploadLoading, FileUploadFailure] when upload fails',
         build: () {
           final failure = domain.FileUploadNetworkFailure();
@@ -106,14 +107,10 @@ void main() {
           return fileUploadBloc;
         },
         act: (bloc) => bloc.add(UploadFileEvent(file: mockFile)),
-        expect:
-            () => [
-              isA<FileUploadLoading>(),
-              isA<FileUploadFailure>(),
-            ],
+        expect: () => [isA<FileUploadLoading>(), isA<FileUploadFailure>()],
       );
 
-      blocTest<FileUploadBloc, FileUploadState>(
+      blocTest<FileUploadCubit, FileUploadState>(
         'passes correct parameters to use case',
         build: () {
           when(
@@ -157,7 +154,7 @@ void main() {
     });
 
     group('DeleteFileEvent', () {
-      blocTest<FileUploadBloc, FileUploadState>(
+      blocTest<FileUploadCubit, FileUploadState>(
         'emits [FileDeletionLoading, FileDeletionSuccess] when deletion succeeds',
         build: () {
           when(
@@ -173,7 +170,7 @@ void main() {
         },
       );
 
-      blocTest<FileUploadBloc, FileUploadState>(
+      blocTest<FileUploadCubit, FileUploadState>(
         'emits [FileDeletionLoading, FileDeletionFailure] when deletion fails',
         build: () {
           final failure = domain.FileUploadServerFailure();
@@ -183,16 +180,12 @@ void main() {
           return fileUploadBloc;
         },
         act: (bloc) => bloc.add(const DeleteFileEvent(fileId: 'test_id')),
-        expect:
-            () => [
-              isA<FileDeletionLoading>(),
-              isA<FileDeletionFailure>(),
-            ],
+        expect: () => [isA<FileDeletionLoading>(), isA<FileDeletionFailure>()],
       );
     });
 
     group('ResetFileUploadEvent', () {
-      blocTest<FileUploadBloc, FileUploadState>(
+      blocTest<FileUploadCubit, FileUploadState>(
         'emits FileUploadInitial when reset is triggered',
         build: () => fileUploadBloc,
         act: (bloc) => bloc.add(const ResetFileUploadEvent()),

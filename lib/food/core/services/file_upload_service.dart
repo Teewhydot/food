@@ -1,8 +1,10 @@
 import 'dart:io';
+import 'package:food/food/core/utils/logger.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:food/food/features/file_upload/domain/enums/file_type_enum.dart';
 import 'package:food/food/core/services/permission_service/permission_service.dart';
+
+enum FileUploadType { image, video, audio, document, any }
 
 /// Simple file upload service that handles all file selection logic
 class FileUploadService {
@@ -18,14 +20,13 @@ class FileUploadService {
     try {
       final hasPermission = await _permissionService.requestCameraPermission();
       if (!hasPermission) throw Exception('Camera permission denied');
-
       final XFile? pickedFile = await _imagePicker.pickImage(
         source: ImageSource.camera,
         maxWidth: 1920,
         maxHeight: 1080,
         imageQuality: 85,
       );
-      
+      Logger.logBasic("Picked file: ${pickedFile?.path}");
       return pickedFile != null ? File(pickedFile.path) : null;
     } catch (e) {
       throw Exception('Failed to pick image from camera: $e');
@@ -52,6 +53,7 @@ class FileUploadService {
           maxHeight: 1080,
           imageQuality: 85,
         );
+        Logger.logBasic("Picked file: ${pickedFile?.path}");
         return pickedFile != null ? File(pickedFile.path) : null;
       }
     } catch (e) {
@@ -70,7 +72,9 @@ class FileUploadService {
         maxHeight: 1080,
         imageQuality: 85,
       );
-      
+      Logger.logBasic(
+        "Picked files: ${pickedFiles.map((xFile) => xFile.path)}",
+      );
       return pickedFiles.map((xFile) => File(xFile.path)).toList();
     } catch (e) {
       throw Exception('Failed to pick multiple images: $e');
@@ -87,7 +91,7 @@ class FileUploadService {
         source: ImageSource.camera,
         maxDuration: const Duration(minutes: 10),
       );
-      
+
       return pickedFile != null ? File(pickedFile.path) : null;
     } catch (e) {
       throw Exception('Failed to pick video from camera: $e');
@@ -104,7 +108,7 @@ class FileUploadService {
         source: ImageSource.gallery,
         maxDuration: const Duration(minutes: 10),
       );
-      
+
       return pickedFile != null ? File(pickedFile.path) : null;
     } catch (e) {
       throw Exception('Failed to pick video from gallery: $e');
@@ -123,20 +127,21 @@ class FileUploadService {
         final hasPermission = await _permissionService.requestAudioPermission();
         if (!hasPermission) throw Exception('Audio permission denied');
       } else {
-        final hasPermission = await _permissionService.requestStoragePermission();
+        final hasPermission =
+            await _permissionService.requestStoragePermission();
         if (!hasPermission) throw Exception('Storage permission denied');
       }
 
       final FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: _getFilePickerType(fileType),
-        allowedExtensions: allowedExtensions ?? _getAllowedExtensions(fileType),
+        allowedExtensions: allowedExtensions,
         allowMultiple: allowMultiple,
         withData: false,
         withReadStream: false,
       );
 
-      return result != null && result.files.isNotEmpty 
-          ? File(result.files.first.path!) 
+      return result != null && result.files.isNotEmpty
+          ? File(result.files.first.path!)
           : null;
     } catch (e) {
       throw Exception('Failed to pick file: $e');
@@ -154,19 +159,20 @@ class FileUploadService {
         final hasPermission = await _permissionService.requestAudioPermission();
         if (!hasPermission) throw Exception('Audio permission denied');
       } else {
-        final hasPermission = await _permissionService.requestStoragePermission();
+        final hasPermission =
+            await _permissionService.requestStoragePermission();
         if (!hasPermission) throw Exception('Storage permission denied');
       }
 
       final FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: _getFilePickerType(fileType),
-        allowedExtensions: allowedExtensions ?? _getAllowedExtensions(fileType),
+        allowedExtensions: allowedExtensions,
         allowMultiple: true,
         withData: false,
         withReadStream: false,
       );
 
-      return result != null 
+      return result != null
           ? result.paths.map((path) => File(path!)).toList()
           : [];
     } catch (e) {
@@ -175,7 +181,8 @@ class FileUploadService {
   }
 
   /// Validate file size and type
-  bool validateFile(File file, {
+  bool validateFile(
+    File file, {
     int? maxSizeInMB,
     int? maxSizeInBytes,
     List<String>? allowedExtensions,
@@ -184,8 +191,10 @@ class FileUploadService {
     try {
       // Check file size
       final fileSize = file.lengthSync();
-      final maxSize = maxSizeInBytes ?? (maxSizeInMB != null ? maxSizeInMB * 1024 * 1024 : null);
-      
+      final maxSize =
+          maxSizeInBytes ??
+          (maxSizeInMB != null ? maxSizeInMB * 1024 * 1024 : null);
+
       if (maxSize != null && fileSize > maxSize) {
         throw Exception('File size exceeds limit');
       }
@@ -219,12 +228,5 @@ class FileUploadService {
       case FileUploadType.any:
         return FileType.any;
     }
-  }
-
-  /// Get allowed extensions for different file types
-  List<String>? _getAllowedExtensions(FileUploadType fileType) {
-    if (fileType == FileUploadType.any) return null;
-    if (fileType == FileUploadType.document) return fileType.allowedExtensions;
-    return null;
   }
 }

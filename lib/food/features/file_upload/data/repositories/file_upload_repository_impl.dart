@@ -7,11 +7,10 @@ import 'package:food/food/features/file_upload/data/remote/data_sources/imagekit
 import 'package:food/food/features/file_upload/data/models/imagekit_upload_response.dart';
 import 'package:food/food/features/file_upload/domain/failures/file_upload_failures.dart';
 import 'package:mime/mime.dart';
+import 'package:get_it/get_it.dart';
 
 class FileUploadRepositoryImpl implements FileUploadRepository {
-  final ImageKitRemoteDataSource remoteDataSource;
-
-  FileUploadRepositoryImpl({required this.remoteDataSource});
+  final remoteDataSource = GetIt.instance<FileUploadDataSource>();
 
   @override
   Future<Either<Failure, UploadedFileEntity>> uploadFile({
@@ -24,7 +23,7 @@ class FileUploadRepositoryImpl implements FileUploadRepository {
     try {
       // Generate filename if not provided
       final finalFileName = fileName ?? _generateFileName(file);
-      
+
       // Create upload request
       final request = ImageKitUploadRequest(
         fileName: finalFileName,
@@ -41,7 +40,7 @@ class FileUploadRepositoryImpl implements FileUploadRepository {
 
       // Convert to domain entity
       final uploadedFile = _mapToUploadedFileEntity(response, file);
-      
+
       return Right(uploadedFile);
     } on FileUploadFailure catch (e) {
       return Left(e);
@@ -83,8 +82,9 @@ class FileUploadRepositoryImpl implements FileUploadRepository {
     ImageKitUploadResponse response,
     File originalFile,
   ) {
-    final mimeType = lookupMimeType(originalFile.path) ?? 'application/octet-stream';
-    
+    final mimeType =
+        lookupMimeType(originalFile.path) ?? 'application/octet-stream';
+
     return UploadedFileEntity(
       id: response.fileId,
       name: response.name,

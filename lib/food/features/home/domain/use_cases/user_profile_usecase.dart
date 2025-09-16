@@ -73,62 +73,6 @@ class UserProfileUseCase {
     return repository.deleteProfileImage(userId);
   }
 
-  Future<Either<Failure, UserProfileEntity>> updateFirstName(
-    String userId,
-    String firstName,
-  ) {
-    if (firstName.trim().isEmpty) {
-      return Future.value(
-        Left(UnknownFailure(failureMessage: 'First name cannot be empty')),
-      );
-    }
-    return repository.updateProfileField(userId, 'firstName', firstName.trim());
-  }
-
-  Future<Either<Failure, UserProfileEntity>> updateLastName(
-    String userId,
-    String lastName,
-  ) {
-    if (lastName.trim().isEmpty) {
-      return Future.value(
-        Left(UnknownFailure(failureMessage: 'Last name cannot be empty')),
-      );
-    }
-    return repository.updateProfileField(userId, 'lastName', lastName.trim());
-  }
-
-  Future<Either<Failure, UserProfileEntity>> updateEmail(
-    String userId,
-    String email,
-  ) {
-    if (!_isValidEmail(email)) {
-      return Future.value(
-        Left(UnknownFailure(failureMessage: 'Invalid email format')),
-      );
-    }
-    return repository.updateProfileField(
-      userId,
-      'email',
-      email.trim().toLowerCase(),
-    );
-  }
-
-  Future<Either<Failure, UserProfileEntity>> updatePhoneNumber(
-    String userId,
-    String phoneNumber,
-  ) {
-    if (!_isValidPhoneNumber(phoneNumber)) {
-      return Future.value(
-        Left(UnknownFailure(failureMessage: 'Invalid phone number format')),
-      );
-    }
-    return repository.updateProfileField(
-      userId,
-      'phoneNumber',
-      phoneNumber.trim(),
-    );
-  }
-
   Stream<Either<Failure, UserProfileEntity>> watchUserProfile(String userId) {
     return repository.watchUserProfile(userId);
   }
@@ -143,11 +87,6 @@ class UserProfileUseCase {
     return GetUtils.isEmail(email);
   }
 
-  bool _isValidPhoneNumber(String phoneNumber) {
-    // Basic validation: check if it contains only digits and has a reasonable length
-    final cleaned = phoneNumber.replaceAll(RegExp(r'\D'), '');
-    return cleaned.length >= 7 && cleaned.length <= 15;
-  }
 
   Future<Either<Failure, UserProfileEntity>> updateProfileWithValidation({
     required String userId,

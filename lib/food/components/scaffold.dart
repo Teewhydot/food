@@ -28,53 +28,28 @@ class FScaffold extends StatelessWidget {
     if (customScroll) {
       return Scaffold(
         extendBody: true,
-        appBar:
-            !customScroll
-                ? PreferredSize(
-                  preferredSize: Size.fromHeight(56.h),
-                  child: AppBar(
-                    backgroundColor: appBarColor,
-                    elevation: 0,
-                    automaticallyImplyLeading: false,
-                    title: SafeArea(child: appBarWidget.paddingOnly()),
-                  ),
-                )
-                : PreferredSize(
-                  preferredSize: Size.fromHeight(0.h),
-                  child: AppBar(
-                    backgroundColor: appBarColor,
-                    elevation: 0,
-                    automaticallyImplyLeading: false,
-                    title: SafeArea(child: appBarWidget.paddingOnly()),
-                  ),
-                ),
-        backgroundColor:
-            backgroundColor ?? Theme.of(context).scaffoldBackgroundColor,
+        backgroundColor: backgroundColor ?? Theme.of(context).scaffoldBackgroundColor,
         resizeToAvoidBottomInset: resizeToAvoidBottomInset,
-        body:
-            customScroll
-                ? CustomScrollView(
-                  slivers: [
-                    SliverAppBar(
-                      pinned: true,
-                      floating: true,
-                      backgroundColor: appBarColor,
-                      elevation: 0,
-                      automaticallyImplyLeading: false,
-                      title:
-                          customScroll
-                              ? SafeArea(child: appBarWidget.paddingOnly())
-                              : appBarWidget.paddingOnly(),
-                    ),
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: EdgeInsets.all(padding).r,
-                        child: body,
-                      ),
-                    ),
-                  ],
-                )
-                : body,
+        body: NestedScrollView(
+          headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+            return [
+              SliverAppBar(
+                pinned: true,
+                floating: true,
+                backgroundColor: appBarColor,
+                elevation: 0,
+                automaticallyImplyLeading: false,
+                title: SafeArea(child: appBarWidget.paddingOnly()),
+              ),
+            ];
+          },
+          body: SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.all(padding).r,
+              child: body,
+            ),
+          ),
+        ),
         bottomNavigationBar: bottomWidget,
       );
     } else if (stackLayout) {

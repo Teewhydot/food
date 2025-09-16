@@ -4,7 +4,7 @@ import 'package:food/food/features/file_upload/data/models/imagekit_upload_respo
 import 'package:food/food/core/services/imagekit/imagekit_config.dart';
 import 'package:food/food/features/file_upload/domain/failures/file_upload_failures.dart';
 
-abstract class ImageKitRemoteDataSource {
+abstract class FileUploadDataSource {
   Future<ImageKitUploadResponse> uploadFile({
     required File file,
     required ImageKitUploadRequest request,
@@ -12,13 +12,10 @@ abstract class ImageKitRemoteDataSource {
 
   Future<void> deleteFile({required String fileId});
 
-  String generateUrl({
-    required String filePath,
-    List<String>? transformations,
-  });
+  String generateUrl({required String filePath, List<String>? transformations});
 }
 
-class ImageKitRemoteDataSourceImpl implements ImageKitRemoteDataSource {
+class ImageKitRemoteDataSourceImpl implements FileUploadDataSource {
   final ImageKitConfig config;
 
   ImageKitRemoteDataSourceImpl({required this.config});
@@ -45,7 +42,8 @@ class ImageKitRemoteDataSourceImpl implements ImageKitRemoteDataSource {
       final fileSize = file.lengthSync();
       if (fileSize > config.maxFileSizeInBytes) {
         throw FileUploadValidationFailure(
-          failureMessage: 'File size exceeds maximum allowed size of ${config.maxFileSizeInBytes} bytes',
+          failureMessage:
+              'File size exceeds maximum allowed size of ${config.maxFileSizeInBytes} bytes',
         );
       }
 
@@ -63,7 +61,8 @@ class ImageKitRemoteDataSourceImpl implements ImageKitRemoteDataSource {
         fileId: 'mock_${DateTime.now().millisecondsSinceEpoch}',
         name: request.fileName,
         url: '${config.urlEndpoint}${request.folder}${request.fileName}',
-        thumbnailUrl: '${config.urlEndpoint}/tr:w-300,h-200${request.folder}${request.fileName}',
+        thumbnailUrl:
+            '${config.urlEndpoint}/tr:w-300,h-200${request.folder}${request.fileName}',
         height: 1080,
         width: 1920,
         size: fileSize,
@@ -76,9 +75,11 @@ class ImageKitRemoteDataSourceImpl implements ImageKitRemoteDataSource {
     } on FileUploadFailure {
       rethrow;
     } catch (e) {
-      if (e.toString().contains('network') || e.toString().contains('connection')) {
+      if (e.toString().contains('network') ||
+          e.toString().contains('connection')) {
         throw FileUploadNetworkFailure(failureMessage: e.toString());
-      } else if (e.toString().contains('server') || e.toString().contains('5')) {
+      } else if (e.toString().contains('server') ||
+          e.toString().contains('5')) {
         throw FileUploadServerFailure(failureMessage: e.toString());
       } else {
         throw FileUploadUnknownFailure(failureMessage: e.toString());
@@ -98,9 +99,11 @@ class ImageKitRemoteDataSourceImpl implements ImageKitRemoteDataSource {
     } on FileUploadFailure {
       rethrow;
     } catch (e) {
-      if (e.toString().contains('network') || e.toString().contains('connection')) {
+      if (e.toString().contains('network') ||
+          e.toString().contains('connection')) {
         throw FileUploadNetworkFailure(failureMessage: e.toString());
-      } else if (e.toString().contains('server') || e.toString().contains('5')) {
+      } else if (e.toString().contains('server') ||
+          e.toString().contains('5')) {
         throw FileUploadServerFailure(failureMessage: e.toString());
       } else {
         throw FileUploadUnknownFailure(failureMessage: e.toString());
@@ -114,15 +117,42 @@ class ImageKitRemoteDataSourceImpl implements ImageKitRemoteDataSource {
     List<String>? transformations,
   }) {
     final baseUrl = config.urlEndpoint;
-    
+
     // Remove leading slash from filePath if it exists
-    final cleanFilePath = filePath.startsWith('/') ? filePath.substring(1) : filePath;
-    
+    final cleanFilePath =
+        filePath.startsWith('/') ? filePath.substring(1) : filePath;
+
     if (transformations != null && transformations.isNotEmpty) {
       final transformationString = transformations.join(',');
       return '$baseUrl/tr:$transformationString/$cleanFilePath';
     }
-    
+
     return '$baseUrl/$cleanFilePath';
+  }
+}
+
+class FirebaseFileUploadImpl implements FileUploadDataSource {
+  @override
+  Future<void> deleteFile({required String fileId}) {
+    // TODO: implement deleteFile
+    throw UnimplementedError();
+  }
+
+  @override
+  String generateUrl({
+    required String filePath,
+    List<String>? transformations,
+  }) {
+    // TODO: implement generateUrl
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<ImageKitUploadResponse> uploadFile({
+    required File file,
+    required ImageKitUploadRequest request,
+  }) {
+    // TODO: implement uploadFile
+    throw UnimplementedError();
   }
 }

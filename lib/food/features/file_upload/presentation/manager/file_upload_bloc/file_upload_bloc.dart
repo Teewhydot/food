@@ -1,60 +1,38 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:food/food/features/file_upload/presentation/manager/file_upload_bloc/file_upload_event.dart';
-import 'package:food/food/features/file_upload/presentation/manager/file_upload_bloc/file_upload_state.dart';
-import 'package:food/food/features/file_upload/domain/use_cases/upload_file_usecase.dart';
-import 'package:food/food/features/file_upload/domain/use_cases/delete_file_usecase.dart';
+import 'dart:io';
 
-class FileUploadBloc extends Bloc<FileUploadEvent, FileUploadState> {
-  final UploadFileUseCase uploadFileUseCase;
-  final DeleteFileUseCase deleteFileUseCase;
+import 'package:food/food/core/bloc/base/base_bloc.dart';
+import 'package:food/food/core/bloc/base/base_state.dart';
+import 'package:food/food/features/file_upload/domain/use_cases/file_upload_usecase.dart';
 
-  FileUploadBloc({
-    required this.uploadFileUseCase,
-    required this.deleteFileUseCase,
-  }) : super(const FileUploadInitial()) {
-    on<UploadFileEvent>(_onUploadFile);
-    on<DeleteFileEvent>(_onDeleteFile);
-    on<ResetFileUploadEvent>(_onResetFileUpload);
-  }
+class FileUploadCubit extends BaseCubit<BaseState<dynamic>> {
+  FileUploadCubit() : super(const InitialState<dynamic>());
 
-  Future<void> _onUploadFile(
-    UploadFileEvent event,
-    Emitter<FileUploadState> emit,
-  ) async {
-    emit(const FileUploadLoading());
+  final uploadFileUseCase = FileUploadUseCase();
 
-    final result = await uploadFileUseCase(
-      file: event.file,
-      fileName: event.fileName,
-      folder: event.folder,
-      tags: event.tags,
-      customMetadata: event.customMetadata,
+  Future<void> uploadFile(File file, String? fileName) async {
+    emit(const LoadingState<dynamic>(message: 'Uploading file...'));
+
+    final result = await uploadFileUseCase.uploadFile(
+      file: file,
+      fileName: fileName,
     );
 
     result.fold(
-      (failure) => emit(FileUploadFailure(failure: failure)),
-      (uploadedFile) => emit(FileUploadSuccess(uploadedFile: uploadedFile)),
+      (failure) => emit(ErrorState(errorMessage: failure.failureMessage)),
+      (uploadedFile) =>
+          emit(SuccessState(successMessage: 'File uploaded successfully')),
     );
   }
 
-  Future<void> _onDeleteFile(
-    DeleteFileEvent event,
-    Emitter<FileUploadState> emit,
-  ) async {
-    emit(const FileDeletionLoading());
+  Future<void> deleteFile(String fileId) async {
+    emit(const LoadingState<dynamic>(message: 'Deleting file...'));
 
-    final result = await deleteFileUseCase(fileId: event.fileId);
+    final result = await uploadFileUseCase.deleteFile(fileId: fileId);
 
     result.fold(
-      (failure) => emit(FileDeletionFailure(failure: failure)),
-      (_) => emit(const FileDeletionSuccess()),
+      (failure) => emit(ErrorState(errorMessage: failure.failureMessage)),
+      (_) =>
+          emit(const SuccessState(successMessage: 'File deleted successfully')),
     );
-  }
-
-  void _onResetFileUpload(
-    ResetFileUploadEvent event,
-    Emitter<FileUploadState> emit,
-  ) {
-    emit(const FileUploadInitial());
   }
 }

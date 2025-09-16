@@ -12,11 +12,11 @@ class MockImageKitConfig extends Mock implements ImageKitConfig {}
 class MockFile extends Mock implements File {}
 
 class MockImageKitRemoteDataSource extends Mock
-    implements ImageKitRemoteDataSource {}
+    implements FileUploadDataSource {}
 
 void main() {
   group('ImageKitRemoteDataSource', () {
-    late ImageKitRemoteDataSource dataSource;
+    late FileUploadDataSource dataSource;
     late MockImageKitConfig mockConfig;
     late MockFile mockFile;
 

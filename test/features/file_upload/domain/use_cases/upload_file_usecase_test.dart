@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:dartz/dartz.dart';
-import 'package:food/food/features/file_upload/domain/use_cases/upload_file_usecase.dart';
+import 'package:food/food/features/file_upload/domain/use_cases/file_upload_usecase.dart';
 import 'package:food/food/features/file_upload/domain/repositories/file_upload_repository.dart';
 import 'package:food/food/features/file_upload/domain/entities/uploaded_file_entity.dart';
 import 'package:food/food/features/file_upload/domain/failures/file_upload_failures.dart';

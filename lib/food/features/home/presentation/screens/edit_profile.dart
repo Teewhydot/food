@@ -122,14 +122,16 @@ class _EditProfileState extends State<EditProfile> {
                             final result =
                                 await fileUploadService.pickImageFromGallery();
                             if (result != null && context.mounted) {
-                              context.read<FileUploadBloc>().add(
-                                UploadFileEvent(file: result),
+                              context.read<FileUploadCubit>().uploadFile(
+                                result,
+                                id,
+                              );
+                            } else {
+                              DFoodUtils.showSnackBar(
+                                "Error picking selected file",
+                                kErrorColor,
                               );
                             }
-                            DFoodUtils.showSnackBar(
-                              "Error uploading selected file",
-                              kErrorColor,
-                            );
                           },
                           child: FImage(
                             assetPath: Assets.svgsPencil,
