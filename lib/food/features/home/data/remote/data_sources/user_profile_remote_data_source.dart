@@ -44,7 +44,6 @@ class FirebaseUserProfileRemoteDataSource
     final profileData = {
       'firstName': profile.firstName,
       'lastName': profile.lastName,
-      'profileImageUrl': profile.profileImageUrl ?? '',
       'bio': profile.bio ?? '',
       'updatedAt': FieldValue.serverTimestamp(),
     };

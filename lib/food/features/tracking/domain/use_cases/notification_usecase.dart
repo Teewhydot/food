@@ -1,16 +1,11 @@
 import 'package:dartz/dartz.dart';
+import 'package:food/food/features/tracking/data/repositories/notification_repository_impl.dart';
+
 import '../../../../domain/failures/failures.dart';
 import '../entities/notification_entity.dart';
-import '../repositories/notification_repository.dart';
 
 class NotificationUseCase {
-  final NotificationRepository repository;
-
-  NotificationUseCase(this.repository);
-
-  Future<Either<Failure, List<NotificationEntity>>> getUserNotifications(String userId) {
-    return repository.getUserNotifications(userId);
-  }
+  final repository = NotificationRepositoryImpl();
 
   Future<Either<Failure, NotificationEntity>> sendNotification({
     required String userId,
@@ -42,7 +37,9 @@ class NotificationUseCase {
     return repository.updateFCMToken(userId, token);
   }
 
-  Stream<Either<Failure, List<NotificationEntity>>> watchUserNotifications(String userId) {
+  Stream<Either<Failure, List<NotificationEntity>>> watchUserNotifications(
+    String userId,
+  ) {
     return repository.watchUserNotifications(userId);
   }
 
@@ -98,11 +95,7 @@ class NotificationUseCase {
       targetUserId: targetUserId,
       title: title,
       body: body,
-      data: {
-        'type': 'order_update',
-        'orderId': orderId,
-        'status': status,
-      },
+      data: {'type': 'order_update', 'orderId': orderId, 'status': status},
     );
   }
 
@@ -116,11 +109,7 @@ class NotificationUseCase {
       targetUserId: targetUserId,
       title: 'New Message from $senderName',
       body: message,
-      data: {
-        'type': 'new_message',
-        'chatId': chatId,
-        'senderName': senderName,
-      },
+      data: {'type': 'new_message', 'chatId': chatId, 'senderName': senderName},
     );
   }
 }

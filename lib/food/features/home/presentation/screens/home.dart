@@ -13,7 +13,6 @@ import 'package:food/food/features/auth/presentation/manager/location_bloc/locat
 import 'package:food/generated/assets.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
-import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../../../core/bloc/base/base_state.dart';
 import '../../../../core/bloc/managers/bloc_manager.dart';
@@ -289,23 +288,10 @@ class _HomeState extends State<Home> {
             32.verticalSpace,
             BlocManager<FoodCubit, BaseState<dynamic>>(
               bloc: context.read<FoodCubit>(),
-              showLoadingIndicator: true,
+              showLoadingIndicator: false,
               builder: (context, state) {
                 if (state is LoadingState) {
-                  return SizedBox(
-                    height: 250.h,
-                    child: Skeletonizer(
-                      child: FoodWidget(
-                        id: "id",
-                        image: "image",
-                        name: "name",
-                        price: "price",
-                        rating: "rating",
-                        onTap: () {},
-                        onAddTapped: () {},
-                      ),
-                    ),
-                  );
+                  return Center(child: CircularProgressIndicator.adaptive());
                 } else if (state.hasData && state.data is List<FoodEntity>) {
                   final foods = state.data as List<FoodEntity>;
                   // Cache the food list

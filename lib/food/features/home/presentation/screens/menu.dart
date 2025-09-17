@@ -68,7 +68,7 @@ class _MenuState extends State<Menu> {
               StreamBuilder(
                 stream: context
                     .read<EnhancedUserProfileCubit>()
-                    .watchUserProfile(context.watchUser()!.id ?? ""),
+                    .watchUserProfile(context.readCurrentUserId ?? ""),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return CircularProgressIndicator();

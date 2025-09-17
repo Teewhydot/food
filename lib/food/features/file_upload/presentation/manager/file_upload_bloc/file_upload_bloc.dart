@@ -9,18 +9,22 @@ class FileUploadCubit extends BaseCubit<BaseState<dynamic>> {
 
   final uploadFileUseCase = FileUploadUseCase();
 
-  Future<void> uploadFile(String userId, File file) async {
+  Future<String> uploadFile(String userId, File file) async {
     emit(const LoadingState<dynamic>(message: 'Uploading file...'));
 
     final result = await uploadFileUseCase.uploadFile(
       userId: userId,
       file: file,
     );
-
-    result.fold(
-      (failure) => emit(ErrorState(errorMessage: failure.failureMessage)),
-      (uploadedFile) =>
-          emit(SuccessState(successMessage: 'File uploaded successfully')),
+    return result.fold(
+      (failure) {
+        emit(ErrorState(errorMessage: failure.failureMessage));
+        return '';
+      },
+      (uploadedFile) {
+        emit(SuccessState(successMessage: 'File uploaded successfully'));
+        return uploadedFile.url;
+      },
     );
   }
 

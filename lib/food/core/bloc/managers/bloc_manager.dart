@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:food/food/core/bloc/utils/migration_helper.dart';
 import 'package:loading_overlay/loading_overlay.dart';
 
 import '../../../core/constants/app_constants.dart';
@@ -98,10 +99,7 @@ class BlocManager<T extends BlocBase<S>, S extends BaseState>
             return LoadingOverlay(
               isLoading: true,
               color: kPrimaryColor.withValues(alpha: 0.5),
-              progressIndicator: SpinKitCircle(
-                color: kWhiteColor,
-                size: 50.0,
-              ),
+              progressIndicator: SpinKitCircle(color: kWhiteColor, size: 50.0),
               child: contentWidget,
             );
           }
@@ -131,6 +129,19 @@ class BlocManager<T extends BlocBase<S>, S extends BaseState>
 
           // Handle success states
           if (state.isSuccess) {
+            Logger.logSuccess("Success condition met in BlocManager");
+            if (onSuccess != null) {
+              onSuccess!(context, state);
+            }
+            if (showResultSuccessNotifications) {
+              DFoodUtils.showSnackBar(
+                state.successMessage ?? AppConstants.defaultSuccessMessage,
+                kSuccessColor,
+              );
+            }
+          }
+          //Handle loaded state
+          if (state.isLoadedState) {
             Logger.logSuccess("Success condition met in BlocManager");
             if (onSuccess != null) {
               onSuccess!(context, state);

@@ -169,13 +169,9 @@ void setupDIService() {
     () => FirebaseNotificationRemoteDataSource(),
   );
   getIt.registerLazySingleton<NotificationRepository>(
-    () => NotificationRepositoryImpl(
-      remoteDataSource: getIt<NotificationRemoteDataSource>(),
-    ),
+    () => NotificationRepositoryImpl(),
   );
-  getIt.registerLazySingleton<NotificationUseCase>(
-    () => NotificationUseCase(getIt<NotificationRepository>()),
-  );
+  getIt.registerLazySingleton<NotificationUseCase>(() => NotificationUseCase());
 
   // Address dependencies
   getIt.registerLazySingleton<AddressRemoteDataSource>(

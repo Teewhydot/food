@@ -66,7 +66,7 @@ class PersonalInfo extends StatelessWidget {
                   onTap: () {
                     nav.navigateTo(
                       Routes.editProfile,
-                      arguments: context.readUser(),
+                      arguments: profile.fold((l) => null, (r) => r),
                     );
                   },
                 ),
@@ -83,8 +83,7 @@ class PersonalInfo extends StatelessWidget {
                   color: kPrimaryColor,
                   child: FImage(
                     assetPath: profile.fold(
-                      (l) =>
-                          'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y',
+                      (l) => 'https://www.gravatar.com/avatar/',
                       (r) =>
                           r.profileImageUrl ??
                           'https://www.gravatar.com/avatar/',

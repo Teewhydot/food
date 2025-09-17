@@ -24,6 +24,7 @@ import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../core/theme/colors.dart';
 import '../../../auth/presentation/widgets/back_widget.dart';
 import '../../../file_upload/presentation/manager/file_upload_bloc/file_upload_bloc.dart';
+import '../../../tracking/data/remote/data_sources/notification_remote_data_source.dart';
 import '../../manager/user_profile/enhanced_user_profile_cubit.dart';
 
 class EditProfile extends StatefulWidget {
@@ -44,6 +45,7 @@ class _EditProfileState extends State<EditProfile> {
   final bioController = TextEditingController();
   final db = UserProfileDatabaseService();
   String email = "";
+  String? profileImageUrl = "";
   String id = "";
   void getUserProfile() async {
     final user = await (await db.database).userProfileDao.getUserProfile();
@@ -111,14 +113,8 @@ class _EditProfileState extends State<EditProfile> {
                     StreamBuilder(
                       stream: context
                           .read<EnhancedUserProfileCubit>()
-                          .watchUserProfile(context.watchUser()!.id ?? ""),
+                          .watchUserProfile(context.readCurrentUserId ?? ""),
                       builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        }
                         return CircleWidget(
                           radius: 70,
                           color: kPrimaryColor,
@@ -126,8 +122,9 @@ class _EditProfileState extends State<EditProfile> {
                           child: FImage(
                             assetPath:
                                 snapshot.data?.fold(
-                                  (l) => widget.userProfile.firstName,
-                                  (r) => r.profileImageUrl,
+                                  (l) =>
+                                      widget.userProfile.profileImageUrl ?? "",
+                                  (r) => r.profileImageUrl!,
                                 ) ??
                                 "",
                             assetType: FoodAssetType.network,
@@ -148,10 +145,9 @@ class _EditProfileState extends State<EditProfile> {
                           final result =
                               await fileUploadService.pickImageFromGallery();
                           if (result != null && context.mounted) {
-                            context.read<FileUploadCubit>().uploadFile(
-                              context.readCurrentUserId!,
-                              result,
-                            );
+                            profileImageUrl = await context
+                                .read<FileUploadCubit>()
+                                .uploadFile(context.readCurrentUserId!, result);
                           } else {
                             DFoodUtils.showSnackBar(
                               "Error picking selected file",
@@ -207,7 +203,16 @@ class _EditProfileState extends State<EditProfile> {
                 FButton(
                   buttonText: "Save",
                   width: 1.sw,
-                  onPressed: () {
+                  enabled:
+                      firstNameController.text.isNotEmpty &&
+                      lastNameController.text.isNotEmpty,
+                  onPressed: () async {
+                    final notif = FirebaseNotificationRemoteDataSource();
+                    await notif.sendNotification(
+                      userId: context.readCurrentUserId!,
+                      title: "Test",
+                      body: "Money go soon come bro",
+                    );
                     final updatedProfile = UserProfileEntity(
                       id: id,
                       firstName: firstNameController.text,

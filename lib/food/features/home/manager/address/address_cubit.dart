@@ -38,23 +38,6 @@ class AddressCubit extends BaseCubit<BaseState<dynamic>> {
     String userId,
   ) async* {
     yield* addressUseCase.watchUserAddresses(userId);
-    // addressUseCase.watchUserAddresses(userId).listen((result) {
-    //   //Unneeded emission of states here as StreamBuilder will handle it
-    //   // result.fold(
-    //   //   (failure) {
-    //   //     emit(
-    //   //       ErrorState<List<AddressEntity>>(
-    //   //         errorMessage: failure.failureMessage,
-    //   //         errorCode: 'watch_addresses_failed',
-    //   //         isRetryable: true,
-    //   //       ),
-    //   //     );
-    //   //   },
-    //   //   (addresses) {
-    //   //     emit(LoadedState<List<AddressEntity>>(data: addresses));
-    //   //   },
-    //   // );
-    // });
   }
 
   Future<List<AddressEntity>> loadAddresses(String userId) async {

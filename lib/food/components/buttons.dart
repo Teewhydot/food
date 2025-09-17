@@ -16,6 +16,7 @@ class FButton extends StatefulWidget {
   final double borderRadius;
   final double iconSize;
   final Color borderColor;
+  final bool? enabled;
 
   const FButton({
     super.key,
@@ -32,6 +33,7 @@ class FButton extends StatefulWidget {
     this.borderRadius = 12.0,
     this.iconSize = 24.0,
     this.borderColor = kPrimaryColor,
+    this.enabled = true,
   });
 
   @override
@@ -42,12 +44,12 @@ class _FButtonState extends State<FButton> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: widget.onPressed,
+      onTap: widget.enabled == true ? widget.onPressed : null,
       child: Container(
         height: widget.height,
         width: widget.width,
         decoration: BoxDecoration(
-          color: widget.color,
+          color: widget.enabled == true ? widget.color : kGreyColor,
           borderRadius: BorderRadius.circular(widget.borderRadius),
           border: Border.all(color: widget.borderColor),
         ),

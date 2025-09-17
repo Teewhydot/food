@@ -158,11 +158,26 @@ class _AddressState extends State<Address> {
           );
         }
         if (snapshot.hasError) {
-          return Center(
-            child: FText(
-              text: 'Error: ${snapshot.error}',
-              fontSize: 16,
-              color: kErrorColor,
+          return FScaffold(
+            appBarWidget: Row(
+              children: [
+                BackWidget(color: kGreyColor),
+                20.horizontalSpace,
+                FText(
+                  text: "Addresses",
+                  fontSize: 17.sp,
+                  fontWeight: FontWeight.w400,
+                  color: kBlackColor,
+                ),
+              ],
+            ),
+            body: Center(
+              child: FText(
+                text: "Error loading addresses ${snapshot.error}",
+                color: kErrorColor,
+                fontSize: 12,
+                fontWeight: FontWeight.normal,
+              ),
             ),
           );
         }
