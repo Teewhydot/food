@@ -1,4 +1,5 @@
 import 'package:food/food/features/auth/data/remote/data_sources/register_data_source.dart';
+import 'package:food/food/features/file_upload/data/remote/data_sources/file_upload.dart';
 import 'package:food/food/features/geocoding/data/remote/data_sources/geocoding_datasource.dart';
 import 'package:food/food/features/home/data/local/data_source/address_local_data_source.dart';
 import 'package:get_it/get_it.dart';
@@ -17,10 +18,8 @@ import '../features/auth/data/remote/data_sources/login_data_source.dart';
 import '../features/auth/data/remote/data_sources/password_reset_data_source.dart';
 import '../features/auth/data/remote/data_sources/sign_out_data_source.dart';
 import '../features/auth/data/remote/data_sources/user_data_source.dart';
-import '../features/file_upload/data/remote/data_sources/imagekit_remote_data_source.dart';
 import '../features/file_upload/data/repositories/file_upload_repository_impl.dart';
 import '../features/file_upload/domain/repositories/file_upload_repository.dart';
-import '../features/file_upload/domain/use_cases/file_upload_usecase.dart';
 import '../features/geocoding/data/repositories/geocoding_repository_impl.dart';
 import '../features/geocoding/domain/repositories/geocoding_repository.dart';
 import '../features/geocoding/domain/use_cases/coordinate_validation_usecase.dart';
@@ -150,7 +149,10 @@ void setupDIService() {
   getIt.registerLazySingleton<OrderUseCase>(
     () => OrderUseCase(getIt<PaymentRepository>()),
   );
-
+  // File upload dependencies
+  getIt.registerLazySingleton<FileUploadDataSource>(
+    () => FirebaseFileUploadImpl(),
+  );
   // Chat/Tracking feature dependencies
   getIt.registerLazySingleton<ChatRemoteDataSource>(
     () => FirebaseChatRemoteDataSource(),
@@ -217,9 +219,6 @@ void setupDIService() {
 
   // File upload dependencies
   getIt.registerLazySingleton<ImageKitConfig>(() => ImageKitConfig());
-  getIt.registerLazySingleton<FileUploadDataSource>(
-    () => ImageKitRemoteDataSourceImpl(config: getIt<ImageKitConfig>()),
-  );
   getIt.registerLazySingleton<FileUploadRepository>(
     () => FileUploadRepositoryImpl(),
   );

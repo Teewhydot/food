@@ -7,6 +7,7 @@ import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/components/textfields.dart';
 import 'package:food/food/core/bloc/base/base_state.dart';
 import 'package:food/food/core/constants/app_constants.dart';
+import 'package:food/food/core/helpers/user_extensions.dart';
 import 'package:food/food/core/services/file_upload_service.dart';
 import 'package:food/food/core/services/floor_db_service/user_profile/user_profile_database_service.dart';
 import 'package:food/food/core/utils/app_utils.dart';
@@ -24,7 +25,6 @@ import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../core/theme/colors.dart';
 import '../../../auth/presentation/widgets/back_widget.dart';
 import '../../../file_upload/presentation/manager/file_upload_bloc/file_upload_bloc.dart';
-import '../../../file_upload/presentation/manager/file_upload_bloc/file_upload_event.dart';
 import '../../manager/user_profile/enhanced_user_profile_cubit.dart';
 
 class EditProfile extends StatefulWidget {
@@ -123,8 +123,8 @@ class _EditProfileState extends State<EditProfile> {
                                 await fileUploadService.pickImageFromGallery();
                             if (result != null && context.mounted) {
                               context.read<FileUploadCubit>().uploadFile(
+                                context.readCurrentUserId!,
                                 result,
-                                id,
                               );
                             } else {
                               DFoodUtils.showSnackBar(

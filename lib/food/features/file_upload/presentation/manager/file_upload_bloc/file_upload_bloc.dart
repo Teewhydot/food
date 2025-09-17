@@ -9,12 +9,12 @@ class FileUploadCubit extends BaseCubit<BaseState<dynamic>> {
 
   final uploadFileUseCase = FileUploadUseCase();
 
-  Future<void> uploadFile(File file, String? fileName) async {
+  Future<void> uploadFile(String userId, File file) async {
     emit(const LoadingState<dynamic>(message: 'Uploading file...'));
 
     final result = await uploadFileUseCase.uploadFile(
+      userId: userId,
       file: file,
-      fileName: fileName,
     );
 
     result.fold(
@@ -24,10 +24,13 @@ class FileUploadCubit extends BaseCubit<BaseState<dynamic>> {
     );
   }
 
-  Future<void> deleteFile(String fileId) async {
+  Future<void> deleteFile(String fileId, userId) async {
     emit(const LoadingState<dynamic>(message: 'Deleting file...'));
 
-    final result = await uploadFileUseCase.deleteFile(fileId: fileId);
+    final result = await uploadFileUseCase.deleteFile(
+      fileId: fileId,
+      userId: userId,
+    );
 
     result.fold(
       (failure) => emit(ErrorState(errorMessage: failure.failureMessage)),

@@ -27,7 +27,7 @@ class PersonalInfo extends StatelessWidget {
     // done
     return StreamBuilder(
       stream: context.read<EnhancedUserProfileCubit>().watchUserProfile(
-        context.currentUserId ?? "",
+        context.readCurrentUserId ?? "",
       ),
 
       builder: (context, snapshot) {
