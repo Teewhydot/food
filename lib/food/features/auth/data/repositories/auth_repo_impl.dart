@@ -28,6 +28,7 @@ class AuthRepoImpl implements AuthRepository {
   final signOutService = GetIt.instance<SignOutDataSource>();
   final deleteAccountService = GetIt.instance<DeleteUserAccountDataSource>();
   final userProfileService = GetIt.instance<UserDataSource>();
+  final authStatusService = GetIt.instance<UserDataSource>();
   @override
   Future<Either<Failure, void>> deleteUserAccount() {
     return ErrorHandler.handle(
@@ -48,13 +49,11 @@ class AuthRepoImpl implements AuthRepository {
   }
 
   @override
-  Future<bool> isAuthenticated() async {
-    try {
-      final auth = FirebaseAuth.instance;
-      return auth.currentUser != null;
-    } catch (e) {
-      return false;
-    }
+  Future<Either<Failure, UserProfileEntity>> isAuthenticated() async {
+   return ErrorHandler.handle(() async {
+    final authStatus = await authStatusService.getCurrentUser();
+    return authStatus;
+   });
   }
 
   @override

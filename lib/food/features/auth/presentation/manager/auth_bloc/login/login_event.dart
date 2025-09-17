@@ -50,3 +50,12 @@ final class LoginValidateEvent extends EnhancedLoginEvent {
   @override
   String toString() => 'LoginValidateEvent(email: $email)';
 }
+
+/// Event to check authentication status
+@immutable
+final class CheckAuthStatusEvent extends EnhancedLoginEvent {
+  const CheckAuthStatusEvent();
+
+  @override
+  String toString() => 'CheckAuthStatusEvent()';
+}

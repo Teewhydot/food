@@ -12,7 +12,7 @@ abstract class AuthRepository {
   Future<Either<Failure, void>> signOut();
 
   /// Checks if the user is authenticated.
-  Future<bool> isAuthenticated();
+  Future<Either<Failure, UserProfileEntity>> isAuthenticated();
 
   /// Login
   Future<Either<Failure, UserProfileEntity>> login(

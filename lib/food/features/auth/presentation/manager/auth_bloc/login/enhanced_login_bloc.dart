@@ -21,10 +21,42 @@ class EnhancedLoginBloc
     // on<LoginRetryEvent>(_onLoginRetry);
     on<LoginResetEvent>(_onLoginReset);
     on<LoginValidateEvent>(_onLoginValidate);
+    on<CheckAuthStatusEvent>(_onCheckAuthStatus);
   }
 
-
   /// Handle login submission
+  Future<void> _onCheckAuthStatus(
+    CheckAuthStatusEvent event,
+    Emitter<BaseState<UserProfileEntity>> emit,
+  ) async {
+    emit(
+      const LoadingState<UserProfileEntity>(
+        message: 'Checking authentication status...',
+      ),
+    );
+    final result = await _authUseCase.getCurrentUser();
+    await result.fold(
+      (failure) async {
+        emit(
+          ErrorState<UserProfileEntity>(
+            errorMessage: getAuthErrorMessage(failure.failureMessage),
+            errorCode: failure.failureMessage,
+            isRetryable: false,
+          ),
+        );
+      },
+      (userProfile) async {
+        // Create loaded state with user profile
+        final loadedState = StateUtils.createLoadedState(
+          userProfile,
+          isFromCache: false,
+        );
+
+        emit(loadedState);
+      },
+    );
+  }
+
   Future<void> _onLoginSubmit(
     LoginSubmitEvent event,
     Emitter<BaseState<UserProfileEntity>> emit,
@@ -81,16 +113,6 @@ class EnhancedLoginBloc
     }
   }
 
-  // /// Handle login retry
-  // Future<void> _onLoginRetry(
-  //   LoginRetryEvent event,
-  //   Emitter<BaseState<UserProfileEntity>> emit,
-  // ) async {
-  //   Logger.logBasic('Retrying login attempt');
-  //   add(LoginSubmitEvent(email: event.email, password: event.password));
-  // }
-
-  /// Handle login reset (back to initial state)
   Future<void> _onLoginReset(
     LoginResetEvent event,
     Emitter<BaseState<UserProfileEntity>> emit,
@@ -145,7 +167,6 @@ class EnhancedLoginBloc
   bool _isValidEmail(String email) {
     return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
   }
-
 
   /// Quick login method for external use
   void quickLogin({required String email, required String password}) {

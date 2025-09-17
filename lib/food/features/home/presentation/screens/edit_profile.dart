@@ -111,7 +111,17 @@ class _EditProfileState extends State<EditProfile> {
                   20.verticalSpace,
                   Stack(
                     children: [
-                      CircleWidget(radius: 70, color: kPrimaryColor),
+                      CircleWidget(
+                        radius: 70,
+                        color: kPrimaryColor,
+                        onTap: null,
+                        child: FImage(
+                          assetPath: widget.userProfile.profileImageUrl ?? "",
+                          assetType: FoodAssetType.network,
+                          width: 140,
+                          height: 140,
+                        ),
+                      ),
                       Positioned(
                         bottom: 0,
                         right: 0,
