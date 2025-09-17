@@ -12,7 +12,6 @@ import 'package:food/food/core/services/file_upload_service.dart';
 import 'package:food/food/core/services/floor_db_service/user_profile/user_profile_database_service.dart';
 import 'package:food/food/core/utils/app_utils.dart';
 import 'package:food/food/core/utils/logger.dart';
-import 'package:food/food/features/auth/presentation/widgets/custom_overlay.dart';
 import 'package:food/food/features/home/domain/entities/profile.dart';
 import 'package:food/food/features/home/presentation/widgets/circle_widget.dart';
 import 'package:food/generated/assets.dart';
@@ -89,127 +88,143 @@ class _EditProfileState extends State<EditProfile> {
         Logger.logSuccess("User profile updated successfully");
       },
       builder: (context, state) {
-        return CustomOverlay(
-          isLoading: state is LoadingState,
-          child: FScaffold(
-            appBarWidget: Row(
+        return FScaffold(
+          appBarWidget: Row(
+            children: [
+              BackWidget(color: kGreyColor),
+              20.horizontalSpace,
+              FText(
+                text: "Edit profile",
+                fontSize: 17.sp,
+                fontWeight: FontWeight.w400,
+                color: kBlackColor,
+              ),
+            ],
+          ),
+          customScroll: true,
+          body: SingleChildScrollView(
+            child: Column(
               children: [
-                BackWidget(color: kGreyColor),
-                20.horizontalSpace,
-                FText(
-                  text: "Edit profile",
-                  fontSize: 17.sp,
-                  fontWeight: FontWeight.w400,
-                  color: kBlackColor,
-                ),
-              ],
-            ),
-            customScroll: true,
-            body: SingleChildScrollView(
-              child: Column(
-                children: [
-                  20.verticalSpace,
-                  Stack(
-                    children: [
-                      CircleWidget(
-                        radius: 70,
-                        color: kPrimaryColor,
-                        onTap: null,
-                        child: FImage(
-                          assetPath: widget.userProfile.profileImageUrl ?? "",
-                          assetType: FoodAssetType.network,
-                          width: 140,
-                          height: 140,
-                        ),
-                      ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: CircleWidget(
-                          radius: 20,
-                          color: kBlackColor,
-                          onTap: () async {
-                            final result =
-                                await fileUploadService.pickImageFromGallery();
-                            if (result != null && context.mounted) {
-                              context.read<FileUploadCubit>().uploadFile(
-                                context.readCurrentUserId!,
-                                result,
-                              );
-                            } else {
-                              DFoodUtils.showSnackBar(
-                                "Error picking selected file",
-                                kErrorColor,
-                              );
-                            }
-                          },
-                          child: FImage(
-                            assetPath: Assets.svgsPencil,
-                            assetType: FoodAssetType.svg,
-                            width: 16,
-                            height: 16,
-                            svgAssetColor: kWhiteColor,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  30.verticalSpace,
-                  FTextField(
-                    hintText: "First Name",
-                    action: TextInputAction.next,
-                    label: "First Name",
-                    controller: firstNameController,
-                  ),
-                  24.verticalSpace,
-                  FTextField(
-                    hintText: "Last Name",
-                    action: TextInputAction.next,
-                    label: "Last Name",
-                    controller: lastNameController,
-                  ),
-
-                  24.verticalSpace,
-                  FTextField(
-                    hintText: widget.userProfile.phoneNumber,
-                    action: TextInputAction.next,
-                    label: "Phone",
-                    keyboardType: TextInputType.phone,
-                    controller: phoneController,
-                    isReadOnly: true,
-                  ),
-                  24.verticalSpace,
-                  FTextField(
-                    hintText: "",
-                    action: TextInputAction.next,
-                    label: "Bio",
-                    height: 103,
-                    maxLine: 5,
-                    controller: bioController,
-                  ),
-                  32.verticalSpace,
-                  FButton(
-                    buttonText: "Save",
-                    width: 1.sw,
-                    onPressed: () {
-                      final updatedProfile = UserProfileEntity(
-                        id: id,
-                        firstName: firstNameController.text,
-                        lastName: lastNameController.text,
-                        email: email,
-                        phoneNumber: phoneController.text,
-                        bio: bioController.text,
-                        firstTimeLogin: false,
-                      );
-                      context
+                20.verticalSpace,
+                Stack(
+                  children: [
+                    StreamBuilder(
+                      stream: context
                           .read<EnhancedUserProfileCubit>()
-                          .updateUserProfile(updatedProfile);
-                    },
-                  ),
-                  32.verticalSpace,
-                ],
-              ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
-            ),
+                          .watchUserProfile(context.watchUser()!.id ?? ""),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+                        return CircleWidget(
+                          radius: 70,
+                          color: kPrimaryColor,
+                          onTap: null,
+                          child: FImage(
+                            assetPath:
+                                snapshot.data?.fold(
+                                  (l) => widget.userProfile.firstName,
+                                  (r) => r.profileImageUrl,
+                                ) ??
+                                "",
+                            assetType: FoodAssetType.network,
+                            borderRadius: 70,
+                            width: 140,
+                            height: 140,
+                          ),
+                        );
+                      },
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: CircleWidget(
+                        radius: 20,
+                        color: kBlackColor,
+                        onTap: () async {
+                          final result =
+                              await fileUploadService.pickImageFromGallery();
+                          if (result != null && context.mounted) {
+                            context.read<FileUploadCubit>().uploadFile(
+                              context.readCurrentUserId!,
+                              result,
+                            );
+                          } else {
+                            DFoodUtils.showSnackBar(
+                              "Error picking selected file",
+                              kErrorColor,
+                            );
+                          }
+                        },
+                        child: FImage(
+                          assetPath: Assets.svgsPencil,
+                          assetType: FoodAssetType.svg,
+                          width: 16,
+                          height: 16,
+                          svgAssetColor: kWhiteColor,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                30.verticalSpace,
+                FTextField(
+                  hintText: "First Name",
+                  action: TextInputAction.next,
+                  label: "First Name",
+                  controller: firstNameController,
+                ),
+                24.verticalSpace,
+                FTextField(
+                  hintText: "Last Name",
+                  action: TextInputAction.next,
+                  label: "Last Name",
+                  controller: lastNameController,
+                ),
+
+                24.verticalSpace,
+                FTextField(
+                  hintText: widget.userProfile.phoneNumber,
+                  action: TextInputAction.next,
+                  label: "Phone",
+                  keyboardType: TextInputType.phone,
+                  controller: phoneController,
+                  isReadOnly: true,
+                ),
+                24.verticalSpace,
+                FTextField(
+                  hintText: "",
+                  action: TextInputAction.next,
+                  label: "Bio",
+                  height: 103,
+                  maxLine: 5,
+                  controller: bioController,
+                ),
+                32.verticalSpace,
+                FButton(
+                  buttonText: "Save",
+                  width: 1.sw,
+                  onPressed: () {
+                    final updatedProfile = UserProfileEntity(
+                      id: id,
+                      firstName: firstNameController.text,
+                      lastName: lastNameController.text,
+                      email: email,
+                      phoneNumber: phoneController.text,
+                      bio: bioController.text,
+                      firstTimeLogin: false,
+                    );
+                    context.read<EnhancedUserProfileCubit>().updateUserProfile(
+                      updatedProfile,
+                    );
+                  },
+                ),
+                32.verticalSpace,
+              ],
+            ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
           ),
         );
       },

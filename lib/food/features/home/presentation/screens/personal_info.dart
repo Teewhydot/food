@@ -78,7 +78,23 @@ class PersonalInfo extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                CircleWidget(radius: 80, color: kPrimaryColor),
+                CircleWidget(
+                  radius: 80,
+                  color: kPrimaryColor,
+                  child: FImage(
+                    assetPath: profile.fold(
+                      (l) =>
+                          'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y',
+                      (r) =>
+                          r.profileImageUrl ??
+                          'https://www.gravatar.com/avatar/',
+                    ),
+                    assetType: FoodAssetType.network,
+                    borderRadius: 70,
+                    width: 140,
+                    height: 140,
+                  ),
+                ),
                 32.verticalSpace,
                 Column(
                   children: [

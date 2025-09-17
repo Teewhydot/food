@@ -65,31 +65,45 @@ class _MenuState extends State<Menu> {
         body: SingleChildScrollView(
           child: Column(
             children: [
-              Row(
-                children: [
-                  CircleWidget(radius: 50, color: kPrimaryColor),
-                  32.horizontalSpace,
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        StreamBuilder(
-                          stream: context
-                              .read<EnhancedUserProfileCubit>()
-                              .watchUserProfile(context.watchUser()!.id ?? ""),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return CircularProgressIndicator();
-                            }
-                            if (snapshot.hasError) {
-                              return Text('Error: ${snapshot.error}');
-                            }
-                            if (!snapshot.hasData) {
-                              return Text('No profile data');
-                            }
-                            final profile = snapshot.data!;
-                            return FText(
+              StreamBuilder(
+                stream: context
+                    .read<EnhancedUserProfileCubit>()
+                    .watchUserProfile(context.watchUser()!.id ?? ""),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return CircularProgressIndicator();
+                  }
+                  if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  }
+                  if (!snapshot.hasData) {
+                    return Text('No profile data');
+                  }
+                  final profile = snapshot.data!;
+                  return Row(
+                    children: [
+                      CircleWidget(
+                        radius: 50,
+                        color: kPrimaryColor,
+                        child: FImage(
+                          assetPath:
+                              profile.fold(
+                                (l) => "",
+                                (r) => r.profileImageUrl,
+                              ) ??
+                              "",
+                          assetType: FoodAssetType.network,
+                          borderRadius: 70,
+                          width: 140,
+                          height: 140,
+                        ),
+                      ),
+                      32.horizontalSpace,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            FText(
                               text: profile.fold(
                                 (l) => 'Guest User',
                                 (r) => '${r.firstName} ${r.lastName}'.trim(),
@@ -98,21 +112,31 @@ class _MenuState extends State<Menu> {
                               fontWeight: FontWeight.w500,
                               color: kBlackColor,
                               alignment: MainAxisAlignment.start,
-                            );
-                          },
+                            ),
+                            8.verticalSpace,
+                            DecoratedBox(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                color: kWhiteColor,
+                                border: Border.all(color: kGreyColor),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: FWrapText(
+                                  text: context.watchUser()?.bio ?? "No bio",
+                                  fontSize: 13.sp,
+                                  fontWeight: FontWeight.w400,
+                                  color: kContainerColor,
+                                  alignment: Alignment.topLeft,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                        8.verticalSpace,
-                        FWrapText(
-                          text: context.watchUser()?.bio ?? "No bio",
-                          fontSize: 13.sp,
-                          fontWeight: FontWeight.w400,
-                          color: kContainerColor,
-                          textAlign: TextAlign.start,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+                      ),
+                    ],
+                  );
+                },
               ),
               32.verticalSpace,
               Container(
