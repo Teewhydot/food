@@ -8,13 +8,15 @@ import 'package:food/food/core/helpers/extensions.dart';
 import 'package:food/food/core/routes/routes.dart';
 import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/features/auth/presentation/widgets/back_widget.dart';
+import 'package:food/food/features/home/manager/selected_address/selected_address_cubit.dart';
+import 'package:food/food/features/home/presentation/widgets/address_selection_bottom_sheet.dart';
 import 'package:food/food/features/payments/presentation/manager/cart/cart_cubit.dart';
 import 'package:food/food/features/tracking/presentation/widgets/cart_widget.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
+import 'package:ionicons/ionicons.dart';
 
 import '../../../../components/buttons.dart';
-import '../../../../components/textfields.dart';
 import '../../../../core/bloc/managers/bloc_manager.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
@@ -28,6 +30,21 @@ class Cart extends StatefulWidget {
 
 class _CartState extends State<Cart> {
   bool editMode = false;
+
+  void _showAddressSelectionBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder:
+          (context) => Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+            ),
+            child: const AddressSelectionBottomSheet(),
+          ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -110,20 +127,22 @@ class _CartState extends State<Cart> {
                           fontSize: 14,
                           fontWeight: FontWeight.w400,
                         ),
-                        FText(
-                          text: "Edit".toUpperCase(),
-                          fontSize: 14,
-                          color: kPrimaryColor,
-                          fontWeight: FontWeight.w400,
-                          decoration: TextDecoration.underline,
+                        GestureDetector(
+                          onTap: () {
+                            _showAddressSelectionBottomSheet(context);
+                          },
+                          child: FText(
+                            text: "Change".toUpperCase(),
+                            fontSize: 14,
+                            color: kPrimaryColor,
+                            fontWeight: FontWeight.w400,
+                            decoration: TextDecoration.underline,
+                          ),
                         ),
                       ],
                     ),
                     10.verticalSpace,
-                    FTextField(
-                      hintText: "Address",
-                      action: TextInputAction.next,
-                    ),
+                    _AddressSelectionWidget(),
                     30.verticalSpace,
                     Row(
                       children: [
@@ -195,5 +214,90 @@ class _CartState extends State<Cart> {
       },
       child: const SizedBox.shrink(),
     );
+  }
+}
+
+class _AddressSelectionWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BlocManager<SelectedAddressCubit, BaseState<dynamic>>(
+      bloc: context.read<SelectedAddressCubit>(),
+      showLoadingIndicator: false,
+      builder: (context, state) {
+        return GestureDetector(
+          onTap: () {
+            showModalBottomSheet(
+              context: context,
+              isScrollControlled: true,
+              backgroundColor: Colors.transparent,
+              builder:
+                  (context) => Padding(
+                    padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).viewInsets.bottom,
+                    ),
+                    child: const AddressSelectionBottomSheet(),
+                  ),
+            );
+          },
+          child: Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+            decoration: BoxDecoration(
+              color: kContainerColor.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8.r),
+              border: Border.all(
+                color: kGreyColor.withValues(alpha: 0.3),
+                width: 1,
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(Ionicons.location_outline, size: 20.sp, color: kGreyColor),
+                12.horizontalSpace,
+                Expanded(child: _buildAddressText(state)),
+                8.horizontalSpace,
+                Icon(Ionicons.chevron_down, size: 16.sp, color: kGreyColor),
+              ],
+            ),
+          ),
+        );
+      },
+      child: const SizedBox.shrink(),
+    );
+  }
+
+  Widget _buildAddressText(BaseState state) {
+    if (state is LoadingState) {
+      return FText(text: "Loading address...", fontSize: 14, color: kGreyColor);
+    } else if (state is LoadedState && state.data != null) {
+      final selectedAddress = state.data;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (selectedAddress.title != null) ...[
+            FText(
+              text: selectedAddress.title!,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: kTextColorDark,
+            ),
+            2.verticalSpace,
+          ],
+          FText(
+            text: selectedAddress.fullAddress,
+            fontSize: 13,
+            color: kGreyColor,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      );
+    } else {
+      return FText(
+        text: "Select delivery address",
+        fontSize: 14,
+        color: kGreyColor,
+      );
+    }
   }
 }

@@ -8,6 +8,7 @@ import 'package:food/food/features/auth/presentation/manager/auth_bloc/sign_out/
 import 'package:food/food/features/auth/presentation/manager/location_bloc/location_bloc.dart';
 import 'package:food/food/features/home/manager/address/address_cubit.dart';
 import 'package:food/food/features/home/manager/recent_keywords/recent_keywords_cubit.dart';
+import 'package:food/food/features/home/manager/selected_address/selected_address_cubit.dart';
 import 'package:food/food/features/home/manager/user_profile/enhanced_user_profile_cubit.dart';
 import 'package:food/food/features/payments/presentation/manager/cart/cart_cubit.dart';
 import 'package:food/food/features/tracking/presentation/manager/chats_bloc/chats_cubit.dart';
@@ -36,12 +37,18 @@ final List<BlocProvider> blocs = [
   BlocProvider<LocationBloc>(create: (context) => LocationBloc()),
   BlocProvider<RecentKeywordsCubit>(create: (context) => RecentKeywordsCubit()),
   BlocProvider<EnhancedLoginBloc>(create: (context) => EnhancedLoginBloc()),
+  BlocProvider<SelectedAddressCubit>(
+    create: (context) => SelectedAddressCubit(),
+  ),
 
   BlocProvider<CartCubit>(create: (context) => CartCubit()),
   BlocProvider<EnhancedUserProfileCubit>(
     create: (context) => EnhancedUserProfileCubit()..loadUserProfile(),
   ),
   BlocProvider<AddressCubit>(create: (context) => AddressCubit()),
+  BlocProvider<SelectedAddressCubit>(
+    create: (context) => SelectedAddressCubit(),
+  ),
   BlocProvider<NotificationCubit>(create: (context) => NotificationCubit()),
   BlocProvider<ChatsCubit>(
     create:
