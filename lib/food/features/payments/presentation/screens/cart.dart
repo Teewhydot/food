@@ -135,7 +135,7 @@ class _CartState extends State<Cart> {
                         10.horizontalSpace,
                         FText(
                           text:
-                              "\$${cartData.totalPrice.toStringAsFixed(0).toUpperCase()}",
+                              "\$${cartData.totalPrice.toStringAsFixed(1).toUpperCase()}",
                           fontSize: 30,
                           fontWeight: FontWeight.w400,
                         ),
@@ -169,10 +169,19 @@ class _CartState extends State<Cart> {
               ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
             ),
           );
-        } else if (state is LoadingState) {
+        } else if (state is EmptyState) {
           return FScaffold(
-            customScroll: true,
+            customScroll: false,
+            appBarColor: kScaffoldColorDark,
             backgroundColor: kScaffoldColorDark,
+            appBarWidget: Row(
+              children: [
+                BackWidget(),
+                20.horizontalSpace,
+                FText(text: "Cart", color: kWhiteColor),
+                Spacer(),
+              ],
+            ),
             body: Center(
               child: FText(
                 text: "Your cart is empty",

@@ -51,7 +51,7 @@ class _CartWidgetState extends State<CartWidget> {
               bloc: context.read<CartCubit>(),
               showLoadingIndicator: false,
               builder: (context, state) {
-                if (state.hasData) {
+                if (state is LoadedState) {
                   final cartData = state.data;
                   return FText(
                     text: "${cartData.itemCount}",
@@ -59,12 +59,15 @@ class _CartWidgetState extends State<CartWidget> {
                     color: kWhiteColor,
                   );
                 }
-                return CupertinoActivityIndicator(
-                  radius: 5,
-                  color: kWhiteColor,
-                );
+                if (state is LoadingState) {
+                  return CupertinoActivityIndicator(
+                    radius: 5,
+                    color: kWhiteColor,
+                  );
+                }
+                return SizedBox.shrink();
               },
-              child: CupertinoActivityIndicator(radius: 5, color: kWhiteColor),
+              child: SizedBox.shrink(),
             ),
           ),
         ),

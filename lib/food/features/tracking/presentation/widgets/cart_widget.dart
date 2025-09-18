@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -36,8 +37,14 @@ class DFoodCartWidget extends StatelessWidget {
             FoodContainer(
               width: 140,
               height: 120,
-              color: kContainerColor,
-              child: Container(),
+              borderRadius: 12,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: CachedNetworkImage(
+                  imageUrl: foodEntity.imageUrl,
+                  fit: BoxFit.cover,
+                ),
+              ),
             ),
             20.horizontalSpace,
             Expanded(
@@ -46,20 +53,20 @@ class DFoodCartWidget extends StatelessWidget {
                 children: [
                   FWrapText(
                     text: foodEntity.name,
-                    fontSize: 18,
+                    fontSize: 14,
                     fontWeight: FontWeight.w400,
                     color: kWhiteColor,
                     alignment: Alignment.centerLeft,
                   ),
                   10.verticalSpace,
                   FText(
-                    text: "\$${foodEntity.price}",
+                    text: "\$${foodEntity.price.toStringAsFixed(1)}",
                     alignment: MainAxisAlignment.start,
                     color: kGreyColor,
                   ),
                   FWrapText(
-                    text: "Total: \$${foodEntity.price * foodEntity.quantity}",
-                    fontSize: 20,
+                    text: "Total: \$${(foodEntity.price * foodEntity.quantity).toStringAsFixed(1)}",
+                    fontSize: 16,
                     fontWeight: FontWeight.w700,
                     color: kWhiteColor,
                     alignment: Alignment.centerLeft,
@@ -69,8 +76,8 @@ class DFoodCartWidget extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       FText(
-                        text: "$size``",
-                        fontSize: 16,
+                        text: "QTY: $size",
+                        fontSize: 12,
                         fontWeight: FontWeight.w400,
                         color: kWhiteColor,
                       ),

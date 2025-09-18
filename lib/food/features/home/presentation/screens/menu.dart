@@ -123,7 +123,13 @@ class _MenuState extends State<Menu> {
                               child: Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: FWrapText(
-                                  text: context.watchUser()?.bio ?? "No bio",
+                                  text: profile.fold(
+                                    (l) => 'No bio available',
+                                    (r) =>
+                                        r.bio?.isNotEmpty == true
+                                            ? r.bio!
+                                            : 'No bio available',
+                                  ),
                                   fontSize: 13.sp,
                                   fontWeight: FontWeight.w400,
                                   color: kContainerColor,
@@ -210,66 +216,6 @@ class _MenuState extends State<Menu> {
                       ),
                       onTap: () {
                         nav.navigateTo(Routes.notifications);
-                      },
-                    ),
-                    16.verticalSpace,
-                    MenuSectionWidget(
-                      title: "Payment Methods",
-                      child: FImage(
-                        assetPath: Assets.svgsPaymentMethod,
-                        assetType: FoodAssetType.svg,
-                        width: 12,
-                        height: 14,
-                      ),
-                      onTap: () {
-                        nav.navigateTo(Routes.paymentMethod);
-                      },
-                    ),
-                  ],
-                ).paddingAll(20),
-              ),
-              20.verticalSpace,
-              Container(
-                width: 1.sw,
-                decoration: BoxDecoration(
-                  color: kLightGreyColor,
-                  borderRadius: BorderRadius.all(Radius.circular(16)),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    MenuSectionWidget(
-                      title: "FAQ",
-                      child: FImage(
-                        assetPath: Assets.svgsFaq,
-                        assetType: FoodAssetType.svg,
-                        width: 12,
-                        height: 14,
-                      ),
-                    ),
-                    16.verticalSpace,
-                    MenuSectionWidget(
-                      title: "Settings",
-                      child: FImage(
-                        assetPath: Assets.svgsSettings,
-                        assetType: FoodAssetType.svg,
-                        width: 12,
-                        height: 14,
-                      ),
-                      onTap: () {
-                        nav.navigateTo(Routes.settings);
-                      },
-                    ),
-                    16.verticalSpace,
-                    MenuSectionWidget(
-                      title: "Firebase Test",
-                      child: Icon(
-                        Icons.cloud_sync,
-                        size: 16,
-                        color: kPrimaryColor,
-                      ),
-                      onTap: () {
-                        nav.navigateTo(Routes.firebaseTest);
                       },
                     ),
                   ],

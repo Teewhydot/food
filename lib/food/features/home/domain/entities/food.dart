@@ -15,7 +15,7 @@ class FoodEntity extends FoodFloorEntity {
     required super.isAvailable,
     required super.preparationTime,
     required super.calories,
-    required super.quantity,
+    super.quantity = 1,
     required super.isVegetarian,
     required super.isVegan,
     required super.isGlutenFree,

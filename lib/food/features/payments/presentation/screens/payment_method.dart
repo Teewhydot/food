@@ -95,7 +95,7 @@ class _PaymentMethodState extends State<PaymentMethod> {
       yExp: 24,
     ),
   ];
-  String selectedMethod = "Cash";
+  String selectedMethod = "Visa";
 
   @override
   Widget build(BuildContext context) {

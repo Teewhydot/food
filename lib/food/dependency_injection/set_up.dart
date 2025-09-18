@@ -42,10 +42,14 @@ import '../features/home/domain/use_cases/favorites_usecase.dart';
 import '../features/home/domain/use_cases/food_usecase.dart';
 import '../features/home/domain/use_cases/restaurant_usecase.dart';
 import '../features/home/domain/use_cases/user_profile_usecase.dart';
+import '../features/payments/data/remote/data_sources/cart_remote_data_source.dart';
 import '../features/payments/data/remote/data_sources/order_remote_data_source.dart';
 import '../features/payments/data/remote/data_sources/payment_remote_data_source.dart';
+import '../features/payments/data/repositories/cart_repository_impl.dart';
 import '../features/payments/data/repositories/payment_repository_impl.dart';
+import '../features/payments/domain/repositories/cart_repository.dart';
 import '../features/payments/domain/repositories/payment_repository.dart';
+import '../features/payments/domain/use_cases/cart_usecase.dart';
 import '../features/payments/domain/use_cases/order_usecase.dart';
 import '../features/payments/domain/use_cases/payment_usecase.dart';
 import '../features/tracking/data/remote/data_sources/chat_remote_data_source.dart';
@@ -148,6 +152,17 @@ void setupDIService() {
   );
   getIt.registerLazySingleton<OrderUseCase>(
     () => OrderUseCase(getIt<PaymentRepository>()),
+  );
+
+  // Cart feature dependencies
+  getIt.registerLazySingleton<CartRemoteDataSource>(
+    () => FirebaseCartRemoteDataSource(),
+  );
+  getIt.registerLazySingleton<CartRepository>(
+    () => CartRepositoryImpl(),
+  );
+  getIt.registerLazySingleton<CartUseCase>(
+    () => CartUseCase(),
   );
   // File upload dependencies
   getIt.registerLazySingleton<FileUploadDataSource>(

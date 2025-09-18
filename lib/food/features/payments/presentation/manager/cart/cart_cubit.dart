@@ -1,167 +1,178 @@
-import 'package:food/food/core/bloc/base/base_bloc.dart';
+import 'dart:async';
+
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food/food/core/bloc/base/base_state.dart';
 import 'package:food/food/core/utils/logger.dart';
 
-import '../../../domain/entities/cart_entity.dart';
 import '../../../../home/domain/entities/food.dart';
+import '../../../domain/entities/cart_entity.dart';
+import '../../../domain/use_cases/cart_usecase.dart';
+import 'cart_event.dart';
 
 part 'cart_state.dart';
 
-/// Migrated CartCubit to use BaseState<CartEntity>
-class CartCubit extends BaseCubit<BaseState<CartEntity>> {
-  CartCubit() : super(
-    LoadedState<CartEntity>(
-      data: const CartEntity(items: [], totalPrice: 0.0, itemCount: 0),
-      lastUpdated: DateTime.now(),
-    ),
-  );
+/// Enhanced CartCubit using Firebase streaming and BLoC pattern
+class CartCubit extends Bloc<CartEvent, BaseState<CartEntity>> {
+  final CartUseCase _cartUseCase = CartUseCase();
+  late StreamSubscription _cartStreamSubscription;
 
+  CartCubit() : super(const LoadingState<CartEntity>()) {
+    // Register event handlers
+    on<CartStreamStartedEvent>(_onCartStreamStarted);
+    on<CartAddFoodEvent>(_onCartAddFood);
+    on<CartRemoveFoodEvent>(_onCartRemoveFood);
+    on<CartUpdateQuantityEvent>(_onCartUpdateQuantity);
+    on<CartClearEvent>(_onCartClear);
+    on<CartStreamUpdatedEvent>(_onCartStreamUpdated);
+
+    // Start listening to cart stream immediately
+    add(const CartStreamStartedEvent());
+  }
+
+  /// Start listening to Firebase cart stream
+  Future<void> _onCartStreamStarted(
+    CartStreamStartedEvent event,
+    Emitter<BaseState<CartEntity>> emit,
+  ) async {
+    emit(const LoadingState<CartEntity>());
+
+    _cartStreamSubscription = _cartUseCase.getCartStream().listen(
+      (result) {
+        add(CartStreamUpdatedEvent(cartData: result));
+      },
+      onError: (error) {
+        Logger.logError('Cart stream error: $error');
+        emit(ErrorState<CartEntity>(
+          errorMessage: 'Failed to load cart: $error',
+        ));
+      },
+    );
+  }
+
+  /// Handle cart stream updates
+  Future<void> _onCartStreamUpdated(
+    CartStreamUpdatedEvent event,
+    Emitter<BaseState<CartEntity>> emit,
+  ) async {
+    final result = event.cartData;
+    result.fold(
+      (failure) => emit(ErrorState<CartEntity>(
+        errorMessage: failure.failureMessage,
+      )),
+      (cartEntity) {
+        if (cartEntity.isEmpty) {
+          emit(const EmptyState<CartEntity>(message: 'Cart is empty'));
+        } else {
+          emit(LoadedState<CartEntity>(
+            data: cartEntity,
+            lastUpdated: DateTime.now(),
+          ));
+        }
+      },
+    );
+  }
+
+  /// Add food to cart
+  Future<void> _onCartAddFood(
+    CartAddFoodEvent event,
+    Emitter<BaseState<CartEntity>> emit,
+  ) async {
+    final result = await _cartUseCase.addFoodToCart(event.food);
+    result.fold(
+      (failure) {
+        Logger.logError('Failed to add food to cart: ${failure.failureMessage}');
+        // Don't emit error state here, let the stream handle updates
+      },
+      (_) {
+        Logger.logSuccess('Food ${event.food.name} added to cart successfully');
+        // Firebase stream will automatically update the UI
+      },
+    );
+  }
+
+  /// Remove food from cart (decrease quantity by 1)
+  Future<void> _onCartRemoveFood(
+    CartRemoveFoodEvent event,
+    Emitter<BaseState<CartEntity>> emit,
+  ) async {
+    final result = await _cartUseCase.removeFoodFromCart(event.foodId);
+    result.fold(
+      (failure) {
+        Logger.logError('Failed to remove food from cart: ${failure.failureMessage}');
+      },
+      (_) {
+        Logger.logSuccess('Food removed from cart successfully');
+        // Firebase stream will automatically update the UI
+      },
+    );
+  }
+
+  /// Update food quantity
+  Future<void> _onCartUpdateQuantity(
+    CartUpdateQuantityEvent event,
+    Emitter<BaseState<CartEntity>> emit,
+  ) async {
+    final result = await _cartUseCase.updateFoodQuantity(event.foodId, event.quantity);
+    result.fold(
+      (failure) {
+        Logger.logError('Failed to update quantity: ${failure.failureMessage}');
+      },
+      (_) {
+        Logger.logSuccess('Quantity updated successfully');
+        // Firebase stream will automatically update the UI
+      },
+    );
+  }
+
+  /// Clear cart
+  Future<void> _onCartClear(
+    CartClearEvent event,
+    Emitter<BaseState<CartEntity>> emit,
+  ) async {
+    final result = await _cartUseCase.clearCart();
+    result.fold(
+      (failure) {
+        Logger.logError('Failed to clear cart: ${failure.failureMessage}');
+      },
+      (_) {
+        Logger.logSuccess('Cart cleared successfully');
+        // Firebase stream will automatically update the UI
+      },
+    );
+  }
+
+  /// Public methods for easier access (maintaining backward compatibility)
   void addFood(FoodEntity food) {
-    if (state.hasData) {
-      final currentCart = state.data!;
-      final newItems = List<FoodEntity>.from(currentCart.items);
-      final index = newItems.indexWhere((item) => item.id == food.id);
-      // First deduct the current total of that particular food from currentState.price
-      final totalPriceMinusCurrentFoodTotalPrice =
-          currentCart.totalPrice - (food.price * food.quantity);
-      if (index != -1) {
-        // If the food item already exists, update its quantity
-        newItems[index].quantity += 1;
-
-        Logger.logBasic(
-          "Current total price: ${currentCart.totalPrice} Food price: ${food.price}, "
-          "Food quantity: ${food.quantity}, "
-          "Total price minus current food total price: $totalPriceMinusCurrentFoodTotalPrice",
-        );
-        // The  totalPriceMinusCurrentFoodTotalPrice is the total price
-        // of all foods in the cart minus the total price of the food that will be increased
-        // in quantity.
-        // Next i calculate the new total price of all foods by adding the sum above totalPriceMinusCurrentFoodTotalPrice to the
-        // total price of the food that
-        // will be increased in quantity.
-        double newTotalPrice =
-            totalPriceMinusCurrentFoodTotalPrice +
-            (food.price * newItems[index].quantity);
-        
-        final newCart = CartEntity(
-          items: newItems,
-          totalPrice: newTotalPrice,
-          itemCount: currentCart.itemCount,
-        );
-        
-        emit(
-          LoadedState<CartEntity>(
-            data: newCart,
-            lastUpdated: DateTime.now(),
-          ),
-        );
-        
-        Logger.logSuccess(
-          "Food item ${food.name} updated in cart. Current total Price: ${currentCart.totalPrice}  New total price: $newTotalPrice",
-        );
-        Logger.logSuccess(
-          "Food item ${food.name} updated in cart. New quantity: ${newItems[index].quantity}  New total price: $newTotalPrice",
-        );
-      } else {
-        double newTotalPrice =
-            currentCart.totalPrice + (food.price * food.quantity);
-        int newItemCount = currentCart.itemCount + 1;
-        newItems.add(food);
-        
-        final newCart = CartEntity(
-          items: newItems,
-          totalPrice: newTotalPrice,
-          itemCount: newItemCount,
-        );
-        
-        emit(
-          LoadedState<CartEntity>(
-            data: newCart,
-            lastUpdated: DateTime.now(),
-          ),
-        );
-        
-        Logger.logSuccess(
-          "Food item ${food.name} updated in cart. Current total Price: ${currentCart.totalPrice}  New total price: $newTotalPrice",
-        );
-        Logger.logSuccess(
-          "Food item ${food.name} added to cart. Total items: $newItemCount  Price per item: ${food.price}  Total price: $newTotalPrice",
-        );
-      }
-    }
+    add(CartAddFoodEvent(food: food));
   }
 
   void removeFood(FoodEntity food) {
-    if (state.hasData) {
-      final currentCart = state.data!;
-      final newItems = List<FoodEntity>.from(currentCart.items);
-      final index = newItems.indexWhere((item) => item.id == food.id);
+    add(CartRemoveFoodEvent(foodId: food.id));
+  }
 
-      if (index != -1) {
-        final existingFood = newItems[index];
-        if (existingFood.quantity > 1) {
-          // Decrease quantity
-          newItems[index].quantity -= 1;
-          double newTotalPrice = currentCart.totalPrice - existingFood.price;
-          
-          final newCart = CartEntity(
-            items: newItems,
-            totalPrice: newTotalPrice,
-            itemCount: currentCart.itemCount,
-          );
-          
-          emit(
-            LoadedState<CartEntity>(
-              data: newCart,
-              lastUpdated: DateTime.now(),
-            ),
-          );
-        } else {
-          // Remove item completely
-          double newTotalPrice = currentCart.totalPrice - existingFood.price;
-          newItems.removeAt(index);
-          int newItemCount = currentCart.itemCount - 1;
-          
-          final newCart = CartEntity(
-            items: newItems,
-            totalPrice: newTotalPrice,
-            itemCount: newItemCount,
-          );
-          
-          if (newCart.isEmpty) {
-            emit(const EmptyState<CartEntity>(message: 'Cart is empty'));
-          } else {
-            emit(
-              LoadedState<CartEntity>(
-                data: newCart,
-                lastUpdated: DateTime.now(),
-              ),
-            );
-          }
-        }
-      }
-    }
+  void updateQuantity(String foodId, int quantity) {
+    add(CartUpdateQuantityEvent(foodId: foodId, quantity: quantity));
   }
-  
-  /// Clear all items from cart
+
   void clearCart() {
-    emit(
-      LoadedState<CartEntity>(
-        data: const CartEntity(items: [], totalPrice: 0.0, itemCount: 0),
-        lastUpdated: DateTime.now(),
-      ),
-    );
+    add(const CartClearEvent());
   }
-  
+
   /// Get current cart data
   CartEntity? get cartData => state.hasData ? state.data : null;
-  
+
   /// Check if cart is empty
   bool get isEmpty => cartData?.isEmpty ?? true;
-  
+
   /// Get total price
   double get totalPrice => cartData?.totalPrice ?? 0.0;
-  
+
   /// Get item count
   int get itemCount => cartData?.itemCount ?? 0;
+
+  @override
+  Future<void> close() {
+    _cartStreamSubscription.cancel();
+    return super.close();
+  }
 }

@@ -13,7 +13,7 @@ class FoodWidget extends StatefulWidget {
   final String image, name, price, rating;
   final Function onTap, onAddTapped;
   const FoodWidget({
-    Key? key,
+    super.key,
     required this.id,
     required this.image,
     required this.name,
@@ -21,7 +21,7 @@ class FoodWidget extends StatefulWidget {
     required this.rating,
     required this.onTap,
     required this.onAddTapped,
-  }) : super(key: key);
+  });
 
   @override
   State<FoodWidget> createState() => _FoodWidgetState();
@@ -58,23 +58,25 @@ class _FoodWidgetState extends State<FoodWidget> {
                     key: ValueKey('food_image_${widget.id}'),
                     memCacheWidth: 300,
                     memCacheHeight: 260,
-                    placeholder: (context, url) => Container(
-                      color: kGreyColor.withValues(alpha: 0.1),
-                      child: Center(
-                        child: CircularProgressIndicator(
-                          color: kPrimaryColor,
-                          strokeWidth: 2,
+                    placeholder:
+                        (context, url) => Container(
+                          color: kGreyColor.withValues(alpha: 0.1),
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              color: kPrimaryColor,
+                              strokeWidth: 2,
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                    errorWidget: (context, url, error) => Container(
-                      color: kGreyColor.withValues(alpha: 0.1),
-                      child: Icon(
-                        Icons.image_not_supported,
-                        color: kGreyColor,
-                        size: 40,
-                      ),
-                    ),
+                    errorWidget:
+                        (context, url, error) => Container(
+                          color: kGreyColor.withValues(alpha: 0.1),
+                          child: Icon(
+                            Icons.image_not_supported,
+                            color: kGreyColor,
+                            size: 40,
+                          ),
+                        ),
                   ),
                 ),
               ),
