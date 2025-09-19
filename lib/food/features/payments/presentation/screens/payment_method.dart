@@ -15,16 +15,17 @@ import 'package:food/food/features/payments/presentation/widgets/payment_type_wi
 import 'package:food/generated/assets.dart';
 import 'package:get/utils.dart';
 import 'package:get_it/get_it.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../components/texts.dart';
-import '../../../../core/bloc/base/base_state.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../core/utils/app_utils.dart';
 import '../../domain/entities/card_entity.dart';
 import '../manager/cart/cart_cubit.dart';
-import '../manager/order_bloc/order_bloc.dart';
-import '../manager/payment_bloc/payment_bloc.dart';
-import '../manager/payment_bloc/payment_event.dart';
+import '../manager/paystack_bloc/paystack_payment_bloc.dart';
+import '../manager/paystack_bloc/paystack_payment_event.dart';
+import '../manager/paystack_bloc/paystack_payment_state.dart';
 
 class PaymentMethod extends StatefulWidget {
   const PaymentMethod({super.key});
@@ -38,22 +39,16 @@ class _PaymentMethodState extends State<PaymentMethod> {
 
   List<PaymentMethodEntity> methods = [
     PaymentMethodEntity(
-      id: '2',
-      name: 'Visa',
-      type: 'card',
-      iconUrl: Assets.svgsVisa,
-    ),
-    PaymentMethodEntity(
-      id: '3',
-      name: 'Mastercard',
+      id: 'paystack',
+      name: 'Paystack',
       type: 'card',
       iconUrl: Assets.svgsMastercard,
     ),
     PaymentMethodEntity(
-      id: '4',
-      name: 'Paypal',
-      type: 'paypal',
-      iconUrl: Assets.svgsPaypal,
+      id: 'flutterwave',
+      name: 'Flutterwave',
+      type: 'card',
+      iconUrl: Assets.svgsVisa,
     ),
   ];
   List<CardEntity> cards = [
@@ -95,7 +90,7 @@ class _PaymentMethodState extends State<PaymentMethod> {
       yExp: 24,
     ),
   ];
-  String selectedMethod = "Visa";
+  String selectedMethod = "Paystack";
 
   @override
   Widget build(BuildContext context) {
@@ -115,10 +110,10 @@ class _PaymentMethodState extends State<PaymentMethod> {
       body: Column(
         children: [
           30.verticalSpace,
-
+          _buildOrderSummary(),
+          30.verticalSpace,
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-
             child: Row(
               spacing: 10,
               children: [
@@ -148,8 +143,7 @@ class _PaymentMethodState extends State<PaymentMethod> {
     );
   }
 
-  void _processPayment(CardEntity? card) {
-    // Get cart state
+  void _processPayment() {
     final cartState = context.read<CartCubit>().state;
     if (!cartState.hasData) {
       DFoodUtils.showSnackBar(
@@ -159,92 +153,284 @@ class _PaymentMethodState extends State<PaymentMethod> {
       return;
     }
 
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      DFoodUtils.showSnackBar(
+        "Please log in to continue with payment.",
+        kErrorColor,
+      );
+      return;
+    }
+
+    if (selectedMethod == "Paystack") {
+      _processPaystackPayment(cartState, user);
+    } else if (selectedMethod == "Flutterwave") {
+      DFoodUtils.showSnackBar(
+        "Flutterwave payment is not implemented yet.",
+        kErrorColor,
+      );
+    }
+  }
+
+  void _processPaystackPayment(dynamic cartState, User user) {
+    final orderId = DateTime.now().millisecondsSinceEpoch.toString();
+    final amount = cartState.data?.totalPrice ?? 0.0;
+
     // Show loading dialog
     DFoodUtils.showDialogContainer(
       context: context,
-      child: BlocListener<OrderBloc, BaseState<dynamic>>(
-        listener: (context, orderState) {
-          if (orderState is SuccessState &&
-              orderState.successMessage.contains('Order created')) {
-            // Process payment after order is created
-            context.read<PaymentBloc>().add(
-              ProcessPaymentEvent(
-                amount: cartState.data?.totalPrice ?? 0.0,
-                paymentMethodId: selectedMethod,
-                currency: "NGN",
-                metadata: {},
-              ),
-            );
-          } else if (orderState is ErrorState) {
-            nav.goBack();
-            DFoodUtils.showSnackBar(orderState.errorMessage, kErrorColor);
-          }
-        },
-        child: BlocListener<PaymentBloc, BaseState<dynamic>>(
-          listener: (context, paymentState) {
-            if (paymentState is SuccessState &&
-                paymentState.successMessage.contains('Payment processed')) {
-              nav.goBack();
-              // Clear cart
-              // context.read<CartCubit>().clearCart();
-              // Navigate to success screen
+      child: BlocListener<PaystackPaymentBloc, PaystackPaymentState>(
+        listener: (context, state) {
+          if (state is PaystackPaymentInitialized) {
+            nav.goBack(); // Close loading dialog
+            _launchPaystackPayment(state.transaction.authorizationUrl!, state.transaction.reference);
+          } else if (state is PaystackPaymentVerified) {
+            nav.goBack(); // Close loading dialog
+            if (state.transaction.isSuccess) {
+              // Payment successful
               nav.navigateAndReplace(
                 Routes.statusScreen,
                 arguments: PaymentStatusEnum.success,
               );
-            } else if (paymentState is ErrorState) {
-              nav.goBack();
-              DFoodUtils.showSnackBar(paymentState.errorMessage, kErrorColor);
+            } else {
+              DFoodUtils.showSnackBar(
+                "Payment failed. Please try again.",
+                kErrorColor,
+              );
             }
-          },
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CircularProgressIndicator(color: kPrimaryColor),
-              20.verticalSpace,
-              FText(
-                text: "Processing payment...",
-                fontSize: 16,
-                color: kTextColorDark,
-              ),
-            ],
-          ),
+          } else if (state is PaystackPaymentError) {
+            nav.goBack(); // Close loading dialog
+            DFoodUtils.showSnackBar(state.message, kErrorColor);
+          }
+        },
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircularProgressIndicator(color: kPrimaryColor),
+            20.verticalSpace,
+            FText(
+              text: "Initializing payment...",
+              fontSize: 16,
+              color: kTextColorDark,
+            ),
+          ],
         ),
       ),
     );
 
-    // Create order (orderItems commented out since order creation is disabled)
-    // final orderItems =
-    //     cartState.items
-    //         .map(
-    //           (item) => OrderItem(
-    //             foodId: item.id,
-    //             foodName: item.name,
-    //             quantity: item.quantity,
-    //             price: item.price,
-    //             total: item.price * item.quantity,
-    //           ),
-    //         )
-    //         .toList();
+    // Initialize Paystack payment
+    context.read<PaystackPaymentBloc>().add(
+      InitializePaystackPaymentEvent(
+        orderId: orderId,
+        amount: amount,
+        email: user.email ?? '',
+        metadata: {
+          'userId': user.uid,
+          'orderItems': cartState.data?.items?.length ?? 0,
+        },
+      ),
+    );
+  }
 
-    // context.read<OrderBloc>().add(
-    //   CreateOrderEvent(
-    //     OrderEntity(
-    //       id: Uuid().v4(),
-    //       userId:
-    //     )
-    //   ),
-    // );
+  Future<void> _launchPaystackPayment(String authorizationUrl, String reference) async {
+    final Uri url = Uri.parse(authorizationUrl);
+
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+
+      // Show dialog to verify payment after user returns
+      _showPaymentVerificationDialog(reference);
+    } else {
+      DFoodUtils.showSnackBar(
+        "Could not launch payment page. Please try again.",
+        kErrorColor,
+      );
+    }
+  }
+
+  void _showPaymentVerificationDialog(String reference) {
+    DFoodUtils.showDialogContainer(
+      context: context,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FText(
+            text: "Payment Status",
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+          ),
+          20.verticalSpace,
+          FText(
+            text: "Have you completed the payment?",
+            fontSize: 16,
+            textAlign: TextAlign.center,
+          ),
+          30.verticalSpace,
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () {
+                    nav.goBack(); // Close dialog
+                    _verifyPayment(reference);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: kPrimaryColor,
+                    padding: EdgeInsets.symmetric(vertical: 12.h),
+                  ),
+                  child: FText(
+                    text: "Yes, Verify",
+                    color: kWhiteColor,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+              10.horizontalSpace,
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () {
+                    nav.goBack(); // Close dialog
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: kGreyColor,
+                    padding: EdgeInsets.symmetric(vertical: 12.h),
+                  ),
+                  child: FText(
+                    text: "Cancel",
+                    color: kBlackColor,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _verifyPayment(String reference) {
+    final orderId = DateTime.now().millisecondsSinceEpoch.toString();
+
+    // Show loading dialog
+    DFoodUtils.showDialogContainer(
+      context: context,
+      child: BlocListener<PaystackPaymentBloc, PaystackPaymentState>(
+        listener: (context, state) {
+          if (state is PaystackPaymentVerified) {
+            nav.goBack(); // Close loading dialog
+            if (state.transaction.isSuccess) {
+              nav.navigateAndReplace(
+                Routes.statusScreen,
+                arguments: PaymentStatusEnum.success,
+              );
+            } else {
+              DFoodUtils.showSnackBar(
+                "Payment verification failed. Please try again.",
+                kErrorColor,
+              );
+            }
+          } else if (state is PaystackPaymentError) {
+            nav.goBack(); // Close loading dialog
+            DFoodUtils.showSnackBar(state.message, kErrorColor);
+          }
+        },
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircularProgressIndicator(color: kPrimaryColor),
+            20.verticalSpace,
+            FText(
+              text: "Verifying payment...",
+              fontSize: 16,
+              color: kTextColorDark,
+            ),
+          ],
+        ),
+      ),
+    );
+
+    // Verify payment
+    context.read<PaystackPaymentBloc>().add(
+      VerifyPaystackPaymentEvent(
+        reference: reference,
+        orderId: orderId,
+      ),
+    );
+  }
+
+  Widget _buildOrderSummary() {
+    return BlocBuilder<CartCubit, dynamic>(
+      builder: (context, cartState) {
+        if (!cartState.hasData) {
+          return Container();
+        }
+
+        final cart = cartState.data;
+        return FoodContainer(
+          width: 1.sw,
+          color: kGreyColor,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              FText(
+                text: "Order Summary",
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+              ),
+              15.verticalSpace,
+              ...cart.items.take(3).map((item) => Padding(
+                padding: EdgeInsets.only(bottom: 8.h),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: FText(
+                        text: "${item.name} x${item.quantity}",
+                        fontSize: 14,
+                        color: kTextColorDark,
+                      ),
+                    ),
+                    FText(
+                      text: "\$${(item.price * item.quantity).toStringAsFixed(1)}",
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ],
+                ),
+              )),
+              if (cart.items.length > 3)
+                FText(
+                  text: "+ ${cart.items.length - 3} more items",
+                  fontSize: 12,
+                  color: kTextColorLight,
+                ),
+              Divider(color: kGreyColor),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  FText(
+                    text: "Total",
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  FText(
+                    text: "\$${cart.totalPrice.toStringAsFixed(1)}",
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: kPrimaryColor,
+                  ),
+                ],
+              ),
+            ],
+          ).paddingAll(16),
+        ).paddingOnly(right: AppConstants.defaultPadding);
+      },
+    );
   }
 
   Widget _buildPaymentDetails() {
-    // Filter cards based on selectedMethod
-    List<CardEntity> filteredCards =
-        cards
-            .where((card) => card.paymentMethodEntity.name == selectedMethod)
-            .toList();
-
-    if (selectedMethod == "Cash" || selectedMethod == "Paypal") {
+    if (selectedMethod == "Paystack" || selectedMethod == "Flutterwave") {
       return Column(
         children: [
           Center(
@@ -254,21 +440,32 @@ class _PaymentMethodState extends State<PaymentMethod> {
               fontWeight: FontWeight.w500,
             ),
           ),
+          20.verticalSpace,
+          FText(
+            text: selectedMethod == "Paystack"
+                ? "Secure card payment with Paystack"
+                : "Payment with Flutterwave (Coming Soon)",
+            fontSize: 14,
+            color: kTextColorDark,
+            textAlign: TextAlign.center,
+          ),
           40.verticalSpace,
           SizedBox(
             width: 1.sw - (AppConstants.defaultPadding * 2),
             child: ElevatedButton(
-              onPressed: () => _processPayment(null),
+              onPressed: selectedMethod == "Paystack" ? _processPayment : null,
               style: ElevatedButton.styleFrom(
-                backgroundColor: kPrimaryColor,
+                backgroundColor: selectedMethod == "Paystack" ? kPrimaryColor : kGreyColor,
                 padding: EdgeInsets.symmetric(vertical: 16.h),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
               child: FText(
-                text: "Proceed with $selectedMethod",
-                color: kWhiteColor,
+                text: selectedMethod == "Paystack"
+                    ? "Pay with $selectedMethod"
+                    : "$selectedMethod (Coming Soon)",
+                color: selectedMethod == "Paystack" ? kWhiteColor : kTextColorDark,
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
               ),
@@ -276,52 +473,9 @@ class _PaymentMethodState extends State<PaymentMethod> {
           ),
         ],
       );
-    } else if (filteredCards.isEmpty) {
-      return Column(
-        children: [
-          FoodContainer(
-            height: 257,
-            width: 1.sw,
-            color: kGreyColor,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                FImage(
-                  assetPath: Assets.svgsEmptyCard,
-                  width: 100,
-                  height: 100,
-                  assetType: FoodAssetType.svg,
-                ),
-                20.verticalSpace,
-                FText(
-                  text: "No Cards Added for $selectedMethod",
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                ),
-                10.verticalSpace,
-                FText(
-                  text: "Add your card to make payments",
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                ),
-              ],
-            ),
-          ).paddingOnly(right: AppConstants.defaultPadding),
-        ],
-      );
-    } else {
-      return Column(
-        children: [
-          ...filteredCards.map(
-            (card) => PaymentCardWidget(
-              card: card,
-              onTap: () => _processPayment(card),
-            ).paddingOnly(right: AppConstants.defaultPadding, bottom: 20.h),
-          ),
-          20.verticalSpace,
-        ],
-      );
     }
+
+    return Container();
   }
 }
 

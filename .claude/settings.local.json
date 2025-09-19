@@ -16,7 +16,12 @@
       "Bash(flutter clean:*)",
       "Bash(flutter compile:*)",
       "Bash(flutter run:*)",
-      "Bash(flutter:*)"
+      "Bash(flutter:*)",
+      "Bash(npm install)",
+      "Bash(npm uninstall:*)",
+      "Bash(firebase emulators:start:*)",
+      "Bash(node:*)",
+      "Bash(firebase functions:config:get:*)"
     ],
     "deny": []
   }

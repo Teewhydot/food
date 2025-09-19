@@ -14,6 +14,8 @@ import 'package:food/food/features/payments/presentation/manager/cart/cart_cubit
 import 'package:food/food/features/tracking/presentation/manager/chats_bloc/chats_cubit.dart';
 import 'package:food/food/features/tracking/presentation/manager/messaging_bloc/messaging_bloc.dart';
 import 'package:food/food/features/tracking/presentation/manager/notification_bloc/notification_cubit.dart';
+import 'package:food/food/features/payments/presentation/manager/paystack_bloc/paystack_payment_bloc.dart';
+import 'package:food/food/features/payments/domain/use_cases/paystack_payment_usecase.dart';
 import 'package:get_it/get_it.dart';
 
 import '../features/auth/presentation/manager/auth_bloc/email_verification/email_verification_bloc.dart';
@@ -98,4 +100,9 @@ final List<BlocProvider> blocs = [
 
   // File upload feature BLoC
   BlocProvider<FileUploadCubit>(create: (context) => FileUploadCubit()),
+
+  // Paystack payment feature BLoC
+  BlocProvider<PaystackPaymentBloc>(
+    create: (context) => PaystackPaymentBloc(GetIt.instance<PaystackPaymentUseCase>()),
+  ),
 ];

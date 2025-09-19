@@ -25,4 +25,5 @@ const Color kCloseColor = Color(0xffFFE194);
 const Color kBackWidgetColor = Color(0xffECF0F4);
 const Color kInactive = Color(0xffBFBCBA);
 const Color kErrorColor = Color(0xffFF0000);
+const Color kTextColorLight = Color(0xff8A8A8A);
 Color kSuccessColor = Colors.green.withValues(alpha: 0.8);

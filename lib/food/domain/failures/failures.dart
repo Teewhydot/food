@@ -30,3 +30,7 @@ class NoInternetFailure extends Failure {
 class TimeoutFailure extends Failure {
   TimeoutFailure({required super.failureMessage});
 }
+
+class InvalidDataFailure extends Failure {
+  InvalidDataFailure({required super.failureMessage});
+}

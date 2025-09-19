@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 
 import '../core/services/endpoint_service.dart';
 import '../core/services/file_upload_service.dart';
+import '../core/services/paystack_service.dart';
 import '../core/services/floor_db_service/address/address_database_service.dart';
 import '../core/services/floor_db_service/user_profile/user_profile_database_service.dart';
 import '../core/services/imagekit/imagekit_config.dart';
@@ -45,13 +46,17 @@ import '../features/home/domain/use_cases/user_profile_usecase.dart';
 import '../features/payments/data/remote/data_sources/cart_remote_data_source.dart';
 import '../features/payments/data/remote/data_sources/order_remote_data_source.dart';
 import '../features/payments/data/remote/data_sources/payment_remote_data_source.dart';
+import '../features/payments/data/remote/data_sources/paystack_payment_data_source.dart';
 import '../features/payments/data/repositories/cart_repository_impl.dart';
 import '../features/payments/data/repositories/payment_repository_impl.dart';
+import '../features/payments/data/repositories/paystack_payment_repository_impl.dart';
 import '../features/payments/domain/repositories/cart_repository.dart';
 import '../features/payments/domain/repositories/payment_repository.dart';
+import '../features/payments/domain/repositories/paystack_payment_repository.dart';
 import '../features/payments/domain/use_cases/cart_usecase.dart';
 import '../features/payments/domain/use_cases/order_usecase.dart';
 import '../features/payments/domain/use_cases/payment_usecase.dart';
+import '../features/payments/domain/use_cases/paystack_payment_usecase.dart';
 import '../features/tracking/data/remote/data_sources/chat_remote_data_source.dart';
 import '../features/tracking/data/remote/data_sources/notification_remote_data_source.dart';
 import '../features/tracking/data/repositories/chat_repository_impl.dart';
@@ -68,6 +73,7 @@ void setupDIService() {
   getIt.registerLazySingleton<NavigationService>(() => GetxNavigationService());
   getIt.registerLazySingleton<EndpointService>(() => EndpointService());
   getIt.registerLazySingleton<FileUploadService>(() => FileUploadService());
+  getIt.registerLazySingleton<PaystackService>(() => PaystackService(getIt<EndpointService>()));
   // TODO: Deprecate GeocodingService after migration
   // getIt.registerLazySingleton<GeocodingService>(() => GeocodingService());
   getIt.registerLazySingleton<LoginDataSource>(() => FirebaseLoginDSI());
@@ -163,6 +169,17 @@ void setupDIService() {
   );
   getIt.registerLazySingleton<CartUseCase>(
     () => CartUseCase(),
+  );
+
+  // Paystack payment dependencies
+  getIt.registerLazySingleton<PaystackPaymentDataSource>(
+    () => FirebasePaystackPaymentDataSource(getIt<PaystackService>()),
+  );
+  getIt.registerLazySingleton<PaystackPaymentRepository>(
+    () => PaystackPaymentRepositoryImpl(getIt<PaystackPaymentDataSource>()),
+  );
+  getIt.registerLazySingleton<PaystackPaymentUseCase>(
+    () => PaystackPaymentUseCase(getIt<PaystackPaymentRepository>()),
   );
   // File upload dependencies
   getIt.registerLazySingleton<FileUploadDataSource>(
