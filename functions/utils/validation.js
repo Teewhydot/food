@@ -168,8 +168,28 @@ const DataCleaners = {
 
 // Request validation utilities
 const RequestValidators = {
-  // Validate transaction creation request
+  // Validate transaction creation request (supports both old and new formats)
   validateTransactionRequest(requestBody) {
+    // Handle new format from Flutter app (orderId, amount, email, userId, metadata)
+    if (requestBody.orderId && !requestBody.bookingDetails) {
+      const { orderId, amount, email, userId, metadata = {} } = requestBody;
+
+      Validators.isValidAmount(amount, 'amount');
+      Validators.isNotEmpty(userId, 'userId');
+      Validators.isEmail(email, 'email');
+      Validators.isNotEmpty(orderId, 'orderId');
+
+      return {
+        orderId: DataCleaners.sanitizeString(orderId),
+        amount: Number(amount),
+        userId: DataCleaners.sanitizeString(userId),
+        email: DataCleaners.sanitizeEmail(email),
+        metadata: DataCleaners.cleanTransactionMetadata(metadata),
+        userName: metadata.userName || 'Customer' // Default if not provided
+      };
+    }
+
+    // Handle old format (amount, userId, email, bookingDetails, userName)
     const { amount, userId, email, bookingDetails, userName } = requestBody;
 
     Validators.isValidAmount(amount, 'amount');

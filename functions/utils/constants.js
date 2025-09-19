@@ -6,44 +6,28 @@
 const ENVIRONMENT = {
   GMAIL_PASSWORD: process.env.PASSWORD,
   PAYSTACK_SECRET_KEY: process.env.PAYSTACK_SECRET_KEY,
-  PROJECT_ID: process.env.GOOGLE_CLOUD_PROJECT || process.env.GCLOUD_PROJECT || 'fmh-hotel'
+  PROJECT_ID: process.env.GOOGLE_CLOUD_PROJECT || process.env.GCLOUD_PROJECT || 'food-delivery-app'
 };
 
 // Contact information configuration (can be updated remotely)
 const CONTACT_INFO = {
-  SUPPORT_EMAIL: process.env.SUPPORT_EMAIL || 'support@fmhhotel.com',
+  SUPPORT_EMAIL: process.env.SUPPORT_EMAIL || 'support@fooddelivery.com',
   SUPPORT_PHONE: process.env.SUPPORT_PHONE || '+234 XXX XXX XXXX',
-  HOTEL_LOCATION: process.env.HOTEL_LOCATION || 'Lagos, Nigeria'
+  BUSINESS_LOCATION: process.env.BUSINESS_LOCATION || 'Lagos, Nigeria'
 };
 
 // Transaction reference prefix mapping
 const TRANSACTION_PREFIX_MAP = {
-  'booking': 'B-',
   'food_order': 'F-',
-  'gym_session': 'G-',
-  'pool_session': 'P-',
-  'laundry_service': 'L-'
+  'subscription': 'S-',
+  'delivery': 'D-'
 };
 
-// Transaction type configuration for scalable system
+// Transaction type configuration for food delivery system
 const TRANSACTION_TYPES = {
-  booking: {
-    collectionName: 'bookings',
-    transactionType: 'booking',
-    serviceType: null,
-    emailSubject: {
-      creation: 'Booking Created',
-      success: 'Booking Confirmed'
-    },
-    notificationTitle: {
-      creation: 'Booking Created',
-      success: 'Booking Confirmed! 🎉'
-    },
-    emoji: '🏨'
-  },
   food_order: {
-    collectionName: 'service_orders',
-    transactionType: 'service',
+    collectionName: 'food_orders',
+    transactionType: 'food_order',
     serviceType: 'food_delivery',
     emailSubject: {
       creation: 'Food Order Created',
@@ -55,75 +39,33 @@ const TRANSACTION_TYPES = {
     },
     emoji: '🍽️'
   },
-  gym_session: {
-    collectionName: 'service_orders',
-    transactionType: 'service',
-    serviceType: 'gym',
+  subscription: {
+    collectionName: 'subscriptions',
+    transactionType: 'subscription',
+    serviceType: 'subscription',
     emailSubject: {
-      creation: 'Gym Session Booked',
-      success: 'Gym Session Confirmed'
+      creation: 'Subscription Created',
+      success: 'Subscription Confirmed'
     },
     notificationTitle: {
-      creation: 'Gym Session Booked',
-      success: 'Gym Session Confirmed! 💪'
+      creation: 'Subscription Created',
+      success: 'Subscription Confirmed! ⭐'
     },
-    emoji: '💪'
+    emoji: '⭐'
   },
-  pool_session: {
-    collectionName: 'service_orders',
-    transactionType: 'service',
-    serviceType: 'swimming_pool',
+  delivery: {
+    collectionName: 'delivery_orders',
+    transactionType: 'delivery',
+    serviceType: 'delivery',
     emailSubject: {
-      creation: 'Pool Session Booked',
-      success: 'Pool Session Confirmed'
+      creation: 'Delivery Order Created',
+      success: 'Delivery Order Confirmed'
     },
     notificationTitle: {
-      creation: 'Pool Session Booked',
-      success: 'Pool Session Confirmed! 🏊‍♂️'
+      creation: 'Delivery Order Created',
+      success: 'Delivery Order Confirmed! 🚚'
     },
-    emoji: '🏊‍♂️'
-  },
-  spa_session: {
-    collectionName: 'service_orders',
-    transactionType: 'service',
-    serviceType: 'spa',
-    emailSubject: {
-      creation: 'Spa Session Booked',
-      success: 'Spa Session Confirmed'
-    },
-    notificationTitle: {
-      creation: 'Spa Session Booked',
-      success: 'Spa Session Confirmed! 🧘‍♀️'
-    },
-    emoji: '🧘‍♀️'
-  },
-  laundry_service: {
-    collectionName: 'service_orders',
-    transactionType: 'service',
-    serviceType: 'laundry_service',
-    emailSubject: {
-      creation: 'Laundry Service Booked',
-      success: 'Laundry Service Confirmed'
-    },
-    notificationTitle: {
-      creation: 'Laundry Service Booked',
-      success: 'Laundry Service Confirmed! 👔'
-    },
-    emoji: '👔'
-  },
-  concierge_request: {
-    collectionName: 'concierge_requests',
-    transactionType: 'concierge',
-    serviceType: 'concierge',
-    emailSubject: {
-      creation: 'Concierge Request Created',
-      success: 'Concierge Request Confirmed'
-    },
-    notificationTitle: {
-      creation: 'Concierge Request Created',
-      success: 'Concierge Request Confirmed! 🛎️'
-    },
-    emoji: '🛎️'
+    emoji: '🚚'
   }
 };
 
@@ -152,37 +94,29 @@ const FUNCTIONS_CONFIG = {
 const EMAIL_STYLES = {
   HEADER_COLOR: '#1a365d',
   LOGO_URL: '',
-  HOTEL_NAME: 'FMH Hotel',
-  HOTEL_TAGLINE: 'Luxury & Comfort Redefined'
+  BUSINESS_NAME: 'Food Delivery App',
+  BUSINESS_TAGLINE: 'Fresh Food, Fast Delivery'
 };
 
 // Admin notification types mapping
 const NOTIFICATION_TYPE_MAP = {
-  'booking': 'booking',
-  'food_order': 'food',
-  'gym_session': 'amenities',
-  'pool_session': 'amenities',
-  'spa_session': 'amenities',
-  'laundry_service': 'laundry'
+  'food_order': 'food_order',
+  'subscription': 'subscription',
+  'delivery': 'delivery'
 };
 
 // Admin notification titles
 const ADMIN_NOTIFICATION_TITLES = {
-  'booking': 'New Room Booking',
   'food_order': 'New Food Order',
-  'gym_session': 'New Gym Session',
-  'pool_session': 'New Pool Session',
-  'laundry_service': 'New Laundry Service'
+  'subscription': 'New Subscription',
+  'delivery': 'New Delivery Order'
 };
 
 // Target roles for different transaction types
 const TARGET_ROLES = {
-  'booking': ['admin', 'front_desk'],
-  'food_order': ['admin', 'kitchen_staff'],
-  'gym_session': ['admin', 'fitness_staff'],
-  'pool_session': ['admin', 'pool_staff'],
-  'spa_session': ['admin', 'spa_staff'],
-  'laundry_service': ['admin', 'housekeeping']
+  'food_order': ['admin', 'kitchen_staff', 'restaurant_manager'],
+  'subscription': ['admin', 'customer_service'],
+  'delivery': ['admin', 'delivery_staff', 'dispatch']
 };
 
 module.exports = {
