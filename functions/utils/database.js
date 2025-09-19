@@ -7,21 +7,29 @@ const { TRANSACTION_TYPES, TRANSACTION_PREFIX_MAP } = require('./constants');
 const { logger } = require('./logger');
 const { DataCleaners } = require('./validation');
 
-// Initialize Firestore if not already initialized
+// Lazy-load Firestore instance (admin should be initialized in index.js)
 let db;
-try {
-  db = admin.firestore();
-  db.settings({
-    ignoreUndefinedProperties: true
-  });
-} catch (error) {
-  console.error('Error initializing Firestore:', error);
+
+function getFirestore() {
+  if (!db) {
+    try {
+      db = admin.firestore();
+    } catch (error) {
+      console.error('Error getting Firestore instance:', error);
+      throw error;
+    }
+  }
+  return db;
 }
 
 // Database utility class
 class DatabaseHelper {
   constructor() {
-    this.db = db;
+    // Use lazy loading for Firestore
+  }
+
+  get db() {
+    return getFirestore();
   }
 
   // ========================================================================
@@ -417,5 +425,7 @@ const dbHelper = new DatabaseHelper();
 module.exports = {
   DatabaseHelper,
   dbHelper,
-  db
+  get db() {
+    return getFirestore();
+  }
 };

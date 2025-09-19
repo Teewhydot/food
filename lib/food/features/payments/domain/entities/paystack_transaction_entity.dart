@@ -36,8 +36,9 @@ class PaystackTransactionEntity {
       currency: json['currency'] ?? 'NGN',
       email: json['email'] ?? '',
       status: json['status'] ?? 'pending',
-      authorizationUrl: json['authorizationUrl'],
-      accessCode: json['accessCode'],
+      // Handle both camelCase and snake_case for Firebase Functions response
+      authorizationUrl: json['authorizationUrl'] ?? json['authorization_url'],
+      accessCode: json['accessCode'] ?? json['access_code'],
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'])
           : DateTime.now(),

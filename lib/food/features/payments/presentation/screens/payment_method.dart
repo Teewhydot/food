@@ -16,7 +16,7 @@ import 'package:food/food/features/payments/presentation/widgets/payment_type_wi
 import 'package:food/generated/assets.dart';
 import 'package:get/utils.dart';
 import 'package:get_it/get_it.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'paystack_webview_screen.dart';
 
 import '../../../../components/texts.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
@@ -143,10 +143,18 @@ class _PaymentMethodState extends State<PaymentMethod> {
         listener: (context, state) {
           if (state is PaystackPaymentInitialized) {
             nav.goBack(); // Close loading dialog
-            _launchPaystackPayment(
-              state.transaction.authorizationUrl!,
-              state.transaction.reference,
-            );
+
+            // Check if authorizationUrl is available
+            final authUrl = state.transaction.authorizationUrl;
+            if (authUrl != null && authUrl.isNotEmpty) {
+              _launchPaystackPayment(authUrl, state.transaction.reference);
+            } else {
+              // Handle error case where authorization URL is missing
+              DFoodUtils.showSnackBar(
+                "Failed to initiate payment. Please try again.",
+                kErrorColor,
+              );
+            }
           } else if (state is PaystackPaymentVerified) {
             nav.goBack(); // Close loading dialog
             if (state.transaction.isSuccess) {
@@ -168,15 +176,7 @@ class _PaymentMethodState extends State<PaymentMethod> {
         },
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: [
-            CircularProgressIndicator(color: kPrimaryColor),
-            20.verticalSpace,
-            FText(
-              text: "Initializing payment...",
-              fontSize: 16,
-              color: kTextColorDark,
-            ),
-          ],
+          children: [CircularProgressIndicator(color: kWhiteColor)],
         ),
       ),
     );
@@ -199,85 +199,29 @@ class _PaymentMethodState extends State<PaymentMethod> {
     String authorizationUrl,
     String reference,
   ) async {
-    final Uri url = Uri.parse(authorizationUrl);
-
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url, mode: LaunchMode.externalApplication);
-
-      // Show dialog to verify payment after user returns
-      _showPaymentVerificationDialog(reference);
-    } else {
-      DFoodUtils.showSnackBar(
-        "Could not launch payment page. Please try again.",
-        kErrorColor,
-      );
-    }
-  }
-
-  void _showPaymentVerificationDialog(String reference) {
-    DFoodUtils.showDialogContainer(
-      context: context,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          FText(
-            text: "Payment Status",
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-          ),
-          20.verticalSpace,
-          FText(
-            text: "Have you completed the payment?",
-            fontSize: 16,
-            textAlign: TextAlign.center,
-          ),
-          30.verticalSpace,
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () {
-                    nav.goBack(); // Close dialog
-                    _verifyPayment(reference);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: kPrimaryColor,
-                    padding: EdgeInsets.symmetric(vertical: 12.h),
-                  ),
-                  child: FText(
-                    text: "Yes, Verify",
-                    color: kWhiteColor,
-                    fontSize: 14,
-                  ),
-                ),
-              ),
-              10.horizontalSpace,
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () {
-                    nav.goBack(); // Close dialog
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: kGreyColor,
-                    padding: EdgeInsets.symmetric(vertical: 12.h),
-                  ),
-                  child: FText(
-                    text: "Cancel",
-                    color: kBlackColor,
-                    fontSize: 14,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
+    // Navigate to in-app webview for payment
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => PaystackWebviewScreen(
+          authorizationUrl: authorizationUrl,
+          reference: reference,
+          onPaymentCompleted: () {
+            // Payment completed - verify the payment
+            _verifyPayment(reference);
+          },
+          onPaymentCancelled: () {
+            // Payment cancelled - show message
+            DFoodUtils.showSnackBar(
+              "Payment was cancelled. Please try again if needed.",
+              kErrorColor,
+            );
+          },
+        ),
       ),
     );
   }
 
   void _verifyPayment(String reference) {
-    final orderId = DateTime.now().millisecondsSinceEpoch.toString();
-
     // Show loading dialog
     DFoodUtils.showDialogContainer(
       context: context,
@@ -286,30 +230,28 @@ class _PaymentMethodState extends State<PaymentMethod> {
           if (state is PaystackPaymentVerified) {
             nav.goBack(); // Close loading dialog
             if (state.transaction.isSuccess) {
+              // Payment successful
               nav.navigateAndReplace(
                 Routes.statusScreen,
                 arguments: PaymentStatusEnum.success,
               );
             } else {
-              DFoodUtils.showSnackBar(
-                "Payment verification failed. Please try again.",
-                kErrorColor,
-              );
+              // Payment failed
+              DFoodUtils.showSnackBar("Payment verification failed", kErrorColor);
             }
           } else if (state is PaystackPaymentError) {
             nav.goBack(); // Close loading dialog
             DFoodUtils.showSnackBar(state.message, kErrorColor);
           }
         },
-        child: Column(
+        child: const Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CircularProgressIndicator(color: kPrimaryColor),
-            20.verticalSpace,
+            CircularProgressIndicator(color: kWhiteColor),
+            SizedBox(height: 16),
             FText(
               text: "Verifying payment...",
-              fontSize: 16,
-              color: kTextColorDark,
+              color: kWhiteColor,
             ),
           ],
         ),
@@ -318,9 +260,14 @@ class _PaymentMethodState extends State<PaymentMethod> {
 
     // Verify payment
     context.read<PaystackPaymentBloc>().add(
-      VerifyPaystackPaymentEvent(reference: reference, orderId: orderId),
+      VerifyPaystackPaymentEvent(
+        reference: reference,
+        orderId: '', // Will be extracted from reference by the backend
+      ),
     );
   }
+
+
 
   Widget _buildOrderSummary() {
     return BlocBuilder<CartCubit, dynamic>(

@@ -709,16 +709,17 @@ exports.healthCheck = onRequest(
 
 // ========================================================================
 // Legacy Support - Export services for advanced usage
+// NOTE: Commented out to prevent circular reference issues during deployment
 // ========================================================================
-exports.services = {
-  email: emailService,
-  payment: paymentService,
-  notification: notificationService,
-  statistics: statisticsService,
-  inventory: inventoryService,
-  database: dbHelper,
-  logger: logger
-};
+// exports.services = {
+//   email: emailService,
+//   payment: paymentService,
+//   notification: notificationService,
+//   statistics: statisticsService,
+//   inventory: inventoryService,
+//   database: dbHelper,
+//   logger: logger
+// };
 
 console.log('✅ Food Delivery App Firebase Functions initialized successfully');
 console.log('📦 All services loaded and ready');

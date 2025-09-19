@@ -22,7 +22,11 @@
       "Bash(firebase emulators:start:*)",
       "Bash(node:*)",
       "Bash(firebase functions:config:get:*)",
-      "Bash(firebase deploy:*)"
+      "Bash(firebase deploy:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run lint)",
+      "WebSearch",
+      "WebFetch(domain:inappwebview.dev)"
     ],
     "deny": []
   }
