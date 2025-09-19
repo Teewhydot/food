@@ -1,4 +1,6 @@
 import 'package:dartz/dartz.dart';
+import 'package:get/get_utils/src/get_utils/get_utils.dart';
+
 import '../../../../domain/failures/failures.dart';
 import '../entities/paystack_transaction_entity.dart';
 import '../repositories/paystack_payment_repository.dart';
@@ -15,15 +17,21 @@ class PaystackPaymentUseCase {
     Map<String, dynamic>? metadata,
   }) async {
     if (orderId.isEmpty) {
-      return Left(InvalidDataFailure(failureMessage: 'Order ID cannot be empty'));
+      return Left(
+        InvalidDataFailure(failureMessage: 'Order ID cannot be empty'),
+      );
     }
 
     if (amount <= 0) {
-      return Left(InvalidDataFailure(failureMessage: 'Amount must be greater than zero'));
+      return Left(
+        InvalidDataFailure(failureMessage: 'Amount must be greater than zero'),
+      );
     }
 
     if (email.isEmpty || !_isValidEmail(email)) {
-      return Left(InvalidDataFailure(failureMessage: 'Valid email is required'));
+      return Left(
+        InvalidDataFailure(failureMessage: 'Valid email is required'),
+      );
     }
 
     return await _repository.initializePayment(
@@ -39,11 +47,15 @@ class PaystackPaymentUseCase {
     required String orderId,
   }) async {
     if (reference.isEmpty) {
-      return Left(InvalidDataFailure(failureMessage: 'Payment reference cannot be empty'));
+      return Left(
+        InvalidDataFailure(failureMessage: 'Payment reference cannot be empty'),
+      );
     }
 
     if (orderId.isEmpty) {
-      return Left(InvalidDataFailure(failureMessage: 'Order ID cannot be empty'));
+      return Left(
+        InvalidDataFailure(failureMessage: 'Order ID cannot be empty'),
+      );
     }
 
     return await _repository.verifyPayment(
@@ -56,13 +68,16 @@ class PaystackPaymentUseCase {
     required String reference,
   }) async {
     if (reference.isEmpty) {
-      return Left(InvalidDataFailure(failureMessage: 'Payment reference cannot be empty'));
+      return Left(
+        InvalidDataFailure(failureMessage: 'Payment reference cannot be empty'),
+      );
     }
 
     return await _repository.getTransactionStatus(reference: reference);
   }
 
   bool _isValidEmail(String email) {
-    return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
+    return GetUtils.isEmail(email);
+    ;
   }
 }

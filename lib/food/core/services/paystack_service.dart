@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:firebase_auth/firebase_auth.dart';
 import '../constants/env.dart';
 import '../utils/logger.dart';
 import 'endpoint_service.dart';
@@ -21,10 +22,19 @@ class PaystackService {
     return await _endpointService.runWithConfig(
       'Initialize Paystack Payment',
       () async {
+        // Get Firebase Auth token
+        final user = FirebaseAuth.instance.currentUser;
+        if (user == null) {
+          throw Exception('User not authenticated');
+        }
+
+        final idToken = await user.getIdToken();
+
         final response = await http.post(
           Uri.parse('$_baseUrl/createPaystackTransaction'),
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': 'Bearer $idToken',
           },
           body: json.encode({
             'orderId': orderId,
@@ -35,13 +45,23 @@ class PaystackService {
           }),
         );
 
+        Logger.logBasic('Response status: ${response.statusCode}');
+        Logger.logBasic('Response body: ${response.body}');
+
         if (response.statusCode == 200) {
           final data = json.decode(response.body);
           Logger.logSuccess('Payment initialization successful: ${data['reference']}');
           return data;
         } else {
-          final error = json.decode(response.body);
-          throw Exception('Payment initialization failed: ${error['error']}');
+          final errorBody = response.body;
+          Logger.logError('Payment initialization failed with status ${response.statusCode}: $errorBody');
+
+          try {
+            final error = json.decode(errorBody);
+            throw Exception('Payment initialization failed: ${error['message'] ?? error['error'] ?? errorBody}');
+          } catch (e) {
+            throw Exception('Payment initialization failed: $errorBody');
+          }
         }
       },
     );
@@ -55,10 +75,19 @@ class PaystackService {
     return await _endpointService.runWithConfig(
       'Verify Paystack Payment',
       () async {
+        // Get Firebase Auth token
+        final user = FirebaseAuth.instance.currentUser;
+        if (user == null) {
+          throw Exception('User not authenticated');
+        }
+
+        final idToken = await user.getIdToken();
+
         final response = await http.post(
           Uri.parse('$_baseUrl/verifyPaystackPayment'),
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': 'Bearer $idToken',
           },
           body: json.encode({
             'reference': reference,

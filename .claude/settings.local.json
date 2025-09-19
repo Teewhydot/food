@@ -21,7 +21,8 @@
       "Bash(npm uninstall:*)",
       "Bash(firebase emulators:start:*)",
       "Bash(node:*)",
-      "Bash(firebase functions:config:get:*)"
+      "Bash(firebase functions:config:get:*)",
+      "Bash(firebase deploy:*)"
     ],
     "deny": []
   }

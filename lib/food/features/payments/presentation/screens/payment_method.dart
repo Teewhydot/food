@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:food/food/components/image.dart';
+import 'package:food/food/components/buttons.dart';
 import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/core/constants/app_constants.dart';
-import 'package:food/food/core/helpers/extensions.dart';
 import 'package:food/food/core/routes/routes.dart';
 import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/features/auth/presentation/widgets/back_widget.dart';
+import 'package:food/food/features/home/domain/entities/profile.dart';
+import 'package:food/food/features/home/manager/user_profile/enhanced_user_profile_cubit.dart';
 import 'package:food/food/features/onboarding/presentation/widgets/food_container.dart';
 import 'package:food/food/features/payments/domain/entities/payment_method_entity.dart';
 import 'package:food/food/features/payments/presentation/screens/status.dart';
@@ -15,13 +16,11 @@ import 'package:food/food/features/payments/presentation/widgets/payment_type_wi
 import 'package:food/generated/assets.dart';
 import 'package:get/utils.dart';
 import 'package:get_it/get_it.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../components/texts.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../core/utils/app_utils.dart';
-import '../../domain/entities/card_entity.dart';
 import '../manager/cart/cart_cubit.dart';
 import '../manager/paystack_bloc/paystack_payment_bloc.dart';
 import '../manager/paystack_bloc/paystack_payment_event.dart';
@@ -49,45 +48,6 @@ class _PaymentMethodState extends State<PaymentMethod> {
       name: 'Flutterwave',
       type: 'card',
       iconUrl: Assets.svgsVisa,
-    ),
-  ];
-  List<CardEntity> cards = [
-    // CardEntity(
-    //   paymentMethodEntity: PaymentMethodEntity(
-    //     id: '2',
-    //     name: 'Visa',
-    //     type: 'card',
-    //     iconUrl: Assets.svgsVisa,
-    //   ),
-    //   pan: 1234567812345678,
-    //   cvv: 123,
-    //   mExp: 12,
-    //   yExp: 25,
-    // ),
-    // Add more cards if needed
-    CardEntity(
-      paymentMethodEntity: PaymentMethodEntity(
-        id: '3',
-        name: 'Mastercard',
-        type: 'card',
-        iconUrl: Assets.svgsMastercard,
-      ),
-      pan: 8765432187654321,
-      cvv: 456,
-      mExp: 11,
-      yExp: 24,
-    ),
-    CardEntity(
-      paymentMethodEntity: PaymentMethodEntity(
-        id: '3',
-        name: 'Mastercard',
-        type: 'card',
-        iconUrl: Assets.svgsMastercard,
-      ),
-      pan: 8777228377654321,
-      cvv: 436,
-      mExp: 11,
-      yExp: 24,
     ),
   ];
   String selectedMethod = "Paystack";
@@ -139,7 +99,7 @@ class _PaymentMethodState extends State<PaymentMethod> {
           30.verticalSpace,
           _buildPaymentDetails(),
         ],
-      ).paddingOnly(left: AppConstants.defaultPadding),
+      ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
     );
   }
 
@@ -153,7 +113,7 @@ class _PaymentMethodState extends State<PaymentMethod> {
       return;
     }
 
-    final user = FirebaseAuth.instance.currentUser;
+    final user = context.read<EnhancedUserProfileCubit>().state.data;
     if (user == null) {
       DFoodUtils.showSnackBar(
         "Please log in to continue with payment.",
@@ -172,7 +132,7 @@ class _PaymentMethodState extends State<PaymentMethod> {
     }
   }
 
-  void _processPaystackPayment(dynamic cartState, User user) {
+  void _processPaystackPayment(dynamic cartState, UserProfileEntity user) {
     final orderId = DateTime.now().millisecondsSinceEpoch.toString();
     final amount = cartState.data?.totalPrice ?? 0.0;
 
@@ -183,7 +143,10 @@ class _PaymentMethodState extends State<PaymentMethod> {
         listener: (context, state) {
           if (state is PaystackPaymentInitialized) {
             nav.goBack(); // Close loading dialog
-            _launchPaystackPayment(state.transaction.authorizationUrl!, state.transaction.reference);
+            _launchPaystackPayment(
+              state.transaction.authorizationUrl!,
+              state.transaction.reference,
+            );
           } else if (state is PaystackPaymentVerified) {
             nav.goBack(); // Close loading dialog
             if (state.transaction.isSuccess) {
@@ -225,14 +188,17 @@ class _PaymentMethodState extends State<PaymentMethod> {
         amount: amount,
         email: user.email ?? '',
         metadata: {
-          'userId': user.uid,
+          'userId': user.id,
           'orderItems': cartState.data?.items?.length ?? 0,
         },
       ),
     );
   }
 
-  Future<void> _launchPaystackPayment(String authorizationUrl, String reference) async {
+  Future<void> _launchPaystackPayment(
+    String authorizationUrl,
+    String reference,
+  ) async {
     final Uri url = Uri.parse(authorizationUrl);
 
     if (await canLaunchUrl(url)) {
@@ -352,10 +318,7 @@ class _PaymentMethodState extends State<PaymentMethod> {
 
     // Verify payment
     context.read<PaystackPaymentBloc>().add(
-      VerifyPaystackPaymentEvent(
-        reference: reference,
-        orderId: orderId,
-      ),
+      VerifyPaystackPaymentEvent(reference: reference, orderId: orderId),
     );
   }
 
@@ -379,26 +342,31 @@ class _PaymentMethodState extends State<PaymentMethod> {
                 fontWeight: FontWeight.w700,
               ),
               15.verticalSpace,
-              ...cart.items.take(3).map((item) => Padding(
-                padding: EdgeInsets.only(bottom: 8.h),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: FText(
-                        text: "${item.name} x${item.quantity}",
-                        fontSize: 14,
-                        color: kTextColorDark,
+              ...cart.items
+                  .take(3)
+                  .map(
+                    (item) => Padding(
+                      padding: EdgeInsets.only(bottom: 8.h),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: FText(
+                              text: "${item.name} x${item.quantity}",
+                              fontSize: 14,
+                              color: kTextColorDark,
+                            ),
+                          ),
+                          FText(
+                            text:
+                                "\$${(item.price * item.quantity).toStringAsFixed(1)}",
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ],
                       ),
                     ),
-                    FText(
-                      text: "\$${(item.price * item.quantity).toStringAsFixed(1)}",
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ],
-                ),
-              )),
+                  ),
               if (cart.items.length > 3)
                 FText(
                   text: "+ ${cart.items.length - 3} more items",
@@ -433,108 +401,29 @@ class _PaymentMethodState extends State<PaymentMethod> {
     if (selectedMethod == "Paystack" || selectedMethod == "Flutterwave") {
       return Column(
         children: [
-          Center(
-            child: FText(
-              text: "Selected: $selectedMethod",
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          20.verticalSpace,
           FText(
-            text: selectedMethod == "Paystack"
-                ? "Secure card payment with Paystack"
-                : "Payment with Flutterwave (Coming Soon)",
+            text:
+                selectedMethod == "Paystack"
+                    ? "Secure card payment with Paystack"
+                    : "Payment with Flutterwave (Coming Soon)",
             fontSize: 14,
             color: kTextColorDark,
             textAlign: TextAlign.center,
           ),
           40.verticalSpace,
           SizedBox(
-            width: 1.sw - (AppConstants.defaultPadding * 2),
-            child: ElevatedButton(
+            width: 1.sw,
+            child: FButton(
               onPressed: selectedMethod == "Paystack" ? _processPayment : null,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: selectedMethod == "Paystack" ? kPrimaryColor : kGreyColor,
-                padding: EdgeInsets.symmetric(vertical: 16.h),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: FText(
-                text: selectedMethod == "Paystack"
-                    ? "Pay with $selectedMethod"
-                    : "$selectedMethod (Coming Soon)",
-                color: selectedMethod == "Paystack" ? kWhiteColor : kTextColorDark,
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
+              buttonText:
+                  selectedMethod == "Paystack"
+                      ? "Proceed to Pay"
+                      : "Coming Soon",
             ),
           ),
         ],
       );
     }
-
     return Container();
-  }
-}
-
-class PaymentCardWidget extends StatelessWidget {
-  final CardEntity card;
-  final Function onTap;
-  const PaymentCardWidget({super.key, required this.card, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return FoodContainer(
-      height: 82,
-      width: 1.sw,
-      color: kGreyColor,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              FText(
-                text: card.paymentMethodEntity.name,
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-              ),
-              5.verticalSpace,
-              Row(
-                children: [
-                  FImage(
-                    assetPath:
-                        card.paymentMethodEntity.name == "Mastercard"
-                            ? Assets.svgsMastercard
-                            : Assets.svgsVisa,
-                    width: 28,
-                    height: 17,
-                    assetType: FoodAssetType.svg,
-                  ),
-                  10.horizontalSpace,
-                  FText(
-                    text:
-                        "**** ${card.pan.toString().substring(card.pan.toString().length - 4)}",
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
-                    color: kBlackColor,
-                  ),
-                ],
-              ),
-            ],
-          ),
-          FImage(
-            assetPath: Assets.svgsArrowDown,
-            width: 10,
-            height: 10,
-            assetType: FoodAssetType.svg,
-          ),
-        ],
-      ).paddingAll(10),
-    ).onTap(() {
-      onTap();
-    });
   }
 }
