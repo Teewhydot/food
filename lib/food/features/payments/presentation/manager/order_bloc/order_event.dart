@@ -16,6 +16,12 @@ class GetUserOrdersEvent extends OrderEvent {
   const GetUserOrdersEvent(this.userId);
 }
 
+class StreamUserOrdersEvent extends OrderEvent {
+  final String userId;
+
+  const StreamUserOrdersEvent(this.userId);
+}
+
 class GetOrderByIdEvent extends OrderEvent {
   final String orderId;
 

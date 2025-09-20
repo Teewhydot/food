@@ -9,14 +9,14 @@ import '../../../../core/theme/colors.dart';
 import '../../../../core/utils/app_utils.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 
-class PaystackWebviewScreen extends StatefulWidget {
+class FlutterwaveWebviewScreen extends StatefulWidget {
   final String authorizationUrl;
   final String reference;
   final String orderId;
   final VoidCallback? onPaymentCompleted;
   final VoidCallback? onPaymentCancelled;
 
-  const PaystackWebviewScreen({
+  const FlutterwaveWebviewScreen({
     super.key,
     required this.authorizationUrl,
     required this.reference,
@@ -26,10 +26,10 @@ class PaystackWebviewScreen extends StatefulWidget {
   });
 
   @override
-  State<PaystackWebviewScreen> createState() => _PaystackWebviewScreenState();
+  State<FlutterwaveWebviewScreen> createState() => _FlutterwaveWebviewScreenState();
 }
 
-class _PaystackWebviewScreenState extends State<PaystackWebviewScreen> {
+class _FlutterwaveWebviewScreenState extends State<FlutterwaveWebviewScreen> {
   late InAppWebViewController webViewController;
   bool isLoading = true;
   double loadingProgress = 0;
@@ -174,6 +174,4 @@ class _PaystackWebviewScreenState extends State<PaystackWebviewScreen> {
       ),
     );
   }
-
-
 }

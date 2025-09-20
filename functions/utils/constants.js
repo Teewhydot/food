@@ -2,10 +2,14 @@
 // Constants and Configuration
 // ========================================================================
 
-// Environment variables configuration
+// Environment variables configuration (Firebase Functions v2)
 const ENVIRONMENT = {
   GMAIL_PASSWORD: process.env.PASSWORD,
   PAYSTACK_SECRET_KEY: process.env.PAYSTACK_SECRET_KEY,
+  // Flutterwave v4 OAuth 2.0 Configuration
+  FLUTTERWAVE_CLIENT_ID: process.env.FLUTTERWAVE_CLIENT_ID,
+  FLUTTERWAVE_CLIENT_SECRET: process.env.FLUTTERWAVE_CLIENT_SECRET,
+  FLUTTERWAVE_SECRET_HASH: process.env.FLUTTERWAVE_SECRET_HASH,
   PROJECT_ID: process.env.GOOGLE_CLOUD_PROJECT || process.env.GCLOUD_PROJECT || 'food-delivery-app'
 };
 
@@ -83,11 +87,49 @@ const PAYSTACK = {
   }
 };
 
+// Flutterwave API configuration (v4 only)
+const FLUTTERWAVE = {
+  // v4 API configuration with OAuth 2.0
+  API_BASE_URL_V4_SANDBOX: 'https://api.flutterwave.cloud/developersandbox',
+  API_BASE_URL_V4_PRODUCTION: 'https://api.flutterwave.cloud/f4bexperience',
+  OAUTH_TOKEN_URL: 'https://idp.flutterwave.com/realms/flutterwave/protocol/openid-connect/token',
+  ENDPOINTS: {
+    // v4 Endpoints
+    V4_CHARGES: '/charges',
+    V4_CUSTOMERS: '/customers',
+    V4_TRANSACTIONS: '/transactions'
+  },
+  // OAuth 2.0 Configuration
+  OAUTH: {
+    GRANT_TYPE: 'client_credentials',
+    TOKEN_EXPIRY_BUFFER: 60000, // Refresh 1 minute before expiry
+    TOKEN_CACHE_KEY: 'flutterwave_oauth_token'
+  }
+};
+
 // Firebase Functions configuration
 const FUNCTIONS_CONFIG = {
   REGION: 'us-central1',
   TIMEOUT_SECONDS: 560,
   MEMORY: '256MB'
+};
+
+// Flutterwave environment configuration
+const FLUTTERWAVE_ENVIRONMENT = {
+  // Determine which environment to use based on NODE_ENV or explicit configuration
+  IS_PRODUCTION: process.env.NODE_ENV === 'production' || process.env.FLUTTERWAVE_ENV === 'production',
+
+  // Get the appropriate base URL
+  getBaseUrl() {
+    return this.IS_PRODUCTION
+      ? FLUTTERWAVE.API_BASE_URL_V4_PRODUCTION
+      : FLUTTERWAVE.API_BASE_URL_V4_SANDBOX;
+  },
+
+  // Environment-specific configuration
+  getEnvironmentSuffix() {
+    return this.IS_PRODUCTION ? 'production' : 'sandbox';
+  }
 };
 
 // Email styling constants
@@ -126,6 +168,8 @@ module.exports = {
   TRANSACTION_TYPES,
   GOOGLE_SCOPES,
   PAYSTACK,
+  FLUTTERWAVE,
+  FLUTTERWAVE_ENVIRONMENT,
   FUNCTIONS_CONFIG,
   EMAIL_STYLES,
   NOTIFICATION_TYPE_MAP,

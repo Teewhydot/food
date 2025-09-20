@@ -10,12 +10,13 @@ import 'package:food/food/features/home/manager/address/address_cubit.dart';
 import 'package:food/food/features/home/manager/recent_keywords/recent_keywords_cubit.dart';
 import 'package:food/food/features/home/manager/selected_address/selected_address_cubit.dart';
 import 'package:food/food/features/home/manager/user_profile/enhanced_user_profile_cubit.dart';
+import 'package:food/food/features/payments/domain/use_cases/paystack_payment_usecase.dart';
 import 'package:food/food/features/payments/presentation/manager/cart/cart_cubit.dart';
+import 'package:food/food/features/payments/presentation/manager/paystack_bloc/paystack_payment_bloc.dart';
+import 'package:food/food/features/payments/presentation/manager/flutterwave_bloc/flutterwave_payment_bloc.dart';
 import 'package:food/food/features/tracking/presentation/manager/chats_bloc/chats_cubit.dart';
 import 'package:food/food/features/tracking/presentation/manager/messaging_bloc/messaging_bloc.dart';
 import 'package:food/food/features/tracking/presentation/manager/notification_bloc/notification_cubit.dart';
-import 'package:food/food/features/payments/presentation/manager/paystack_bloc/paystack_payment_bloc.dart';
-import 'package:food/food/features/payments/domain/use_cases/paystack_payment_usecase.dart';
 import 'package:get_it/get_it.dart';
 
 import '../features/auth/presentation/manager/auth_bloc/email_verification/email_verification_bloc.dart';
@@ -26,10 +27,7 @@ import '../features/home/domain/use_cases/restaurant_usecase.dart';
 import '../features/home/presentation/manager/food_bloc/food_bloc.dart'; // Now FoodCubit
 import '../features/home/presentation/manager/restaurant_bloc/restaurant_bloc.dart'; // Now RestaurantCubit
 import '../features/home/presentation/manager/search_bloc/search_bloc.dart';
-import '../features/payments/domain/use_cases/order_usecase.dart';
-import '../features/payments/domain/use_cases/payment_usecase.dart';
 import '../features/payments/presentation/manager/order_bloc/order_bloc.dart';
-import '../features/payments/presentation/manager/payment_bloc/payment_bloc.dart';
 import '../features/tracking/domain/use_cases/chat_usecase.dart';
 
 final List<BlocProvider> blocs = [
@@ -88,21 +86,20 @@ final List<BlocProvider> blocs = [
   ),
 
   // Payment feature BLoCs
-  BlocProvider<PaymentBloc>(
-    create:
-        (context) =>
-            PaymentBloc(paymentUseCase: GetIt.instance<PaymentUseCase>()),
-  ),
-  BlocProvider<OrderBloc>(
-    create:
-        (context) => OrderBloc(orderUseCase: GetIt.instance<OrderUseCase>()),
-  ),
+  BlocProvider<OrderBloc>(create: (context) => OrderBloc()),
 
   // File upload feature BLoC
   BlocProvider<FileUploadCubit>(create: (context) => FileUploadCubit()),
 
   // Paystack payment feature BLoC
   BlocProvider<PaystackPaymentBloc>(
-    create: (context) => PaystackPaymentBloc(GetIt.instance<PaystackPaymentUseCase>()),
+    create:
+        (context) =>
+            PaystackPaymentBloc(GetIt.instance<PaystackPaymentUseCase>()),
+  ),
+
+  // Flutterwave payment feature BLoC
+  BlocProvider<FlutterwavePaymentBloc>(
+    create: (context) => FlutterwavePaymentBloc(),
   ),
 ];

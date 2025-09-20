@@ -22,6 +22,7 @@ import 'package:food/food/features/payments/presentation/screens/add_card.dart';
 import 'package:food/food/features/payments/presentation/screens/payment_method.dart';
 import 'package:food/food/features/payments/presentation/screens/status.dart';
 import 'package:food/food/features/tracking/presentation/screens/notifications.dart';
+import 'package:food/food/features/tracking/presentation/screens/orders.dart';
 import 'package:food/food/features/tracking/presentation/screens/tracking.dart';
 import 'package:get/get.dart';
 
@@ -202,6 +203,13 @@ class GetXRouteModule {
       page: () => const Notifications(),
       transition: _transition,
       transitionDuration: _transitionDuration,
+    ),
+    GetPage(
+      name: Routes.orderHistory,
+      page: () => const Orders(),
+      transition: _transition,
+      transitionDuration: _transitionDuration,
+      middlewares: [AuthMiddleware()],
     ),
     GetPage(
       name: Routes.menu,

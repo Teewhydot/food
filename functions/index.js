@@ -2,10 +2,12 @@
 // Food Delivery App Firebase Functions - Modular Services
 // ========================================================================
 
+// Load environment variables from .env file
+require('dotenv').config();
+
 // Firebase Functions
 const { onRequest } = require('firebase-functions/v2/https');
 const { onSchedule } = require('firebase-functions/v2/scheduler');
-const functions = require('firebase-functions');
 
 // External Dependencies
 const axios = require('axios');
@@ -35,6 +37,7 @@ const { dbHelper } = require('./utils/database');
 // Import Services
 const { emailService } = require('./services/email-service');
 const { paymentService } = require('./services/payment-service');
+const { FlutterwaveService } = require('./services/flutterwave-service');
 const { notificationService } = require('./services/notification-service');
 const { statisticsService } = require('./services/statistics-service');
 const { inventoryService } = require('./services/inventory-service');
@@ -43,6 +46,9 @@ const { inventoryService } = require('./services/inventory-service');
 const PAYSTACK_SECRET_KEY = ENVIRONMENT.PAYSTACK_SECRET_KEY;
 const PROJECT_ID = ENVIRONMENT.PROJECT_ID;
 const gmailPassword = ENVIRONMENT.GMAIL_PASSWORD;
+
+// Initialize Flutterwave service
+const flutterwaveService = new FlutterwaveService();
 const SUPPORT_EMAIL = CONTACT_INFO.SUPPORT_EMAIL;
 const SUPPORT_PHONE = CONTACT_INFO.SUPPORT_PHONE;
 const BUSINESS_LOCATION = CONTACT_INFO.BUSINESS_LOCATION;
@@ -668,6 +674,366 @@ exports.cleanupOldPendingTransactions = onSchedule(
 );
 
 // ========================================================================
+// Flutterwave Payment Functions
+// ========================================================================
+
+// Flutterwave Payment Initialization Function
+exports.initializeFlutterwavePayment = onRequest(
+  {
+    region: FUNCTIONS_CONFIG.REGION,
+    timeoutSeconds: FUNCTIONS_CONFIG.TIMEOUT_SECONDS,
+    memory: FUNCTIONS_CONFIG.MEMORY
+  },
+  async (req, res) => {
+    cors(req, res, async () => {
+      const executionId = `flw-init-${Date.now()}`;
+
+      try {
+        logger.startFunction('initializeFlutterwavePayment', executionId);
+
+        // Validate and sanitize request for food orders
+        const validatedData = RequestValidators.validateTransactionRequest(req.body);
+        const { orderId, amount, userId, email, metadata, userName } = validatedData;
+
+        // Map orderId to bookingDetails for backward compatibility
+        const bookingDetails = {
+          orderId: orderId,
+          transactionType: 'food_order',
+          ...metadata
+        };
+
+        // Initialize payment with Flutterwave
+        const paymentResult = await flutterwaveService.initializePayment(
+          email,
+          amount,
+          {
+            userId,
+            bookingDetails,
+            userName,
+            orderId,
+            redirectUrl: metadata.redirectUrl || 'https://example.com/success'
+          },
+          executionId
+        );
+
+        if (!paymentResult.success) {
+          logger.error('Flutterwave payment initialization failed', executionId, null, paymentResult);
+          return res.status(500).json({
+            error: 'Failed to initialize payment',
+            details: paymentResult.error
+          });
+        }
+
+        // Determine transaction type and generate reference
+        const transactionType = bookingDetails.transactionType || "food_order";
+        const reference = flutterwaveService.generatePrefixedReference(transactionType, paymentResult.reference);
+        const currentTimestamp = new Date().toISOString();
+
+        logger.transaction('CREATE', reference, executionId, {
+          transactionType,
+          amount,
+          email
+        });
+
+        // Create service record using database helper
+        await dbHelper.createServiceRecord(
+          userId,
+          userName,
+          email,
+          reference,
+          transactionType,
+          bookingDetails,
+          amount,
+          currentTimestamp,
+          executionId
+        );
+
+        logger.success(`Flutterwave transaction created successfully: ${reference}`, executionId);
+
+        res.status(200).json({
+          success: true,
+          reference: reference,
+          authorization_url: paymentResult.authorizationUrl,
+          access_code: paymentResult.accessCode,
+          tx_ref: paymentResult.reference
+        });
+
+      } catch (error) {
+        logger.critical('Flutterwave transaction creation failed', executionId, error);
+        res.status(500).json({
+          error: 'Internal server error',
+          message: error.message
+        });
+      }
+    });
+  }
+);
+
+// Flutterwave Payment Verification Function
+exports.verifyFlutterwavePayment = onRequest(
+  {
+    region: FUNCTIONS_CONFIG.REGION,
+    timeoutSeconds: FUNCTIONS_CONFIG.TIMEOUT_SECONDS,
+    memory: FUNCTIONS_CONFIG.MEMORY
+  },
+  async (req, res) => {
+    cors(req, res, async () => {
+      const executionId = `flw-verify-${Date.now()}`;
+
+      try {
+        logger.startFunction('verifyFlutterwavePayment', executionId);
+
+        const { reference, orderId } = req.body;
+        if (!reference) {
+          return res.status(400).json({
+            success: false,
+            error: 'Reference is required'
+          });
+        }
+
+        // Extract original Flutterwave reference if prefixed
+        const originalReference = flutterwaveService.extractOriginalReference(reference);
+
+        // Verify payment with Flutterwave
+        const verificationResult = await flutterwaveService.verifyTransaction(originalReference, executionId);
+
+        if (!verificationResult.success) {
+          logger.error('Flutterwave payment verification failed', executionId, null, verificationResult);
+          return res.status(400).json({
+            success: false,
+            error: 'Payment verification failed',
+            details: verificationResult.error
+          });
+        }
+
+        logger.success(`Flutterwave payment verified successfully: ${reference}`, executionId);
+
+        res.status(200).json({
+          success: true,
+          status: verificationResult.status,
+          amount: verificationResult.amount,
+          reference: reference,
+          tx_ref: verificationResult.reference,
+          flw_ref: verificationResult.flutterwaveReference,
+          paidAt: verificationResult.paidAt,
+          channel: verificationResult.channel,
+          currency: verificationResult.currency
+        });
+
+      } catch (error) {
+        logger.critical('Flutterwave payment verification failed', executionId, error);
+        res.status(500).json({
+          success: false,
+          error: 'Internal server error',
+          message: error.message
+        });
+      }
+    });
+  }
+);
+
+// Flutterwave Transaction Status Function
+exports.getFlutterwaveTransactionStatus = onRequest(
+  {
+    region: FUNCTIONS_CONFIG.REGION,
+    timeoutSeconds: 60,
+    memory: FUNCTIONS_CONFIG.MEMORY
+  },
+  async (req, res) => {
+    cors(req, res, async () => {
+      const executionId = `flw-status-${Date.now()}`;
+
+      try {
+        logger.startFunction('getFlutterwaveTransactionStatus', executionId);
+
+        const { reference } = req.query;
+        if (!reference) {
+          return res.status(400).json({
+            success: false,
+            error: 'Reference is required'
+          });
+        }
+
+        // Extract original Flutterwave reference if prefixed
+        const originalReference = flutterwaveService.extractOriginalReference(reference);
+
+        // Get transaction status from Flutterwave
+        const statusResult = await flutterwaveService.getTransactionStatus(originalReference, executionId);
+
+        if (!statusResult.success) {
+          return res.status(400).json({
+            success: false,
+            error: 'Failed to get transaction status',
+            details: statusResult.error
+          });
+        }
+
+        logger.success(`Flutterwave transaction status retrieved: ${reference}`, executionId);
+
+        res.status(200).json({
+          success: true,
+          status: statusResult.status,
+          amount: statusResult.amount,
+          reference: reference,
+          tx_ref: statusResult.reference,
+          paidAt: statusResult.paidAt,
+          details: statusResult.details
+        });
+
+      } catch (error) {
+        logger.critical('Failed to get Flutterwave transaction status', executionId, error);
+        res.status(500).json({
+          success: false,
+          error: 'Internal server error',
+          message: error.message
+        });
+      }
+    });
+  }
+);
+
+// Flutterwave Webhook Handler
+exports.flutterwaveWebhook = onRequest(
+  {
+    region: FUNCTIONS_CONFIG.REGION,
+    timeoutSeconds: FUNCTIONS_CONFIG.TIMEOUT_SECONDS,
+    memory: FUNCTIONS_CONFIG.MEMORY
+  },
+  async (req, res) => {
+    const executionId = `flw-webhook-${Date.now()}`;
+
+    try {
+      logger.startFunction('flutterwaveWebhook', executionId);
+
+      // Get raw body for signature verification
+      const rawBody = req.rawBody ? req.rawBody.toString() : JSON.stringify(req.body);
+      const event = req.body;
+      const flutterwaveSignature = req.headers["flutterwave-signature"];
+
+      logger.info(`Received Flutterwave event: ${event.type || event['event-type']} - ${event.data?.status}`, executionId, {
+        hasSignature: !!flutterwaveSignature,
+        bodySize: rawBody.length
+      });
+
+      // Verify webhook signature using raw body (per Flutterwave v4 documentation)
+      if (!flutterwaveService.verifyWebhookSignature(rawBody, flutterwaveSignature, executionId)) {
+        logger.warning('Invalid Flutterwave webhook signature', executionId);
+        return res.status(401).send("Invalid signature");
+      }
+
+      // Process webhook event
+      const processResult = flutterwaveService.processWebhookEvent(event, executionId);
+      if (!processResult.success) {
+        logger.error('Failed to process Flutterwave webhook event', executionId);
+        return res.status(400).send("Invalid event data");
+      }
+
+      const processedEvent = processResult.processedEvent;
+
+      // Handle different event types (v4 uses 'type' field, v3 uses 'event-type')
+      const eventType = event.type || event['event-type'];
+
+      if (eventType === "charge.completed" && processedEvent.status === "succeeded") {
+        await handleSuccessfulFlutterwavePayment(processedEvent, executionId);
+      } else if (eventType === "charge.failed") {
+        await handleFailedFlutterwavePayment(processedEvent, executionId);
+      } else {
+        logger.info(`Unhandled Flutterwave event type: ${eventType}`, executionId, {
+          status: processedEvent.status
+        });
+      }
+
+      logger.success('Flutterwave webhook processed successfully', executionId);
+      res.status(200).send("OK");
+
+    } catch (error) {
+      logger.critical('Flutterwave webhook processing failed', executionId, error);
+      // Always return 200 to prevent retry loops for non-recoverable errors
+      res.status(200).send("Webhook received with error");
+    }
+  }
+);
+
+// Helper function for successful Flutterwave payments
+async function handleSuccessfulFlutterwavePayment(processedEvent, executionId) {
+  const { reference, amount, paidAt, userId, userName, bookingDetails } = processedEvent;
+
+  // Find document and update status
+  const { actualReference, transactionType, orderDetails, userEmail } = await dbHelper.findDocumentWithPrefix(reference, executionId);
+
+  // Update transaction status
+  const config = TRANSACTION_TYPES[transactionType] || TRANSACTION_TYPES['food_order'];
+  const updateData = {
+    status: 'success',
+    time_created: paidAt,
+    amount: amount,
+    verified_at: dbHelper.getServerTimestamp(),
+    flutterwave_ref: processedEvent.flutterwaveReference
+  };
+
+  if (config.transactionType === 'service') {
+    updateData.updatedAt = paidAt;
+  }
+
+  await dbHelper.updateDocument(config.collectionName, actualReference, updateData, executionId);
+
+  // Send success email
+  await emailService.sendSuccessEmail(
+    transactionType, orderDetails, actualReference, userName, amount, paidAt, userEmail, executionId
+  );
+
+  // Send success notification
+  const notificationData = notificationService.generateNotificationData(
+    transactionType, orderDetails, actualReference, amount, true
+  );
+
+  if (userId) {
+    const config = TRANSACTION_TYPES[transactionType];
+    await notificationService.sendNotificationToUser(
+      userId,
+      config.notificationTitle.success,
+      `Your ${transactionType.replace('_', ' ')} payment of ₦${amount.toLocaleString()} has been confirmed!`,
+      notificationData,
+      executionId
+    );
+  }
+
+  // Update availability for bookings
+  if (transactionType === 'booking') {
+    await inventoryService.updateAvailabilityForSuccessfulBooking(actualReference, userId, executionId);
+  }
+
+  // Deduct food quantities for food orders
+  if (transactionType === 'food_order') {
+    await inventoryService.deductFoodQuantities(actualReference, executionId);
+  }
+
+  // Update statistics
+  await statisticsService.updateBookingStats(actualReference, executionId);
+
+  // Notify staff
+  await notificationService.notifyStaffForNewOrder(actualReference, transactionType, orderDetails, executionId);
+}
+
+// Helper function for failed Flutterwave payments
+async function handleFailedFlutterwavePayment(processedEvent, executionId) {
+  const { reference, amount, paidAt } = processedEvent;
+
+  const { actualReference, transactionType } = await dbHelper.findDocumentWithPrefix(reference, executionId);
+  const config = TRANSACTION_TYPES[transactionType] || TRANSACTION_TYPES['food_order'];
+
+  const updateData = {
+    status: 'failed',
+    time_created: paidAt,
+    amount: amount,
+    flutterwave_ref: processedEvent.flutterwaveReference
+  };
+
+  await dbHelper.updateDocument(config.collectionName, actualReference, updateData, executionId);
+  logger.info(`Flutterwave payment failed for ${reference}`, executionId);
+}
+
+// ========================================================================
 // Health Check and Service Status
 // ========================================================================
 exports.healthCheck = onRequest(
@@ -687,6 +1053,7 @@ exports.healthCheck = onRequest(
         services: {
           email: await emailService.testConnection(executionId),
           payment: await paymentService.testConnection(executionId),
+          flutterwave: await flutterwaveService.testConnection(executionId),
           fcm: await notificationService.testFCMConnection(executionId),
           database: true // dbHelper is always available if admin is initialized
         },

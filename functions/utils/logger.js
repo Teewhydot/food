@@ -171,6 +171,27 @@ class Logger {
   saving(message, executionId = null, data = null) {
     this.info(`💾 ${message}`, executionId, data);
   }
+
+  // Log performance metrics
+  performance(operation, duration, executionId = null, data = null) {
+    this.info(`⚡ Performance ${operation}: ${duration}ms`, executionId, data);
+  }
+
+  // Log security events
+  security(action, message, executionId = null, data = null) {
+    this.info(`🔒 Security ${action}: ${message}`, executionId, data);
+  }
+
+  // Log webhook events
+  webhook(action, eventType, executionId = null, data = null) {
+    this.info(`🔗 Webhook ${action}: ${eventType}`, executionId, data);
+  }
+
+  // Log health checks
+  health(service, status, executionId = null, data = null) {
+    const emoji = status === 'HEALTHY' ? '✅' : '❌';
+    this.info(`${emoji} Health ${service}: ${status}`, executionId, data);
+  }
 }
 
 // Create a default logger instance

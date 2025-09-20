@@ -5,14 +5,15 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/buttons.dart';
 import 'package:food/food/components/texts.dart';
 import 'package:food/food/core/constants/app_constants.dart';
+import 'package:food/food/core/helpers/user_extensions.dart';
 import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/features/auth/presentation/widgets/back_widget.dart';
-import 'package:food/food/features/home/manager/user_profile/enhanced_user_profile_cubit.dart';
 import 'package:food/food/features/tracking/presentation/screens/tracking.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../../components/scaffold.dart';
 import '../../../../core/bloc/base/base_state.dart';
 import '../../../../core/bloc/managers/bloc_manager.dart';
 import '../../../../core/routes/routes.dart';
@@ -31,192 +32,211 @@ class Orders extends StatefulWidget {
 }
 
 class _OrdersState extends State<Orders> {
-  @override
-  void initState() {
-    super.initState();
-    // Load user orders after frame is built to ensure UserProfileCubit is loaded
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final userId = context.read<EnhancedUserProfileCubit>().state.data?.id;
-      if (userId != null) {
-        context.read<OrderBloc>().add(GetUserOrdersEvent(userId));
-      }
-    });
-  }
+  final nav = GetIt.instance<NavigationService>();
 
   @override
   Widget build(BuildContext context) {
-    final nav = GetIt.instance<NavigationService>();
+    return FScaffold(
+      appBarWidget: Row(
+        children: [
+          BackWidget(color: kGreyColor),
+          20.horizontalSpace,
+          FText(text: "My Orders", fontWeight: FontWeight.w700, fontSize: 17),
+        ],
+      ),
 
-    return Column(
-      children: [
-        Row(
-          children: [
-            BackWidget(color: kGreyColor),
-            20.horizontalSpace,
-            FText(text: "My Orders", fontWeight: FontWeight.w700, fontSize: 17),
-          ],
-        ),
-        24.verticalSpace,
-        Expanded(
-          child: ContainedTabBarView(
-            tabBarProperties: TabBarProperties(
-              labelStyle: GoogleFonts.sen(color: kPrimaryColor),
-              indicatorSize: TabBarIndicatorSize.tab,
-              indicatorColor: kPrimaryColor,
-              labelColor: kPrimaryColor,
-              unselectedLabelStyle: GoogleFonts.sen(
-                color: kContainerColor,
-                fontSize: 17.sp,
-                fontWeight: FontWeight.w700,
+      body: Column(
+        children: [
+          24.verticalSpace,
+          Expanded(
+            child: ContainedTabBarView(
+              tabBarProperties: TabBarProperties(
+                labelStyle: GoogleFonts.sen(color: kPrimaryColor),
+                indicatorSize: TabBarIndicatorSize.tab,
+                indicatorColor: kPrimaryColor,
+                labelColor: kPrimaryColor,
+                unselectedLabelStyle: GoogleFonts.sen(
+                  color: kContainerColor,
+                  fontSize: 17.sp,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
+              tabs: [Text("Ongoing"), Text("History")],
+              views: [
+                StreamBuilder(
+                  stream: context.read<OrderBloc>().streamUserOrders(
+                    context.readCurrentUserId ?? "",
+                  ),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(
+                        child: CircularProgressIndicator(color: kErrorColor),
+                      );
+                    }
+                    if (snapshot.hasData) {
+                      final orders = snapshot.data;
+                      return SingleChildScrollView(
+                        child: Column(
+                          children: orders!.fold(
+                            (l) => [
+                              Center(
+                                child: FText(
+                                  text: "No ongoing orders ${l.failureMessage}",
+                                  fontSize: 16,
+                                  color: kContainerColor,
+                                ),
+                              ),
+                            ],
+                            (r) =>
+                                r
+                                    .where(
+                                      (order) =>
+                                          order.status == OrderStatus.pending ||
+                                          order.status ==
+                                              OrderStatus.preparing ||
+                                          order.status == OrderStatus.onTheWay,
+                                    )
+                                    .map((order) {
+                                      // Get first item for display
+                                      final firstItem =
+                                          order.items.isNotEmpty
+                                              ? order.items.first
+                                              : null;
+                                      return OrderDetailsWidget(
+                                        orderCategory: OrderCategory.ongoing,
+                                        order: order,
+                                        category: firstItem?.foodName ?? "Food",
+                                        foodName:
+                                            firstItem?.foodName ?? "Unknown",
+                                        price: order.total.toStringAsFixed(2),
+                                        orderId: order.id,
+                                        quantity: order.items.fold(
+                                          0,
+                                          (sum, item) => sum + item.quantity,
+                                        ),
+                                        firstButtonOnTap: () {
+                                          nav.navigateTo(
+                                            Routes.tracking,
+                                            // navConfig: NavConfig(
+                                            //   params: {
+                                            //     "orderId": order.id,
+                                            //   },
+                                            // ),
+                                          );
+                                        },
+                                        secondButtonOnTap: () {
+                                          context.read<OrderBloc>().add(
+                                            CancelOrderEvent(order.id),
+                                          );
+                                        },
+                                      );
+                                    })
+                                    .toList(),
+                          ),
+                        ).paddingOnly(top: 32),
+                      );
+                    }
+                    if (snapshot.hasError) {
+                      return FScaffold(
+                        appBarWidget: Row(
+                          children: [
+                            BackWidget(color: kGreyColor),
+                            20.horizontalSpace,
+                            FText(
+                              text: "Notifications",
+                              fontSize: 17.sp,
+                              fontWeight: FontWeight.w400,
+                              color: kBlackColor,
+                            ),
+                          ],
+                        ),
+                        body: Center(
+                          child: FText(
+                            text:
+                                "Error loading notifications ${snapshot.error}",
+                            color: kErrorColor,
+                            fontSize: 12,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                      );
+                    }
+                    return SizedBox.shrink();
+                  },
+                ),
+                BlocManager<OrderBloc, BaseState<dynamic>>(
+                  bloc: context.read<OrderBloc>(),
+                  showLoadingIndicator: false,
+                  builder: (context, state) {
+                    if (state is LoadingState) {
+                      return Center(
+                        child: CircularProgressIndicator(color: kPrimaryColor),
+                      );
+                    }
+                    if (state.hasData) {
+                      final _ = state.data as List? ?? [];
+                      final historyOrders =
+                          state.data
+                              .where(
+                                (order) =>
+                                    order.status == OrderStatus.delivered ||
+                                    order.status == OrderStatus.cancelled,
+                              )
+                              .toList();
+
+                      if (historyOrders.isEmpty) {
+                        return Center(
+                          child: FText(
+                            text: "No order history",
+                            fontSize: 16,
+                            color: kContainerColor,
+                          ),
+                        );
+                      }
+
+                      return SingleChildScrollView(
+                        child: Column(
+                          children:
+                              historyOrders.map((order) {
+                                // Get first item for display
+                                final firstItem =
+                                    order.items.isNotEmpty
+                                        ? order.items.first
+                                        : null;
+                                return OrderDetailsWidget(
+                                  orderCategory: OrderCategory.history,
+                                  order: order,
+                                  category: firstItem?.foodName ?? "Food",
+                                  foodName: firstItem?.foodName ?? "Unknown",
+                                  price: order.total.toStringAsFixed(2),
+                                  orderId: order.id,
+                                  quantity: order.items.fold(
+                                    0,
+                                    (sum, item) => sum + item.quantity,
+                                  ),
+                                  firstButtonOnTap: () {
+                                    // TODO: Implement rating
+                                  },
+                                  secondButtonOnTap: () {
+                                    // TODO: Implement re-order
+                                  },
+                                );
+                              }).toList(),
+                        ).paddingOnly(top: 32),
+                      );
+                    }
+                    return SizedBox.shrink();
+                  },
+                  child: const SizedBox.shrink(),
+                ),
+              ],
             ),
-            tabs: [Text("Ongoing"), Text("History")],
-            views: [
-              BlocManager<OrderBloc, BaseState<dynamic>>(
-                bloc: context.read<OrderBloc>(),
-                showLoadingIndicator: true,
-                builder: (context, state) {
-                  if (state is LoadingState) {
-                    return Center(
-                      child: CircularProgressIndicator(color: kPrimaryColor),
-                    );
-                  } else if (state.hasData) {
-                    final orders = state.data as List? ?? [];
-                    final ongoingOrders =
-                        orders
-                            .where(
-                              (order) =>
-                                  order.status == OrderStatus.pending ||
-                                  order.status == OrderStatus.confirmed ||
-                                  order.status == OrderStatus.preparing ||
-                                  order.status == OrderStatus.onTheWay,
-                            )
-                            .toList();
-
-                    if (ongoingOrders.isEmpty) {
-                      return Center(
-                        child: FText(
-                          text: "No ongoing orders",
-                          fontSize: 16,
-                          color: kContainerColor,
-                        ),
-                      );
-                    }
-
-                    return SingleChildScrollView(
-                      child: Column(
-                        children:
-                            ongoingOrders.map((order) {
-                              // Get first item for display
-                              final firstItem =
-                                  order.items.isNotEmpty
-                                      ? order.items.first
-                                      : null;
-                              return OrderDetailsWidget(
-                                orderCategory: OrderCategory.ongoing,
-                                order: order,
-                                category: firstItem?.foodName ?? "Food",
-                                foodName: firstItem?.foodName ?? "Unknown",
-                                price: order.total.toStringAsFixed(2),
-                                orderId: order.id,
-                                quantity: order.items.fold(
-                                  0,
-                                  (sum, item) => sum + item.quantity,
-                                ),
-                                firstButtonOnTap: () {
-                                  nav.navigateTo(
-                                    Routes.tracking,
-                                    arguments: order,
-                                  );
-                                },
-                                secondButtonOnTap: () {
-                                  context.read<OrderBloc>().add(
-                                    UpdateOrderStatusEvent(
-                                      order.id,
-                                      OrderStatus.cancelled,
-                                    ),
-                                  );
-                                },
-                              );
-                            }).toList(),
-                      ).paddingOnly(top: 32),
-                    );
-                  }
-                  return SizedBox.shrink();
-                },
-                child: const SizedBox.shrink(),
-              ),
-              BlocManager<OrderBloc, BaseState<dynamic>>(
-                bloc: context.read<OrderBloc>(),
-                showLoadingIndicator: true,
-                builder: (context, state) {
-                  if (state is LoadingState) {
-                    return Center(
-                      child: CircularProgressIndicator(color: kPrimaryColor),
-                    );
-                  } else if (state.hasData) {
-                    final _ = state.data as List? ?? [];
-                    final historyOrders =
-                        state.data
-                            .where(
-                              (order) =>
-                                  order.status == OrderStatus.delivered ||
-                                  order.status == OrderStatus.cancelled,
-                            )
-                            .toList();
-
-                    if (historyOrders.isEmpty) {
-                      return Center(
-                        child: FText(
-                          text: "No order history",
-                          fontSize: 16,
-                          color: kContainerColor,
-                        ),
-                      );
-                    }
-
-                    return SingleChildScrollView(
-                      child: Column(
-                        children:
-                            historyOrders.map((order) {
-                              // Get first item for display
-                              final firstItem =
-                                  order.items.isNotEmpty
-                                      ? order.items.first
-                                      : null;
-                              return OrderDetailsWidget(
-                                orderCategory: OrderCategory.history,
-                                order: order,
-                                category: firstItem?.foodName ?? "Food",
-                                foodName: firstItem?.foodName ?? "Unknown",
-                                price: order.total.toStringAsFixed(2),
-                                orderId: order.id,
-                                quantity: order.items.fold(
-                                  0,
-                                  (sum, item) => sum + item.quantity,
-                                ),
-                                firstButtonOnTap: () {
-                                  // TODO: Implement rating
-                                },
-                                secondButtonOnTap: () {
-                                  // TODO: Implement re-order
-                                },
-                              );
-                            }).toList(),
-                      ).paddingOnly(top: 32),
-                    );
-                  }
-                  return SizedBox.shrink();
-                },
-                child: const SizedBox.shrink(),
-              ),
-            ],
           ),
-        ),
-      ],
-    ).paddingOnly(
-      left: AppConstants.defaultPadding,
-      right: AppConstants.defaultPadding,
+        ],
+      ).paddingOnly(
+        left: AppConstants.defaultPadding,
+        right: AppConstants.defaultPadding,
+      ),
     );
   }
 }

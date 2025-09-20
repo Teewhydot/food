@@ -55,11 +55,41 @@ class Env {
     }
   }
 
+  // Flutterwave v4 Configuration
+  static String get flutterwaveEnvironment =>
+      kIsWeb
+          ? const String.fromEnvironment('FLUTTERWAVE_ENV', defaultValue: 'sandbox')
+          : dotenv.env['FLUTTERWAVE_ENV'] ?? 'sandbox';
+
+  static bool get isFlutterwaveProduction => flutterwaveEnvironment == 'production';
+
+  // Flutterwave v4 OAuth Configuration
+  static String? get flutterwaveClientId =>
+      kIsWeb
+          ? const String.fromEnvironment('FLUTTERWAVE_CLIENT_ID')
+          : dotenv.env['FLUTTERWAVE_CLIENT_ID'];
+
+  static String? get flutterwaveClientSecret =>
+      kIsWeb
+          ? const String.fromEnvironment('FLUTTERWAVE_CLIENT_SECRET')
+          : dotenv.env['FLUTTERWAVE_CLIENT_SECRET'];
+
+  static String? get flutterwaveSecretHash =>
+      kIsWeb
+          ? const String.fromEnvironment('FLUTTERWAVE_SECRET_HASH')
+          : dotenv.env['FLUTTERWAVE_SECRET_HASH'];
+
+  // Check if OAuth v4 credentials are configured
+  static bool get hasFlutterwaveCredentials =>
+      flutterwaveClientId != null &&
+      flutterwaveClientId!.isNotEmpty &&
+      flutterwaveClientSecret != null &&
+      flutterwaveClientSecret!.isNotEmpty;
+
   // Helper method to get environment variable with fallback
   static String getEnvVar(String key, {String fallback = ''}) {
     if (kIsWeb) {
       // For web, use String.fromEnvironment
-      const value = String.fromEnvironment('');
       // Since we can't use dynamic keys with const, return fallback for web
       // The specific getters above should be used instead
       return fallback;

@@ -3,111 +3,28 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../domain/entities/order_entity.dart';
 
 abstract class OrderRemoteDataSource {
-  Future<OrderEntity> createOrder(OrderEntity order);
-  Future<List<OrderEntity>> getUserOrders(String userId);
-  Future<OrderEntity> getOrderById(String orderId);
-  Future<OrderEntity> updateOrderStatus(String orderId, OrderStatus status);
+  Stream<List<OrderEntity>> streamUserOrders(String userId);
   Future<void> cancelOrder(String orderId);
 }
 
 class FirebaseOrderRemoteDataSource implements OrderRemoteDataSource {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
   @override
-  Future<OrderEntity> createOrder(OrderEntity order) async {
-    final orderData = {
-      'userId': order.userId,
-      'restaurantId': order.restaurantId,
-      'restaurantName': order.restaurantName,
-      'items':
-          order.items
-              .map(
-                (item) => {
-                  'foodId': item.foodId,
-                  'foodName': item.foodName,
-                  'price': item.price,
-                  'quantity': item.quantity,
-                  'total': item.total,
-                  'specialInstructions': item.specialInstructions,
-                },
-              )
-              .toList(),
-      'subtotal': order.subtotal,
-      'deliveryFee': order.deliveryFee,
-      'tax': order.tax,
-      'total': order.total,
-      'deliveryAddress': order.deliveryAddress,
-      'paymentMethod': order.paymentMethod,
-      'status': order.status.toString().split('.').last,
-      'createdAt': FieldValue.serverTimestamp(),
-      'notes': order.notes,
-    };
-
-    final docRef = await _firestore.collection('orders').add(orderData);
-
-    return OrderEntity(
-      id: docRef.id,
-      userId: order.userId,
-      restaurantId: order.restaurantId,
-      restaurantName: order.restaurantName,
-      items: order.items,
-      subtotal: order.subtotal,
-      deliveryFee: order.deliveryFee,
-      tax: order.tax,
-      total: order.total,
-      deliveryAddress: order.deliveryAddress,
-      paymentMethod: order.paymentMethod,
-      status: order.status,
-      createdAt: DateTime.now(),
-      notes: order.notes,
-    );
-  }
-
-  @override
-  Future<List<OrderEntity>> getUserOrders(String userId) async {
-    final snapshot =
-        await _firestore
-            .collection('orders')
-            .where('userId', isEqualTo: userId)
-            .orderBy('createdAt', descending: true)
-            .get();
-
-    return snapshot.docs.map((doc) => _orderFromFirestore(doc)).toList();
-  }
-
-  @override
-  Future<OrderEntity> getOrderById(String orderId) async {
-    final doc = await _firestore.collection('orders').doc(orderId).get();
-
-    if (!doc.exists) {
-      throw Exception('Order not found');
-    }
-
-    return _orderFromFirestore(doc);
-  }
-
-  @override
-  Future<OrderEntity> updateOrderStatus(
-    String orderId,
-    OrderStatus status,
-  ) async {
-    final updateData = {
-      'status': status.toString().split('.').last,
-      'updatedAt': FieldValue.serverTimestamp(),
-    };
-
-    if (status == OrderStatus.delivered) {
-      updateData['deliveredAt'] = FieldValue.serverTimestamp();
-    }
-
-    await _firestore.collection('orders').doc(orderId).update(updateData);
-
-    return getOrderById(orderId);
+  Stream<List<OrderEntity>> streamUserOrders(String userId) {
+    return _firestore
+        .collection('food_orders')
+        .where('userId', isEqualTo: userId)
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map(
+          (snapshot) =>
+              snapshot.docs.map((doc) => _orderFromFirestore(doc)).toList(),
+        );
   }
 
   @override
   Future<void> cancelOrder(String orderId) async {
-    await _firestore.collection('orders').doc(orderId).update({
+    await _firestore.collection('food_orders').doc(orderId).update({
       'status': OrderStatus.cancelled.toString().split('.').last,
       'cancelledAt': FieldValue.serverTimestamp(),
     });
@@ -139,13 +56,49 @@ class FirebaseOrderRemoteDataSource implements OrderRemoteDataSource {
       deliveryAddress: data['deliveryAddress'] ?? '',
       paymentMethod: data['paymentMethod'] ?? '',
       status: _parseOrderStatus(data['status'] ?? 'pending'),
-      createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      deliveredAt: (data['deliveredAt'] as Timestamp?)?.toDate(),
+      createdAt: _parseDateTimeRequired(data['createdAt']),
+      deliveredAt: _parseDateTimeNullable(data['deliveredAt']),
       deliveryPersonName: data['deliveryPersonName'],
       deliveryPersonPhone: data['deliveryPersonPhone'],
       trackingUrl: data['trackingUrl'],
       notes: data['notes'],
     );
+  }
+
+  DateTime _parseDateTimeRequired(dynamic dateValue) {
+    if (dateValue == null) return DateTime.now();
+
+    if (dateValue is Timestamp) {
+      return dateValue.toDate();
+    } else if (dateValue is String) {
+      try {
+        return DateTime.parse(dateValue);
+      } catch (e) {
+        return DateTime.now();
+      }
+    } else if (dateValue is int) {
+      return DateTime.fromMillisecondsSinceEpoch(dateValue);
+    }
+
+    return DateTime.now();
+  }
+
+  DateTime? _parseDateTimeNullable(dynamic dateValue) {
+    if (dateValue == null) return null;
+
+    if (dateValue is Timestamp) {
+      return dateValue.toDate();
+    } else if (dateValue is String) {
+      try {
+        return DateTime.parse(dateValue);
+      } catch (e) {
+        return null;
+      }
+    } else if (dateValue is int) {
+      return DateTime.fromMillisecondsSinceEpoch(dateValue);
+    }
+
+    return null;
   }
 
   OrderStatus _parseOrderStatus(String status) {

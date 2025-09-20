@@ -179,6 +179,18 @@ class _MenuState extends State<Menu> {
                         nav.navigateTo(Routes.address);
                       },
                     ),
+                    MenuSectionWidget(
+                      title: "Order History",
+                      child: FImage(
+                        assetPath: Assets.svgsTruck,
+                        assetType: FoodAssetType.svg,
+                        width: 12,
+                        height: 14,
+                      ),
+                      onTap: () {
+                        nav.navigateTo(Routes.orderHistory);
+                      },
+                    ),
                   ],
                 ).paddingAll(20),
               ),
