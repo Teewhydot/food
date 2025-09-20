@@ -1033,46 +1033,6 @@ async function handleFailedFlutterwavePayment(processedEvent, executionId) {
   logger.info(`Flutterwave payment failed for ${reference}`, executionId);
 }
 
-// ========================================================================
-// Health Check and Service Status
-// ========================================================================
-exports.healthCheck = onRequest(
-  {
-    region: FUNCTIONS_CONFIG.REGION,
-    timeoutSeconds: 30,
-    memory: '128MB'
-  },
-  async (req, res) => {
-    const executionId = `health-${Date.now()}`;
-
-    try {
-      const health = {
-        status: 'healthy',
-        timestamp: new Date().toISOString(),
-        version: '2.0.0-modular',
-        services: {
-          email: await emailService.testConnection(executionId),
-          payment: await paymentService.testConnection(executionId),
-          flutterwave: await flutterwaveService.testConnection(executionId),
-          fcm: await notificationService.testFCMConnection(executionId),
-          database: true // dbHelper is always available if admin is initialized
-        },
-        projectId: PROJECT_ID
-      };
-
-      const overallHealth = Object.values(health.services).every(status => status === true);
-      health.status = overallHealth ? 'healthy' : 'degraded';
-
-      res.status(200).json(health);
-    } catch (error) {
-      res.status(500).json({
-        status: 'unhealthy',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
-    }
-  }
-);
 
 // ========================================================================
 // Legacy Support - Export services for advanced usage

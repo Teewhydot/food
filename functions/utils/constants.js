@@ -96,6 +96,7 @@ const FLUTTERWAVE = {
   ENDPOINTS: {
     // v4 Endpoints
     V4_CHARGES: '/charges',
+    V4_DIRECT_CHARGES: '/orchestration/direct-charges',
     V4_CUSTOMERS: '/customers',
     V4_TRANSACTIONS: '/transactions'
   },

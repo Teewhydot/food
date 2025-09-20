@@ -62,7 +62,11 @@ class OAuthTokenManager {
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
           },
-          timeout: 30000
+          timeout: 60000, // Increase to 60 seconds
+          maxRedirects: 0, // No redirects/retries
+          validateStatus: function (status) {
+            return status < 500; // Accept all status codes except 5xx server errors
+          }
         }
       );
 
@@ -106,6 +110,11 @@ class OAuthTokenManager {
         clientIdPresent: !!this.clientId,
         clientSecretPresent: !!this.clientSecret
       });
+
+      // If it's a timeout error, provide specific guidance
+      if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+        throw new Error('Timeout error: Flutterwave OAuth server took too long to respond');
+      }
 
       // If it's a network error, provide helpful context
       if (error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED') {
@@ -196,9 +205,12 @@ class OAuthTokenManager {
   async getAuthorizationHeader(executionId = 'oauth-header') {
     try {
       const token = await this.getValidToken(executionId);
-      return `Bearer ${token}`;
+      const header = `Bearer ${token}`;
+      console.log(`[${executionId}] Generated Authorization header: Bearer ***${token.slice(-8)}`);
+      return header;
     } catch (error) {
       logger.error('Failed to generate authorization header', executionId, error);
+      console.log(`[${executionId}] CRITICAL: No Authorization header - OAuth token generation failed!`);
       throw error;
     }
   }

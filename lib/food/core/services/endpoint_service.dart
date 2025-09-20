@@ -5,7 +5,7 @@ import '../utils/logger.dart';
 /// Simplified endpoint service that only handles logging and timeouts
 /// Use with ErrorHandler.handle() for consistent error handling
 class EndpointService {
-  final Duration _timeoutDuration = const Duration(seconds: 10);
+  final Duration _timeoutDuration = const Duration(seconds: 120); // Increase to 2 minutes for payment operations
 
   /// Execute operation with logging and timeout - doesn't transform errors
   Future<T> runWithConfig<T>(

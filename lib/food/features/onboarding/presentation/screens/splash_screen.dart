@@ -42,6 +42,9 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return BlocManager<EnhancedLoginBloc, BaseState<UserProfileEntity>>(
       bloc: context.read<EnhancedLoginBloc>(),
+      showResultErrorNotifications: false,
+      showResultSuccessNotifications: false,
+      showLoadingIndicator: false,
       listener: (context, state) {
         if (state is LoadedState<UserProfileEntity>) {
           nav.navigateTo(Routes.home);

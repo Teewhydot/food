@@ -33,146 +33,139 @@ class FlutterwaveService {
     }
   }
 
-  // ========================================================================
-  // Customer Management
-  // ========================================================================
-
-  async createOrGetCustomer(email, metadata, executionId = 'flw-customer') {
-    try {
-      const customerEndpoint = `${this.baseUrl}${FLUTTERWAVE.ENDPOINTS.V4_CUSTOMERS}`;
-      console.log(`[${executionId}] Customer endpoint: ${customerEndpoint}`);
-
-      // Prepare headers with OAuth token
-      const headers = {
-        'Content-Type': 'application/json',
-        'Authorization': await this.oAuthManager.getAuthorizationHeader(executionId),
-        'X-Trace-Id': `customer_${executionId}_${Date.now()}`,
-        'X-Idempotency-Key': `customer_${uuidv4()}`
-      };
-
-      // Customer payload (v4 API structure - objects for name and phone)
-      const customerPayload = {
-        email: email,
-        name: {
-          first_name: (metadata.userName || 'Customer').split(' ')[0],
-          last_name: (metadata.userName || 'Customer').split(' ')[1] || ''
-        },
-        phone: {
-          country_code: '+234',
-          number: (metadata.phoneNumber || '09000000000').replace(/^\+?234/, '')
-        },
-        address: {
-          street: metadata.address?.street || 'No street provided',
-          city: metadata.address?.city || 'Lagos',
-          state: metadata.address?.state || 'Lagos',
-          country: metadata.address?.country || 'Nigeria',
-          postal_code: metadata.address?.postal_code || '100001'
-        },
-        meta: {
-          user_id: metadata.userId,
-          source: 'food_app'
-        }
-      };
-
-      console.log(`[${executionId}] Creating customer:`, JSON.stringify(customerPayload, null, 2));
-
-      const response = await axios.post(customerEndpoint, customerPayload, {
-        headers: headers,
-        timeout: 30000
-      });
-
-      if (response.status === 200 || response.status === 201) {
-        const customerId = response.data.id || response.data.data?.id;
-        console.log(`[${executionId}] Customer created/retrieved: ${customerId}`);
-        return customerId;
-      } else {
-        console.log(`[${executionId}] Customer creation failed:`, response.data);
-        // Fallback to using email as customer_id if customer creation fails
-        return email.replace('@', '_').replace('.', '_');
-      }
-    } catch (error) {
-      console.log(`[${executionId}] Customer creation error:`, error.response?.data || error.message);
-      // Fallback to using email as customer_id
-      return email.replace('@', '_').replace('.', '_');
-    }
-  }
 
   // ========================================================================
-  // Payment Initialization
+  // Payment Initialization using Direct Charges
   // ========================================================================
 
   async initializePayment(email, amount, metadata, executionId = 'flw-init') {
     try {
       // Detailed endpoint logging
-      console.log(`[${executionId}] Flutterwave API Configuration:`);
+      console.log(`[${executionId}] Flutterwave Direct Charges API Configuration:`);
       console.log(`[${executionId}] - Base URL: ${this.baseUrl}`);
       console.log(`[${executionId}] - Environment: ${FLUTTERWAVE_ENVIRONMENT.getEnvironmentSuffix()}`);
 
-      logger.payment('INITIALIZE', 'new-flutterwave-payment', amount, executionId);
+      logger.payment('INITIALIZE', 'new-flutterwave-direct-payment', amount, executionId);
 
-      // Generate unique transaction reference
-      const txRef = `FLW_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      // Generate unique alphanumeric transaction reference (no underscores or special chars)
+      const txRef = `FLW${Date.now()}${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
       const idempotencyKey = uuidv4();
       const traceId = `flw_${executionId}_${Date.now()}`;
 
-      // Step 1: Create or get customer
-      const customerId = await this.createOrGetCustomer(email, metadata, executionId);
-      console.log(`[${executionId}] Customer ID: ${customerId}`);
-
-      // Step 2: Create charge with proper customer_id
-      const endpoint = `${this.baseUrl}${FLUTTERWAVE.ENDPOINTS.V4_CHARGES}`;
-      console.log(`[${executionId}] - Charge Endpoint: ${endpoint}`);
+      // Use direct-charges endpoint (no separate customer creation needed)
+      const directChargesUrl = `${this.baseUrl}${FLUTTERWAVE.ENDPOINTS.V4_DIRECT_CHARGES}`;
+      console.log(`[${executionId}] - Direct Charges Endpoint: ${directChargesUrl}`);
 
       // Prepare headers with OAuth token
+      const authHeader = await this.oAuthManager.getAuthorizationHeader(executionId);
+      console.log(`[${executionId}] OAuth Authorization Header: ${authHeader ? 'Bearer ***' + authHeader.slice(-8) : 'MISSING'}`);
+
       const headers = {
         'Content-Type': 'application/json',
-        'Authorization': await this.oAuthManager.getAuthorizationHeader(executionId),
+        'Authorization': authHeader,
         'X-Idempotency-Key': idempotencyKey,
         'X-Trace-Id': traceId
       };
 
-      // v4 API payload structure (according to official docs)
+      console.log(`[${executionId}] Request headers prepared:`, {
+        'Content-Type': headers['Content-Type'],
+        'Authorization': headers.Authorization ? 'Bearer ***' + headers.Authorization.slice(-8) : 'MISSING',
+        'X-Idempotency-Key': headers['X-Idempotency-Key'],
+        'X-Trace-Id': headers['X-Trace-Id']
+      });
+
+      // Validate and prepare customer name fields
+      const nameParts = (metadata.userName || 'Customer User').split(' ');
+      const firstName = nameParts[0] || 'Customer';
+      const lastName = nameParts[1] || 'User';
+      const middleName = nameParts[2] || 'N/A'; // Default middle name if not provided
+
+      // Ensure name fields meet validation requirements (2-50 chars)
+      const validFirstName = firstName.length >= 2 ? firstName.substring(0, 50) : 'Customer';
+      const validLastName = lastName.length >= 2 ? lastName.substring(0, 50) : 'User';
+      const validMiddleName = middleName.length >= 2 ? middleName.substring(0, 50) : 'N/A';
+
+      // Clean phone number to digits only (7-10 chars)
+      const rawPhone = (metadata.phoneNumber || '08000000000').replace(/[^\d]/g, '');
+      const cleanPhone = rawPhone.replace(/^234/, ''); // Remove country code if present
+      const validPhone = cleanPhone.length >= 7 && cleanPhone.length <= 10 ? cleanPhone : '08000000000';
+
+      // Direct charges API payload structure (customer info inline)
       const payload = {
         amount: amount,
         currency: 'NGN',
         reference: txRef,
-        customer_id: customerId,
-        payment_method_id: 'card', // Default to card payment
-        redirect_url: metadata.redirectUrl || 'https://example.com/success',
+        customer: {
+          email: email,
+          name: {
+            first: validFirstName,
+            middle: validMiddleName,
+            last: validLastName
+          },
+          phone: {
+            country_code: '234',
+            number: validPhone
+          },
+          address: {
+            city: metadata.address?.city || 'Lagos',
+            country: metadata.address?.country || 'NG',
+            line1: metadata.address?.street || metadata.address?.line1 || 'No street provided',
+            line2: metadata.address?.line2 || 'N/A', // Cannot be empty
+            postal_code: metadata.address?.postal_code || '100001',
+            state: metadata.address?.state || 'Lagos'
+          },
+          meta: {
+            user_id: metadata.userId,
+            source: 'food_app'
+          }
+        },
+        payment_method: {
+          type: 'card' // Required field
+        },
         meta: {
           order_id: metadata.orderId,
-          email: email,
-          name: metadata.userName || 'Customer',
-          phone: metadata.phoneNumber || '09000000000',
+          user_id: metadata.userId,
+          source: 'food_app',
           ...metadata.bookingDetails
-        }
+        },
+        redirect_url: metadata.redirectUrl || 'https://example.com/success'
       };
 
       // Log the complete payload for debugging
-      console.log(`[${executionId}] Complete request payload:`, JSON.stringify(payload, null, 2));
+      console.log(`[${executionId}] Complete direct charges payload:`, JSON.stringify(payload, null, 2));
 
       // Log the actual request being made
-      console.log(`[${executionId}] Making HTTP POST request to: ${endpoint}`);
+      console.log(`[${executionId}] Making HTTP POST request to: ${directChargesUrl}`);
       console.log(`[${executionId}] Request headers:`, Object.keys(headers));
       console.log(`[${executionId}] Request payload amount: ${payload.amount}`);
 
-      const response = await axios.post(endpoint, payload, {
+      // Critical: Verify Authorization header is included
+      if (!headers.Authorization || !headers.Authorization.startsWith('Bearer ')) {
+        throw new Error('CRITICAL: Missing or invalid Authorization header for Flutterwave API');
+      }
+      console.log(`[${executionId}] ✅ Authorization header verified: ${headers.Authorization.slice(0, 15)}...`);
+
+      const response = await axios.post(directChargesUrl, payload, {
         headers: headers,
-        timeout: 30000
+        timeout: 60000, // Increase to 60 seconds
+        maxRedirects: 0, // No redirects/retries
+        validateStatus: function (status) {
+          return status < 500; // Accept all status codes except 5xx server errors
+        }
       });
 
       console.log(`[${executionId}] Response status: ${response.status}`);
-      console.log(`[${executionId}] Response received from: ${endpoint}`);
+      console.log(`[${executionId}] Response received from: ${directChargesUrl}`);
 
       if (response.status === 200 || response.status === 201) {
         const paymentData = response.data;
-        const authorizationUrl = paymentData.link || paymentData.authorization_url;
+        const authorizationUrl = paymentData.link || paymentData.authorization_url || paymentData.redirect_url;
 
-        logger.success(`Flutterwave payment initialized: ${txRef}`, executionId, {
+        logger.success(`Flutterwave direct charge initialized: ${txRef}`, executionId, {
           txRef: txRef,
           amount: amount,
           email: email,
-          apiVersion: 'v4',
+          apiVersion: 'v4-direct',
           idempotencyKey: idempotencyKey
         });
 
@@ -183,33 +176,54 @@ class FlutterwaveService {
           accessCode: paymentData.access_code || null,
           amount: amount,
           idempotencyKey: idempotencyKey,
-          traceId: traceId
+          traceId: traceId,
+          paymentData: paymentData // Include full response for debugging
         };
       } else {
-        console.log(`[${executionId}] Flutterwave API Error Response:`, JSON.stringify(response.data, null, 2));
+        console.log(`[${executionId}] Flutterwave Direct Charges API Error Response:`, JSON.stringify(response.data, null, 2));
         const errorMessage = response.data.message || response.data.error || 'Unknown error';
-        throw new Error(`Flutterwave API error: ${errorMessage}`);
+        throw new Error(`Flutterwave Direct Charges API error: ${errorMessage}`);
       }
     } catch (error) {
       // Log the complete error details including response data
       console.log(`[${executionId}] Full error details:`, {
         message: error.message,
+        code: error.code,
         status: error.response?.status,
         statusText: error.response?.statusText,
         responseData: error.response?.data,
-        headers: error.response?.headers
+        headers: error.response?.headers,
+        isTimeout: error.code === 'ECONNABORTED' || error.message.includes('timeout')
       });
 
-      logger.error('Failed to initialize Flutterwave payment', executionId, error, {
+      // Specific handling for timeout errors
+      if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+        logger.critical('Flutterwave API request timeout - increase timeout or check network', executionId, error, {
+          email: email,
+          amount: amount,
+          apiVersion: 'v4-direct',
+          timeoutDuration: '60000ms'
+        });
+
+        return {
+          success: false,
+          error: 'Request timeout - please try again',
+          errorType: 'TIMEOUT',
+          details: { message: 'The request to Flutterwave API timed out after 60 seconds' }
+        };
+      }
+
+      logger.error('Failed to initialize Flutterwave direct charge', executionId, error, {
         email: email,
         amount: amount,
-        apiVersion: 'v4',
-        endpoint: endpoint
+        apiVersion: 'v4-direct',
+        errorCode: error.code
       });
 
       return {
         success: false,
         error: error.message,
+        errorType: 'API_ERROR',
         details: error.response?.data || null
       };
     }
@@ -247,7 +261,11 @@ class FlutterwaveService {
 
       const response = await axios.get(endpoint, {
         headers: headers,
-        timeout: 30000
+        timeout: 60000,
+        maxRedirects: 0, // No redirects/retries
+        validateStatus: function (status) {
+          return status < 500; // Accept all status codes except 5xx server errors
+        }
       });
 
       console.log(`[${executionId}] Verification response status: ${response.status}`);
