@@ -80,23 +80,43 @@ class FlutterwaveService {
       const lastName = nameParts[1] || 'User';
       const middleName = nameParts[2] || 'N/A'; // Default middle name if not provided
 
-      // Ensure name fields meet validation requirements (2-50 chars)
+      // Ensure name fields meet validation requirements (2-50 chars) - must not be empty/spaces/symbols only
       const validFirstName = firstName.length >= 2 ? firstName.substring(0, 50) : 'Customer';
       const validLastName = lastName.length >= 2 ? lastName.substring(0, 50) : 'User';
-      const validMiddleName = middleName.length >= 2 ? middleName.substring(0, 50) : 'N/A';
+      // Middle name must be 2-50 chars, not just spaces or symbols
+      let validMiddleName = middleName.length >= 2 ? middleName.substring(0, 50) : 'Middle';
+      // Ensure middle name contains at least some letters
+      if (!/[a-zA-Z]/.test(validMiddleName)) {
+        validMiddleName = 'Middle';
+      }
 
-      // Clean phone number to digits only (7-10 chars)
-      const rawPhone = (metadata.phoneNumber || '08000000000').replace(/[^\d]/g, '');
+      // Clean phone number to digits only (7-10 chars) - strict validation
+      const rawPhone = (metadata.phoneNumber || '08012345678').replace(/[^\d]/g, '');
       const cleanPhone = rawPhone.replace(/^234/, ''); // Remove country code if present
-      const validPhone = cleanPhone.length >= 7 && cleanPhone.length <= 10 ? cleanPhone : '08000000000';
+      // Ensure phone number is exactly between 7-10 digits
+      let validPhone = cleanPhone;
+      if (validPhone.length < 7) {
+        validPhone = '08012345678'; // Default fallback
+      } else if (validPhone.length > 10) {
+        validPhone = validPhone.substring(0, 10); // Truncate to 10 digits
+      }
 
-      // Direct charges API payload structure (customer info inline)
+      // Flutterwave Direct Charges API payload structure - exact match to documentation
       const payload = {
-        amount: amount,
         currency: 'NGN',
-        reference: txRef,
         customer: {
-          email: email,
+          address: {
+            city: metadata.address?.city || 'Lagos',
+            country: metadata.address?.country || 'NG',
+            line1: metadata.address?.street || metadata.address?.line1 || '123 Main Street',
+            line2: metadata.address?.line2 || 'Apt 1A',
+            postal_code: metadata.address?.postal_code || '100001',
+            state: metadata.address?.state || 'Lagos'
+          },
+          meta: {
+            user_id: metadata.userId,
+            source: 'food_app'
+          },
           name: {
             first: validFirstName,
             middle: validMiddleName,
@@ -106,28 +126,45 @@ class FlutterwaveService {
             country_code: '234',
             number: validPhone
           },
-          address: {
-            city: metadata.address?.city || 'Lagos',
-            country: metadata.address?.country || 'NG',
-            line1: metadata.address?.street || metadata.address?.line1 || 'No street provided',
-            line2: metadata.address?.line2 || 'N/A', // Cannot be empty
-            postal_code: metadata.address?.postal_code || '100001',
-            state: metadata.address?.state || 'Lagos'
-          },
-          meta: {
-            user_id: metadata.userId,
-            source: 'food_app'
-          }
-        },
-        payment_method: {
-          type: 'card' // Required field
+          email: email
         },
         meta: {
           order_id: metadata.orderId,
           user_id: metadata.userId,
-          source: 'food_app',
-          ...metadata.bookingDetails
+          source: 'food_app'
         },
+        payment_method: {
+          card: {
+            billing_address: {
+              city: metadata.address?.city || 'Lagos',
+              country: metadata.address?.country || 'NG',
+              line1: metadata.address?.street || metadata.address?.line1 || '123 Main Street',
+              line2: metadata.address?.line2 || 'Apt 1A',
+              postal_code: metadata.address?.postal_code || '100001',
+              state: metadata.address?.state || 'Lagos'
+            },
+            cof: {
+              enabled: true,
+              agreement_id: `Agreement${Date.now()}`,
+              trace_id: `trace_${Date.now()}`
+            },
+            nonce: Math.random().toString(36).substring(2, 14), // 12 character alphanumeric
+            encrypted_expiry_month: 'sQpvQEb7GrUCjPuEN/NmHiPl', // Demo encrypted value
+            encrypted_expiry_year: 'sgHNEDkJ/RmwuWWq/RymToU5', // Demo encrypted value
+            encrypted_card_number: 'sAE3hEDaDQ+yLzo4Py+Lx15OZjBGduHu/DcdILh3En0=', // Demo encrypted value
+            encrypted_cvv: 'tAUzH7Qjma7diGdi7938F/ESNA==', // Demo encrypted value
+            card_holder_name: `${validFirstName} ${validLastName}`
+          },
+          type: 'card'
+        },
+        authorization: {
+          otp: {
+            code: 'string'
+          },
+          type: 'otp'
+        },
+        amount: amount,
+        reference: txRef,
         redirect_url: metadata.redirectUrl || 'https://example.com/success'
       };
 
@@ -159,7 +196,16 @@ class FlutterwaveService {
 
       if (response.status === 200 || response.status === 201) {
         const paymentData = response.data;
-        const authorizationUrl = paymentData.link || paymentData.authorization_url || paymentData.redirect_url;
+        // Extract redirect URL from Flutterwave Direct Charges response structure
+        const authorizationUrl = paymentData.data?.next_action?.redirect_url?.url ||
+                                 paymentData.link ||
+                                 paymentData.authorization_url ||
+                                 paymentData.redirect_url;
+
+        console.log(`[${executionId}] Extracted authorization URL: ${authorizationUrl ? 'Found' : 'NOT FOUND'}`);
+        if (!authorizationUrl) {
+          console.log(`[${executionId}] Payment data structure:`, JSON.stringify(paymentData, null, 2));
+        }
 
         logger.success(`Flutterwave direct charge initialized: ${txRef}`, executionId, {
           txRef: txRef,

@@ -61,7 +61,7 @@ class FlutterwaveService {
         );
 
         final response = await http.post(
-          Uri.parse('$_baseUrl/initializeFlutterwaveDirectCharge'),
+          Uri.parse('$_baseUrl/initializeFlutterwavePayment'),
           headers: headers,
           body: json.encode({
             'orderId': orderId,

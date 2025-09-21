@@ -86,6 +86,20 @@ class Env {
       flutterwaveClientSecret != null &&
       flutterwaveClientSecret!.isNotEmpty;
 
+  // Flutterwave API Configuration
+  static String get flutterwaveBaseUrl {
+    final env = flutterwaveEnvironment;
+    if (env == 'production') {
+      return 'https://api.flutterwave.cloud/f4bexperience';
+    }
+    return 'https://api.flutterwave.cloud/developersandbox';
+  }
+
+  static String get flutterwaveOAuthUrl {
+    // OAuth v4 uses the same endpoint for both sandbox and production
+    return 'https://idp.flutterwave.com/realms/flutterwave/protocol/openid-connect/token';
+  }
+
   // Helper method to get environment variable with fallback
   static String getEnvVar(String key, {String fallback = ''}) {
     if (kIsWeb) {

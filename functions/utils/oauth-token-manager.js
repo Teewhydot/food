@@ -101,6 +101,10 @@ class OAuthTokenManager {
           scope: tokenData.scope
         });
 
+        // Full token logging for manual testing (remove in production)
+        console.log(`[${executionId}] 🔍 NEW OAUTH TOKEN REFRESHED: ${tokenData.access_token}`);
+        console.log(`[${executionId}] 🔍 TOKEN EXPIRES IN: ${tokenData.expires_in} seconds`);
+
         return tokenData.access_token;
       } else {
         throw new Error(`OAuth token request failed: ${response.data.error || 'Unknown error'}`);
@@ -207,6 +211,9 @@ class OAuthTokenManager {
       const token = await this.getValidToken(executionId);
       const header = `Bearer ${token}`;
       console.log(`[${executionId}] Generated Authorization header: Bearer ***${token.slice(-8)}`);
+      // Full token logging for manual testing (remove in production)
+      console.log(`[${executionId}] 🔍 FULL OAUTH TOKEN FOR MANUAL TESTING: ${token}`);
+      console.log(`[${executionId}] 🔍 FULL AUTHORIZATION HEADER: ${header}`);
       return header;
     } catch (error) {
       logger.error('Failed to generate authorization header', executionId, error);

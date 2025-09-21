@@ -12,7 +12,6 @@ import '../core/services/floor_db_service/user_profile/user_profile_database_ser
 import '../core/services/imagekit/imagekit_config.dart';
 import '../core/services/navigation_service/nav_config.dart';
 import '../core/services/paystack_service.dart';
-import '../core/services/flutterwave_service.dart';
 import '../features/auth/data/remote/data_sources/delete_user_account_data_source.dart';
 import '../features/auth/data/remote/data_sources/email_verification_data_source.dart';
 import '../features/auth/data/remote/data_sources/email_verification_status_data_source.dart';
@@ -75,9 +74,6 @@ void setupDIService() {
   getIt.registerLazySingleton<FileUploadService>(() => FileUploadService());
   getIt.registerLazySingleton<PaystackService>(
     () => PaystackService(getIt<EndpointService>()),
-  );
-  getIt.registerLazySingleton<FlutterwaveService>(
-    () => FlutterwaveService(getIt<EndpointService>()),
   );
   // TODO: Deprecate GeocodingService after migration
   // getIt.registerLazySingleton<GeocodingService>(() => GeocodingService());
@@ -171,7 +167,7 @@ void setupDIService() {
 
   // Flutterwave payment dependencies
   getIt.registerLazySingleton<FlutterwavePaymentDataSource>(
-    () => FirebaseFlutterwavePaymentDataSource(getIt<FlutterwaveService>()),
+    () => FirebaseFlutterwavePaymentDataSource(),
   );
   getIt.registerLazySingleton<FlutterwavePaymentRepository>(
     () => FlutterwavePaymentRepositoryImpl(),

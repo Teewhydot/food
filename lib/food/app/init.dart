@@ -8,6 +8,7 @@ import 'package:food/food/core/services/floor_db_service/user_profile/user_profi
 
 import '../core/services/floor_db_service/address/address_database_service.dart';
 import '../core/services/floor_db_service/recent_keywords/recent_keywords_database_service.dart';
+import '../core/services/hive_cache_service.dart';
 import '../dependency_injection/set_up.dart';
 
 class AppConfig {
@@ -15,6 +16,10 @@ class AppConfig {
     // Initialize app configurations here
     // For example, setting up environment variables, logging, etc.
     WidgetsFlutterBinding.ensureInitialized();
+
+    // Initialize Hive cache service
+    await HiveCacheService.initialize();
+
     setupDIService();
     await RecentKeywordsDatabaseService().database;
     await AddressDatabaseService().database;
