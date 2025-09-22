@@ -6,6 +6,7 @@ import 'package:food/firebase_options.dart';
 import 'package:food/food/core/constants/env.dart';
 import 'package:food/food/core/services/floor_db_service/user_profile/user_profile_database_service.dart';
 
+import '../core/services/card_encryption_service.dart';
 import '../core/services/floor_db_service/address/address_database_service.dart';
 import '../core/services/floor_db_service/recent_keywords/recent_keywords_database_service.dart';
 import '../core/services/hive_cache_service.dart';
@@ -19,6 +20,9 @@ class AppConfig {
 
     // Initialize Hive cache service
     await HiveCacheService.initialize();
+
+    // Initialize card encryption service
+    await CardEncryptionService.initialize();
 
     setupDIService();
     await RecentKeywordsDatabaseService().database;

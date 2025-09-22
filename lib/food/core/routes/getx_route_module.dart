@@ -19,6 +19,7 @@ import 'package:food/food/features/home/presentation/screens/search.dart';
 import 'package:food/food/features/onboarding/presentation/screens/food_onboarding.dart';
 import 'package:food/food/features/onboarding/presentation/screens/splash_screen.dart';
 import 'package:food/food/features/payments/presentation/screens/add_card.dart';
+import 'package:food/food/features/payments/presentation/screens/flutterwave_card_form_screen.dart';
 import 'package:food/food/features/payments/presentation/screens/payment_method.dart';
 import 'package:food/food/features/payments/presentation/screens/status.dart';
 import 'package:food/food/features/tracking/presentation/screens/notifications.dart';
@@ -141,6 +142,18 @@ class GetXRouteModule {
     GetPage(
       name: Routes.addCard,
       page: () => const AddCard(),
+      transition: _transition,
+      transitionDuration: _transitionDuration,
+    ),
+    GetPage(
+      name: Routes.flutterwaveCardForm,
+      page: () {
+        final args = Get.arguments as Map<String, dynamic>;
+        return FlutterwaveCardFormScreen(
+          amount: args['amount'] as double,
+          orderId: args['orderId'] as String,
+        );
+      },
       transition: _transition,
       transitionDuration: _transitionDuration,
     ),
