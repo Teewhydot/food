@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:contained_tab_bar_view/contained_tab_bar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,6 +14,7 @@ import 'package:food/food/features/tracking/presentation/screens/tracking.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:dartz/dartz.dart' hide State;
 
 import '../../../../components/scaffold.dart';
 import '../../../../core/bloc/base/base_state.dart';
@@ -21,6 +24,7 @@ import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../payments/domain/entities/order_entity.dart';
 import '../../../payments/presentation/manager/order_bloc/order_bloc.dart';
 import '../../../payments/presentation/manager/order_bloc/order_event.dart';
+import '../../../../domain/failures/failures.dart';
 
 enum OrderCategory { ongoing, history }
 
@@ -33,6 +37,69 @@ class Orders extends StatefulWidget {
 
 class _OrdersState extends State<Orders> {
   final nav = GetIt.instance<NavigationService>();
+  late Stream<Either<Failure, List<OrderEntity>>> _ordersStream;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeStream();
+  }
+
+  void _initializeStream() {
+    _ordersStream = context.read<OrderBloc>()
+        .streamUserOrders(context.readCurrentUserId ?? "")
+        .distinct(); // Prevent unnecessary rebuilds for same data
+  }
+
+  Widget _buildOngoingOrdersList(List<OrderEntity> orders) {
+    final ongoingOrders = orders
+        .where((order) =>
+            order.status == OrderStatus.pending ||
+            order.status == OrderStatus.preparing ||
+            order.status == OrderStatus.onTheWay)
+        .toList();
+
+    if (ongoingOrders.isEmpty) {
+      return Center(
+        child: FText(
+          text: "No ongoing orders",
+          fontSize: 16,
+          color: kContainerColor,
+        ),
+      );
+    }
+
+    return SingleChildScrollView(
+      child: Column(
+        children: ongoingOrders.map((order) {
+          final firstItem = order.items.isNotEmpty ? order.items.first : null;
+          return OrderDetailsWidget(
+            orderCategory: OrderCategory.ongoing,
+            order: order,
+            category: firstItem?.foodName ?? "Food",
+            foodName: firstItem?.foodName ?? "Unknown",
+            price: order.total.toStringAsFixed(2),
+            orderId: order.id,
+            quantity: order.items.fold(
+              0,
+              (sum, item) => sum + item.quantity,
+            ),
+            firstButtonOnTap: () {
+              nav.navigateTo(Routes.tracking);
+            },
+            secondButtonOnTap: () {
+              context.read<OrderBloc>().add(CancelOrderEvent(order.id));
+            },
+          );
+        }).toList(),
+      ).paddingOnly(top: 32),
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,10 +130,8 @@ class _OrdersState extends State<Orders> {
               ),
               tabs: [Text("Ongoing"), Text("History")],
               views: [
-                StreamBuilder(
-                  stream: context.read<OrderBloc>().streamUserOrders(
-                    context.readCurrentUserId ?? "",
-                  ),
+                StreamBuilder<Either<Failure, List<OrderEntity>>>(
+                  stream: _ordersStream,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return Center(
@@ -75,65 +140,15 @@ class _OrdersState extends State<Orders> {
                     }
                     if (snapshot.hasData) {
                       final orders = snapshot.data;
-                      return SingleChildScrollView(
-                        child: Column(
-                          children: orders!.fold(
-                            (l) => [
-                              Center(
-                                child: FText(
-                                  text: "No ongoing orders ${l.failureMessage}",
-                                  fontSize: 16,
-                                  color: kContainerColor,
-                                ),
-                              ),
-                            ],
-                            (r) =>
-                                r
-                                    .where(
-                                      (order) =>
-                                          order.status == OrderStatus.pending ||
-                                          order.status ==
-                                              OrderStatus.preparing ||
-                                          order.status == OrderStatus.onTheWay,
-                                    )
-                                    .map((order) {
-                                      // Get first item for display
-                                      final firstItem =
-                                          order.items.isNotEmpty
-                                              ? order.items.first
-                                              : null;
-                                      return OrderDetailsWidget(
-                                        orderCategory: OrderCategory.ongoing,
-                                        order: order,
-                                        category: firstItem?.foodName ?? "Food",
-                                        foodName:
-                                            firstItem?.foodName ?? "Unknown",
-                                        price: order.total.toStringAsFixed(2),
-                                        orderId: order.id,
-                                        quantity: order.items.fold(
-                                          0,
-                                          (sum, item) => sum + item.quantity,
-                                        ),
-                                        firstButtonOnTap: () {
-                                          nav.navigateTo(
-                                            Routes.tracking,
-                                            // navConfig: NavConfig(
-                                            //   params: {
-                                            //     "orderId": order.id,
-                                            //   },
-                                            // ),
-                                          );
-                                        },
-                                        secondButtonOnTap: () {
-                                          context.read<OrderBloc>().add(
-                                            CancelOrderEvent(order.id),
-                                          );
-                                        },
-                                      );
-                                    })
-                                    .toList(),
+                      return orders!.fold(
+                        (l) => Center(
+                          child: FText(
+                            text: "No ongoing orders ${l.failureMessage}",
+                            fontSize: 16,
+                            color: kContainerColor,
                           ),
-                        ).paddingOnly(top: 32),
+                        ),
+                        (r) => _buildOngoingOrdersList(r),
                       );
                     }
                     if (snapshot.hasError) {

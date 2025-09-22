@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -17,6 +19,7 @@ import 'package:food/food/features/home/presentation/widgets/circle_widget.dart'
 import 'package:food/generated/assets.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
+import 'package:dartz/dartz.dart' hide State;
 
 import '../../../../components/texts.dart';
 import '../../../../core/bloc/managers/bloc_manager.dart';
@@ -26,6 +29,7 @@ import '../../../auth/presentation/widgets/back_widget.dart';
 import '../../../file_upload/presentation/manager/file_upload_bloc/file_upload_bloc.dart';
 import '../../../tracking/data/remote/data_sources/notification_remote_data_source.dart';
 import '../../manager/user_profile/enhanced_user_profile_cubit.dart';
+import '../../../../domain/failures/failures.dart';
 
 class EditProfile extends StatefulWidget {
   final UserProfileEntity userProfile;
@@ -47,6 +51,8 @@ class _EditProfileState extends State<EditProfile> {
   String email = "";
   String? profileImageUrl = "";
   String id = "";
+  late Stream<Either<Failure, UserProfileEntity>> _userProfileStream;
+
   void getUserProfile() async {
     final user = await (await db.database).userProfileDao.getUserProfile();
     if (user.first.id != null) {
@@ -54,6 +60,13 @@ class _EditProfileState extends State<EditProfile> {
       id = user.first.id!;
       Logger.logBasic("User ID: $id, Email: $email");
     }
+  }
+
+  void _initializeStream() {
+    _userProfileStream = context
+        .read<EnhancedUserProfileCubit>()
+        .watchUserProfile(context.readCurrentUserId ?? "")
+        .distinct();
   }
 
   @override
@@ -64,6 +77,25 @@ class _EditProfileState extends State<EditProfile> {
     phoneController.text = widget.userProfile.phoneNumber;
     bioController.text = widget.userProfile.bio ?? "";
     getUserProfile();
+    _initializeStream();
+  }
+
+  Widget _buildProfileImage(Either<Failure, UserProfileEntity>? data) {
+    return CircleWidget(
+      radius: 70,
+      color: kPrimaryColor,
+      onTap: null,
+      child: FImage(
+        assetPath: data?.fold(
+          (l) => widget.userProfile.profileImageUrl ?? "",
+          (r) => r.profileImageUrl ?? "",
+        ) ?? widget.userProfile.profileImageUrl ?? "",
+        assetType: FoodAssetType.network,
+        borderRadius: 70,
+        width: 140,
+        height: 140,
+      ),
+    );
   }
 
   @override
@@ -110,29 +142,10 @@ class _EditProfileState extends State<EditProfile> {
                 20.verticalSpace,
                 Stack(
                   children: [
-                    StreamBuilder(
-                      stream: context
-                          .read<EnhancedUserProfileCubit>()
-                          .watchUserProfile(context.readCurrentUserId ?? ""),
+                    StreamBuilder<Either<Failure, UserProfileEntity>>(
+                      stream: _userProfileStream,
                       builder: (context, snapshot) {
-                        return CircleWidget(
-                          radius: 70,
-                          color: kPrimaryColor,
-                          onTap: null,
-                          child: FImage(
-                            assetPath:
-                                snapshot.data?.fold(
-                                  (l) =>
-                                      widget.userProfile.profileImageUrl ?? "",
-                                  (r) => r.profileImageUrl!,
-                                ) ??
-                                "",
-                            assetType: FoodAssetType.network,
-                            borderRadius: 70,
-                            width: 140,
-                            height: 140,
-                          ),
-                        );
+                        return _buildProfileImage(snapshot.data);
                       },
                     ),
                     Positioned(

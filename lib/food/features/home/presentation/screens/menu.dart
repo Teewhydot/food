@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -17,9 +19,12 @@ import 'package:food/food/features/home/presentation/widgets/menu_section_widget
 import 'package:food/generated/assets.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
+import 'package:dartz/dartz.dart' hide State;
 
 import '../../../../core/bloc/managers/bloc_manager.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
+import '../../../../domain/failures/failures.dart';
+import '../../domain/entities/profile.dart';
 
 class Menu extends StatefulWidget {
   const Menu({super.key});
@@ -29,6 +34,21 @@ class Menu extends StatefulWidget {
 }
 
 class _MenuState extends State<Menu> {
+  late Stream<Either<Failure, UserProfileEntity>> _userProfileStream;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeStream();
+  }
+
+  void _initializeStream() {
+    _userProfileStream = context
+        .read<EnhancedUserProfileCubit>()
+        .watchUserProfile(context.readCurrentUserId ?? "")
+        .distinct();
+  }
+
   void _resetUserData(BuildContext context) {
     try {
       // Clear only user profile data
@@ -37,6 +57,68 @@ class _MenuState extends State<Menu> {
       // Continue even if reset fails
       debugPrint("Error resetting user data: $e");
     }
+  }
+
+  Widget _buildProfileHeader(Either<Failure, UserProfileEntity> profile) {
+    return Row(
+      children: [
+        CircleWidget(
+          radius: 50,
+          color: kPrimaryColor,
+          child: FImage(
+            assetPath: profile.fold(
+              (l) => "",
+              (r) => r.profileImageUrl,
+            ) ?? "",
+            assetType: FoodAssetType.network,
+            borderRadius: 70,
+            width: 140,
+            height: 140,
+          ),
+        ),
+        32.horizontalSpace,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              FText(
+                text: profile.fold(
+                  (l) => 'Guest User',
+                  (r) => '${r.firstName} ${r.lastName}'.trim(),
+                ),
+                fontSize: 20.sp,
+                fontWeight: FontWeight.w500,
+                color: kBlackColor,
+                alignment: MainAxisAlignment.start,
+              ),
+              8.verticalSpace,
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  color: kWhiteColor,
+                  border: Border.all(color: kGreyColor),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: FWrapText(
+                    text: profile.fold(
+                      (l) => 'No bio available',
+                      (r) => r.bio?.isNotEmpty == true
+                          ? r.bio!
+                          : 'No bio available',
+                    ),
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w400,
+                    color: kContainerColor,
+                    alignment: Alignment.topLeft,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 
   @override
@@ -65,83 +147,19 @@ class _MenuState extends State<Menu> {
         body: SingleChildScrollView(
           child: Column(
             children: [
-              StreamBuilder(
-                stream: context
-                    .read<EnhancedUserProfileCubit>()
-                    .watchUserProfile(context.readCurrentUserId ?? ""),
+              StreamBuilder<Either<Failure, UserProfileEntity>>(
+                stream: _userProfileStream,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
+                    return const CircularProgressIndicator();
                   }
                   if (snapshot.hasError) {
                     return Text('Error: ${snapshot.error}');
                   }
                   if (!snapshot.hasData) {
-                    return Text('No profile data');
+                    return const Text('No profile data');
                   }
-                  final profile = snapshot.data!;
-                  return Row(
-                    children: [
-                      CircleWidget(
-                        radius: 50,
-                        color: kPrimaryColor,
-                        child: FImage(
-                          assetPath:
-                              profile.fold(
-                                (l) => "",
-                                (r) => r.profileImageUrl,
-                              ) ??
-                              "",
-                          assetType: FoodAssetType.network,
-                          borderRadius: 70,
-                          width: 140,
-                          height: 140,
-                        ),
-                      ),
-                      32.horizontalSpace,
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            FText(
-                              text: profile.fold(
-                                (l) => 'Guest User',
-                                (r) => '${r.firstName} ${r.lastName}'.trim(),
-                              ),
-                              fontSize: 20.sp,
-                              fontWeight: FontWeight.w500,
-                              color: kBlackColor,
-                              alignment: MainAxisAlignment.start,
-                            ),
-                            8.verticalSpace,
-                            DecoratedBox(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                                color: kWhiteColor,
-                                border: Border.all(color: kGreyColor),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: FWrapText(
-                                  text: profile.fold(
-                                    (l) => 'No bio available',
-                                    (r) =>
-                                        r.bio?.isNotEmpty == true
-                                            ? r.bio!
-                                            : 'No bio available',
-                                  ),
-                                  fontSize: 13.sp,
-                                  fontWeight: FontWeight.w400,
-                                  color: kContainerColor,
-                                  alignment: Alignment.topLeft,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  );
+                  return _buildProfileHeader(snapshot.data!);
                 },
               ),
               32.verticalSpace,
