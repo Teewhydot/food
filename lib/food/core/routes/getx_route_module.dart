@@ -159,7 +159,20 @@ class GetXRouteModule {
     ),
     GetPage(
       name: Routes.statusScreen,
-      page: () => PaymentStatus(status: Get.arguments as PaymentStatusEnum),
+      page: () {
+        final args = Get.arguments;
+        if (args is Map<String, dynamic>) {
+          // New unified payment status screen with real-time monitoring
+          return PaymentStatus(
+            orderId: args['orderId'] as String,
+            reference: args['reference'] as String,
+            paymentMethod: args['paymentMethod'] as String,
+          );
+        } else {
+          // Legacy support for old status enum
+          return PaymentStatus(status: args as PaymentStatusEnum);
+        }
+      },
       transition: _transition,
       transitionDuration: _transitionDuration,
     ),

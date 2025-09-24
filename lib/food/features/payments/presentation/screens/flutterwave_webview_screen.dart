@@ -8,6 +8,7 @@ import '../../../../components/texts.dart';
 import '../../../../core/theme/colors.dart';
 import '../../../../core/utils/app_utils.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
+import '../../../../core/routes/routes.dart';
 
 class FlutterwaveWebviewScreen extends StatefulWidget {
   final String authorizationUrl;
@@ -93,12 +94,19 @@ class _FlutterwaveWebviewScreenState extends State<FlutterwaveWebviewScreen> {
         title: const FText(text: "Complete Payment"),
         backgroundColor: kWhiteColor,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.close, color: kBlackColor),
-          onPressed: () {
-            nav.goBack();
-          },
-        ),
+        automaticallyImplyLeading: false,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.arrow_forward, color: kBlackColor),
+            onPressed: () {
+              nav.navigateTo(Routes.statusScreen, arguments: {
+                'orderId': widget.orderId,
+                'reference': widget.reference,
+                'paymentMethod': 'flutterwave',
+              });
+            },
+          ),
+        ],
       ),
       body: Stack(
         children: [

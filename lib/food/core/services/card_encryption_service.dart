@@ -1,15 +1,17 @@
 import 'dart:convert';
 import 'dart:math';
 import 'package:encrypt/encrypt.dart';
+import 'package:flutter/foundation.dart' hide Key;
 import '../utils/logger.dart';
+import '../constants/env.dart';
 
 class CardEncryptionService {
   static CardEncryptionService? _instance;
   static Encrypter? _encrypter;
   static IV? _staticIV;
 
-  // The encryption key provided by the user
-  static const String _encryptionKey = 'xrSZOopWtmZUdEoJAv+15MQM+a3ubvWZisXGRC+ymCw=';
+  // 🚨 SECURITY: Never store encryption keys in source code!
+  // Key is loaded from environment variables or generated dynamically
 
   CardEncryptionService._internal();
 
@@ -20,16 +22,15 @@ class CardEncryptionService {
 
   static Future<void> initialize() async {
     try {
-      // Decode the base64 key
-      final keyBytes = base64Decode(_encryptionKey);
+      // Validate security setup first
+      validateSecuritySetup();
 
-      // Create the key for AES encryption
-      final key = Key(keyBytes);
+      final key = await _getSecureEncryptionKey();
 
       // Initialize the encrypter with AES algorithm
       _encrypter = Encrypter(AES(key));
 
-      // Create a static IV for consistent encryption (you might want to use dynamic IV in production)
+      // Create a static IV for consistent encryption (use dynamic IV in production)
       _staticIV = IV.fromSecureRandom(16);
 
       Logger.logSuccess('CardEncryptionService initialized successfully');
@@ -37,6 +38,48 @@ class CardEncryptionService {
       Logger.logError('Failed to initialize CardEncryptionService: $e');
       rethrow;
     }
+  }
+
+  /// Securely loads or generates encryption key
+  static Future<Key> _getSecureEncryptionKey() async {
+    // First priority: Environment variable
+    if (Env.hasCardEncryptionKey) {
+      try {
+        final keyBytes = base64Decode(Env.cardEncryptionKey!);
+        if (keyBytes.length == 32) { // 256-bit key
+          Logger.logSuccess('Using encryption key from environment');
+          return Key(keyBytes);
+        } else {
+          Logger.logWarning('Environment encryption key has wrong length: ${keyBytes.length} bytes');
+        }
+      } catch (e) {
+        Logger.logError('Failed to decode environment encryption key: $e');
+      }
+    }
+
+    // Fallback: Generate a secure key (WARNING: Will be different each app restart)
+    Logger.logWarning('🚨 SECURITY WARNING: Generating temporary encryption key!');
+    Logger.logWarning('⚠️  This key will change on app restart, making previous encrypted data unrecoverable!');
+    Logger.logWarning('⚠️  For production, set CARD_ENCRYPTION_KEY in your .env file!');
+
+    return _generateSecureKey();
+  }
+
+  /// Generates a cryptographically secure 256-bit encryption key
+  static Key _generateSecureKey() {
+    final random = Random.secure();
+    final keyBytes = Uint8List(32); // 256 bits
+
+    for (int i = 0; i < keyBytes.length; i++) {
+      keyBytes[i] = random.nextInt(256);
+    }
+
+    if (kDebugMode) {
+      Logger.logWarning('Generated temporary key (base64): ${base64Encode(keyBytes)}');
+      Logger.logWarning('Save this key to your .env file as CARD_ENCRYPTION_KEY for consistency');
+    }
+
+    return Key(keyBytes);
   }
 
   static void dispose() {
@@ -177,8 +220,31 @@ class CardEncryptionService {
   /// Validates if the encryption service is ready to use
   bool get isInitialized => _encrypter != null && _staticIV != null;
 
-  /// Gets the IV as base64 string (for debugging purposes)
-  String? get ivBase64 => _staticIV?.base64;
+  /// Gets the IV as base64 string (for debugging purposes only - never log in production)
+  String? get ivBase64 {
+    if (kDebugMode) {
+      return _staticIV?.base64;
+    }
+    return '[REDACTED]'; // Don't expose IV in production
+  }
+
+  /// Validates encryption setup and logs security warnings
+  static bool validateSecuritySetup() {
+    bool isSecure = true;
+
+    if (!Env.hasCardEncryptionKey) {
+      Logger.logError('🚨 SECURITY RISK: No encryption key configured in environment!');
+      Logger.logError('⚠️  Add CARD_ENCRYPTION_KEY to your .env file immediately!');
+      Logger.logError('⚠️  Generate key with: openssl rand -base64 32');
+      isSecure = false;
+    }
+
+    if (kDebugMode && isSecure) {
+      Logger.logSuccess('✅ Card encryption is properly configured');
+    }
+
+    return isSecure;
+  }
 
   /// Encrypts all card details at once
   Future<Map<String, String>> encryptAllCardDetails({

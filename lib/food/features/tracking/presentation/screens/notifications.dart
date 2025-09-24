@@ -18,6 +18,7 @@ import '../../../auth/presentation/widgets/back_widget.dart';
 import '../widgets/notification_widget.dart';
 import '../../../../domain/failures/failures.dart';
 import '../../domain/entities/notification_entity.dart';
+import '../../../../components/buttons.dart';
 
 class Notifications extends StatefulWidget {
   const Notifications({super.key});
@@ -26,25 +27,75 @@ class Notifications extends StatefulWidget {
   State<Notifications> createState() => _NotificationsState();
 }
 
-class _NotificationsState extends State<Notifications> {
+class _NotificationsState extends State<Notifications>
+    with AutomaticKeepAliveClientMixin {
   bool isLoading = false;
   late Stream<Either<Failure, List<NotificationEntity>>> _notificationsStream;
+  bool _streamInitialized = false;
 
   @override
-  void initState() {
-    super.initState();
-    _initializeStream();
+  bool get wantKeepAlive => true;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_streamInitialized) {
+      _initializeStream();
+      _streamInitialized = true;
+    }
   }
 
   void _initializeStream() {
-    _notificationsStream = context
-        .read<NotificationCubit>()
-        .watchNotifications(context.readCurrentUserId!)
-        .distinct();
+    try {
+      final userId = context.readCurrentUserId;
+      if (userId != null && userId.isNotEmpty) {
+        _notificationsStream = context
+            .read<NotificationCubit>()
+            .watchNotifications(userId)
+            .distinct();
+      }
+    } catch (e) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && !_streamInitialized) {
+          _initializeStream();
+          _streamInitialized = true;
+        }
+      });
+    }
+  }
+
+  void _retryStreamInitialization() {
+    _streamInitialized = false;
+    _initializeStream();
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context); // Required for AutomaticKeepAliveClientMixin
+
+    if (!_streamInitialized) {
+      return FScaffold(
+        appBarWidget: _buildAppBar(),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(color: kPrimaryColor),
+              16.verticalSpace,
+              FText(
+                text: "Loading notifications...",
+                fontSize: 14,
+                color: kContainerColor,
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return BlocManager<NotificationCubit, BaseState<dynamic>>(
       bloc: context.read<NotificationCubit>(),
       showLoadingIndicator: true,
@@ -168,6 +219,32 @@ class _NotificationsState extends State<Notifications> {
         color: kErrorColor,
         fontSize: 12.sp,
         fontWeight: FontWeight.normal,
+      ),
+    );
+  }
+
+  Widget _buildErrorScaffold(String message) {
+    return FScaffold(
+      appBarWidget: _buildAppBar(),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            FText(
+              text: message,
+              color: kErrorColor,
+              fontSize: 14,
+              textAlign: TextAlign.center,
+            ),
+            16.verticalSpace,
+            FButton(
+              buttonText: "Retry",
+              width: 120,
+              height: 40,
+              onPressed: _retryStreamInitialization,
+            ),
+          ],
+        ),
       ),
     );
   }

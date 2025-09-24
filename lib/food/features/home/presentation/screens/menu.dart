@@ -25,6 +25,7 @@ import '../../../../core/bloc/managers/bloc_manager.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../domain/failures/failures.dart';
 import '../../domain/entities/profile.dart';
+import '../../../../components/buttons.dart';
 
 class Menu extends StatefulWidget {
   const Menu({super.key});
@@ -33,20 +34,48 @@ class Menu extends StatefulWidget {
   State<Menu> createState() => _MenuState();
 }
 
-class _MenuState extends State<Menu> {
+class _MenuState extends State<Menu>
+    with AutomaticKeepAliveClientMixin {
   late Stream<Either<Failure, UserProfileEntity>> _userProfileStream;
+  bool _streamInitialized = false;
 
   @override
-  void initState() {
-    super.initState();
-    _initializeStream();
+  bool get wantKeepAlive => true;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_streamInitialized) {
+      _initializeStream();
+      _streamInitialized = true;
+    }
   }
 
   void _initializeStream() {
-    _userProfileStream = context
-        .read<EnhancedUserProfileCubit>()
-        .watchUserProfile(context.readCurrentUserId ?? "")
-        .distinct();
+    try {
+      final userId = context.readCurrentUserId;
+      if (userId != null && userId.isNotEmpty) {
+        _userProfileStream = context
+            .read<EnhancedUserProfileCubit>()
+            .watchUserProfile(userId)
+            .distinct();
+      }
+    } catch (e) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && !_streamInitialized) {
+          _initializeStream();
+          _streamInitialized = true;
+        }
+      });
+    }
+  }
+
+  void _retryStreamInitialization() {
+    _streamInitialized = false;
+    _initializeStream();
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   void _resetUserData(BuildContext context) {
@@ -123,7 +152,42 @@ class _MenuState extends State<Menu> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context); // Required for AutomaticKeepAliveClientMixin
+
     final nav = GetIt.instance<NavigationService>();
+
+    if (!_streamInitialized) {
+      return FScaffold(
+        customScroll: true,
+        appBarWidget: Row(
+          children: [
+            BackWidget(color: kGreyColor),
+            20.horizontalSpace,
+            FText(
+              text: "Menu",
+              fontSize: 17.sp,
+              fontWeight: FontWeight.w400,
+              color: Colors.black,
+            ),
+          ],
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(color: kPrimaryColor),
+              16.verticalSpace,
+              FText(
+                text: "Loading profile...",
+                fontSize: 14,
+                color: kContainerColor,
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return BlocManager<SignOutBloc, BaseState<dynamic>>(
       bloc: context.read<SignOutBloc>(),
       showLoadingIndicator: true,
@@ -154,10 +218,10 @@ class _MenuState extends State<Menu> {
                     return const CircularProgressIndicator();
                   }
                   if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
+                    return _buildErrorWidget('Error: ${snapshot.error}');
                   }
                   if (!snapshot.hasData) {
-                    return const Text('No profile data');
+                    return _buildErrorWidget('No profile data');
                   }
                   return _buildProfileHeader(snapshot.data!);
                 },
@@ -282,6 +346,29 @@ class _MenuState extends State<Menu> {
             ],
           ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
         ),
+      ),
+    );
+  }
+
+  Widget _buildErrorWidget(String message) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          FText(
+            text: message,
+            color: kErrorColor,
+            fontSize: 14,
+            textAlign: TextAlign.center,
+          ),
+          16.verticalSpace,
+          FButton(
+            buttonText: "Retry",
+            width: 120,
+            height: 40,
+            onPressed: _retryStreamInitialization,
+          ),
+        ],
       ),
     );
   }

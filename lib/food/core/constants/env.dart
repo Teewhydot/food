@@ -86,6 +86,17 @@ class Env {
       flutterwaveClientSecret != null &&
       flutterwaveClientSecret!.isNotEmpty;
 
+  // SECURITY: Card Encryption Key Configuration
+  // NEVER hardcode encryption keys in source code!
+  static String? get cardEncryptionKey =>
+      kIsWeb
+          ? const String.fromEnvironment('CARD_ENCRYPTION_KEY')
+          : dotenv.env['CARD_ENCRYPTION_KEY'];
+
+  // Check if encryption key is properly configured
+  static bool get hasCardEncryptionKey =>
+      cardEncryptionKey != null && cardEncryptionKey!.isNotEmpty;
+
   // Flutterwave API Configuration
   static String get flutterwaveBaseUrl {
     final env = flutterwaveEnvironment;

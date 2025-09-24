@@ -307,10 +307,7 @@ class _FlutterwaveCardFormScreenState extends State<FlutterwaveCardFormScreen> {
     final metadata = {
       'userId': user.id,
       'userName': '${user.firstName} ${user.lastName}',
-      'phoneNumber':
-          user.phoneNumber.isNotEmpty && user.phoneNumber.startsWith('0')
-              ? user.phoneNumber.substring(1)
-              : user.phoneNumber,
+      'phoneNumber': "8068787087",
       'address': {
         'street': selectedAddress.street,
         'city': selectedAddress.city,

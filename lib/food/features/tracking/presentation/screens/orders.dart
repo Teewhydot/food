@@ -17,8 +17,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:dartz/dartz.dart' hide State;
 
 import '../../../../components/scaffold.dart';
-import '../../../../core/bloc/base/base_state.dart';
-import '../../../../core/bloc/managers/bloc_manager.dart';
 import '../../../../core/routes/routes.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../payments/domain/entities/order_entity.dart';
@@ -35,34 +33,119 @@ class Orders extends StatefulWidget {
   State<Orders> createState() => _OrdersState();
 }
 
-class _OrdersState extends State<Orders> {
+class _OrdersState extends State<Orders>
+    with AutomaticKeepAliveClientMixin {
   final nav = GetIt.instance<NavigationService>();
   late Stream<Either<Failure, List<OrderEntity>>> _ordersStream;
+  bool _streamInitialized = false;
 
   @override
-  void initState() {
-    super.initState();
-    _initializeStream();
+  bool get wantKeepAlive => true; // Keep tabs alive to prevent recreation
+
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_streamInitialized) {
+      _initializeStream();
+      _streamInitialized = true;
+    }
   }
 
   void _initializeStream() {
-    _ordersStream = context.read<OrderBloc>()
-        .streamUserOrders(context.readCurrentUserId ?? "")
-        .distinct(); // Prevent unnecessary rebuilds for same data
+    try {
+      final userId = context.readCurrentUserId;
+      if (userId != null && userId.isNotEmpty) {
+        _ordersStream = context.read<OrderBloc>()
+            .streamUserOrders(userId)
+            .distinct(); // Prevent unnecessary rebuilds for same data
+      }
+    } catch (e) {
+      // Fallback: reinitialize on next frame if context not ready
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && !_streamInitialized) {
+          _initializeStream();
+          _streamInitialized = true;
+        }
+      });
+    }
   }
 
-  Widget _buildOngoingOrdersList(List<OrderEntity> orders) {
-    final ongoingOrders = orders
-        .where((order) =>
-            order.status == OrderStatus.pending ||
-            order.status == OrderStatus.preparing ||
-            order.status == OrderStatus.onTheWay)
-        .toList();
+  void _retryStreamInitialization() {
+    _streamInitialized = false;
+    _initializeStream();
+    if (mounted) {
+      setState(() {});
+    }
+  }
 
-    if (ongoingOrders.isEmpty) {
+  Widget _buildOrdersTab(OrderCategory category) {
+    if (!_streamInitialized) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(color: kPrimaryColor),
+            16.verticalSpace,
+            FText(
+              text: "Loading orders...",
+              fontSize: 14,
+              color: kContainerColor,
+            ),
+          ],
+        ),
+      );
+    }
+
+    return StreamBuilder<Either<Failure, List<OrderEntity>>>(
+      stream: _ordersStream,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+            child: CircularProgressIndicator(color: kPrimaryColor),
+          );
+        }
+
+        if (snapshot.hasError) {
+          return _buildErrorState("${snapshot.error}");
+        }
+
+        if (snapshot.hasData) {
+          return snapshot.data!.fold(
+            (failure) => _buildErrorState(failure.failureMessage),
+            (orders) => _buildOrdersList(orders, category),
+          );
+        }
+
+        return _buildErrorState("No orders found");
+      },
+    );
+  }
+
+  Widget _buildOrdersList(List<OrderEntity> orders, OrderCategory category) {
+    List<OrderEntity> filteredOrders;
+
+    if (category == OrderCategory.ongoing) {
+      filteredOrders = orders
+          .where((order) =>
+              order.status == OrderStatus.pending ||
+              order.status == OrderStatus.preparing ||
+              order.status == OrderStatus.onTheWay)
+          .toList();
+    } else {
+      filteredOrders = orders
+          .where((order) =>
+              order.status == OrderStatus.delivered ||
+              order.status == OrderStatus.cancelled)
+          .toList();
+    }
+
+    if (filteredOrders.isEmpty) {
       return Center(
         child: FText(
-          text: "No ongoing orders",
+          text: category == OrderCategory.ongoing
+              ? "No ongoing orders"
+              : "No order history",
           fontSize: 16,
           color: kContainerColor,
         ),
@@ -71,10 +154,10 @@ class _OrdersState extends State<Orders> {
 
     return SingleChildScrollView(
       child: Column(
-        children: ongoingOrders.map((order) {
+        children: filteredOrders.map((order) {
           final firstItem = order.items.isNotEmpty ? order.items.first : null;
           return OrderDetailsWidget(
-            orderCategory: OrderCategory.ongoing,
+            orderCategory: category,
             order: order,
             category: firstItem?.foodName ?? "Food",
             foodName: firstItem?.foodName ?? "Unknown",
@@ -85,10 +168,18 @@ class _OrdersState extends State<Orders> {
               (sum, item) => sum + item.quantity,
             ),
             firstButtonOnTap: () {
-              nav.navigateTo(Routes.tracking);
+              if (category == OrderCategory.ongoing) {
+                nav.navigateTo(Routes.tracking);
+              } else {
+                // TODO: Implement rating
+              }
             },
             secondButtonOnTap: () {
-              context.read<OrderBloc>().add(CancelOrderEvent(order.id));
+              if (category == OrderCategory.ongoing) {
+                context.read<OrderBloc>().add(CancelOrderEvent(order.id));
+              } else {
+                // TODO: Implement re-order
+              }
             },
           );
         }).toList(),
@@ -96,13 +187,34 @@ class _OrdersState extends State<Orders> {
     );
   }
 
-  @override
-  void dispose() {
-    super.dispose();
+  Widget _buildErrorState(String message) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          FText(
+            text: "Error: $message",
+            fontSize: 14,
+            color: kErrorColor,
+            textAlign: TextAlign.center,
+          ),
+          16.verticalSpace,
+          FButton(
+            buttonText: "Retry",
+            width: 120,
+            height: 40,
+            onPressed: _retryStreamInitialization,
+          ),
+        ],
+      ),
+    );
   }
+
 
   @override
   Widget build(BuildContext context) {
+    super.build(context); // Required for AutomaticKeepAliveClientMixin
+
     return FScaffold(
       appBarWidget: Row(
         children: [
@@ -130,120 +242,10 @@ class _OrdersState extends State<Orders> {
               ),
               tabs: [Text("Ongoing"), Text("History")],
               views: [
-                StreamBuilder<Either<Failure, List<OrderEntity>>>(
-                  stream: _ordersStream,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(
-                        child: CircularProgressIndicator(color: kErrorColor),
-                      );
-                    }
-                    if (snapshot.hasData) {
-                      final orders = snapshot.data;
-                      return orders!.fold(
-                        (l) => Center(
-                          child: FText(
-                            text: "No ongoing orders ${l.failureMessage}",
-                            fontSize: 16,
-                            color: kContainerColor,
-                          ),
-                        ),
-                        (r) => _buildOngoingOrdersList(r),
-                      );
-                    }
-                    if (snapshot.hasError) {
-                      return FScaffold(
-                        appBarWidget: Row(
-                          children: [
-                            BackWidget(color: kGreyColor),
-                            20.horizontalSpace,
-                            FText(
-                              text: "Notifications",
-                              fontSize: 17.sp,
-                              fontWeight: FontWeight.w400,
-                              color: kBlackColor,
-                            ),
-                          ],
-                        ),
-                        body: Center(
-                          child: FText(
-                            text:
-                                "Error loading notifications ${snapshot.error}",
-                            color: kErrorColor,
-                            fontSize: 12,
-                            fontWeight: FontWeight.normal,
-                          ),
-                        ),
-                      );
-                    }
-                    return SizedBox.shrink();
-                  },
-                ),
-                BlocManager<OrderBloc, BaseState<dynamic>>(
-                  bloc: context.read<OrderBloc>(),
-                  showLoadingIndicator: false,
-                  builder: (context, state) {
-                    if (state is LoadingState) {
-                      return Center(
-                        child: CircularProgressIndicator(color: kPrimaryColor),
-                      );
-                    }
-                    if (state.hasData) {
-                      final _ = state.data as List? ?? [];
-                      final historyOrders =
-                          state.data
-                              .where(
-                                (order) =>
-                                    order.status == OrderStatus.delivered ||
-                                    order.status == OrderStatus.cancelled,
-                              )
-                              .toList();
-
-                      if (historyOrders.isEmpty) {
-                        return Center(
-                          child: FText(
-                            text: "No order history",
-                            fontSize: 16,
-                            color: kContainerColor,
-                          ),
-                        );
-                      }
-
-                      return SingleChildScrollView(
-                        child: Column(
-                          children:
-                              historyOrders.map((order) {
-                                // Get first item for display
-                                final firstItem =
-                                    order.items.isNotEmpty
-                                        ? order.items.first
-                                        : null;
-                                return OrderDetailsWidget(
-                                  orderCategory: OrderCategory.history,
-                                  order: order,
-                                  category: firstItem?.foodName ?? "Food",
-                                  foodName: firstItem?.foodName ?? "Unknown",
-                                  price: order.total.toStringAsFixed(2),
-                                  orderId: order.id,
-                                  quantity: order.items.fold(
-                                    0,
-                                    (sum, item) => sum + item.quantity,
-                                  ),
-                                  firstButtonOnTap: () {
-                                    // TODO: Implement rating
-                                  },
-                                  secondButtonOnTap: () {
-                                    // TODO: Implement re-order
-                                  },
-                                );
-                              }).toList(),
-                        ).paddingOnly(top: 32),
-                      );
-                    }
-                    return SizedBox.shrink();
-                  },
-                  child: const SizedBox.shrink(),
-                ),
+                // Ongoing Orders Tab
+                _buildOrdersTab(OrderCategory.ongoing),
+                // History Orders Tab
+                _buildOrdersTab(OrderCategory.history),
               ],
             ),
           ),
