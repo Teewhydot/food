@@ -10,7 +10,6 @@ import 'package:food/generated/assets.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:dartz/dartz.dart' hide State;
 
 import '../../../../core/routes/routes.dart';
@@ -47,7 +46,6 @@ class _PaymentStatusState extends State<PaymentStatus> {
   PaymentStatusEnum _currentStatus = PaymentStatusEnum.pending;
   bool _isMonitoring = false;
   String _statusMessage = 'Checking payment status...';
-  OrderEntity? _currentOrder;
   final nav = GetIt.instance<NavigationService>();
   final userDataSource = GetIt.instance<UserDataSource>();
 
@@ -80,18 +78,10 @@ class _PaymentStatusState extends State<PaymentStatus> {
   void _startRealTimeMonitoring() async {
     if (widget.orderId == null) return;
 
-    if (kDebugMode) {
-      debugPrint('🔍 Starting real-time monitoring for orderId: ${widget.orderId}');
-      debugPrint('🔍 Payment method: ${widget.paymentMethod}');
-      debugPrint('🔍 Reference: ${widget.reference}');
-    }
 
     // Get current user through proper DI pattern
     try {
       final currentUser = await userDataSource.getCurrentUser();
-      if (kDebugMode) {
-        debugPrint('✅ Retrieved current user: ${currentUser.id}');
-      }
 
       // Ensure user ID is not null
       if (currentUser.id == null) {
@@ -105,9 +95,6 @@ class _PaymentStatusState extends State<PaymentStatus> {
         result.fold(
           (failure) {
             // Handle failure
-            if (kDebugMode) {
-              debugPrint('❌ Error streaming orders: ${failure.toString()}');
-            }
             setState(() {
               _currentStatus = PaymentStatusEnum.pending;
               _statusMessage = 'Connection error. Retrying...\\nOrder ID: ${widget.orderId}';
@@ -139,9 +126,6 @@ class _PaymentStatusState extends State<PaymentStatus> {
               _processOrderEntity(targetOrder);
             } else {
               // Order not found in user's orders - show searching message
-              if (kDebugMode) {
-                debugPrint('❌ Order not found in user orders: ${widget.orderId}');
-              }
               setState(() {
                 _currentStatus = PaymentStatusEnum.pending;
                 _statusMessage = 'Creating order record...\\nOrder ID: ${widget.orderId}\\nThis may take a few seconds.';
@@ -152,9 +136,6 @@ class _PaymentStatusState extends State<PaymentStatus> {
       });
     } catch (e) {
       // Handle authentication error
-      if (kDebugMode) {
-        debugPrint('❌ Error getting current user: $e');
-      }
       setState(() {
         _currentStatus = PaymentStatusEnum.failure;
         _statusMessage = 'User not authenticated. Please login again.';
@@ -164,14 +145,6 @@ class _PaymentStatusState extends State<PaymentStatus> {
 
   void _processOrderEntity(OrderEntity order) {
     setState(() {
-      _currentOrder = order;
-
-      if (kDebugMode) {
-        debugPrint('📄 Processing order: ${order.id}');
-        debugPrint('📄 Order status: ${order.status}');
-        debugPrint('📄 Payment method: ${order.paymentMethod}');
-      }
-
       // Map OrderStatus to PaymentStatusEnum
       switch (order.status) {
         case OrderStatus.confirmed:
@@ -332,68 +305,6 @@ class _PaymentStatusState extends State<PaymentStatus> {
                       color: kPrimaryColor,
                     ),
                   ],
-                ),
-              ],
-
-              // Debug info section (only in debug mode)
-              if (kDebugMode && _isMonitoring) ...[
-                32.verticalSpace,
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: kGreyColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: kGreyColor.withValues(alpha: 0.3)),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const FText(
-                        text: '🔧 Debug Info (BLoC Pattern)',
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: kGreyColor,
-                      ),
-                      4.verticalSpace,
-                      FText(
-                        text: 'Order ID: ${widget.orderId ?? "null"}',
-                        fontSize: 10,
-                        color: kGreyColor,
-                      ),
-                      FText(
-                        text: 'Reference: ${widget.reference ?? "null"}',
-                        fontSize: 10,
-                        color: kGreyColor,
-                      ),
-                      FText(
-                        text: 'Payment Method: ${widget.paymentMethod ?? "null"}',
-                        fontSize: 10,
-                        color: kGreyColor,
-                      ),
-                      FText(
-                        text: 'Current Status: $_currentStatus',
-                        fontSize: 10,
-                        color: kGreyColor,
-                      ),
-                      if (_currentOrder != null) ...[
-                        FText(
-                          text: 'Order Status: ${_currentOrder!.status}',
-                          fontSize: 10,
-                          color: kGreyColor,
-                        ),
-                        FText(
-                          text: 'Order Total: \$${_currentOrder!.total.toStringAsFixed(2)}',
-                          fontSize: 10,
-                          color: kGreyColor,
-                        ),
-                      ] else
-                        const FText(
-                          text: 'Order Entity: Not loaded yet',
-                          fontSize: 10,
-                          color: kGreyColor,
-                        ),
-                    ],
-                  ),
                 ),
               ],
             ],
