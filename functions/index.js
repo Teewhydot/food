@@ -340,10 +340,16 @@ async function handleSuccessfulPayment(processedEvent, executionId) {
   // Find document and update status
   const { actualReference, transactionType, orderDetails, userEmail } = await dbHelper.findDocumentWithPrefix(reference, executionId);
 
-  // Update transaction status
-  const config = TRANSACTION_TYPES[transactionType] || TRANSACTION_TYPES['booking'];
+  // Update transaction status - default to food_order if transactionType not found
+  const config = TRANSACTION_TYPES[transactionType] || TRANSACTION_TYPES['food_order'];
+
+  if (!config) {
+    logger.error(`No configuration found for transaction type: ${transactionType}`, executionId);
+    return;
+  }
+
   const updateData = {
-    status: 'success',
+    status: 'confirmed',
     time_created: paidAt,
     amount: amount,
     verified_at: dbHelper.getServerTimestamp()
@@ -360,8 +366,7 @@ async function handleSuccessfulPayment(processedEvent, executionId) {
     transactionType, orderDetails, actualReference, amount, true
   );
 
-  if (userId) {
-    const config = TRANSACTION_TYPES[transactionType];
+  if (userId && config) {
     await notificationService.sendNotificationToUser(
       userId,
       config.notificationTitle.success,
@@ -377,7 +382,12 @@ async function handleFailedPayment(processedEvent, executionId) {
   const { reference, amount, paidAt } = processedEvent;
 
   const { actualReference, transactionType } = await dbHelper.findDocumentWithPrefix(reference, executionId);
-  const config = TRANSACTION_TYPES[transactionType] || TRANSACTION_TYPES['booking'];
+  const config = TRANSACTION_TYPES[transactionType] || TRANSACTION_TYPES['food_order'];
+
+  if (!config) {
+    logger.error(`No configuration found for transaction type: ${transactionType}`, executionId);
+    return;
+  }
 
   const updateData = {
     status: 'failed',
@@ -394,7 +404,12 @@ async function handleAbandonedPayment(processedEvent, executionId) {
   const { reference, amount, paidAt } = processedEvent;
 
   const { actualReference, transactionType } = await dbHelper.findDocumentWithPrefix(reference, executionId);
-  const config = TRANSACTION_TYPES[transactionType] || TRANSACTION_TYPES['booking'];
+  const config = TRANSACTION_TYPES[transactionType] || TRANSACTION_TYPES['food_order'];
+
+  if (!config) {
+    logger.error(`No configuration found for transaction type: ${transactionType}`, executionId);
+    return;
+  }
 
   const updateData = {
     status: 'abandoned',
@@ -943,7 +958,7 @@ async function handleSuccessfulFlutterwavePayment(processedEvent, executionId) {
   // Update transaction status
   const config = TRANSACTION_TYPES[transactionType] || TRANSACTION_TYPES['food_order'];
   const updateData = {
-    status: 'success',
+    status: 'confirmed',
     time_created: paidAt,
     amount: amount,
     verified_at: dbHelper.getServerTimestamp(),
