@@ -12,42 +12,9 @@ class NotificationRepositoryImpl implements NotificationRepository {
   final remoteDataSource = GetIt.instance<NotificationRemoteDataSource>();
 
   @override
-  Future<Either<Failure, List<NotificationEntity>>> getUserNotifications(
-    String userId,
-  ) {
-    return handleExceptions(() async {
-      return await remoteDataSource.getUserNotifications(userId);
-    });
-  }
-
-  @override
-  Future<Either<Failure, NotificationEntity>> sendNotification({
-    required String userId,
-    required String title,
-    required String body,
-    Map<String, dynamic>? data,
-  }) {
-    return handleExceptions(() async {
-      return await remoteDataSource.sendNotification(
-        userId: userId,
-        title: title,
-        body: body,
-        data: data,
-      );
-    });
-  }
-
-  @override
   Future<Either<Failure, void>> markNotificationAsRead(String notificationId) {
     return handleExceptions(() async {
       await remoteDataSource.markNotificationAsRead(notificationId);
-    });
-  }
-
-  @override
-  Future<Either<Failure, void>> deleteNotification(String notificationId) {
-    return handleExceptions(() async {
-      await remoteDataSource.deleteNotification(notificationId);
     });
   }
 
@@ -73,22 +40,5 @@ class NotificationRepositoryImpl implements NotificationRepository {
       () => remoteDataSource.watchUserNotifications(userId),
       operationName: 'watchUserNotifications',
     );
-  }
-
-  @override
-  Future<Either<Failure, void>> sendPushNotification({
-    required String targetUserId,
-    required String title,
-    required String body,
-    Map<String, dynamic>? data,
-  }) {
-    return handleExceptions(() async {
-      await remoteDataSource.sendPushNotification(
-        targetUserId: targetUserId,
-        title: title,
-        body: body,
-        data: data,
-      );
-    });
   }
 }

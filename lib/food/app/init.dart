@@ -10,6 +10,7 @@ import '../core/services/card_encryption_service.dart';
 import '../core/services/floor_db_service/address/address_database_service.dart';
 import '../core/services/floor_db_service/recent_keywords/recent_keywords_database_service.dart';
 import '../core/services/hive_cache_service.dart';
+import '../core/services/push_notification_service.dart';
 import '../dependency_injection/set_up.dart';
 
 class AppConfig {
@@ -21,20 +22,14 @@ class AppConfig {
     // Initialize Hive cache service
     await HiveCacheService.initialize();
 
-    // Initialize card encryption service
-    await CardEncryptionService.initialize();
-
-    setupDIService();
-    await RecentKeywordsDatabaseService().database;
-    await AddressDatabaseService().database;
-    await UserProfileDatabaseService().database;
+    // IMPORTANT: Load environment variables FIRST before any service that depends on them
     // For web builds (like Netlify), environment variables are already available
     // For local development, load from .env file
     if (!kIsWeb) {
       try {
         await dotenv.load(fileName: ".env");
         debugPrint('✅ Environment variables loaded successfully');
-        
+
         // Validate required environment variables
         if (!Env.validateRequiredEnvVars()) {
           debugPrint('⚠️ Some required environment variables are missing');
@@ -48,8 +43,20 @@ class AppConfig {
     } else {
       debugPrint('🌐 Running on web - using platform environment variables');
     }
+
+    // Initialize card encryption service AFTER environment variables are loaded
+    await CardEncryptionService.initialize();
+
+    setupDIService();
+    await RecentKeywordsDatabaseService().database;
+    await AddressDatabaseService().database;
+    await UserProfileDatabaseService().database;
+
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+
+    // Initialize Push Notification Service
+    await PushNotificationService().initialize();
   }
 }

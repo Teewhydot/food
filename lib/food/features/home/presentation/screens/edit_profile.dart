@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:dartz/dartz.dart' hide State;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -19,17 +20,15 @@ import 'package:food/food/features/home/presentation/widgets/circle_widget.dart'
 import 'package:food/generated/assets.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
-import 'package:dartz/dartz.dart' hide State;
 
 import '../../../../components/texts.dart';
 import '../../../../core/bloc/managers/bloc_manager.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../core/theme/colors.dart';
+import '../../../../domain/failures/failures.dart';
 import '../../../auth/presentation/widgets/back_widget.dart';
 import '../../../file_upload/presentation/manager/file_upload_bloc/file_upload_bloc.dart';
-import '../../../tracking/data/remote/data_sources/notification_remote_data_source.dart';
 import '../../manager/user_profile/enhanced_user_profile_cubit.dart';
-import '../../../../domain/failures/failures.dart';
 
 class EditProfile extends StatefulWidget {
   final UserProfileEntity userProfile;
@@ -63,10 +62,11 @@ class _EditProfileState extends State<EditProfile> {
   }
 
   void _initializeStream() {
-    _userProfileStream = context
-        .read<EnhancedUserProfileCubit>()
-        .watchUserProfile(context.readCurrentUserId ?? "")
-        .distinct();
+    _userProfileStream =
+        context
+            .read<EnhancedUserProfileCubit>()
+            .watchUserProfile(context.readCurrentUserId ?? "")
+            .distinct();
   }
 
   @override
@@ -86,10 +86,13 @@ class _EditProfileState extends State<EditProfile> {
       color: kPrimaryColor,
       onTap: null,
       child: FImage(
-        assetPath: data?.fold(
-          (l) => widget.userProfile.profileImageUrl ?? "",
-          (r) => r.profileImageUrl ?? "",
-        ) ?? widget.userProfile.profileImageUrl ?? "",
+        assetPath:
+            data?.fold(
+              (l) => widget.userProfile.profileImageUrl ?? "",
+              (r) => r.profileImageUrl ?? "",
+            ) ??
+            widget.userProfile.profileImageUrl ??
+            "",
         assetType: FoodAssetType.network,
         borderRadius: 70,
         width: 140,
@@ -220,12 +223,6 @@ class _EditProfileState extends State<EditProfile> {
                       firstNameController.text.isNotEmpty &&
                       lastNameController.text.isNotEmpty,
                   onPressed: () async {
-                    final notif = FirebaseNotificationRemoteDataSource();
-                    await notif.sendNotification(
-                      userId: context.readCurrentUserId!,
-                      title: "Test",
-                      body: "Money go soon come bro",
-                    );
                     final updatedProfile = UserProfileEntity(
                       id: id,
                       firstName: firstNameController.text,

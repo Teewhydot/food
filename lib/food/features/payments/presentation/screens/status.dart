@@ -9,12 +9,17 @@ import 'package:food/food/features/home/presentation/widgets/circle_widget.dart'
 import 'package:food/generated/assets.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:async';
+import 'package:flutter/foundation.dart';
+import 'package:dartz/dartz.dart' hide State;
 
 import '../../../../core/routes/routes.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../components/texts.dart';
+import '../../domain/entities/order_entity.dart';
+import '../manager/order_bloc/order_bloc.dart';
+import '../../../../domain/failures/failures.dart';
+import '../../../auth/data/remote/data_sources/user_data_source.dart';
 
 enum PaymentStatusEnum { success, failure, pending }
 
@@ -37,21 +42,26 @@ class PaymentStatus extends StatefulWidget {
 }
 
 class _PaymentStatusState extends State<PaymentStatus> {
-  StreamSubscription<DocumentSnapshot>? _orderStatusSubscription;
+  late OrderBloc _orderBloc;
+  StreamSubscription<Either<Failure, List<OrderEntity>>>? _orderStreamSubscription;
   PaymentStatusEnum _currentStatus = PaymentStatusEnum.pending;
   bool _isMonitoring = false;
   String _statusMessage = 'Checking payment status...';
+  OrderEntity? _currentOrder;
   final nav = GetIt.instance<NavigationService>();
+  final userDataSource = GetIt.instance<UserDataSource>();
 
   @override
   void initState() {
     super.initState();
+    _orderBloc = OrderBloc();
     _initializeStatus();
   }
 
   @override
   void dispose() {
-    _orderStatusSubscription?.cancel();
+    _orderStreamSubscription?.cancel();
+    _orderBloc.close();
     super.dispose();
   }
 
@@ -61,58 +71,151 @@ class _PaymentStatusState extends State<PaymentStatus> {
       _currentStatus = widget.status!;
       _statusMessage = _getStatusMessage(_currentStatus);
     } else if (widget.orderId != null) {
-      // New mode - real-time monitoring
+      // New mode - real-time monitoring using BLoC pattern
       _isMonitoring = true;
       _startRealTimeMonitoring();
     }
   }
 
-  void _startRealTimeMonitoring() {
+  void _startRealTimeMonitoring() async {
     if (widget.orderId == null) return;
 
-    _orderStatusSubscription = FirebaseFirestore.instance
-        .collection('orders')
-        .doc(widget.orderId!)
-        .snapshots()
-        .listen((docSnapshot) {
-      if (!mounted) return;
+    if (kDebugMode) {
+      debugPrint('🔍 Starting real-time monitoring for orderId: ${widget.orderId}');
+      debugPrint('🔍 Payment method: ${widget.paymentMethod}');
+      debugPrint('🔍 Reference: ${widget.reference}');
+    }
 
-      setState(() {
-        if (docSnapshot.exists) {
-          final data = docSnapshot.data();
-          if (data != null) {
-            final status = data['status'] as String?;
-            final paymentStatus = data['paymentStatus'] as String?;
+    // Get current user through proper DI pattern
+    try {
+      final currentUser = await userDataSource.getCurrentUser();
+      if (kDebugMode) {
+        debugPrint('✅ Retrieved current user: ${currentUser.id}');
+      }
 
-            // Determine current payment status based on Firebase data
-            if (paymentStatus == 'success' || paymentStatus == 'completed') {
-              _currentStatus = PaymentStatusEnum.success;
-              _statusMessage = 'Payment successful!';
-            } else if (paymentStatus == 'failed' || paymentStatus == 'cancelled') {
-              _currentStatus = PaymentStatusEnum.failure;
-              _statusMessage = 'Payment failed. Please try again.';
-            } else if (status == 'confirmed' || status == 'preparing') {
-              _currentStatus = PaymentStatusEnum.success;
-              _statusMessage = 'Payment confirmed! Order is being prepared.';
-            } else {
-              // Still pending - show appropriate message based on payment method
-              _currentStatus = PaymentStatusEnum.pending;
-              if (widget.paymentMethod == 'paystack') {
-                _statusMessage = 'Processing Paystack payment...\\nNote: Webhook may be experiencing delays.';
-              } else if (widget.paymentMethod == 'flutterwave') {
-                _statusMessage = 'Processing Flutterwave payment...';
-              } else {
-                _statusMessage = 'Processing payment...';
-              }
+      // Ensure user ID is not null
+      if (currentUser.id == null) {
+        throw Exception('User ID is null');
+      }
+
+      // Use BLoC pattern to stream user orders
+      _orderStreamSubscription = _orderBloc.streamUserOrders(currentUser.id!).listen((result) {
+        if (!mounted) return;
+
+        result.fold(
+          (failure) {
+            // Handle failure
+            if (kDebugMode) {
+              debugPrint('❌ Error streaming orders: ${failure.toString()}');
             }
-          }
-        } else {
-          _currentStatus = PaymentStatusEnum.pending;
-          _statusMessage = 'Order not found. Please check your payment.';
-        }
+            setState(() {
+              _currentStatus = PaymentStatusEnum.pending;
+              _statusMessage = 'Connection error. Retrying...\\nOrder ID: ${widget.orderId}';
+            });
+          },
+          (orders) {
+            // Handle success - find the specific order
+            final targetOrder = orders.firstWhere(
+              (order) => order.id == widget.orderId,
+              orElse: () => OrderEntity(
+                id: '',
+                userId: '',
+                restaurantId: '',
+                restaurantName: '',
+                items: [],
+                subtotal: 0,
+                deliveryFee: 0,
+                tax: 0,
+                total: 0,
+                deliveryAddress: '',
+                paymentMethod: '',
+                status: OrderStatus.pending,
+                createdAt: DateTime.now(),
+              ),
+            );
+
+            if (targetOrder.id.isNotEmpty) {
+              // Found the order - update UI
+              _processOrderEntity(targetOrder);
+            } else {
+              // Order not found in user's orders - show searching message
+              if (kDebugMode) {
+                debugPrint('❌ Order not found in user orders: ${widget.orderId}');
+              }
+              setState(() {
+                _currentStatus = PaymentStatusEnum.pending;
+                _statusMessage = 'Creating order record...\\nOrder ID: ${widget.orderId}\\nThis may take a few seconds.';
+              });
+            }
+          },
+        );
       });
+    } catch (e) {
+      // Handle authentication error
+      if (kDebugMode) {
+        debugPrint('❌ Error getting current user: $e');
+      }
+      setState(() {
+        _currentStatus = PaymentStatusEnum.failure;
+        _statusMessage = 'User not authenticated. Please login again.';
+      });
+    }
+  }
+
+  void _processOrderEntity(OrderEntity order) {
+    setState(() {
+      _currentOrder = order;
+
+      if (kDebugMode) {
+        debugPrint('📄 Processing order: ${order.id}');
+        debugPrint('📄 Order status: ${order.status}');
+        debugPrint('📄 Payment method: ${order.paymentMethod}');
+      }
+
+      // Map OrderStatus to PaymentStatusEnum
+      switch (order.status) {
+        case OrderStatus.confirmed:
+        case OrderStatus.preparing:
+        case OrderStatus.onTheWay:
+        case OrderStatus.delivered:
+          _currentStatus = PaymentStatusEnum.success;
+          _statusMessage = 'Payment successful! Order is ${_getOrderStatusText(order.status)}.';
+          break;
+        case OrderStatus.cancelled:
+          _currentStatus = PaymentStatusEnum.failure;
+          _statusMessage = 'Order was cancelled. Please contact support if payment was deducted.';
+          break;
+        case OrderStatus.pending:
+          _currentStatus = PaymentStatusEnum.pending;
+          if (widget.paymentMethod == 'paystack') {
+            _statusMessage = 'Processing Paystack payment...\\nOrder ID: ${widget.orderId}\\nNote: Webhook may be experiencing delays.';
+          } else if (widget.paymentMethod == 'flutterwave') {
+            _statusMessage = 'Processing Flutterwave payment...\\nOrder ID: ${widget.orderId}';
+          } else {
+            _statusMessage = 'Processing payment...\\nOrder ID: ${widget.orderId}';
+          }
+          break;
+      }
     });
   }
+
+  String _getOrderStatusText(OrderStatus status) {
+    switch (status) {
+      case OrderStatus.pending:
+        return 'pending confirmation';
+      case OrderStatus.confirmed:
+        return 'confirmed';
+      case OrderStatus.preparing:
+        return 'being prepared';
+      case OrderStatus.onTheWay:
+        return 'on the way';
+      case OrderStatus.delivered:
+        return 'delivered';
+      case OrderStatus.cancelled:
+        return 'cancelled';
+    }
+  }
+
 
   String _getStatusMessage(PaymentStatusEnum status) {
     switch (status) {
@@ -229,6 +332,68 @@ class _PaymentStatusState extends State<PaymentStatus> {
                       color: kPrimaryColor,
                     ),
                   ],
+                ),
+              ],
+
+              // Debug info section (only in debug mode)
+              if (kDebugMode && _isMonitoring) ...[
+                32.verticalSpace,
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: kGreyColor.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: kGreyColor.withValues(alpha: 0.3)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const FText(
+                        text: '🔧 Debug Info (BLoC Pattern)',
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: kGreyColor,
+                      ),
+                      4.verticalSpace,
+                      FText(
+                        text: 'Order ID: ${widget.orderId ?? "null"}',
+                        fontSize: 10,
+                        color: kGreyColor,
+                      ),
+                      FText(
+                        text: 'Reference: ${widget.reference ?? "null"}',
+                        fontSize: 10,
+                        color: kGreyColor,
+                      ),
+                      FText(
+                        text: 'Payment Method: ${widget.paymentMethod ?? "null"}',
+                        fontSize: 10,
+                        color: kGreyColor,
+                      ),
+                      FText(
+                        text: 'Current Status: $_currentStatus',
+                        fontSize: 10,
+                        color: kGreyColor,
+                      ),
+                      if (_currentOrder != null) ...[
+                        FText(
+                          text: 'Order Status: ${_currentOrder!.status}',
+                          fontSize: 10,
+                          color: kGreyColor,
+                        ),
+                        FText(
+                          text: 'Order Total: \$${_currentOrder!.total.toStringAsFixed(2)}',
+                          fontSize: 10,
+                          color: kGreyColor,
+                        ),
+                      ] else
+                        const FText(
+                          text: 'Order Entity: Not loaded yet',
+                          fontSize: 10,
+                          color: kGreyColor,
+                        ),
+                    ],
+                  ),
                 ),
               ],
             ],

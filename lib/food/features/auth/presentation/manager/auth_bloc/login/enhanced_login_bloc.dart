@@ -6,6 +6,7 @@ import '../../../../../../core/bloc/utils/state_utils.dart';
 import '../../../../../../core/utils/logger.dart';
 import '../../../../../../core/utils/pretty_firebase_errors.dart';
 import '../../../../../home/domain/entities/profile.dart';
+import '../../../../../tracking/domain/use_cases/notification_usecase.dart';
 import '../../../../domain/use_cases/auth_usecase.dart';
 import 'login_event.dart';
 
@@ -88,6 +89,27 @@ class EnhancedLoginBloc
           );
 
           emit(loadedState);
+
+          // Update FCM token for notifications
+          try {
+            final notificationUseCase = NotificationUseCase();
+            final tokenResult = await notificationUseCase.getFCMToken();
+
+            tokenResult.fold(
+              (failure) => Logger.logError('Failed to get FCM token: ${failure.failureMessage}'),
+              (token) async {
+                if (token != null && userProfile.id != null) {
+                  final updateResult = await notificationUseCase.updateFCMToken(userProfile.id!, token);
+                  updateResult.fold(
+                    (failure) => Logger.logError('Failed to update FCM token: ${failure.failureMessage}'),
+                    (_) => Logger.logSuccess('FCM token updated successfully after login'),
+                  );
+                }
+              },
+            );
+          } catch (e) {
+            Logger.logError('Failed to update FCM token after login: $e');
+          }
 
           // Also emit a success message
           emit(

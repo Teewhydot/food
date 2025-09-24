@@ -1,21 +1,25 @@
 import 'dart:async';
 import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
+
 import '../../features/tracking/domain/use_cases/notification_usecase.dart';
 
 class PushNotificationService {
-  static final PushNotificationService _instance = PushNotificationService._internal();
+  static final PushNotificationService _instance =
+      PushNotificationService._internal();
   factory PushNotificationService() => _instance;
   PushNotificationService._internal();
 
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
-  final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin _localNotifications =
+      FlutterLocalNotificationsPlugin();
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  
+
   StreamSubscription<RemoteMessage>? _onMessageSubscription;
   StreamSubscription<RemoteMessage>? _onMessageOpenedAppSubscription;
 
@@ -33,9 +37,6 @@ class PushNotificationService {
 
     // Listen for token refresh
     _messaging.onTokenRefresh.listen(_onTokenRefresh);
-
-    // Handle messages
-    _setupMessageHandlers();
 
     // Handle background messages
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
@@ -58,7 +59,9 @@ class PushNotificationService {
   }
 
   Future<void> _initializeLocalNotifications() async {
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidSettings = AndroidInitializationSettings(
+      '@mipmap/ic_launcher',
+    );
     const iosSettings = DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
@@ -79,7 +82,7 @@ class PushNotificationService {
   Future<void> _updateFCMToken() async {
     final token = await _messaging.getToken();
     final userId = _auth.currentUser?.uid;
-    
+
     if (token != null && userId != null) {
       try {
         final notificationUseCase = GetIt.instance<NotificationUseCase>();
@@ -104,33 +107,6 @@ class PushNotificationService {
         }
       }
     }
-  }
-
-  void _setupMessageHandlers() {
-    // Handle messages when app is in foreground
-    _onMessageSubscription = FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
-
-    // Handle messages when app is opened from background
-    _onMessageOpenedAppSubscription = FirebaseMessaging.onMessageOpenedApp.listen(_handleMessageOpenedApp);
-
-    // Handle messages when app is opened from terminated state
-    _messaging.getInitialMessage().then((message) {
-      if (message != null) {
-        _handleMessageOpenedApp(message);
-      }
-    });
-  }
-
-  void _handleForegroundMessage(RemoteMessage message) {
-    if (kDebugMode) {
-      print('Received message in foreground: ${message.messageId}');
-    }
-
-    // Show local notification when app is in foreground
-    _showLocalNotification(message);
-
-    // Save notification to database
-    _saveNotificationToDatabase(message);
   }
 
   void _handleMessageOpenedApp(RemoteMessage message) {
@@ -172,25 +148,6 @@ class PushNotificationService {
     );
   }
 
-  void _saveNotificationToDatabase(RemoteMessage message) {
-    final userId = _auth.currentUser?.uid;
-    if (userId != null) {
-      try {
-        final notificationUseCase = GetIt.instance<NotificationUseCase>();
-        notificationUseCase.sendNotification(
-          userId: userId,
-          title: message.notification?.title ?? 'Notification',
-          body: message.notification?.body ?? '',
-          data: message.data,
-        );
-      } catch (e) {
-        if (kDebugMode) {
-          print('Failed to save notification to database: $e');
-        }
-      }
-    }
-  }
-
   void _onDidReceiveNotificationResponse(NotificationResponse response) {
     final payload = response.payload;
     if (payload != null) {
@@ -208,7 +165,7 @@ class PushNotificationService {
 
   void _handleNotificationTap(Map<String, dynamic> data) {
     final type = data['type'] as String?;
-    
+
     switch (type) {
       case 'order_update':
         final orderId = data['orderId'] as String?;
@@ -261,6 +218,10 @@ class PushNotificationService {
 
   Future<void> unsubscribeFromTopic(String topic) async {
     await _messaging.unsubscribeFromTopic(topic);
+  }
+
+  Future<void> updateFCMToken() async {
+    await _updateFCMToken();
   }
 
   void dispose() {

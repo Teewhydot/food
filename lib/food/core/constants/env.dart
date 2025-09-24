@@ -2,6 +2,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class Env {
+  //Golang Base Url
+  static String? get golangBaseUrl =>
+      kIsWeb
+          ? const String.fromEnvironment('GOLANG_BASE_URL')
+          : dotenv.env['GOLANG_BASE_URL'];
   // Google Maps API Key
   static String? get mapsKey =>
       kIsWeb
@@ -58,10 +63,14 @@ class Env {
   // Flutterwave v4 Configuration
   static String get flutterwaveEnvironment =>
       kIsWeb
-          ? const String.fromEnvironment('FLUTTERWAVE_ENV', defaultValue: 'sandbox')
+          ? const String.fromEnvironment(
+            'FLUTTERWAVE_ENV',
+            defaultValue: 'sandbox',
+          )
           : dotenv.env['FLUTTERWAVE_ENV'] ?? 'sandbox';
 
-  static bool get isFlutterwaveProduction => flutterwaveEnvironment == 'production';
+  static bool get isFlutterwaveProduction =>
+      flutterwaveEnvironment == 'production';
 
   // Flutterwave v4 OAuth Configuration
   static String? get flutterwaveClientId =>
@@ -88,10 +97,23 @@ class Env {
 
   // SECURITY: Card Encryption Key Configuration
   // NEVER hardcode encryption keys in source code!
-  static String? get cardEncryptionKey =>
-      kIsWeb
-          ? const String.fromEnvironment('CARD_ENCRYPTION_KEY')
-          : dotenv.env['CARD_ENCRYPTION_KEY'];
+  static String? get cardEncryptionKey {
+    if (kIsWeb) {
+      return const String.fromEnvironment('CARD_ENCRYPTION_KEY');
+    } else {
+      try {
+        return dotenv.env['CARD_ENCRYPTION_KEY'];
+      } catch (e) {
+        // dotenv not initialized yet
+        if (kDebugMode) {
+          debugPrint(
+            'Warning: dotenv not initialized when accessing CARD_ENCRYPTION_KEY: $e',
+          );
+        }
+        return null;
+      }
+    }
+  }
 
   // Check if encryption key is properly configured
   static bool get hasCardEncryptionKey =>

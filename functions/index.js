@@ -355,11 +355,6 @@ async function handleSuccessfulPayment(processedEvent, executionId) {
 
   await dbHelper.updateDocument(config.collectionName, actualReference, updateData, executionId);
 
-  // Send success email
-  await emailService.sendSuccessEmail(
-    transactionType, orderDetails, actualReference, userName, amount, paidAt, userEmail, executionId
-  );
-
   // Send success notification
   const notificationData = notificationService.generateNotificationData(
     transactionType, orderDetails, actualReference, amount, true
@@ -375,22 +370,6 @@ async function handleSuccessfulPayment(processedEvent, executionId) {
       executionId
     );
   }
-
-  // Update availability for bookings
-  if (transactionType === 'booking') {
-    await inventoryService.updateAvailabilityForSuccessfulBooking(actualReference, userId, executionId);
-  }
-
-  // Deduct food quantities for food orders
-  if (transactionType === 'food_order') {
-    await inventoryService.deductFoodQuantities(actualReference, executionId);
-  }
-
-  // Update statistics
-  await statisticsService.updateBookingStats(actualReference, executionId);
-
-  // Notify staff
-  await notificationService.notifyStaffForNewOrder(actualReference, transactionType, orderDetails, executionId);
 }
 
 // Helper function for failed payments
@@ -977,11 +956,6 @@ async function handleSuccessfulFlutterwavePayment(processedEvent, executionId) {
 
   await dbHelper.updateDocument(config.collectionName, actualReference, updateData, executionId);
 
-  // Send success email
-  await emailService.sendSuccessEmail(
-    transactionType, orderDetails, actualReference, userName, amount, paidAt, userEmail, executionId
-  );
-
   // Send success notification
   const notificationData = notificationService.generateNotificationData(
     transactionType, orderDetails, actualReference, amount, true
@@ -997,22 +971,6 @@ async function handleSuccessfulFlutterwavePayment(processedEvent, executionId) {
       executionId
     );
   }
-
-  // Update availability for bookings
-  if (transactionType === 'booking') {
-    await inventoryService.updateAvailabilityForSuccessfulBooking(actualReference, userId, executionId);
-  }
-
-  // Deduct food quantities for food orders
-  if (transactionType === 'food_order') {
-    await inventoryService.deductFoodQuantities(actualReference, executionId);
-  }
-
-  // Update statistics
-  await statisticsService.updateBookingStats(actualReference, executionId);
-
-  // Notify staff
-  await notificationService.notifyStaffForNewOrder(actualReference, transactionType, orderDetails, executionId);
 }
 
 // Helper function for failed Flutterwave payments

@@ -2,15 +2,12 @@ import 'dart:async';
 
 import 'package:contained_tab_bar_view/contained_tab_bar_view.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/buttons.dart';
 import 'package:food/food/components/texts.dart';
 import 'package:food/food/core/constants/app_constants.dart';
-import 'package:food/food/core/helpers/user_extensions.dart';
 import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/features/auth/presentation/widgets/back_widget.dart';
-import 'package:food/food/features/tracking/presentation/screens/tracking.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -23,6 +20,7 @@ import '../../../payments/domain/entities/order_entity.dart';
 import '../../../payments/presentation/manager/order_bloc/order_bloc.dart';
 import '../../../payments/presentation/manager/order_bloc/order_event.dart';
 import '../../../../domain/failures/failures.dart';
+import '../../../auth/data/remote/data_sources/user_data_source.dart';
 
 enum OrderCategory { ongoing, history }
 
@@ -33,70 +31,39 @@ class Orders extends StatefulWidget {
   State<Orders> createState() => _OrdersState();
 }
 
-class _OrdersState extends State<Orders>
-    with AutomaticKeepAliveClientMixin {
+class _OrdersState extends State<Orders> {
   final nav = GetIt.instance<NavigationService>();
+  final userDataSource = GetIt.instance<UserDataSource>();
+  late OrderBloc _orderBloc;
   late Stream<Either<Failure, List<OrderEntity>>> _ordersStream;
-  bool _streamInitialized = false;
 
   @override
-  bool get wantKeepAlive => true; // Keep tabs alive to prevent recreation
-
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (!_streamInitialized) {
-      _initializeStream();
-      _streamInitialized = true;
-    }
+  void initState() {
+    super.initState();
+    _orderBloc = OrderBloc();
+    _initializeStream();
   }
 
-  void _initializeStream() {
+  @override
+  void dispose() {
+    _orderBloc.close();
+    super.dispose();
+  }
+
+  void _initializeStream() async {
     try {
-      final userId = context.readCurrentUserId;
-      if (userId != null && userId.isNotEmpty) {
-        _ordersStream = context.read<OrderBloc>()
-            .streamUserOrders(userId)
-            .distinct(); // Prevent unnecessary rebuilds for same data
+      final currentUser = await userDataSource.getCurrentUser();
+      if (currentUser.id != null) {
+        _ordersStream = _orderBloc
+            .streamUserOrders(currentUser.id!)
+            .distinct();
       }
     } catch (e) {
-      // Fallback: reinitialize on next frame if context not ready
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted && !_streamInitialized) {
-          _initializeStream();
-          _streamInitialized = true;
-        }
-      });
-    }
-  }
-
-  void _retryStreamInitialization() {
-    _streamInitialized = false;
-    _initializeStream();
-    if (mounted) {
-      setState(() {});
+      // Handle error - stream will show error state
     }
   }
 
   Widget _buildOrdersTab(OrderCategory category) {
-    if (!_streamInitialized) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(color: kPrimaryColor),
-            16.verticalSpace,
-            FText(
-              text: "Loading orders...",
-              fontSize: 14,
-              color: kContainerColor,
-            ),
-          ],
-        ),
-      );
-    }
-
     return StreamBuilder<Either<Failure, List<OrderEntity>>>(
       stream: _ordersStream,
       builder: (context, snapshot) {
@@ -112,7 +79,7 @@ class _OrdersState extends State<Orders>
 
         if (snapshot.hasData) {
           return snapshot.data!.fold(
-            (failure) => _buildErrorState(failure.failureMessage),
+            (failure) => _buildErrorState(failure.toString()),
             (orders) => _buildOrdersList(orders, category),
           );
         }
@@ -176,7 +143,7 @@ class _OrdersState extends State<Orders>
             },
             secondButtonOnTap: () {
               if (category == OrderCategory.ongoing) {
-                context.read<OrderBloc>().add(CancelOrderEvent(order.id));
+                _orderBloc.add(CancelOrderEvent(order.id));
               } else {
                 // TODO: Implement re-order
               }
@@ -189,23 +156,11 @@ class _OrdersState extends State<Orders>
 
   Widget _buildErrorState(String message) {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          FText(
-            text: "Error: $message",
-            fontSize: 14,
-            color: kErrorColor,
-            textAlign: TextAlign.center,
-          ),
-          16.verticalSpace,
-          FButton(
-            buttonText: "Retry",
-            width: 120,
-            height: 40,
-            onPressed: _retryStreamInitialization,
-          ),
-        ],
+      child: FText(
+        text: "Error: $message",
+        fontSize: 14,
+        color: kErrorColor,
+        textAlign: TextAlign.center,
       ),
     );
   }
@@ -213,7 +168,6 @@ class _OrdersState extends State<Orders>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context); // Required for AutomaticKeepAliveClientMixin
 
     return FScaffold(
       appBarWidget: Row(
@@ -332,7 +286,11 @@ class OrderDetailsWidget extends StatelessWidget {
                         color: kBlackColor,
                       ),
                       8.horizontalSpace,
-                      Line(color: kContainerColor, height: 16),
+                      Container(
+                        width: 1,
+                        height: 16,
+                        color: kContainerColor,
+                      ),
                       8.horizontalSpace,
                       FText(
                         text: "x$quantity",
