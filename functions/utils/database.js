@@ -156,12 +156,9 @@ class DatabaseHelper {
 
     // Define prefix mapping for transaction types
     const prefixMapping = {
-      'B-': { type: 'booking', collection: 'bookings' },
-      'F-': { type: 'food_order', collection: 'service_orders' },
-      'G-': { type: 'gym_session', collection: 'service_orders' },
-      'P-': { type: 'pool_session', collection: 'service_orders' },
-      'L-': { type: 'laundry_service', collection: 'service_orders' },
-      'C-': { type: 'concierge_request', collection: 'concierge_requests' },
+      'F-': { type: 'food_order', collection: 'food_orders' },
+      'D-': { type: 'delivery', collection: 'delivery_orders' },
+      'S-': { type: 'subscription', collection: 'subscriptions' },
     };
 
     // Try each prefix to find the document
@@ -173,33 +170,9 @@ class DatabaseHelper {
         if (doc && doc.exists) {
           logger.success(`Found document with reference: ${prefixedReference} in collection: ${config.collection}`, executionId);
 
-          let transactionType = config.type;
-
-          // For service orders, determine specific transaction type based on serviceType
-          if (config.collection === 'service_orders') {
-            const serviceType = data.serviceType;
-            switch (serviceType) {
-              case 'food_delivery':
-                transactionType = 'food_order';
-                break;
-              case 'gym':
-                transactionType = 'gym_session';
-                break;
-              case 'swimming_pool':
-                transactionType = 'pool_session';
-                break;
-              case 'spa':
-                transactionType = 'spa_session';
-                break;
-              case 'laundry_service':
-                transactionType = 'laundry_service';
-                break;
-            }
-          }
-
           return {
             actualReference: prefixedReference,
-            transactionType: transactionType,
+            transactionType: config.type,
             orderDetails: data,
             userEmail: data.userEmail || ''
           };
@@ -209,10 +182,10 @@ class DatabaseHelper {
       }
     }
 
-    logger.error(`No document found for reference ${reference} with any known prefix. Tried: B-, F-, G-, P-, L-`, executionId);
+    logger.error(`No document found for reference ${reference} with any known prefix. Tried: F-, D-, S-`, executionId);
     return {
       actualReference: reference,
-      transactionType: 'booking',
+      transactionType: 'food_order', // Default to food_order which exists in TRANSACTION_TYPES
       orderDetails: {},
       userEmail: ''
     };
