@@ -49,7 +49,10 @@ class _FoodDetailsState extends State<FoodDetails> {
             hasIndicator: false,
             isRestaurant: false,
             imageUrl: widget.foodEntity.imageUrl,
-            cacheKey: DetailImageCache.getDetailCacheKey(type: 'food', id: widget.foodEntity.id),
+            cacheKey: DetailImageCache.getDetailCacheKey(
+              type: 'food',
+              id: widget.foodEntity.id,
+            ),
             icon: Icons.favorite,
             bottomWidget: IntrinsicHeight(
               child: Container(
@@ -127,7 +130,7 @@ class _FoodDetailsState extends State<FoodDetails> {
                         final finalFoodEntity = widget.foodEntity.copyWith(
                           quantity: foodQuantity,
                         );
-                        context.read<CartCubit>().addFood(finalFoodEntity);
+                        // context.read<CartCubit>().addFood(finalFoodEntity);
                         nav.goBack();
                       },
                     ),

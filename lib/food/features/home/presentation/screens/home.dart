@@ -21,7 +21,6 @@ import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../core/utils/cached_widget_builder.dart';
 import '../../../../core/utils/detail_image_cache.dart';
 import '../../../../core/utils/logger.dart';
-import '../../../payments/presentation/manager/cart/cart_cubit.dart';
 import '../../domain/entities/food.dart';
 import '../../domain/entities/restaurant.dart';
 import '../manager/food_bloc/food_bloc.dart'; // Now FoodCubit
@@ -390,7 +389,7 @@ class _HomeState extends State<Home> {
                   image: food.imageUrl,
                   name: food.name,
                   onAddTapped: () {
-                    context.read<CartCubit>().addFood(food);
+                    // context.read<CartCubit>().addFood(food);
                   },
                   onTap: () {
                     // Preload detail image for smooth navigation

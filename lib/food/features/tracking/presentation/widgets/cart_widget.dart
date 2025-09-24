@@ -65,7 +65,8 @@ class DFoodCartWidget extends StatelessWidget {
                     color: kGreyColor,
                   ),
                   FWrapText(
-                    text: "Total: \$${(foodEntity.price * foodEntity.quantity).toStringAsFixed(1)}",
+                    text:
+                        "Total: \$${(foodEntity.price * foodEntity.quantity).toStringAsFixed(1)}",
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
                     color: kWhiteColor,
@@ -89,9 +90,9 @@ class DFoodCartWidget extends StatelessWidget {
                               color: kGreyColor,
                               child: Icon(Ionicons.remove),
                               onTap: () {
-                                context.read<CartCubit>().removeFood(
-                                  foodEntity,
-                                );
+                                // context.read<CartCubit>().removeFood(
+                                //   foodEntity,
+                                // );
                               },
                             ),
                             17.horizontalSpace,
@@ -107,7 +108,7 @@ class DFoodCartWidget extends StatelessWidget {
                               color: kGreyColor,
                               child: Icon(Ionicons.add),
                               onTap: () {
-                                context.read<CartCubit>().addFood(foodEntity);
+                                // context.read<CartCubit>().addFood(foodEntity);
                               },
                             ),
                           ],

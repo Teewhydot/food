@@ -4,14 +4,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food/food/core/bloc/base/base_state.dart';
 import 'package:food/food/core/utils/logger.dart';
 
-import '../../../../home/domain/entities/food.dart';
 import '../../../domain/entities/cart_entity.dart';
 import '../../../domain/use_cases/cart_usecase.dart';
 import 'cart_event.dart';
 
-part 'cart_state.dart';
-
-/// Enhanced CartCubit using Firebase streaming and BLoC pattern
 class CartCubit extends Bloc<CartEvent, BaseState<CartEntity>> {
   final CartUseCase _cartUseCase = CartUseCase();
   late StreamSubscription _cartStreamSubscription;
@@ -42,9 +38,9 @@ class CartCubit extends Bloc<CartEvent, BaseState<CartEntity>> {
       },
       onError: (error) {
         Logger.logError('Cart stream error: $error');
-        emit(ErrorState<CartEntity>(
-          errorMessage: 'Failed to load cart: $error',
-        ));
+        emit(
+          ErrorState<CartEntity>(errorMessage: 'Failed to load cart: $error'),
+        );
       },
     );
   }
@@ -56,17 +52,18 @@ class CartCubit extends Bloc<CartEvent, BaseState<CartEntity>> {
   ) async {
     final result = event.cartData;
     result.fold(
-      (failure) => emit(ErrorState<CartEntity>(
-        errorMessage: failure.failureMessage,
-      )),
+      (failure) =>
+          emit(ErrorState<CartEntity>(errorMessage: failure.failureMessage)),
       (cartEntity) {
         if (cartEntity.isEmpty) {
           emit(const EmptyState<CartEntity>(message: 'Cart is empty'));
         } else {
-          emit(LoadedState<CartEntity>(
-            data: cartEntity,
-            lastUpdated: DateTime.now(),
-          ));
+          emit(
+            LoadedState<CartEntity>(
+              data: cartEntity,
+              lastUpdated: DateTime.now(),
+            ),
+          );
         }
       },
     );
@@ -80,7 +77,9 @@ class CartCubit extends Bloc<CartEvent, BaseState<CartEntity>> {
     final result = await _cartUseCase.addFoodToCart(event.food);
     result.fold(
       (failure) {
-        Logger.logError('Failed to add food to cart: ${failure.failureMessage}');
+        Logger.logError(
+          'Failed to add food to cart: ${failure.failureMessage}',
+        );
         // Don't emit error state here, let the stream handle updates
       },
       (_) {
@@ -98,7 +97,9 @@ class CartCubit extends Bloc<CartEvent, BaseState<CartEntity>> {
     final result = await _cartUseCase.removeFoodFromCart(event.foodId);
     result.fold(
       (failure) {
-        Logger.logError('Failed to remove food from cart: ${failure.failureMessage}');
+        Logger.logError(
+          'Failed to remove food from cart: ${failure.failureMessage}',
+        );
       },
       (_) {
         Logger.logSuccess('Food removed from cart successfully');
@@ -112,7 +113,10 @@ class CartCubit extends Bloc<CartEvent, BaseState<CartEntity>> {
     CartUpdateQuantityEvent event,
     Emitter<BaseState<CartEntity>> emit,
   ) async {
-    final result = await _cartUseCase.updateFoodQuantity(event.foodId, event.quantity);
+    final result = await _cartUseCase.updateFoodQuantity(
+      event.foodId,
+      event.quantity,
+    );
     result.fold(
       (failure) {
         Logger.logError('Failed to update quantity: ${failure.failureMessage}');
@@ -139,23 +143,6 @@ class CartCubit extends Bloc<CartEvent, BaseState<CartEntity>> {
         // Firebase stream will automatically update the UI
       },
     );
-  }
-
-  /// Public methods for easier access (maintaining backward compatibility)
-  void addFood(FoodEntity food) {
-    add(CartAddFoodEvent(food: food));
-  }
-
-  void removeFood(FoodEntity food) {
-    add(CartRemoveFoodEvent(foodId: food.id));
-  }
-
-  void updateQuantity(String foodId, int quantity) {
-    add(CartUpdateQuantityEvent(foodId: foodId, quantity: quantity));
-  }
-
-  void clearCart() {
-    add(const CartClearEvent());
   }
 
   /// Get current cart data

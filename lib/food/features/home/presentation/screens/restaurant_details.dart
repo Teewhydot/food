@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/no_items_found_widget.dart';
 import 'package:food/food/components/texts.dart';
@@ -7,7 +6,6 @@ import 'package:food/food/features/home/domain/entities/restaurant.dart';
 import 'package:food/food/features/home/domain/entities/restaurant_food_category.dart';
 import 'package:food/food/features/home/presentation/widgets/details_skeleton_widget.dart';
 import 'package:get_it/get_it.dart';
-import '../../../../core/utils/detail_image_cache.dart';
 import 'package:ionicons/ionicons.dart';
 
 import '../../../../../generated/assets.dart';
@@ -15,7 +13,7 @@ import '../../../../components/image.dart';
 import '../../../../core/routes/routes.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../core/theme/colors.dart';
-import '../../../payments/presentation/manager/cart/cart_cubit.dart';
+import '../../../../core/utils/detail_image_cache.dart';
 import '../../domain/entities/food.dart';
 import '../widgets/category_widget.dart';
 import '../widgets/food_widget.dart';
@@ -54,7 +52,10 @@ class _RestaurantDetailsState extends State<RestaurantDetails> {
       isRestaurant: true,
       icon: Ionicons.menu,
       imageUrl: widget.restaurant.imageUrl,
-      cacheKey: DetailImageCache.getDetailCacheKey(type: 'restaurant', id: widget.restaurant.id),
+      cacheKey: DetailImageCache.getDetailCacheKey(
+        type: 'restaurant',
+        id: widget.restaurant.id,
+      ),
       bodyWidget: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -199,14 +200,17 @@ class _RestaurantDetailsState extends State<RestaurantDetails> {
                 image: food.imageUrl,
                 name: food.name,
                 onAddTapped: () {
-                  context.read<CartCubit>().addFood(food);
+                  // context.read<CartCubit>().addFood(food);
                 },
                 onTap: () {
                   // Preload detail image for smooth navigation
                   DetailImageCache.preloadDetailImage(
                     context: context,
                     imageUrl: food.imageUrl,
-                    cacheKey: DetailImageCache.getDetailCacheKey(type: 'food', id: food.id),
+                    cacheKey: DetailImageCache.getDetailCacheKey(
+                      type: 'food',
+                      id: food.id,
+                    ),
                   );
                   nav.navigateTo(Routes.foodDetails, arguments: food);
                 },

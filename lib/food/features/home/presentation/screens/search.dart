@@ -24,7 +24,6 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/routes/routes.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../core/utils/detail_image_cache.dart';
-import '../../../payments/presentation/manager/cart/cart_cubit.dart';
 import '../../domain/entities/food.dart';
 import '../../domain/entities/restaurant.dart';
 import '../widgets/keyword_widget.dart';
@@ -183,7 +182,7 @@ class _SearchState extends State<Search> {
                     price: food.price.toString(),
                     image: food.imageUrl,
                     onAddTapped: () {
-                      context.read<CartCubit>().addFood(food);
+                      // context.read<CartCubit>().addFood(food);
                     },
                     onTap: () {
                       // Preload detail image for smooth navigation
