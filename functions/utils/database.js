@@ -267,16 +267,44 @@ class DatabaseHelper {
         break;
 
       case 'food_order':
+        // Process and clean the items array to ensure all required fields are present
+        const processedItems = (details.items || []).map(item => ({
+          id: item.id || '',
+          name: item.name || '',
+          description: item.description || '',
+          price: typeof item.price === 'number' ? item.price : 0,
+          quantity: typeof item.quantity === 'number' ? item.quantity : 1,
+          imageUrl: item.imageUrl || '',
+          restaurantId: item.restaurantId || '',
+          restaurantName: item.restaurantName || '',
+          category: item.category || '',
+          preparationTime: item.preparationTime || '15-30 mins',
+          ingredients: Array.isArray(item.ingredients) ? item.ingredients : [],
+          totalPrice: typeof item.totalPrice === 'number' ? item.totalPrice : (item.price * item.quantity),
+        }));
+
         serviceRecord = {
           ...baseRecord,
           customerId: userId,
           customerName: userName,
-          items: details.items || [],
-          service_items: details.service_items || details.items || [],
+          items: processedItems,
+          service_items: processedItems, // Legacy compatibility
+          itemsCount: processedItems.length,
+          subtotal: typeof details.subtotal === 'number' ? details.subtotal : amount,
+          deliveryFee: typeof details.deliveryFee === 'number' ? details.deliveryFee : 500,
+          tax: typeof details.tax === 'number' ? details.tax : 0,
           total: details.total || amount,
           deliverTo: (details.deliverTo && details.deliverTo.trim()) || "Room 101",
-          specialInstructions: details.specialInstructions,
+          specialInstructions: details.specialInstructions || '',
+          orderSummary: {
+            itemsCount: processedItems.length,
+            subtotal: details.subtotal || amount,
+            deliveryFee: details.deliveryFee || 500,
+            tax: details.tax || 0,
+            total: details.total || amount
+          },
           createdAt: timestamp,
+          updatedAt: timestamp,
         };
         break;
 

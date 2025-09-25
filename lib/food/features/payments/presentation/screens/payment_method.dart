@@ -21,6 +21,7 @@ import 'paystack_webview_screen.dart';
 import '../../../../components/texts.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../core/utils/app_utils.dart';
+import '../../../../core/utils/logger.dart';
 import '../manager/cart/cart_cubit.dart';
 import '../manager/paystack_bloc/paystack_payment_bloc.dart';
 import '../manager/paystack_bloc/paystack_payment_event.dart';
@@ -132,6 +133,24 @@ class _PaymentMethodState extends State<PaymentMethod> {
   void _processPaystackPayment(dynamic cartState, UserProfileEntity user) {
     final amount = cartState.data?.totalPrice ?? 0.0;
 
+    // Log cart state data for debugging
+    Logger.logBasic('💳 Payment Screen Cart Access:');
+    Logger.logBasic('  HasData: ${cartState.hasData}');
+    Logger.logBasic('  Items Length: ${cartState.data?.items?.length ?? 0}');
+    Logger.logBasic('  Total Price: ${cartState.data?.totalPrice ?? 0.0}');
+    Logger.logBasic('  State Type: ${cartState.runtimeType}');
+
+    if (cartState.hasData && cartState.data?.items?.isNotEmpty == true) {
+      Logger.logBasic('  Cart Items Available:');
+      for (int i = 0; i < (cartState.data?.items?.length ?? 0); i++) {
+        final item = cartState.data!.items[i];
+        Logger.logBasic('    Item $i: ${item.name} x${item.quantity}');
+        Logger.logBasic('      ImageURL: ${item.imageUrl}');
+      }
+    } else {
+      Logger.logBasic('  No cart items available or cart state has no data');
+    }
+
     // Show loading dialog
     DFoodUtils.showDialogContainer(
       context: context,
@@ -185,7 +204,28 @@ class _PaymentMethodState extends State<PaymentMethod> {
         email: user.email,
         metadata: {
           'userId': user.id,
-          'orderItems': cartState.data?.items?.length ?? 0,
+          'userName': '${user.firstName} ${user.lastName}'.trim().isEmpty
+              ? user.email.split('@')[0]
+              : '${user.firstName} ${user.lastName}'.trim(),
+          'orderItemsCount': cartState.data?.items?.length ?? 0,
+          'items': cartState.data?.items?.map((item) => {
+            'id': item.id,
+            'name': item.name,
+            'description': item.description,
+            'price': item.price,
+            'quantity': item.quantity,
+            'imageUrl': item.imageUrl,
+            'restaurantId': item.restaurantId,
+            'restaurantName': item.restaurantName,
+            'category': item.category,
+            'preparationTime': item.preparationTime ?? '15-30 mins',
+            'ingredients': item.ingredients,
+            'totalPrice': item.price * item.quantity,
+          }).toList() ?? [],
+          'subtotal': cartState.data?.totalPrice ?? 0.0,
+          'deliveryFee': 500.0, // Default delivery fee - can be calculated dynamically
+          'tax': 0.0, // No tax for now
+          'total': amount,
         },
       ),
     );

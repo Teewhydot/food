@@ -83,10 +83,19 @@ exports.createPaystackTransaction = onRequest(
         const validatedData = RequestValidators.validateTransactionRequest(req.body);
         const { orderId, amount, userId, email, metadata, userName } = validatedData;
 
-        // Map orderId to bookingDetails for backward compatibility
+        // Extract and structure the food order details from metadata
         const bookingDetails = {
           orderId: orderId,
           transactionType: 'food_order',
+          items: metadata.items || [],
+          subtotal: metadata.subtotal || amount,
+          deliveryFee: metadata.deliveryFee || 500,
+          tax: metadata.tax || 0,
+          total: metadata.total || amount,
+          itemsCount: metadata.orderItemsCount || 0,
+          deliverTo: metadata.deliverTo || 'Room 101',
+          specialInstructions: metadata.specialInstructions || '',
+          // Include all other metadata
           ...metadata
         };
 
@@ -689,10 +698,19 @@ exports.initializeFlutterwavePayment = onRequest(
         const validatedData = RequestValidators.validateTransactionRequest(req.body);
         const { orderId, amount, userId, email, metadata, userName } = validatedData;
 
-        // Map orderId to bookingDetails for backward compatibility
+        // Extract and structure the food order details from metadata
         const bookingDetails = {
           orderId: orderId,
           transactionType: 'food_order',
+          items: metadata.items || [],
+          subtotal: metadata.subtotal || amount,
+          deliveryFee: metadata.deliveryFee || 500,
+          tax: metadata.tax || 0,
+          total: metadata.total || amount,
+          itemsCount: metadata.orderItemsCount || 0,
+          deliverTo: metadata.deliverTo || 'Room 101',
+          specialInstructions: metadata.specialInstructions || '',
+          // Include all other metadata
           ...metadata
         };
 

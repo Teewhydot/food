@@ -55,9 +55,25 @@ class CartCubit extends Bloc<CartEvent, BaseState<CartEntity>> {
       (failure) =>
           emit(ErrorState<CartEntity>(errorMessage: failure.failureMessage)),
       (cartEntity) {
+        // Log cart data for debugging
+        Logger.logBasic('🛒 Cart Stream Updated:');
+        Logger.logBasic('  Items Count: ${cartEntity.items.length}');
+        Logger.logBasic('  Total Price: \$${cartEntity.totalPrice}');
+        Logger.logBasic('  Item Count: ${cartEntity.itemCount}');
+
+        // Log each item details
+        for (int i = 0; i < cartEntity.items.length; i++) {
+          final item = cartEntity.items[i];
+          Logger.logBasic('  Item $i: ${item.name} x${item.quantity} = \$${item.price * item.quantity}');
+          Logger.logBasic('    ID: ${item.id}, ImageURL: ${item.imageUrl}');
+          Logger.logBasic('    Restaurant: ${item.restaurantName}, Category: ${item.category}');
+        }
+
         if (cartEntity.isEmpty) {
+          Logger.logBasic('  Cart is empty - emitting EmptyState');
           emit(const EmptyState<CartEntity>(message: 'Cart is empty'));
         } else {
+          Logger.logBasic('  Cart has items - emitting LoadedState');
           emit(
             LoadedState<CartEntity>(
               data: cartEntity,
