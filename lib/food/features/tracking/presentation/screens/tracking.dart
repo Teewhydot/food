@@ -2,34 +2,49 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_sliding_box/flutter_sliding_box.dart';
 import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/features/home/presentation/widgets/circle_widget.dart';
+import 'package:food/food/features/payments/domain/entities/order_entity.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../components/texts.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../auth/presentation/widgets/back_widget.dart';
 import '../../../onboarding/presentation/widgets/food_container.dart';
-
-enum TrackingStatus { orderPlaced, restaurant, outForDelivery, delivered }
+import '../manager/order_tracking/order_tracking_cubit.dart';
+import '../manager/order_tracking/order_tracking_state.dart';
 
 enum StepStatus { completed, inProgress, notStarted }
 
-class TrackingOrder extends StatefulWidget {
-  const TrackingOrder({super.key});
+class TrackingOrder extends StatelessWidget {
+  final String orderId;
+
+  const TrackingOrder({super.key, required this.orderId});
 
   @override
-  State<TrackingOrder> createState() => _TrackingOrderState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => OrderTrackingCubit()..startTrackingOrder(orderId),
+      child: _TrackingOrderView(),
+    );
+  }
 }
 
-class _TrackingOrderState extends State<TrackingOrder> {
+class _TrackingOrderView extends StatefulWidget {
+  @override
+  State<_TrackingOrderView> createState() => _TrackingOrderViewState();
+}
+
+class _TrackingOrderViewState extends State<_TrackingOrderView> {
   final nav = GetIt.instance<NavigationService>();
 
   final Completer<GoogleMapController> _controller =
@@ -42,6 +57,14 @@ class _TrackingOrderState extends State<TrackingOrder> {
 
   @override
   Widget build(BuildContext context) {
+    return BlocBuilder<OrderTrackingCubit, OrderTrackingState>(
+      builder: (context, state) {
+        return _buildScaffold(context, state);
+      },
+    );
+  }
+
+  Widget _buildScaffold(BuildContext context, OrderTrackingState state) {
     return FScaffold(
       appBarWidget: Container(
         color: Colors.transparent,
@@ -98,69 +121,171 @@ class _TrackingOrderState extends State<TrackingOrder> {
             style: BoxStyle.none,
             collapsed: true,
             draggableIconBackColor: kWhiteColor,
-            body: Column(
-              children: [
-                Column(
-                  children: [
-                    Row(
-                      children: [
-                        FoodContainer(width: 63, height: 63, borderRadius: 10),
-                        10.horizontalSpace,
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              FText(
-                                text: "Order ID: 123456",
-                                alignment: MainAxisAlignment.start,
-                              ),
-                              5.verticalSpace,
-                              FText(
-                                text: "Ordered on: 2023-10-01",
-                                alignment: MainAxisAlignment.start,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w400,
-                                color: kContainerColor,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    36.verticalSpace,
-                    FText(
-                      text: "Estimated Delivery Time",
-                      alignment: MainAxisAlignment.center,
-                      fontSize: 16,
-                      color: kContainerColor,
-                      fontWeight: FontWeight.w400,
-                    ),
-                    10.verticalSpace,
-                    FText(
-                      text: "30 minutes",
-                      alignment: MainAxisAlignment.center,
-                      fontSize: 24,
-                      color: kTextColorDark,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    36.verticalSpace,
-                    StepTrackingWidget(),
-                  ],
-                ).paddingOnly(left: AppConstants.defaultPadding),
-              ],
-            ),
+            body: _buildOrderContent(state),
           ),
         ],
       ),
     );
   }
+
+  Widget _buildOrderContent(OrderTrackingState state) {
+    return Column(
+      children: [
+        switch (state) {
+          OrderTrackingLoading() => _buildLoadingState(),
+          OrderTrackingError() => _buildErrorState(state.message),
+          OrderNotFound() => _buildNotFoundState(),
+          OrderTrackingLoaded() => _buildLoadedState(state.order),
+          _ => _buildInitialState(),
+        },
+      ],
+    );
+  }
+
+  Widget _buildLoadingState() {
+    return const Center(
+      child: Padding(
+        padding: EdgeInsets.all(50.0),
+        child: CupertinoActivityIndicator(radius: 20),
+      ),
+    );
+  }
+
+  Widget _buildErrorState(String message) {
+    return Padding(
+      padding: EdgeInsets.all(AppConstants.defaultPadding).r,
+      child: Column(
+        children: [
+          Icon(Ionicons.alert_circle_outline, size: 60, color: Colors.red),
+          20.verticalSpace,
+          FText(
+            text: "Error loading order",
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+          ),
+          10.verticalSpace,
+          FText(
+            text: message,
+            fontSize: 14,
+            color: kContainerColor,
+            alignment: MainAxisAlignment.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNotFoundState() {
+    return Padding(
+      padding: EdgeInsets.all(AppConstants.defaultPadding).r,
+      child: Column(
+        children: [
+          Icon(Ionicons.receipt_outline, size: 60, color: kContainerColor),
+          20.verticalSpace,
+          FText(
+            text: "Order Not Found",
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+          ),
+          10.verticalSpace,
+          FText(
+            text: "The order you're looking for doesn't exist.",
+            fontSize: 14,
+            color: kContainerColor,
+            alignment: MainAxisAlignment.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInitialState() {
+    return const SizedBox();
+  }
+
+  Widget _buildLoadedState(OrderEntity order) {
+    final DateFormat dateFormat = DateFormat('MMM dd, yyyy HH:mm');
+
+    return Column(
+      children: [
+        Row(
+          children: [
+            FoodContainer(width: 63, height: 63, borderRadius: 10),
+            10.horizontalSpace,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  FText(
+                    text: "Order ID: ${order.id}",
+                    alignment: MainAxisAlignment.start,
+                  ),
+                  5.verticalSpace,
+                  FText(
+                    text: "Ordered on: ${dateFormat.format(order.createdAt)}",
+                    alignment: MainAxisAlignment.start,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                    color: kContainerColor,
+                  ),
+                  5.verticalSpace,
+                  FText(
+                    text: order.restaurantName,
+                    alignment: MainAxisAlignment.start,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: kPrimaryColor,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        36.verticalSpace,
+        FText(
+          text: "Order Status",
+          alignment: MainAxisAlignment.center,
+          fontSize: 16,
+          color: kContainerColor,
+          fontWeight: FontWeight.w400,
+        ),
+        10.verticalSpace,
+        FText(
+          text: _getStatusDisplayText(order.status),
+          alignment: MainAxisAlignment.center,
+          fontSize: 24,
+          color: kTextColorDark,
+          fontWeight: FontWeight.w600,
+        ),
+        36.verticalSpace,
+        StepTrackingWidget(orderStatus: order.status),
+      ],
+    ).paddingOnly(left: AppConstants.defaultPadding);
+  }
+
+  String _getStatusDisplayText(OrderStatus status) {
+    switch (status) {
+      case OrderStatus.pending:
+        return "Order Received";
+      case OrderStatus.confirmed:
+        return "Order Confirmed";
+      case OrderStatus.preparing:
+        return "Being Prepared";
+      case OrderStatus.onTheWay:
+        return "Out for Delivery";
+      case OrderStatus.delivered:
+        return "Delivered";
+      case OrderStatus.cancelled:
+        return "Cancelled";
+    }
+  }
 }
 
 class StepTrackingWidget extends StatelessWidget {
-  final TrackingStatus trackingStatus;
+  final OrderStatus orderStatus;
   const StepTrackingWidget({
     super.key,
-    this.trackingStatus = TrackingStatus.delivered,
+    required this.orderStatus,
   });
 
   @override
@@ -168,41 +293,62 @@ class StepTrackingWidget extends StatelessWidget {
     return Column(
       children: [
         StepWidget(
-          status: switch (trackingStatus) {
-            TrackingStatus.orderPlaced => StepStatus.completed,
-            TrackingStatus.restaurant => StepStatus.completed,
-            TrackingStatus.outForDelivery => StepStatus.completed,
-            TrackingStatus.delivered => StepStatus.completed,
+          status: switch (orderStatus) {
+            OrderStatus.pending => StepStatus.inProgress,
+            OrderStatus.confirmed => StepStatus.completed,
+            OrderStatus.preparing => StepStatus.completed,
+            OrderStatus.onTheWay => StepStatus.completed,
+            OrderStatus.delivered => StepStatus.completed,
+            OrderStatus.cancelled => StepStatus.completed,
           },
           message: "Your order has been received",
         ),
         StepWidget(
-          status: switch (trackingStatus) {
-            TrackingStatus.orderPlaced => StepStatus.inProgress,
-            TrackingStatus.restaurant => StepStatus.completed,
-            TrackingStatus.outForDelivery => StepStatus.completed,
-            TrackingStatus.delivered => StepStatus.completed,
+          status: switch (orderStatus) {
+            OrderStatus.pending => StepStatus.notStarted,
+            OrderStatus.confirmed => StepStatus.inProgress,
+            OrderStatus.preparing => StepStatus.completed,
+            OrderStatus.onTheWay => StepStatus.completed,
+            OrderStatus.delivered => StepStatus.completed,
+            OrderStatus.cancelled => StepStatus.notStarted,
+          },
+          message: "Order confirmed by restaurant",
+        ),
+        StepWidget(
+          status: switch (orderStatus) {
+            OrderStatus.pending => StepStatus.notStarted,
+            OrderStatus.confirmed => StepStatus.notStarted,
+            OrderStatus.preparing => StepStatus.inProgress,
+            OrderStatus.onTheWay => StepStatus.completed,
+            OrderStatus.delivered => StepStatus.completed,
+            OrderStatus.cancelled => StepStatus.notStarted,
           },
           message: "The restaurant is preparing your order",
         ),
         StepWidget(
-          status: switch (trackingStatus) {
-            TrackingStatus.orderPlaced => StepStatus.notStarted,
-            TrackingStatus.restaurant => StepStatus.inProgress,
-            TrackingStatus.outForDelivery => StepStatus.completed,
-            TrackingStatus.delivered => StepStatus.completed,
+          status: switch (orderStatus) {
+            OrderStatus.pending => StepStatus.notStarted,
+            OrderStatus.confirmed => StepStatus.notStarted,
+            OrderStatus.preparing => StepStatus.notStarted,
+            OrderStatus.onTheWay => StepStatus.inProgress,
+            OrderStatus.delivered => StepStatus.completed,
+            OrderStatus.cancelled => StepStatus.notStarted,
           },
           message: "Your order is out for delivery",
         ),
         StepWidget(
           isLastStep: true,
-          status: switch (trackingStatus) {
-            TrackingStatus.orderPlaced => StepStatus.notStarted,
-            TrackingStatus.restaurant => StepStatus.notStarted,
-            TrackingStatus.outForDelivery => StepStatus.inProgress,
-            TrackingStatus.delivered => StepStatus.completed,
+          status: switch (orderStatus) {
+            OrderStatus.pending => StepStatus.notStarted,
+            OrderStatus.confirmed => StepStatus.notStarted,
+            OrderStatus.preparing => StepStatus.notStarted,
+            OrderStatus.onTheWay => StepStatus.notStarted,
+            OrderStatus.delivered => StepStatus.completed,
+            OrderStatus.cancelled => StepStatus.notStarted,
           },
-          message: "Your order has been delivered",
+          message: orderStatus == OrderStatus.cancelled
+              ? "Your order has been cancelled"
+              : "Your order has been delivered",
         ),
       ],
     );

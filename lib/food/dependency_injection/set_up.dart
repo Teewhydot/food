@@ -48,12 +48,15 @@ import '../features/payments/data/remote/data_sources/order_remote_data_source.d
 import '../features/payments/data/remote/data_sources/paystack_payment_data_source.dart';
 import '../features/payments/data/remote/data_sources/flutterwave_payment_data_source.dart';
 import '../features/payments/data/repositories/cart_repository_impl.dart';
+import '../features/payments/data/repositories/orders_repository_impl.dart';
 import '../features/payments/data/repositories/paystack_payment_repository_impl.dart';
 import '../features/payments/data/repositories/flutterwave_payment_repository_impl.dart';
 import '../features/payments/domain/repositories/cart_repository.dart';
+import '../features/payments/domain/repositories/payment_repository.dart';
 import '../features/payments/domain/repositories/paystack_payment_repository.dart';
 import '../features/payments/domain/repositories/flutterwave_payment_repository.dart';
 import '../features/payments/domain/use_cases/cart_usecase.dart';
+import '../features/payments/domain/use_cases/order_usecase.dart';
 import '../features/payments/domain/use_cases/paystack_payment_usecase.dart';
 import '../features/payments/domain/use_cases/flutterwave_payment_usecase.dart';
 import '../features/tracking/data/remote/data_sources/chat_remote_data_source.dart';
@@ -145,6 +148,12 @@ void setupDIService() {
 
   getIt.registerLazySingleton<OrderRemoteDataSource>(
     () => FirebaseOrderRemoteDataSource(),
+  );
+  getIt.registerLazySingleton<OrderRepository>(
+    () => OrderRepositoryImpl(),
+  );
+  getIt.registerLazySingleton<OrderUseCase>(
+    () => OrderUseCase(),
   );
 
   // Cart feature dependencies

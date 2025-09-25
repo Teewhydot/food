@@ -20,6 +20,14 @@ class OrderRepositoryImpl implements OrderRepository {
   }
 
   @override
+  Stream<Either<Failure, OrderEntity?>> streamOrderById(String orderId) {
+    return ErrorHandler.handleStream(
+      () => orderDataSource.streamOrderById(orderId),
+      operationName: 'streamOrderById',
+    );
+  }
+
+  @override
   Future<Either<Failure, void>> cancelOrder(String orderId) {
     return handleExceptions(() async {
       await orderDataSource.cancelOrder(orderId);

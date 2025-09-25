@@ -136,7 +136,7 @@ class _OrdersState extends State<Orders> {
             ),
             firstButtonOnTap: () {
               if (category == OrderCategory.ongoing) {
-                nav.navigateTo(Routes.tracking);
+                nav.navigateTo(Routes.tracking, arguments: order.id);
               } else {
                 // TODO: Implement rating
               }

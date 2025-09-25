@@ -11,6 +11,10 @@ class OrderUseCase {
     return repository.streamUserOrders(userId);
   }
 
+  Stream<Either<Failure, OrderEntity?>> streamOrderById(String orderId) {
+    return repository.streamOrderById(orderId);
+  }
+
   Future<Either<Failure, void>> cancelOrder(String orderId) async {
     return await repository.cancelOrder(orderId);
   }

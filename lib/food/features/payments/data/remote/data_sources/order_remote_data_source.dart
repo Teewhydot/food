@@ -4,6 +4,7 @@ import '../../../domain/entities/order_entity.dart';
 
 abstract class OrderRemoteDataSource {
   Stream<List<OrderEntity>> streamUserOrders(String userId);
+  Stream<OrderEntity?> streamOrderById(String orderId);
   Future<void> cancelOrder(String orderId);
 }
 
@@ -20,6 +21,18 @@ class FirebaseOrderRemoteDataSource implements OrderRemoteDataSource {
           (snapshot) =>
               snapshot.docs.map((doc) => _orderFromFirestore(doc)).toList(),
         );
+  }
+
+  @override
+  Stream<OrderEntity?> streamOrderById(String orderId) {
+    return _firestore
+        .collection('food_orders')
+        .doc(orderId)
+        .snapshots()
+        .map((snapshot) {
+      if (!snapshot.exists) return null;
+      return _orderFromFirestore(snapshot);
+    });
   }
 
   @override

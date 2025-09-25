@@ -366,7 +366,7 @@ class _PaymentStatusState extends State<PaymentStatus> {
   void _handleButtonPress() {
     switch (_currentStatus) {
       case PaymentStatusEnum.success:
-        nav.navigateAndOffAll(Routes.tracking, Routes.home);
+        nav.navigateAndOffAll(Routes.tracking, Routes.home, arguments: widget.orderId);
         break;
       case PaymentStatusEnum.failure:
         nav.goBack();

@@ -31,7 +31,6 @@ import '../../features/home/domain/entities/food.dart';
 import '../../features/home/domain/entities/restaurant.dart';
 import '../../features/home/presentation/screens/home.dart';
 import '../../features/payments/presentation/screens/cart.dart';
-import '../../features/testing/presentation/screens/firebase_test_screen.dart';
 import '../../features/tracking/domain/entities/chat_entity.dart';
 import '../../features/tracking/presentation/screens/call_screen.dart';
 import '../../features/tracking/presentation/screens/chat_screen.dart';
@@ -178,7 +177,7 @@ class GetXRouteModule {
     ),
     GetPage(
       name: Routes.tracking,
-      page: () => const TrackingOrder(),
+      page: () => TrackingOrder(orderId: Get.arguments as String? ?? ''),
       transition: _transition,
       transitionDuration: _transitionDuration,
     ),
@@ -246,12 +245,6 @@ class GetXRouteModule {
     GetPage(
       name: Routes.location,
       page: () => const Location(),
-      transition: _transition,
-      transitionDuration: _transitionDuration,
-    ),
-    GetPage(
-      name: Routes.firebaseTest,
-      page: () => const FirebaseTestScreen(),
       transition: _transition,
       transitionDuration: _transitionDuration,
     ),

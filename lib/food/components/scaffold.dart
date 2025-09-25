@@ -43,11 +43,9 @@ class FScaffold extends StatelessWidget {
               ),
             ];
           },
-          body: SingleChildScrollView(
-            child: Padding(
-              padding: EdgeInsets.all(padding).r,
-              child: body,
-            ),
+          body: Padding(
+            padding: EdgeInsets.all(padding).r,
+            child: body,
           ),
         ),
         bottomNavigationBar: bottomWidget,
