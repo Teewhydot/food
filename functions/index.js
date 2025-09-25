@@ -373,8 +373,8 @@ async function handleSuccessfulPayment(processedEvent, executionId) {
   // Clear user cart after successful food order payment
   if (transactionType === 'food_order' && userId) {
     try {
-      await clearUserCart(userId, executionId);
-      logger.info(`Cart cleared for user: ${userId}`, executionId);
+      const clearResult = await dbHelper.clearUserCart(userId, executionId);
+      logger.info(`Cart clearing result for user ${userId}: ${clearResult.success ? 'success' : 'failed'} - ${clearResult.itemCount || 0} items`, executionId);
     } catch (error) {
       logger.error(`Failed to clear cart for user: ${userId}`, executionId, error);
     }
@@ -976,25 +976,6 @@ exports.flutterwaveWebhook = onRequest(
   }
 );
 
-// Helper function to clear user cart
-async function clearUserCart(userId, executionId) {
-  try {
-    logger.info(`Clearing cart for user: ${userId}`, executionId);
-
-    // Delete the user's cart document
-    await dbHelper.deleteDocument('carts', userId, executionId);
-
-    logger.success(`Cart cleared successfully for user: ${userId}`, executionId);
-  } catch (error) {
-    // Log error but don't throw - cart clearing shouldn't fail the payment process
-    if (error.code === 5) { // NOT_FOUND error code
-      logger.info(`Cart already empty or not found for user: ${userId}`, executionId);
-    } else {
-      logger.error(`Error clearing cart for user: ${userId}`, executionId, error);
-      throw error;
-    }
-  }
-}
 
 // Helper function for successful Flutterwave payments
 async function handleSuccessfulFlutterwavePayment(processedEvent, executionId) {
@@ -1022,8 +1003,8 @@ async function handleSuccessfulFlutterwavePayment(processedEvent, executionId) {
   // Clear user cart after successful food order payment
   if (transactionType === 'food_order' && userId) {
     try {
-      await clearUserCart(userId, executionId);
-      logger.info(`Cart cleared for user: ${userId}`, executionId);
+      const clearResult = await dbHelper.clearUserCart(userId, executionId);
+      logger.info(`Cart clearing result for user ${userId}: ${clearResult.success ? 'success' : 'failed'} - ${clearResult.itemCount || 0} items`, executionId);
     } catch (error) {
       logger.error(`Failed to clear cart for user: ${userId}`, executionId, error);
     }

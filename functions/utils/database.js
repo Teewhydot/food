@@ -396,6 +396,45 @@ class DatabaseHelper {
   }
 
   // ========================================================================
+  // Cart Operations
+  // ========================================================================
+
+  // Clear all cart items for a user
+  async clearUserCart(userId, executionId = 'clear-cart') {
+    try {
+      logger.info(`Clearing cart items for user: ${userId}`, executionId);
+
+      // Get all cart items for the user from: users/{userId}/cart_items
+      const cartItemsRef = this.db.collection('users').doc(userId).collection('cart_items');
+      const snapshot = await cartItemsRef.get();
+
+      if (snapshot.empty) {
+        logger.info(`Cart already empty for user: ${userId}`, executionId);
+        return { success: true, itemCount: 0 };
+      }
+
+      // Delete all cart items using batch operation for efficiency
+      const batch = this.db.batch();
+      let itemCount = 0;
+
+      snapshot.forEach((doc) => {
+        batch.delete(doc.ref);
+        itemCount++;
+      });
+
+      // Commit the batch deletion
+      await batch.commit();
+
+      logger.success(`Cart cleared successfully for user: ${userId} - ${itemCount} items deleted`, executionId);
+      return { success: true, itemCount };
+
+    } catch (error) {
+      logger.error(`Failed to clear cart for user: ${userId}`, executionId, error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // ========================================================================
   // Utility Helpers
   // ========================================================================
 
