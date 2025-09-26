@@ -402,11 +402,14 @@ class DatabaseHelper {
   // Clear all cart items for a user
   async clearUserCart(userId, executionId = 'clear-cart') {
     try {
-      logger.info(`Clearing cart items for user: ${userId}`, executionId);
+      logger.info(`Starting cart clear for user: ${userId}`, executionId);
 
       // Get all cart items for the user from: users/{userId}/cart_items
       const cartItemsRef = this.db.collection('users').doc(userId).collection('cart_items');
+      logger.info(`Querying cart items at path: users/${userId}/cart_items`, executionId);
+
       const snapshot = await cartItemsRef.get();
+      logger.info(`Cart query result: ${snapshot.size} items found`, executionId);
 
       if (snapshot.empty) {
         logger.info(`Cart already empty for user: ${userId}`, executionId);
@@ -421,6 +424,8 @@ class DatabaseHelper {
         batch.delete(doc.ref);
         itemCount++;
       });
+
+      logger.info(`Batch deletion prepared: ${itemCount} items queued for deletion`, executionId);
 
       // Commit the batch deletion
       await batch.commit();
