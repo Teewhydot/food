@@ -7,7 +7,7 @@ class ApiConstants {
 
   // Flutterwave API Endpoints (v4)
   static const String flutterwaveOAuthToken = '/oauth/token';
-  static const String flutterwaveDirectCharges = '/orchestration/direct-charges';
+  static const String flutterwaveDirectCharges = '/orchestration/direct-orders';
   static const String flutterwaveTransactions = '/transactions';
   static const String flutterwaveTransactionVerify = '/verify';
 

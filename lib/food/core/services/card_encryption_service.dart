@@ -1,17 +1,24 @@
 import 'dart:convert';
 import 'dart:math';
+
 import 'package:encrypt/encrypt.dart';
 import 'package:flutter/foundation.dart' hide Key;
-import '../utils/logger.dart';
-import '../constants/env.dart';
 
+import '../constants/env.dart';
+import '../utils/logger.dart';
+
+/// Card Encryption Service for Flutterwave V4 API
+///
+/// Implements AES-256-CBC encryption with:
+/// - UTF-8 encoding for all string data (handled internally by encrypt package)
+/// - Unique IV generation for each encryption operation
+/// - Base64 encoding for encrypted output and IV
 class CardEncryptionService {
   static CardEncryptionService? _instance;
   static Encrypter? _encrypter;
-  static IV? _staticIV;
 
   // 🚨 SECURITY: Never store encryption keys in source code!
-  // Key is loaded from environment variables or generated dynamically
+  // Key is loaded from environment variables
 
   CardEncryptionService._internal();
 
@@ -30,9 +37,6 @@ class CardEncryptionService {
       // Initialize the encrypter with AES algorithm
       _encrypter = Encrypter(AES(key));
 
-      // Create a static IV for consistent encryption (use dynamic IV in production)
-      _staticIV = IV.fromSecureRandom(16);
-
       Logger.logSuccess('CardEncryptionService initialized successfully');
     } catch (e) {
       Logger.logError('Failed to initialize CardEncryptionService: $e');
@@ -40,63 +44,48 @@ class CardEncryptionService {
     }
   }
 
-  /// Securely loads or generates encryption key
+  /// Securely loads encryption key from environment
   static Future<Key> _getSecureEncryptionKey() async {
-    // First priority: Environment variable
-    if (Env.hasCardEncryptionKey) {
-      try {
-        final keyBytes = base64Decode(Env.cardEncryptionKey!);
-        if (keyBytes.length == 32) { // 256-bit key
-          Logger.logSuccess('Using encryption key from environment');
-          return Key(keyBytes);
-        } else {
-          Logger.logWarning('Environment encryption key has wrong length: ${keyBytes.length} bytes');
-        }
-      } catch (e) {
-        Logger.logError('Failed to decode environment encryption key: $e');
+    if (!Env.hasCardEncryptionKey) {
+      throw Exception(
+        'CARD_ENCRYPTION_KEY not found in environment variables. Set it in your .env file.',
+      );
+    }
+
+    try {
+      final keyBytes = base64Decode(Env.cardEncryptionKey!);
+      if (keyBytes.length != 32) {
+        // 256-bit key
+        throw Exception(
+          'Environment encryption key has wrong length: ${keyBytes.length} bytes. Expected 32 bytes.',
+        );
       }
+      Logger.logSuccess(
+        'Using encryption key from environment ${Env.cardEncryptionKey!}... (length: ${keyBytes.length} bytes)',
+      );
+      return Key(keyBytes);
+    } catch (e) {
+      Logger.logError('Failed to decode environment encryption key: $e');
+      throw Exception('Invalid encryption key in environment: $e');
     }
-
-    // Fallback: Generate a secure key (WARNING: Will be different each app restart)
-    Logger.logWarning('🚨 SECURITY WARNING: Generating temporary encryption key!');
-    Logger.logWarning('⚠️  This key will change on app restart, making previous encrypted data unrecoverable!');
-    Logger.logWarning('⚠️  For production, set CARD_ENCRYPTION_KEY in your .env file!');
-
-    return _generateSecureKey();
-  }
-
-  /// Generates a cryptographically secure 256-bit encryption key
-  static Key _generateSecureKey() {
-    final random = Random.secure();
-    final keyBytes = Uint8List(32); // 256 bits
-
-    for (int i = 0; i < keyBytes.length; i++) {
-      keyBytes[i] = random.nextInt(256);
-    }
-
-    if (kDebugMode) {
-      Logger.logWarning('Generated temporary key (base64): ${base64Encode(keyBytes)}');
-      Logger.logWarning('Save this key to your .env file as CARD_ENCRYPTION_KEY for consistency');
-    }
-
-    return Key(keyBytes);
   }
 
   static void dispose() {
     _encrypter = null;
-    _staticIV = null;
     _instance = null;
   }
 
   Future<void> _ensureInitialized() async {
-    if (_encrypter == null || _staticIV == null) {
-      Logger.logWarning('CardEncryptionService not initialized, attempting to initialize...');
+    if (_encrypter == null) {
+      Logger.logWarning(
+        'CardEncryptionService not initialized, attempting to initialize...',
+      );
       await initialize();
     }
   }
 
   /// Encrypts card number for secure transmission
-  Future<String> encryptCardNumber(String cardNumber) async {
+  Future<Map<String, String>> encryptCardNumber(String cardNumber) async {
     try {
       await _ensureInitialized();
 
@@ -107,9 +96,17 @@ class CardEncryptionService {
         throw Exception('Card number cannot be empty');
       }
 
-      final encrypted = _encrypter!.encrypt(cleanCardNumber, iv: _staticIV!);
-      Logger.logBasic('Card number encrypted successfully');
-      return encrypted.base64;
+      // Generate unique IV for this encryption
+      final iv = IV.fromSecureRandom(16);
+
+      // The encrypt library handles UTF-8 encoding internally
+      final encrypted = _encrypter!.encrypt(cleanCardNumber, iv: iv);
+      Logger.logBasic('Card number encrypted successfully (UTF-8 encoded)');
+
+      return {
+        'encrypted': encrypted.base64,
+        'iv': iv.base64,
+      };
     } catch (e) {
       Logger.logError('Failed to encrypt card number: $e');
       rethrow;
@@ -117,7 +114,7 @@ class CardEncryptionService {
   }
 
   /// Encrypts CVV for secure transmission
-  Future<String> encryptCVV(String cvv) async {
+  Future<Map<String, String>> encryptCVV(String cvv) async {
     try {
       await _ensureInitialized();
 
@@ -125,9 +122,17 @@ class CardEncryptionService {
         throw Exception('CVV cannot be empty');
       }
 
-      final encrypted = _encrypter!.encrypt(cvv, iv: _staticIV!);
-      Logger.logBasic('CVV encrypted successfully');
-      return encrypted.base64;
+      // Generate unique IV for this encryption
+      final iv = IV.fromSecureRandom(16);
+
+      // The encrypt library handles UTF-8 encoding internally
+      final encrypted = _encrypter!.encrypt(cvv, iv: iv);
+      Logger.logBasic('CVV encrypted successfully (UTF-8 encoded)');
+
+      return {
+        'encrypted': encrypted.base64,
+        'iv': iv.base64,
+      };
     } catch (e) {
       Logger.logError('Failed to encrypt CVV: $e');
       rethrow;
@@ -135,7 +140,7 @@ class CardEncryptionService {
   }
 
   /// Encrypts expiry month for secure transmission
-  Future<String> encryptExpiryMonth(String expiryMonth) async {
+  Future<Map<String, String>> encryptExpiryMonth(String expiryMonth) async {
     try {
       await _ensureInitialized();
 
@@ -146,9 +151,17 @@ class CardEncryptionService {
       // Ensure it's 2 digits
       final paddedMonth = expiryMonth.padLeft(2, '0');
 
-      final encrypted = _encrypter!.encrypt(paddedMonth, iv: _staticIV!);
-      Logger.logBasic('Expiry month encrypted successfully');
-      return encrypted.base64;
+      // Generate unique IV for this encryption
+      final iv = IV.fromSecureRandom(16);
+
+      // The encrypt library handles UTF-8 encoding internally
+      final encrypted = _encrypter!.encrypt(paddedMonth, iv: iv);
+      Logger.logBasic('Expiry month encrypted successfully (UTF-8 encoded)');
+
+      return {
+        'encrypted': encrypted.base64,
+        'iv': iv.base64,
+      };
     } catch (e) {
       Logger.logError('Failed to encrypt expiry month: $e');
       rethrow;
@@ -156,7 +169,7 @@ class CardEncryptionService {
   }
 
   /// Encrypts expiry year for secure transmission
-  Future<String> encryptExpiryYear(String expiryYear) async {
+  Future<Map<String, String>> encryptExpiryYear(String expiryYear) async {
     try {
       await _ensureInitialized();
 
@@ -164,9 +177,17 @@ class CardEncryptionService {
         throw Exception('Expiry year cannot be empty');
       }
 
-      final encrypted = _encrypter!.encrypt(expiryYear, iv: _staticIV!);
-      Logger.logBasic('Expiry year encrypted successfully');
-      return encrypted.base64;
+      // Generate unique IV for this encryption
+      final iv = IV.fromSecureRandom(16);
+
+      // The encrypt library handles UTF-8 encoding internally
+      final encrypted = _encrypter!.encrypt(expiryYear, iv: iv);
+      Logger.logBasic('Expiry year encrypted successfully (UTF-8 encoded)');
+
+      return {
+        'encrypted': encrypted.base64,
+        'iv': iv.base64,
+      };
     } catch (e) {
       Logger.logError('Failed to encrypt expiry year: $e');
       rethrow;
@@ -174,7 +195,7 @@ class CardEncryptionService {
   }
 
   /// Encrypts any card data string
-  Future<String> encryptCardData(String data) async {
+  Future<Map<String, String>> encryptCardData(String data) async {
     try {
       await _ensureInitialized();
 
@@ -182,27 +203,40 @@ class CardEncryptionService {
         throw Exception('Data cannot be empty');
       }
 
-      final encrypted = _encrypter!.encrypt(data, iv: _staticIV!);
-      Logger.logBasic('Card data encrypted successfully');
-      return encrypted.base64;
+      // Generate unique IV for this encryption
+      final iv = IV.fromSecureRandom(16);
+
+      // The encrypt library handles UTF-8 encoding internally
+      final encrypted = _encrypter!.encrypt(data, iv: iv);
+      Logger.logBasic('Card data encrypted successfully (UTF-8 encoded)');
+
+      return {
+        'encrypted': encrypted.base64,
+        'iv': iv.base64,
+      };
     } catch (e) {
       Logger.logError('Failed to encrypt card data: $e');
       rethrow;
     }
   }
 
+
   /// Decrypts card data (for testing/verification purposes only)
-  Future<String> decryptCardData(String encryptedData) async {
+  /// Requires both the encrypted data and the IV used for encryption
+  Future<String> decryptCardData(String encryptedData, String ivBase64) async {
     try {
       await _ensureInitialized();
 
-      if (encryptedData.isEmpty) {
-        throw Exception('Encrypted data cannot be empty');
+      if (encryptedData.isEmpty || ivBase64.isEmpty) {
+        throw Exception('Encrypted data and IV cannot be empty');
       }
 
       final encrypted = Encrypted.fromBase64(encryptedData);
-      final decrypted = _encrypter!.decrypt(encrypted, iv: _staticIV!);
-      Logger.logBasic('Card data decrypted successfully');
+      final iv = IV.fromBase64(ivBase64);
+
+      // The encrypt library handles UTF-8 decoding internally
+      final decrypted = _encrypter!.decrypt(encrypted, iv: iv);
+      Logger.logBasic('Card data decrypted successfully (UTF-8 decoded)');
       return decrypted;
     } catch (e) {
       Logger.logError('Failed to decrypt card data: $e');
@@ -212,29 +246,29 @@ class CardEncryptionService {
 
   /// Generates a secure nonce for Flutterwave API
   String generateSecureNonce(int length) {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const chars =
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     final random = Random.secure();
-    return List.generate(length, (index) => chars[random.nextInt(chars.length)]).join();
+    return List.generate(
+      length,
+      (index) => chars[random.nextInt(chars.length)],
+    ).join();
   }
 
   /// Validates if the encryption service is ready to use
-  bool get isInitialized => _encrypter != null && _staticIV != null;
-
-  /// Gets the IV as base64 string (for debugging purposes only - never log in production)
-  String? get ivBase64 {
-    if (kDebugMode) {
-      return _staticIV?.base64;
-    }
-    return '[REDACTED]'; // Don't expose IV in production
-  }
+  bool get isInitialized => _encrypter != null;
 
   /// Validates encryption setup and logs security warnings
   static bool validateSecuritySetup() {
     bool isSecure = true;
 
     if (!Env.hasCardEncryptionKey) {
-      Logger.logError('🚨 SECURITY RISK: No encryption key configured in environment!');
-      Logger.logError('⚠️  Add CARD_ENCRYPTION_KEY to your .env file immediately!');
+      Logger.logError(
+        '🚨 SECURITY RISK: No encryption key configured in environment!',
+      );
+      Logger.logError(
+        '⚠️  Add CARD_ENCRYPTION_KEY to your .env file immediately!',
+      );
       Logger.logError('⚠️  Generate key with: openssl rand -base64 32');
       isSecure = false;
     }
@@ -246,7 +280,7 @@ class CardEncryptionService {
     return isSecure;
   }
 
-  /// Encrypts all card details at once
+  /// Encrypts all card details at once with a single IV for the entire payload
   Future<Map<String, String>> encryptAllCardDetails({
     required String cardNumber,
     required String cvv,
@@ -258,23 +292,31 @@ class CardEncryptionService {
 
       Logger.logBasic('Encrypting all card details...');
 
-      final results = await Future.wait([
-        encryptCardNumber(cardNumber),
-        encryptCVV(cvv),
-        encryptExpiryMonth(expiryMonth),
-        encryptExpiryYear(expiryYear),
-      ]);
+      // Generate a single IV for the entire card data
+      final iv = IV.fromSecureRandom(16);
+
+      // Remove any spaces or special characters from card number
+      final cleanCardNumber = cardNumber.replaceAll(RegExp(r'[^\d]'), '');
+
+      // Ensure expiry month is 2 digits
+      final paddedMonth = expiryMonth.padLeft(2, '0');
+
+      // Encrypt each field with the same IV (UTF-8 encoding handled internally)
+      final encryptedCardNumber = _encrypter!.encrypt(cleanCardNumber, iv: iv);
+      final encryptedCVV = _encrypter!.encrypt(cvv, iv: iv);
+      final encryptedExpiryMonth = _encrypter!.encrypt(paddedMonth, iv: iv);
+      final encryptedExpiryYear = _encrypter!.encrypt(expiryYear, iv: iv);
 
       final encryptedData = {
-        'encrypted_card_number': results[0],
-        'encrypted_cvv': results[1],
-        'encrypted_expiry_month': results[2],
-        'encrypted_expiry_year': results[3],
+        'encrypted_card_number': encryptedCardNumber.base64,
+        'encrypted_cvv': encryptedCVV.base64,
+        'encrypted_expiry_month': encryptedExpiryMonth.base64,
+        'encrypted_expiry_year': encryptedExpiryYear.base64,
+        'iv': iv.base64, // Single IV for all fields
       };
 
-      Logger.logSuccess('All card details encrypted successfully');
+      Logger.logSuccess('All card details encrypted successfully (UTF-8 encoded)');
       return encryptedData;
-
     } catch (e) {
       Logger.logError('Failed to encrypt all card details: $e');
       rethrow;
