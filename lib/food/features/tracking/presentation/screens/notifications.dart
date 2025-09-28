@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:dartz/dartz.dart' hide State;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -8,17 +9,16 @@ import 'package:food/food/core/bloc/base/base_state.dart';
 import 'package:food/food/core/helpers/user_extensions.dart';
 import 'package:food/food/features/tracking/presentation/manager/notification_bloc/notification_cubit.dart';
 import 'package:get/get.dart';
-import 'package:dartz/dartz.dart' hide State;
 
+import '../../../../components/buttons.dart';
 import '../../../../components/texts.dart';
 import '../../../../core/bloc/managers/bloc_manager.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/colors.dart';
-import '../../../auth/presentation/widgets/back_widget.dart';
-import '../widgets/notification_widget.dart';
 import '../../../../domain/failures/failures.dart';
+import '../../../auth/presentation/widgets/back_widget.dart';
 import '../../domain/entities/notification_entity.dart';
-import '../../../../components/buttons.dart';
+import '../widgets/notification_widget.dart';
 
 class Notifications extends StatefulWidget {
   const Notifications({super.key});
@@ -49,10 +49,11 @@ class _NotificationsState extends State<Notifications>
     try {
       final userId = context.readCurrentUserId;
       if (userId != null && userId.isNotEmpty) {
-        _notificationsStream = context
-            .read<NotificationCubit>()
-            .watchNotifications(userId)
-            .distinct();
+        _notificationsStream =
+            context
+                .read<NotificationCubit>()
+                .watchNotifications(userId)
+                .distinct();
       }
     } catch (e) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -158,7 +159,9 @@ class _NotificationsState extends State<Notifications>
     );
   }
 
-  Widget _buildNotificationsScaffold(Either<Failure, List<NotificationEntity>> notifs) {
+  Widget _buildNotificationsScaffold(
+    Either<Failure, List<NotificationEntity>> notifs,
+  ) {
     return FScaffold(
       customScroll: notifs.fold(
         (failure) => true,
@@ -201,15 +204,15 @@ class _NotificationsState extends State<Notifications>
 
     return SingleChildScrollView(
       child: Column(
-        children: notifications
-            .map((notification) => NotificationWidget(
-                  notificationEntity: notification,
-                ))
-            .toList(),
-      ).paddingOnly(top: 32),
-    ).paddingSymmetric(
-      horizontal: AppConstants.defaultPadding,
-    );
+        children:
+            notifications
+                .map(
+                  (notification) =>
+                      NotificationWidget(notificationEntity: notification),
+                )
+                .toList(),
+      ),
+    ).paddingSymmetric(horizontal: AppConstants.defaultPadding);
   }
 
   Widget _buildErrorBody(String message) {
