@@ -19,24 +19,30 @@ class NotificationWidget extends StatelessWidget {
           spacing: 10,
           children: [
             CircleWidget(radius: 25, color: kContainerColor),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              spacing: 10,
-              children: [
-                FWrapText(text: notificationEntity.body),
-                // FRichText(
-                //   text: "Tunde",
-                //   text2: ' placed a new order',
-                //   text2Color: kContainerColor,
-                //   color: kBlackColor,
-                // ),
-                FText(
-                  text: timeago.format(notificationEntity.createdAt),
-                  fontSize: 12,
-                  color: kGreyColor,
-                ),
-              ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                spacing: 10,
+                children: [
+                  FText(
+                    text: notificationEntity.title,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+
+                  FWrapText(
+                    text: notificationEntity.body,
+                    fontSize: 12,
+                    color: kGreyColor,
+                  ),
+                  FText(
+                    text: timeago.format(notificationEntity.createdAt),
+                    fontSize: 12,
+                    color: kGreyColor,
+                  ),
+                ],
+              ),
             ),
           ],
         ).paddingAll(16),

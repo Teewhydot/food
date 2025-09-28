@@ -23,8 +23,6 @@ class FirebaseNotificationRemoteDataSource
     if (userId == null) throw Exception('User not authenticated');
 
     await _firestore
-        .collection('users')
-        .doc(userId)
         .collection('notifications')
         .doc(notificationId)
         .update({'isRead': true});
@@ -50,9 +48,8 @@ class FirebaseNotificationRemoteDataSource
   @override
   Stream<List<NotificationEntity>> watchUserNotifications(String userId) {
     return _firestore
-        .collection('users')
-        .doc(userId)
         .collection('notifications')
+        .where('userId', isEqualTo: userId)
         .orderBy('createdAt', descending: true)
         .limit(50)
         .snapshots()

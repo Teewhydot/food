@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:dartz/dartz.dart' hide State;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -19,14 +20,13 @@ import 'package:food/food/features/onboarding/presentation/widgets/food_containe
 import 'package:food/generated/assets.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
-import 'package:dartz/dartz.dart' hide State;
 
 import '../../../../components/buttons.dart';
 import '../../../../components/texts.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../core/theme/colors.dart';
-import '../../../auth/presentation/widgets/back_widget.dart';
 import '../../../../domain/failures/failures.dart';
+import '../../../auth/presentation/widgets/back_widget.dart';
 
 enum AddressType { home, work }
 
@@ -47,10 +47,11 @@ class _AddressState extends State<Address> {
   }
 
   void _initializeStream() {
-    _addressesStream = context
-        .read<AddressCubit>()
-        .watchAddresses(context.readUser()?.id ?? "")
-        .distinct();
+    _addressesStream =
+        context
+            .read<AddressCubit>()
+            .watchAddresses(context.readUser()?.id ?? "")
+            .distinct();
   }
 
   @override
@@ -102,8 +103,8 @@ class _AddressState extends State<Address> {
                     children: [
                       addresses.fold(
                         (l) => Container(),
-                        (addressess) =>
-                            addressess.isEmpty
+                        (userAddresses) =>
+                            userAddresses.isEmpty
                                 ? Center(
                                   child: FText(
                                     text: 'No addresses found.',
@@ -114,7 +115,7 @@ class _AddressState extends State<Address> {
                                 : SingleChildScrollView(
                                   child: Column(
                                     children:
-                                        addressess.map((address) {
+                                        userAddresses.map((address) {
                                           return AddressWidget(
                                             addressType:
                                                 address.type == 'home'
