@@ -13,6 +13,8 @@ import 'package:food/food/features/auth/presentation/manager/location_bloc/locat
 import 'package:food/generated/assets.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
+import 'package:food/food/features/payments/presentation/manager/cart/cart_cubit.dart';
+import 'package:food/food/features/payments/presentation/manager/cart/cart_event.dart';
 
 import '../../../../core/bloc/base/base_state.dart';
 import '../../../../core/bloc/managers/bloc_manager.dart';
@@ -389,7 +391,7 @@ class _HomeState extends State<Home> {
                   image: food.imageUrl,
                   name: food.name,
                   onAddTapped: () {
-                    // context.read<CartCubit>().addFood(food);
+                    context.read<CartCubit>().add(CartAddFoodEvent(food: food));
                   },
                   onTap: () {
                     // Preload detail image for smooth navigation

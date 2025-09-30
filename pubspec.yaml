@@ -71,6 +71,7 @@ dependencies:
   hive_flutter: ^1.1.0
   encrypt: ^5.0.3
   crypto: ^3.0.5
+  cryptography: ^2.7.0
   dio: ^4.0.6
 
 

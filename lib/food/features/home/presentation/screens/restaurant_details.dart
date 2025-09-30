@@ -5,6 +5,7 @@ import 'package:food/food/components/texts.dart';
 import 'package:food/food/features/home/domain/entities/restaurant.dart';
 import 'package:food/food/features/home/domain/entities/restaurant_food_category.dart';
 import 'package:food/food/features/home/presentation/widgets/details_skeleton_widget.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:ionicons/ionicons.dart';
 
@@ -18,6 +19,8 @@ import '../../domain/entities/food.dart';
 import '../widgets/category_widget.dart';
 import '../widgets/food_widget.dart';
 import '../widgets/section_head.dart';
+import '../../../payments/presentation/manager/cart/cart_cubit.dart';
+import '../../../payments/presentation/manager/cart/cart_event.dart';
 
 class RestaurantDetails extends StatefulWidget {
   final Restaurant restaurant;
@@ -200,7 +203,7 @@ class _RestaurantDetailsState extends State<RestaurantDetails> {
                 image: food.imageUrl,
                 name: food.name,
                 onAddTapped: () {
-                  // context.read<CartCubit>().addFood(food);
+                  context.read<CartCubit>().add(CartAddFoodEvent(food: food));
                 },
                 onTap: () {
                   // Preload detail image for smooth navigation

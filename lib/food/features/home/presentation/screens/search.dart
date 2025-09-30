@@ -18,6 +18,8 @@ import 'package:food/food/features/home/presentation/widgets/food_widget.dart';
 import 'package:food/food/features/home/presentation/widgets/search_widget.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
+import 'package:food/food/features/payments/presentation/manager/cart/cart_cubit.dart';
+import 'package:food/food/features/payments/presentation/manager/cart/cart_event.dart';
 
 import '../../../../core/bloc/managers/bloc_manager.dart';
 import '../../../../core/constants/app_constants.dart';
@@ -182,7 +184,7 @@ class _SearchState extends State<Search> {
                     price: food.price.toString(),
                     image: food.imageUrl,
                     onAddTapped: () {
-                      // context.read<CartCubit>().addFood(food);
+                      context.read<CartCubit>().add(CartAddFoodEvent(food: food));
                     },
                     onTap: () {
                       // Preload detail image for smooth navigation

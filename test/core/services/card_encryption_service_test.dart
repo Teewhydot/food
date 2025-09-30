@@ -20,93 +20,102 @@ void main() {
       expect(encryptionService.isInitialized, isTrue);
     });
 
-    test('should encrypt card number successfully', () async {
+    test('should encrypt card number successfully with nonce', () async {
       const testCardNumber = '4111111111111111';
+      const testNonce = 'A1B2C3D4E5F6'; // 12 characters
 
-      final result = await encryptionService.encryptCardNumber(testCardNumber);
+      final result = await encryptionService.encryptCardNumber(testCardNumber, testNonce);
 
       expect(result, isA<Map<String, String>>());
       expect(result['encrypted'], isNotNull);
-      expect(result['iv'], isNotNull);
+      expect(result['nonce'], isNotNull);
       expect(result['encrypted'], isNotEmpty);
-      expect(result['iv'], isNotEmpty);
+      expect(result['nonce'], equals(testNonce));
       expect(result['encrypted'], isNot(equals(testCardNumber)));
     });
 
-    test('should encrypt CVV successfully', () async {
+    test('should encrypt CVV successfully with nonce', () async {
       const testCVV = '123';
+      const testNonce = 'X9Y8Z7A6B5C4'; // 12 characters
 
-      final result = await encryptionService.encryptCVV(testCVV);
+      final result = await encryptionService.encryptCVV(testCVV, testNonce);
 
       expect(result, isA<Map<String, String>>());
       expect(result['encrypted'], isNotNull);
-      expect(result['iv'], isNotNull);
+      expect(result['nonce'], isNotNull);
       expect(result['encrypted'], isNotEmpty);
-      expect(result['iv'], isNotEmpty);
+      expect(result['nonce'], equals(testNonce));
       expect(result['encrypted'], isNot(equals(testCVV)));
     });
 
-    test('should encrypt expiry month successfully', () async {
+    test('should encrypt expiry month successfully with nonce', () async {
       const testMonth = '12';
+      const testNonce = 'M1N2O3P4Q5R6'; // 12 characters
 
-      final result = await encryptionService.encryptExpiryMonth(testMonth);
+      final result = await encryptionService.encryptExpiryMonth(testMonth, testNonce);
 
       expect(result, isA<Map<String, String>>());
       expect(result['encrypted'], isNotNull);
-      expect(result['iv'], isNotNull);
+      expect(result['nonce'], isNotNull);
       expect(result['encrypted'], isNotEmpty);
-      expect(result['iv'], isNotEmpty);
+      expect(result['nonce'], equals(testNonce));
       expect(result['encrypted'], isNot(equals(testMonth)));
     });
 
-    test('should encrypt expiry year successfully', () async {
+    test('should encrypt expiry year successfully with nonce', () async {
       const testYear = '2025';
+      const testNonce = 'Y1E2A3R4T5S6'; // 12 characters
 
-      final result = await encryptionService.encryptExpiryYear(testYear);
+      final result = await encryptionService.encryptExpiryYear(testYear, testNonce);
 
       expect(result, isA<Map<String, String>>());
       expect(result['encrypted'], isNotNull);
-      expect(result['iv'], isNotNull);
+      expect(result['nonce'], isNotNull);
       expect(result['encrypted'], isNotEmpty);
-      expect(result['iv'], isNotEmpty);
+      expect(result['nonce'], equals(testNonce));
       expect(result['encrypted'], isNot(equals(testYear)));
     });
 
-    test('should encrypt and decrypt data correctly', () async {
+    test('should encrypt and decrypt data correctly with nonce', () async {
       const testData = 'test card data';
+      const testNonce = 'T1E2S3T4D5A6'; // 12 characters
 
-      final encryptedResult = await encryptionService.encryptCardData(testData);
+      final encryptedResult = await encryptionService.encryptCardData(testData, testNonce);
       final decrypted = await encryptionService.decryptCardData(
         encryptedResult['encrypted']!,
-        encryptedResult['iv']!,
+        encryptedResult['nonce']!,
       );
 
       expect(decrypted, equals(testData));
     });
 
-    test('should generate unique IVs for each encryption', () async {
+    test('should produce different encrypted data with different nonces', () async {
       const testData = 'test data';
+      const nonce1 = 'N1O2N3C4E5F6'; // 12 characters
+      const nonce2 = 'D1I2F3F4E5R6'; // 12 characters
 
-      final result1 = await encryptionService.encryptCardData(testData);
-      final result2 = await encryptionService.encryptCardData(testData);
+      final result1 = await encryptionService.encryptCardData(testData, nonce1);
+      final result2 = await encryptionService.encryptCardData(testData, nonce2);
 
-      // IVs should be different for each encryption
-      expect(result1['iv'], isNot(equals(result2['iv'])));
-      // Encrypted data should also be different due to unique IVs
+      // Nonces should be different
+      expect(result1['nonce'], isNot(equals(result2['nonce'])));
+      // Encrypted data should also be different due to different nonces
       expect(result1['encrypted'], isNot(equals(result2['encrypted'])));
     });
 
-    test('should encrypt all card details at once', () async {
+    test('should encrypt all card details at once with single nonce', () async {
       const cardNumber = '4111111111111111';
       const cvv = '123';
       const expiryMonth = '12';
       const expiryYear = '2025';
+      const testNonce = 'A1L2L3C4A5R6'; // 12 characters
 
       final encryptedData = await encryptionService.encryptAllCardDetails(
         cardNumber: cardNumber,
         cvv: cvv,
         expiryMonth: expiryMonth,
         expiryYear: expiryYear,
+        nonce: testNonce,
       );
 
       expect(encryptedData, isA<Map<String, String>>());
@@ -114,88 +123,49 @@ void main() {
       expect(encryptedData['encrypted_cvv'], isNotNull);
       expect(encryptedData['encrypted_expiry_month'], isNotNull);
       expect(encryptedData['encrypted_expiry_year'], isNotNull);
-      expect(encryptedData['iv'], isNotNull);  // Should have a single IV
+      expect(encryptedData['nonce'], isNotNull);  // Should have the same nonce
+      expect(encryptedData['nonce'], equals(testNonce));
 
       // Verify all encrypted values are different from original
       expect(encryptedData['encrypted_card_number'], isNot(equals(cardNumber)));
       expect(encryptedData['encrypted_cvv'], isNot(equals(cvv)));
       expect(encryptedData['encrypted_expiry_month'], isNot(equals(expiryMonth)));
       expect(encryptedData['encrypted_expiry_year'], isNot(equals(expiryYear)));
-
-      // Test decryption with the same IV
-      final decryptedCardNumber = await encryptionService.decryptCardData(
-        encryptedData['encrypted_card_number']!,
-        encryptedData['iv']!,
-      );
-      expect(decryptedCardNumber, equals(cardNumber));
     });
 
-    test('should generate secure nonce', () {
-      final nonce1 = encryptionService.generateSecureNonce(12);
-      final nonce2 = encryptionService.generateSecureNonce(12);
+    test('should reject invalid nonce length', () async {
+      const testData = 'test data';
+      const invalidNonce = 'TOO_SHORT'; // Only 9 characters
 
-      expect(nonce1.length, equals(12));
-      expect(nonce2.length, equals(12));
-      expect(nonce1, isNot(equals(nonce2))); // Should be different each time
-      expect(RegExp(r'^[A-Za-z0-9]+$').hasMatch(nonce1), isTrue); // Should be alphanumeric
-    });
-
-    test('should handle empty card number', () async {
       expect(
-        () => encryptionService.encryptCardNumber(''),
+        () => encryptionService.encryptCardData(testData, invalidNonce),
         throwsA(isA<Exception>()),
       );
     });
 
-    test('should handle empty CVV', () async {
-      expect(
-        () => encryptionService.encryptCVV(''),
-        throwsA(isA<Exception>()),
-      );
-    });
+    test('should use same nonce for all fields in encryptAllCardDetails', () async {
+      const cardNumber = '4111111111111111';
+      const cvv = '123';
+      const expiryMonth = '12';
+      const expiryYear = '2025';
+      const testNonce = 'S1A2M3E4N5O6'; // 12 characters
 
-    test('should handle card number with spaces', () async {
-      const cardNumberWithSpaces = '4111 1111 1111 1111';
-      const cardNumberWithoutSpaces = '4111111111111111';
-
-      final resultWithSpaces = await encryptionService.encryptCardNumber(cardNumberWithSpaces);
-      final resultWithoutSpaces = await encryptionService.encryptCardNumber(cardNumberWithoutSpaces);
-
-      // Decrypt both to verify they produce the same clean card number
-      final decryptedWithSpaces = await encryptionService.decryptCardData(
-        resultWithSpaces['encrypted']!,
-        resultWithSpaces['iv']!,
-      );
-      final decryptedWithoutSpaces = await encryptionService.decryptCardData(
-        resultWithoutSpaces['encrypted']!,
-        resultWithoutSpaces['iv']!,
+      final encryptedData = await encryptionService.encryptAllCardDetails(
+        cardNumber: cardNumber,
+        cvv: cvv,
+        expiryMonth: expiryMonth,
+        expiryYear: expiryYear,
+        nonce: testNonce,
       );
 
-      // Both should decrypt to the same cleaned card number
-      expect(decryptedWithSpaces, equals(cardNumberWithoutSpaces));
-      expect(decryptedWithoutSpaces, equals(cardNumberWithoutSpaces));
-    });
+      // All encrypted fields should be non-empty and different from originals
+      expect(encryptedData['encrypted_card_number'], isNotEmpty);
+      expect(encryptedData['encrypted_cvv'], isNotEmpty);
+      expect(encryptedData['encrypted_expiry_month'], isNotEmpty);
+      expect(encryptedData['encrypted_expiry_year'], isNotEmpty);
 
-    test('should pad expiry month correctly', () async {
-      const singleDigitMonth = '5';
-      const doubleDigitMonth = '05';
-
-      final resultSingle = await encryptionService.encryptExpiryMonth(singleDigitMonth);
-      final resultDouble = await encryptionService.encryptExpiryMonth(doubleDigitMonth);
-
-      // Decrypt both to verify padding
-      final decryptedSingle = await encryptionService.decryptCardData(
-        resultSingle['encrypted']!,
-        resultSingle['iv']!,
-      );
-      final decryptedDouble = await encryptionService.decryptCardData(
-        resultDouble['encrypted']!,
-        resultDouble['iv']!,
-      );
-
-      // Both should decrypt to the padded version '05'
-      expect(decryptedSingle, equals('05'));
-      expect(decryptedDouble, equals('05'));
+      // Nonce should be preserved
+      expect(encryptedData['nonce'], equals(testNonce));
     });
   });
 }

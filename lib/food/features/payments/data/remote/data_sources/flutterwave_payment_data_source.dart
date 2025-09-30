@@ -123,13 +123,18 @@ class FirebaseFlutterwavePaymentDataSource
         throw Exception('Invalid CVV provided');
       }
 
-      // Encrypt card details using CardEncryptionService
+      // Generate nonce for AES-GCM encryption
+      final nonce = _encryptionService.generateSecureNonce(12); // 12 character alphanumeric
+      Logger.logBasic('Generated nonce for AES-GCM encryption: $nonce');
+
+      // Encrypt card details using CardEncryptionService with AES-GCM
       Logger.logBasic('Encrypting card details for secure transmission');
       final encryptedCardData = await _encryptionService.encryptAllCardDetails(
         cardNumber: cardNumber,
         cvv: cvv,
         expiryMonth: expiryMonth,
         expiryYear: expiryYear,
+        nonce: nonce,
       );
 
       // Prepare direct charges payload - exact match to Firebase service
@@ -182,7 +187,7 @@ class FirebaseFlutterwavePaymentDataSource
                   'Agreement${DateTime.now().millisecondsSinceEpoch}',
               'trace_id': 'trace_${DateTime.now().millisecondsSinceEpoch}',
             },
-            'nonce': _encryptionService.generateSecureNonce(12), // 12 character alphanumeric
+            'nonce': nonce, // Same nonce used for encryption
             'encrypted_expiry_month': encryptedCardData['encrypted_expiry_month'],
             'encrypted_expiry_year': encryptedCardData['encrypted_expiry_year'],
             'encrypted_card_number': encryptedCardData['encrypted_card_number'],

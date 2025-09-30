@@ -9,6 +9,7 @@ import 'package:food/food/features/home/presentation/widgets/circle_widget.dart'
 import 'package:food/food/features/home/presentation/widgets/details_skeleton_widget.dart';
 import 'package:food/food/features/onboarding/presentation/widgets/food_container.dart';
 import 'package:food/food/features/payments/presentation/manager/cart/cart_cubit.dart';
+import 'package:food/food/features/payments/presentation/manager/cart/cart_event.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:ionicons/ionicons.dart';
@@ -130,7 +131,7 @@ class _FoodDetailsState extends State<FoodDetails> {
                         final finalFoodEntity = widget.foodEntity.copyWith(
                           quantity: foodQuantity,
                         );
-                        // context.read<CartCubit>().addFood(finalFoodEntity);
+                        context.read<CartCubit>().add(CartAddFoodEvent(food: finalFoodEntity));
                         nav.goBack();
                       },
                     ),

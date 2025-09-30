@@ -1,26 +1,28 @@
 import 'dart:async';
 
 import 'package:contained_tab_bar_view/contained_tab_bar_view.dart';
+import 'package:dartz/dartz.dart' hide State;
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/components/buttons.dart';
 import 'package:food/food/components/texts.dart';
 import 'package:food/food/core/constants/app_constants.dart';
+import 'package:food/food/core/helpers/user_extensions.dart';
 import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/features/auth/presentation/widgets/back_widget.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:dartz/dartz.dart' hide State;
 
 import '../../../../components/scaffold.dart';
 import '../../../../core/routes/routes.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
+import '../../../../domain/failures/failures.dart';
+import '../../../auth/data/remote/data_sources/user_data_source.dart';
 import '../../../payments/domain/entities/order_entity.dart';
 import '../../../payments/presentation/manager/order_bloc/order_bloc.dart';
 import '../../../payments/presentation/manager/order_bloc/order_event.dart';
-import '../../../../domain/failures/failures.dart';
-import '../../../auth/data/remote/data_sources/user_data_source.dart';
 
 enum OrderCategory { ongoing, history }
 
@@ -51,16 +53,9 @@ class _OrdersState extends State<Orders> {
   }
 
   void _initializeStream() async {
-    try {
-      final currentUser = await userDataSource.getCurrentUser();
-      if (currentUser.id != null) {
-        _ordersStream = _orderBloc
-            .streamUserOrders(currentUser.id!)
-            .distinct();
-      }
-    } catch (e) {
-      // Handle error - stream will show error state
-    }
+    _ordersStream = context.read<OrderBloc>().streamUserOrders(
+      context.readCurrentUserId ?? "",
+    );
   }
 
   Widget _buildOrdersTab(OrderCategory category) {
@@ -68,9 +63,7 @@ class _OrdersState extends State<Orders> {
       stream: _ordersStream,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
-            child: CircularProgressIndicator(color: kPrimaryColor),
-          );
+          return Center(child: CircularProgressIndicator(color: kPrimaryColor));
         }
 
         if (snapshot.hasError) {
@@ -93,26 +86,33 @@ class _OrdersState extends State<Orders> {
     List<OrderEntity> filteredOrders;
 
     if (category == OrderCategory.ongoing) {
-      filteredOrders = orders
-          .where((order) =>
-              order.status == OrderStatus.pending ||
-              order.status == OrderStatus.preparing ||
-              order.status == OrderStatus.onTheWay)
-          .toList();
+      filteredOrders =
+          orders
+              .where(
+                (order) =>
+                    order.status == OrderStatus.pending ||
+                    order.status == OrderStatus.preparing ||
+                    order.status == OrderStatus.onTheWay,
+              )
+              .toList();
     } else {
-      filteredOrders = orders
-          .where((order) =>
-              order.status == OrderStatus.delivered ||
-              order.status == OrderStatus.cancelled)
-          .toList();
+      filteredOrders =
+          orders
+              .where(
+                (order) =>
+                    order.status == OrderStatus.delivered ||
+                    order.status == OrderStatus.cancelled,
+              )
+              .toList();
     }
 
     if (filteredOrders.isEmpty) {
       return Center(
         child: FText(
-          text: category == OrderCategory.ongoing
-              ? "No ongoing orders"
-              : "No order history",
+          text:
+              category == OrderCategory.ongoing
+                  ? "No ongoing orders"
+                  : "No order history",
           fontSize: 16,
           color: kContainerColor,
         ),
@@ -121,35 +121,37 @@ class _OrdersState extends State<Orders> {
 
     return SingleChildScrollView(
       child: Column(
-        children: filteredOrders.map((order) {
-          final firstItem = order.items.isNotEmpty ? order.items.first : null;
-          return OrderDetailsWidget(
-            orderCategory: category,
-            order: order,
-            category: firstItem?.foodName ?? "Food",
-            foodName: firstItem?.foodName ?? "Unknown",
-            price: order.total.toStringAsFixed(2),
-            orderId: order.id,
-            quantity: order.items.fold(
-              0,
-              (sum, item) => sum + item.quantity,
-            ),
-            firstButtonOnTap: () {
-              if (category == OrderCategory.ongoing) {
-                nav.navigateTo(Routes.tracking, arguments: order.id);
-              } else {
-                // TODO: Implement rating
-              }
-            },
-            secondButtonOnTap: () {
-              if (category == OrderCategory.ongoing) {
-                _orderBloc.add(CancelOrderEvent(order.id));
-              } else {
-                // TODO: Implement re-order
-              }
-            },
-          );
-        }).toList(),
+        children:
+            filteredOrders.map((order) {
+              final firstItem =
+                  order.items.isNotEmpty ? order.items.first : null;
+              return OrderDetailsWidget(
+                orderCategory: category,
+                order: order,
+                category: firstItem?.foodName ?? "Food",
+                foodName: firstItem?.foodName ?? "Unknown",
+                price: order.total.toStringAsFixed(2),
+                orderId: order.id,
+                quantity: order.items.fold(
+                  0,
+                  (sum, item) => sum + item.quantity,
+                ),
+                firstButtonOnTap: () {
+                  if (category == OrderCategory.ongoing) {
+                    nav.navigateTo(Routes.tracking, arguments: order.id);
+                  } else {
+                    // TODO: Implement rating
+                  }
+                },
+                secondButtonOnTap: () {
+                  if (category == OrderCategory.ongoing) {
+                    _orderBloc.add(CancelOrderEvent(order.id));
+                  } else {
+                    // TODO: Implement re-order
+                  }
+                },
+              );
+            }).toList(),
       ).paddingOnly(top: 32),
     );
   }
@@ -165,10 +167,8 @@ class _OrdersState extends State<Orders> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
-
     return FScaffold(
       appBarWidget: Row(
         children: [
@@ -286,11 +286,7 @@ class OrderDetailsWidget extends StatelessWidget {
                         color: kBlackColor,
                       ),
                       8.horizontalSpace,
-                      Container(
-                        width: 1,
-                        height: 16,
-                        color: kContainerColor,
-                      ),
+                      Container(width: 1, height: 16, color: kContainerColor),
                       8.horizontalSpace,
                       FText(
                         text: "x$quantity",
