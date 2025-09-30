@@ -69,6 +69,7 @@ class OrderDatabaseService {
       deliveryAddress: entity.deliveryAddress,
       paymentMethod: entity.paymentMethod,
       status: _parseOrderStatus(entity.status),
+      serviceStatus: _parseOrderStatus(entity.serviceStatus),
       createdAt: DateTime.fromMillisecondsSinceEpoch(entity.createdAt),
       deliveredAt: entity.deliveredAt != null
           ? DateTime.fromMillisecondsSinceEpoch(entity.deliveredAt!)
@@ -103,6 +104,7 @@ class OrderDatabaseService {
       deliveryAddress: order.deliveryAddress,
       paymentMethod: order.paymentMethod,
       status: order.status.toString().split('.').last,
+      serviceStatus: order.serviceStatus.toString().split('.').last,
       createdAt: order.createdAt.millisecondsSinceEpoch,
       deliveredAt: order.deliveredAt?.millisecondsSinceEpoch,
       deliveryPersonName: order.deliveryPersonName,

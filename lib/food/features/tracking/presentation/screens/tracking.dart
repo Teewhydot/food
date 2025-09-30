@@ -12,14 +12,13 @@ import 'package:food/food/features/payments/domain/entities/order_entity.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:ionicons/ionicons.dart';
 import 'package:intl/intl.dart';
+import 'package:ionicons/ionicons.dart';
 
 import '../../../../components/texts.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../auth/presentation/widgets/back_widget.dart';
-import '../../../onboarding/presentation/widgets/food_container.dart';
 import '../manager/order_tracking/order_tracking_cubit.dart';
 import '../manager/order_tracking/order_tracking_state.dart';
 
@@ -210,8 +209,6 @@ class _TrackingOrderViewState extends State<_TrackingOrderView> {
       children: [
         Row(
           children: [
-            FoodContainer(width: 63, height: 63, borderRadius: 10),
-            10.horizontalSpace,
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -242,51 +239,15 @@ class _TrackingOrderViewState extends State<_TrackingOrderView> {
           ],
         ),
         36.verticalSpace,
-        FText(
-          text: "Order Status",
-          alignment: MainAxisAlignment.center,
-          fontSize: 16,
-          color: kContainerColor,
-          fontWeight: FontWeight.w400,
-        ),
-        10.verticalSpace,
-        FText(
-          text: _getStatusDisplayText(order.status),
-          alignment: MainAxisAlignment.center,
-          fontSize: 24,
-          color: kTextColorDark,
-          fontWeight: FontWeight.w600,
-        ),
-        36.verticalSpace,
-        StepTrackingWidget(orderStatus: order.status),
+        StepTrackingWidget(orderStatus: order.serviceStatus),
       ],
     ).paddingOnly(left: AppConstants.defaultPadding);
-  }
-
-  String _getStatusDisplayText(OrderStatus status) {
-    switch (status) {
-      case OrderStatus.pending:
-        return "Order Received";
-      case OrderStatus.confirmed:
-        return "Order Confirmed";
-      case OrderStatus.preparing:
-        return "Being Prepared";
-      case OrderStatus.onTheWay:
-        return "Out for Delivery";
-      case OrderStatus.delivered:
-        return "Delivered";
-      case OrderStatus.cancelled:
-        return "Cancelled";
-    }
   }
 }
 
 class StepTrackingWidget extends StatelessWidget {
   final OrderStatus orderStatus;
-  const StepTrackingWidget({
-    super.key,
-    required this.orderStatus,
-  });
+  const StepTrackingWidget({super.key, required this.orderStatus});
 
   @override
   Widget build(BuildContext context) {
@@ -346,9 +307,10 @@ class StepTrackingWidget extends StatelessWidget {
             OrderStatus.delivered => StepStatus.completed,
             OrderStatus.cancelled => StepStatus.notStarted,
           },
-          message: orderStatus == OrderStatus.cancelled
-              ? "Your order has been cancelled"
-              : "Your order has been delivered",
+          message:
+              orderStatus == OrderStatus.cancelled
+                  ? "Your order has been cancelled"
+                  : "Your order has been delivered",
         ),
       ],
     );

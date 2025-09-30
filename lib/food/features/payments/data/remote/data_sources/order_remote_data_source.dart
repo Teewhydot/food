@@ -69,6 +69,7 @@ class FirebaseOrderRemoteDataSource implements OrderRemoteDataSource {
       deliveryAddress: data['deliveryAddress'] ?? '',
       paymentMethod: data['paymentMethod'] ?? '',
       status: _parseOrderStatus(data['status'] ?? 'pending'),
+      serviceStatus: _parseOrderStatus(data['service_status'] ?? 'pending'),
       createdAt: _parseDateTimeRequired(data['createdAt']),
       deliveredAt: _parseDateTimeNullable(data['deliveredAt']),
       deliveryPersonName: data['deliveryPersonName'],

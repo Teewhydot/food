@@ -126,7 +126,7 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `foods` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `description` TEXT NOT NULL, `price` REAL NOT NULL, `rating` REAL NOT NULL, `imageUrl` TEXT NOT NULL, `category` TEXT NOT NULL, `restaurantId` TEXT NOT NULL, `restaurantName` TEXT NOT NULL, `ingredients` TEXT NOT NULL, `isAvailable` INTEGER NOT NULL, `preparationTime` TEXT NOT NULL, `calories` INTEGER NOT NULL, `quantity` INTEGER NOT NULL, `isVegetarian` INTEGER NOT NULL, `isVegan` INTEGER NOT NULL, `isGlutenFree` INTEGER NOT NULL, `lastUpdated` INTEGER NOT NULL, PRIMARY KEY (`id`))');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `orders` (`id` TEXT NOT NULL, `userId` TEXT NOT NULL, `restaurantId` TEXT NOT NULL, `restaurantName` TEXT NOT NULL, `items` TEXT NOT NULL, `subtotal` REAL NOT NULL, `deliveryFee` REAL NOT NULL, `tax` REAL NOT NULL, `total` REAL NOT NULL, `deliveryAddress` TEXT NOT NULL, `paymentMethod` TEXT NOT NULL, `status` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, `deliveredAt` INTEGER, `deliveryPersonName` TEXT, `deliveryPersonPhone` TEXT, `trackingUrl` TEXT, `notes` TEXT, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `orders` (`id` TEXT NOT NULL, `userId` TEXT NOT NULL, `restaurantId` TEXT NOT NULL, `restaurantName` TEXT NOT NULL, `items` TEXT NOT NULL, `subtotal` REAL NOT NULL, `deliveryFee` REAL NOT NULL, `tax` REAL NOT NULL, `total` REAL NOT NULL, `deliveryAddress` TEXT NOT NULL, `paymentMethod` TEXT NOT NULL, `status` TEXT NOT NULL, `serviceStatus` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, `deliveredAt` INTEGER, `deliveryPersonName` TEXT, `deliveryPersonPhone` TEXT, `trackingUrl` TEXT, `notes` TEXT, PRIMARY KEY (`id`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `chats` (`id` TEXT NOT NULL, `senderID` TEXT NOT NULL, `receiverID` TEXT NOT NULL, `name` TEXT NOT NULL, `lastMessage` TEXT NOT NULL, `imageUrl` TEXT NOT NULL, `lastMessageTime` INTEGER NOT NULL, `orderId` TEXT NOT NULL, PRIMARY KEY (`id`))');
         await database.execute(
@@ -1085,6 +1085,7 @@ class _$OrderDao extends OrderDao {
                   'deliveryAddress': item.deliveryAddress,
                   'paymentMethod': item.paymentMethod,
                   'status': item.status,
+                  'serviceStatus': item.serviceStatus,
                   'createdAt': item.createdAt,
                   'deliveredAt': item.deliveredAt,
                   'deliveryPersonName': item.deliveryPersonName,
@@ -1109,6 +1110,7 @@ class _$OrderDao extends OrderDao {
                   'deliveryAddress': item.deliveryAddress,
                   'paymentMethod': item.paymentMethod,
                   'status': item.status,
+                  'serviceStatus': item.serviceStatus,
                   'createdAt': item.createdAt,
                   'deliveredAt': item.deliveredAt,
                   'deliveryPersonName': item.deliveryPersonName,
@@ -1133,6 +1135,7 @@ class _$OrderDao extends OrderDao {
                   'deliveryAddress': item.deliveryAddress,
                   'paymentMethod': item.paymentMethod,
                   'status': item.status,
+                  'serviceStatus': item.serviceStatus,
                   'createdAt': item.createdAt,
                   'deliveredAt': item.deliveredAt,
                   'deliveryPersonName': item.deliveryPersonName,
@@ -1170,6 +1173,7 @@ class _$OrderDao extends OrderDao {
             deliveryAddress: row['deliveryAddress'] as String,
             paymentMethod: row['paymentMethod'] as String,
             status: row['status'] as String,
+            serviceStatus: row['serviceStatus'] as String,
             createdAt: row['createdAt'] as int,
             deliveredAt: row['deliveredAt'] as int?,
             deliveryPersonName: row['deliveryPersonName'] as String?,
@@ -1195,6 +1199,7 @@ class _$OrderDao extends OrderDao {
             deliveryAddress: row['deliveryAddress'] as String,
             paymentMethod: row['paymentMethod'] as String,
             status: row['status'] as String,
+            serviceStatus: row['serviceStatus'] as String,
             createdAt: row['createdAt'] as int,
             deliveredAt: row['deliveredAt'] as int?,
             deliveryPersonName: row['deliveryPersonName'] as String?,
@@ -1224,6 +1229,7 @@ class _$OrderDao extends OrderDao {
             deliveryAddress: row['deliveryAddress'] as String,
             paymentMethod: row['paymentMethod'] as String,
             status: row['status'] as String,
+            serviceStatus: row['serviceStatus'] as String,
             createdAt: row['createdAt'] as int,
             deliveredAt: row['deliveredAt'] as int?,
             deliveryPersonName: row['deliveryPersonName'] as String?,
@@ -1237,7 +1243,7 @@ class _$OrderDao extends OrderDao {
   Future<List<OrderFloorEntity>> getRecentOrders(String userId) async {
     return _queryAdapter.queryList(
         'SELECT * FROM orders WHERE userId = ?1 ORDER BY createdAt DESC LIMIT 10',
-        mapper: (Map<String, Object?> row) => OrderFloorEntity(id: row['id'] as String, userId: row['userId'] as String, restaurantId: row['restaurantId'] as String, restaurantName: row['restaurantName'] as String, items: row['items'] as String, subtotal: row['subtotal'] as double, deliveryFee: row['deliveryFee'] as double, tax: row['tax'] as double, total: row['total'] as double, deliveryAddress: row['deliveryAddress'] as String, paymentMethod: row['paymentMethod'] as String, status: row['status'] as String, createdAt: row['createdAt'] as int, deliveredAt: row['deliveredAt'] as int?, deliveryPersonName: row['deliveryPersonName'] as String?, deliveryPersonPhone: row['deliveryPersonPhone'] as String?, trackingUrl: row['trackingUrl'] as String?, notes: row['notes'] as String?),
+        mapper: (Map<String, Object?> row) => OrderFloorEntity(id: row['id'] as String, userId: row['userId'] as String, restaurantId: row['restaurantId'] as String, restaurantName: row['restaurantName'] as String, items: row['items'] as String, subtotal: row['subtotal'] as double, deliveryFee: row['deliveryFee'] as double, tax: row['tax'] as double, total: row['total'] as double, deliveryAddress: row['deliveryAddress'] as String, paymentMethod: row['paymentMethod'] as String, status: row['status'] as String, serviceStatus: row['serviceStatus'] as String, createdAt: row['createdAt'] as int, deliveredAt: row['deliveredAt'] as int?, deliveryPersonName: row['deliveryPersonName'] as String?, deliveryPersonPhone: row['deliveryPersonPhone'] as String?, trackingUrl: row['trackingUrl'] as String?, notes: row['notes'] as String?),
         arguments: [userId]);
   }
 
@@ -1245,7 +1251,7 @@ class _$OrderDao extends OrderDao {
   Future<List<OrderFloorEntity>> getActiveOrders(String userId) async {
     return _queryAdapter.queryList(
         'SELECT * FROM orders WHERE userId = ?1 AND status IN (\"pending\", \"confirmed\", \"preparing\", \"onTheWay\")',
-        mapper: (Map<String, Object?> row) => OrderFloorEntity(id: row['id'] as String, userId: row['userId'] as String, restaurantId: row['restaurantId'] as String, restaurantName: row['restaurantName'] as String, items: row['items'] as String, subtotal: row['subtotal'] as double, deliveryFee: row['deliveryFee'] as double, tax: row['tax'] as double, total: row['total'] as double, deliveryAddress: row['deliveryAddress'] as String, paymentMethod: row['paymentMethod'] as String, status: row['status'] as String, createdAt: row['createdAt'] as int, deliveredAt: row['deliveredAt'] as int?, deliveryPersonName: row['deliveryPersonName'] as String?, deliveryPersonPhone: row['deliveryPersonPhone'] as String?, trackingUrl: row['trackingUrl'] as String?, notes: row['notes'] as String?),
+        mapper: (Map<String, Object?> row) => OrderFloorEntity(id: row['id'] as String, userId: row['userId'] as String, restaurantId: row['restaurantId'] as String, restaurantName: row['restaurantName'] as String, items: row['items'] as String, subtotal: row['subtotal'] as double, deliveryFee: row['deliveryFee'] as double, tax: row['tax'] as double, total: row['total'] as double, deliveryAddress: row['deliveryAddress'] as String, paymentMethod: row['paymentMethod'] as String, status: row['status'] as String, serviceStatus: row['serviceStatus'] as String, createdAt: row['createdAt'] as int, deliveredAt: row['deliveredAt'] as int?, deliveryPersonName: row['deliveryPersonName'] as String?, deliveryPersonPhone: row['deliveryPersonPhone'] as String?, trackingUrl: row['trackingUrl'] as String?, notes: row['notes'] as String?),
         arguments: [userId]);
   }
 

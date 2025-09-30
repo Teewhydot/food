@@ -36,26 +36,18 @@ class Orders extends StatefulWidget {
 class _OrdersState extends State<Orders> {
   final nav = GetIt.instance<NavigationService>();
   final userDataSource = GetIt.instance<UserDataSource>();
-  late OrderBloc _orderBloc;
   late Stream<Either<Failure, List<OrderEntity>>> _ordersStream;
 
   @override
   void initState() {
     super.initState();
-    _orderBloc = OrderBloc();
     _initializeStream();
-  }
-
-  @override
-  void dispose() {
-    _orderBloc.close();
-    super.dispose();
   }
 
   void _initializeStream() async {
     _ordersStream = context.read<OrderBloc>().streamUserOrders(
       context.readCurrentUserId ?? "",
-    );
+    ).distinct();
   }
 
   Widget _buildOrdersTab(OrderCategory category) {
@@ -145,7 +137,7 @@ class _OrdersState extends State<Orders> {
                 },
                 secondButtonOnTap: () {
                   if (category == OrderCategory.ongoing) {
-                    _orderBloc.add(CancelOrderEvent(order.id));
+                    context.read<OrderBloc>().add(CancelOrderEvent(order.id));
                   } else {
                     // TODO: Implement re-order
                   }
@@ -236,15 +228,6 @@ class OrderDetailsWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        FText(
-          text: category,
-          fontWeight: FontWeight.w400,
-          fontSize: 14,
-          alignment: MainAxisAlignment.start,
-        ),
-        16.verticalSpace,
-        Divider(color: kGreyColor),
-        16.verticalSpace,
         Row(
           children: [
             Container(

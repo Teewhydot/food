@@ -117,6 +117,7 @@ class _PaymentStatusState extends State<PaymentStatus> {
                 deliveryAddress: '',
                 paymentMethod: '',
                 status: OrderStatus.pending,
+                serviceStatus: OrderStatus.pending,
                 createdAt: DateTime.now(),
               ),
             );

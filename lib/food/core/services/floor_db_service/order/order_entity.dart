@@ -15,6 +15,7 @@ class OrderFloorEntity {
   final String deliveryAddress;
   final String paymentMethod;
   final String status;
+  final String serviceStatus;
   final int createdAt;
   final int? deliveredAt;
   final String? deliveryPersonName;
@@ -35,6 +36,7 @@ class OrderFloorEntity {
     required this.deliveryAddress,
     required this.paymentMethod,
     required this.status,
+    required this.serviceStatus,
     required this.createdAt,
     this.deliveredAt,
     this.deliveryPersonName,

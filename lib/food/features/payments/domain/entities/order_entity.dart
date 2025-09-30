@@ -21,6 +21,7 @@ class OrderEntity {
   final String deliveryAddress;
   final String paymentMethod;
   final OrderStatus status;
+  final OrderStatus serviceStatus; // Tracks delivery updates from Firebase
   final DateTime createdAt;
   final DateTime? deliveredAt;
   final String? deliveryPersonName;
@@ -41,6 +42,7 @@ class OrderEntity {
     required this.deliveryAddress,
     required this.paymentMethod,
     required this.status,
+    required this.serviceStatus,
     required this.createdAt,
     this.deliveredAt,
     this.deliveryPersonName,
