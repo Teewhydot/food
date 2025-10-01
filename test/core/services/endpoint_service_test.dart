@@ -19,10 +19,10 @@ void main() {
     group('runWithConfig()', () {
       test('executes successful operations and logs correctly', () async {
         // Arrange
-        final operation = () async {
+        operation() async {
           await Future.delayed(const Duration(milliseconds: 10));
           return 'success result';
-        };
+        }
 
         // Act
         final result = await endpointService.runWithConfig('Test Operation', operation);
@@ -35,10 +35,10 @@ void main() {
 
       test('applies timeout and throws TimeoutException when exceeded', () async {
         // Arrange
-        final longOperation = () async {
+        longOperation() async {
           await Future.delayed(const Duration(seconds: 15)); // Longer than default 10s timeout
           return 'should not reach';
-        };
+        }
 
         // Act & Assert
         expect(
@@ -49,7 +49,7 @@ void main() {
 
       test('does not transform exceptions - just rethrows them', () async {
         // Arrange
-        final failingOperation = () async => throw FirebaseAuthException(
+        failingOperation() async => throw FirebaseAuthException(
           code: 'wrong-password',
           message: 'Invalid password',
         );
@@ -63,7 +63,7 @@ void main() {
 
       test('rethrows SocketException without transformation', () async {
         // Arrange
-        final networkFailingOperation = () async => throw const SocketException('No internet');
+        networkFailingOperation() async => throw const SocketException('No internet');
 
         // Act & Assert
         expect(
@@ -74,7 +74,7 @@ void main() {
 
       test('rethrows generic Exception without transformation', () async {
         // Arrange
-        final genericFailingOperation = () async => throw Exception('Generic error');
+        genericFailingOperation() async => throw Exception('Generic error');
 
         // Act & Assert
         expect(
@@ -87,10 +87,10 @@ void main() {
     group('runWithTimeout()', () {
       test('executes operation with custom timeout', () async {
         // Arrange
-        final quickOperation = () async {
+        quickOperation() async {
           await Future.delayed(const Duration(milliseconds: 100));
           return 'quick result';
-        };
+        }
 
         // Act
         final result = await endpointService.runWithTimeout(
@@ -105,10 +105,10 @@ void main() {
 
       test('applies custom timeout correctly', () async {
         // Arrange
-        final mediumOperation = () async {
+        mediumOperation() async {
           await Future.delayed(const Duration(milliseconds: 500));
           return 'should not reach';
-        };
+        }
 
         // Act & Assert
         expect(
@@ -127,12 +127,12 @@ void main() {
         // This test shows the recommended pattern: EndpointService for logging/timeout, ErrorHandler for error conversion
         
         // Arrange
-        final firebaseOperation = () async {
+        firebaseOperation() async {
           return await endpointService.runWithConfig('Firebase Login', () async {
             // Simulate Firebase throwing an exception
             throw FirebaseAuthException(code: 'user-not-found', message: 'No user found');
           });
-        };
+        }
 
         // Act
         final result = await ErrorHandler.handle(firebaseOperation, operationName: 'User Login');
@@ -150,7 +150,7 @@ void main() {
 
       test('EndpointService timeout + ErrorHandler integration', () async {
         // Arrange
-        final timeoutOperation = () async {
+        timeoutOperation() async {
           return await endpointService.runWithTimeout(
             'Long API Call',
             () async {
@@ -159,7 +159,7 @@ void main() {
             },
             const Duration(milliseconds: 100),
           );
-        };
+        }
 
         // Act
         final result = await ErrorHandler.handle(timeoutOperation, operationName: 'API Call');
@@ -179,11 +179,11 @@ void main() {
         // while ErrorHandler handles the actual error message conversion
         
         // Arrange
-        final chainedOperation = () async {
+        chainedOperation() async {
           return await endpointService.runWithConfig('Chained Operation', () async {
             throw FirebaseAuthException(code: 'invalid-email', message: 'Bad email format');
           });
-        };
+        }
 
         // Act
         final result = await ErrorHandler.handle(chainedOperation);
@@ -206,12 +206,12 @@ void main() {
         // NEW PATTERN (correct): EndpointService just logs/timeouts, ErrorHandler does all error conversion
         
         // Arrange - This simulates a typical Firebase operation
-        final typicalFirebaseOperation = () async {
+        typicalFirebaseOperation() async {
           return await endpointService.runWithConfig('User Registration', () async {
             // Firebase SDK automatically throws FirebaseAuthException
             throw FirebaseAuthException(code: 'email-already-in-use', message: 'Email in use');
           });
-        };
+        }
 
         // Act - Single error handling with ErrorHandler
         final result = await ErrorHandler.handle(typicalFirebaseOperation, operationName: 'Register User');
@@ -232,12 +232,12 @@ void main() {
         // - ErrorHandler handles: exception catching, message conversion, Either wrapping
         
         // Arrange
-        final networkOperation = () async {
+        networkOperation() async {
           return await endpointService.runWithConfig('API Call', () async {
             // Network library automatically throws SocketException
             throw const SocketException('Network unreachable');
           });
-        };
+        }
 
         // Act
         final result = await ErrorHandler.handle(networkOperation, operationName: 'Fetch Data');

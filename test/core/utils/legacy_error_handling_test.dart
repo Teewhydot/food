@@ -16,7 +16,7 @@ void main() {
         // This ensures backward compatibility for existing code that uses handleExceptions()
 
         // Arrange
-        final operation = () async => throw FirebaseAuthException(
+        operation() async => throw FirebaseAuthException(
           code: 'user-not-found',
           message: 'No user found',
         );
@@ -55,7 +55,7 @@ void main() {
 
         for (final testCase in testCases) {
           // Test both legacy and new approach give identical results
-          final operation = () async => throw testCase['exception']!;
+          operation() async => throw testCase['exception']!;
 
           final legacyResult = await handleExceptions(operation);
           final newResult = await ErrorHandler.handle(operation);
@@ -169,9 +169,9 @@ void main() {
         // New pattern uses Firebase exceptions directly and converts them automatically
 
         // Simulate what Firebase SDK does naturally
-        final firebaseOperation = () async {
+        firebaseOperation() async {
           throw FirebaseAuthException(code: 'weak-password', message: 'Password too weak');
-        };
+        }
 
         // New pattern - just wrap with ErrorHandler
         final result = await ErrorHandler.handle(firebaseOperation);
@@ -205,7 +205,7 @@ void main() {
         ];
 
         for (final exception in exceptionTypes) {
-          final operation = () async => throw exception;
+          operation() async => throw exception;
 
           // Test both entry points
           final legacyResult = await handleExceptions(operation);
@@ -233,7 +233,7 @@ void main() {
       test('operation names work consistently across both approaches', () async {
         // Test that operation naming works the same way
 
-        final operation = () async => throw FirebaseAuthException(
+        operation() async => throw FirebaseAuthException(
           code: 'user-disabled',
           message: 'User account disabled',
         );
@@ -264,12 +264,12 @@ void main() {
         // If Firebase introduces new error codes, they should work automatically
         // without requiring code changes in repositories
 
-        final futureFirebaseError = () async {
+        futureFirebaseError() async {
           throw FirebaseAuthException(
             code: 'future-error-2025',
             message: 'New Firebase feature error',
           );
-        };
+        }
 
         final result = await ErrorHandler.handle(futureFirebaseError);
 

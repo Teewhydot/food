@@ -4,7 +4,7 @@ import 'package:food/food/core/theme/colors.dart';
 import 'package:get/get.dart';
 
 class DFoodUtils {
-  static showSnackBar(String message, Color color) {
+  static void showSnackBar(String message, Color color) {
     Get.snackbar(
       color == kSuccessColor ? "Success" : "Error",
       message,
@@ -14,7 +14,7 @@ class DFoodUtils {
     );
   }
 
-  static showDialogContainer({
+  static Future<void> showDialogContainer({
     required BuildContext context,
     required Widget child,
     double? height,

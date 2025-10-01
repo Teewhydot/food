@@ -12,13 +12,13 @@ void main() {
     group('Real-World Authentication Flow', () {
       test('login with incorrect password shows user-friendly message', () async {
         // Simulate what happens in real Firebase Auth when password is wrong
-        final loginAttempt = () async {
+        loginAttempt() async {
           // This is what Firebase SDK does - throws FirebaseAuthException automatically
           throw FirebaseAuthException(
             code: 'wrong-password',
             message: 'The password is invalid or the user does not have a password.',
           );
-        };
+        }
 
         // Repository just wraps this with ErrorHandler - no manual exception handling needed
         final result = await ErrorHandler.handle(loginAttempt, operationName: 'User Login');
@@ -35,12 +35,12 @@ void main() {
 
       test('registration with existing email shows clear message', () async {
         // Simulate Firebase throwing exception when email already exists
-        final registrationAttempt = () async {
+        registrationAttempt() async {
           throw FirebaseAuthException(
             code: 'email-already-in-use',
             message: 'The account already exists for that email.',
           );
-        };
+        }
 
         final result = await ErrorHandler.handle(registrationAttempt, operationName: 'User Registration');
 
@@ -55,12 +55,12 @@ void main() {
 
       test('weak password validation happens automatically', () async {
         // Firebase SDK automatically validates password strength
-        final passwordValidation = () async {
+        passwordValidation() async {
           throw FirebaseAuthException(
             code: 'weak-password',
             message: 'The password provided is too weak.',
           );
-        };
+        }
 
         final result = await ErrorHandler.handle(passwordValidation, operationName: 'Password Validation');
 
@@ -77,13 +77,13 @@ void main() {
     group('Real-World Firestore Operations', () {
       test('permission denied on restricted document access', () async {
         // Simulate Firestore security rules denying access
-        final documentAccess = () async {
+        documentAccess() async {
           throw FirebaseException(
             plugin: 'cloud_firestore',
             code: 'permission-denied',
             message: 'Missing or insufficient permissions.',
           );
-        };
+        }
 
         final result = await ErrorHandler.handle(documentAccess, operationName: 'Document Access');
 
@@ -98,13 +98,13 @@ void main() {
 
       test('document not found shows user-friendly message', () async {
         // Simulate accessing non-existent document
-        final documentFetch = () async {
+        documentFetch() async {
           throw FirebaseException(
             plugin: 'cloud_firestore',
             code: 'not-found',
             message: 'Some requested document was not found.',
           );
-        };
+        }
 
         final result = await ErrorHandler.handle(documentFetch, operationName: 'Fetch Document');
 
@@ -121,9 +121,9 @@ void main() {
     group('Network and Connection Issues', () {
       test('no internet connection during Firebase operation', () async {
         // Network layer throws SocketException when no internet
-        final networkOperation = () async {
+        networkOperation() async {
           throw const SocketException('Failed host lookup: \'firebase.com\'');
-        };
+        }
 
         final result = await ErrorHandler.handle(networkOperation, operationName: 'Firebase API Call');
 
@@ -138,9 +138,9 @@ void main() {
 
       test('timeout during Firebase authentication', () async {
         // .timeout() automatically throws TimeoutException
-        final timeoutAuth = () async {
+        timeoutAuth() async {
           throw TimeoutException('Firebase Auth timeout', const Duration(seconds: 30));
-        };
+        }
 
         final result = await ErrorHandler.handle(timeoutAuth, operationName: 'Firebase Auth');
 
@@ -157,13 +157,13 @@ void main() {
     group('Edge Cases and Rare Errors', () {
       test('Firebase internal error maps to server failure', () async {
         // Rare Firebase internal errors
-        final internalError = () async {
+        internalError() async {
           throw FirebaseException(
             plugin: 'firebase_auth',
             code: 'internal',
             message: 'Internal server error occurred.',
           );
-        };
+        }
 
         final result = await ErrorHandler.handle(internalError, operationName: 'Internal Operation');
 
@@ -178,12 +178,12 @@ void main() {
 
       test('unknown Firebase error falls back to original message', () async {
         // Firebase might introduce new error codes
-        final unknownError = () async {
+        unknownError() async {
           throw FirebaseAuthException(
             code: 'new-error-code-2024',
             message: 'New type of Firebase error',
           );
-        };
+        }
 
         final result = await ErrorHandler.handle(unknownError, operationName: 'Unknown Error Test');
 
@@ -228,9 +228,9 @@ void main() {
 
         for (final scenario in testScenarios) {
           // Simulate different types of errors that can occur during registration
-          final registrationFlow = () async {
+          registrationFlow() async {
             throw scenario['exception']!;
-          };
+          }
 
           final result = await ErrorHandler.handle(
             registrationFlow,
@@ -287,14 +287,14 @@ void main() {
         // This proves that data sources (Firebase calls) throw exceptions automatically
         // We don't need to manually throw or catch anything
 
-        final simulateFirebaseDataSource = () async {
+        simulateFirebaseDataSource() async {
           // Firebase SDK methods throw exceptions automatically when they fail
           // We don't manually check for errors or throw custom exceptions
           throw FirebaseAuthException(
             code: 'requires-recent-login',
             message: 'This operation requires recent authentication',
           );
-        };
+        }
 
         // Repository wraps data source call with ErrorHandler (no try-catch needed)
         final result = await ErrorHandler.handle(simulateFirebaseDataSource);

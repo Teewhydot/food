@@ -78,6 +78,5 @@ class PaystackPaymentUseCase {
 
   bool _isValidEmail(String email) {
     return GetUtils.isEmail(email);
-    ;
   }
 }

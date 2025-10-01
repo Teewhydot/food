@@ -12,7 +12,7 @@ void main() {
     group('Firebase Auth Exceptions', () {
       test('converts wrong-password to user-friendly AuthFailure', () async {
         // Arrange
-        final operation = () async => throw FirebaseAuthException(
+        operation() async => throw FirebaseAuthException(
           code: 'wrong-password',
           message: 'The password is invalid',
         );
@@ -33,7 +33,7 @@ void main() {
 
       test('converts user-not-found to user-friendly AuthFailure', () async {
         // Arrange
-        final operation = () async => throw FirebaseAuthException(
+        operation() async => throw FirebaseAuthException(
           code: 'user-not-found',
           message: 'There is no user record',
         );
@@ -53,7 +53,7 @@ void main() {
 
       test('converts email-already-in-use to user-friendly AuthFailure', () async {
         // Arrange
-        final operation = () async => throw FirebaseAuthException(
+        operation() async => throw FirebaseAuthException(
           code: 'email-already-in-use',
           message: 'The email address is already in use',
         );
@@ -73,7 +73,7 @@ void main() {
 
       test('converts weak-password to user-friendly AuthFailure', () async {
         // Arrange
-        final operation = () async => throw FirebaseAuthException(
+        operation() async => throw FirebaseAuthException(
           code: 'weak-password',
           message: 'The password provided is too weak',
         );
@@ -93,7 +93,7 @@ void main() {
 
       test('converts invalid-email to user-friendly AuthFailure', () async {
         // Arrange
-        final operation = () async => throw FirebaseAuthException(
+        operation() async => throw FirebaseAuthException(
           code: 'invalid-email',
           message: 'The email address is badly formatted',
         );
@@ -113,7 +113,7 @@ void main() {
 
       test('converts unknown Firebase Auth codes to fallback message', () async {
         // Arrange
-        final operation = () async => throw FirebaseAuthException(
+        operation() async => throw FirebaseAuthException(
           code: 'unknown-error-code',
           message: 'Some unknown error occurred',
         );
@@ -135,7 +135,7 @@ void main() {
     group('Firebase General Exceptions', () {
       test('converts permission-denied to user-friendly ServerFailure', () async {
         // Arrange
-        final operation = () async => throw FirebaseException(
+        operation() async => throw FirebaseException(
           plugin: 'cloud_firestore',
           code: 'permission-denied',
           message: 'Missing or insufficient permissions',
@@ -156,7 +156,7 @@ void main() {
 
       test('converts not-found to user-friendly ServerFailure', () async {
         // Arrange
-        final operation = () async => throw FirebaseException(
+        operation() async => throw FirebaseException(
           plugin: 'cloud_firestore',
           code: 'not-found',
           message: 'Some requested document was not found',
@@ -177,7 +177,7 @@ void main() {
 
       test('converts unknown Firebase codes to fallback message', () async {
         // Arrange
-        final operation = () async => throw FirebaseException(
+        operation() async => throw FirebaseException(
           plugin: 'cloud_firestore',
           code: 'unknown-firebase-error',
           message: 'Some Firebase error',
@@ -200,7 +200,7 @@ void main() {
     group('Network Exceptions', () {
       test('converts SocketException to user-friendly NoInternetFailure', () async {
         // Arrange
-        final operation = () async => throw const SocketException('Failed host lookup');
+        operation() async => throw const SocketException('Failed host lookup');
 
         // Act
         final result = await ErrorHandler.handle(operation, operationName: 'API Call');
@@ -219,7 +219,7 @@ void main() {
     group('Timeout Exceptions', () {
       test('converts TimeoutException to user-friendly TimeoutFailure', () async {
         // Arrange
-        final operation = () async => throw TimeoutException('Operation timed out', const Duration(seconds: 10));
+        operation() async => throw TimeoutException('Operation timed out', const Duration(seconds: 10));
 
         // Act
         final result = await ErrorHandler.handle(operation);
@@ -238,7 +238,7 @@ void main() {
     group('Format Exceptions', () {
       test('converts FormatException to user-friendly failure', () async {
         // Arrange
-        final operation = () async => throw const FormatException('Invalid JSON format');
+        operation() async => throw const FormatException('Invalid JSON format');
 
         // Act
         final result = await ErrorHandler.handle(operation);
@@ -257,7 +257,7 @@ void main() {
     group('Unknown Exceptions', () {
       test('converts generic Exception to user-friendly UnknownFailure', () async {
         // Arrange
-        final operation = () async => throw Exception('Some random error');
+        operation() async => throw Exception('Some random error');
 
         // Act
         final result = await ErrorHandler.handle(operation);
@@ -274,7 +274,7 @@ void main() {
 
       test('converts any other error to UnknownFailure', () async {
         // Arrange
-        final operation = () async => throw 'String error';
+        operation() async => throw 'String error';
 
         // Act
         final result = await ErrorHandler.handle(operation);
@@ -293,7 +293,7 @@ void main() {
     group('Success Cases', () {
       test('returns Right with result when operation succeeds', () async {
         // Arrange
-        final operation = () async => 'success result';
+        operation() async => 'success result';
 
         // Act
         final result = await ErrorHandler.handle(operation, operationName: 'Success Test');
@@ -309,7 +309,7 @@ void main() {
       test('handles complex return types correctly', () async {
         // Arrange
         final complexData = {'key': 'value', 'number': 42};
-        final operation = () async => complexData;
+        operation() async => complexData;
 
         // Act
         final result = await ErrorHandler.handle(operation);
@@ -375,10 +375,10 @@ void main() {
       // Firebase automatically throws FirebaseAuthException - we don't manually throw anything
       
       // Arrange - Simulate what Firebase SDK does internally
-      final simulateFirebaseLogin = () async {
+      simulateFirebaseLogin() async {
         // This is what Firebase SDK does - it throws FirebaseAuthException automatically
         throw FirebaseAuthException(code: 'wrong-password', message: 'Invalid password');
-      };
+      }
 
       // Act - We just wrap it with ErrorHandler, no manual throwing needed
       final result = await ErrorHandler.handle(simulateFirebaseLogin);
@@ -395,10 +395,10 @@ void main() {
 
     test('proves network libraries automatically throw exceptions', () async {
       // Arrange - Simulate what HTTP libraries do internally
-      final simulateNetworkCall = () async {
+      simulateNetworkCall() async {
         // This is what network libraries do - they throw SocketException automatically
         throw const SocketException('No route to host');
-      };
+      }
 
       // Act - We just wrap it with ErrorHandler, no manual checking or throwing needed
       final result = await ErrorHandler.handle(simulateNetworkCall);
@@ -415,10 +415,10 @@ void main() {
 
     test('proves timeout automatically throws when using .timeout()', () async {
       // Arrange - Simulate what .timeout() does internally
-      final simulateTimeoutOperation = () async {
+      simulateTimeoutOperation() async {
         // This is what .timeout() does - it throws TimeoutException automatically
         throw TimeoutException('Timeout occurred', const Duration(seconds: 5));
-      };
+      }
 
       // Act - We just wrap it with ErrorHandler, no manual timeout checking needed
       final result = await ErrorHandler.handle(simulateTimeoutOperation);
