@@ -284,7 +284,7 @@ class _FlutterwaveCardFormScreenState extends State<FlutterwaveCardFormScreen> {
       return;
     }
 
-    final user = context.read<EnhancedUserProfileCubit>().state.data;
+    final user = context.read<UserProfileCubit>().state.data;
     final selectedAddress =
         context.read<SelectedAddressCubit>().selectedAddress;
 

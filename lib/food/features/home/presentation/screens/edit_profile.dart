@@ -64,7 +64,7 @@ class _EditProfileState extends State<EditProfile> {
   void _initializeStream() {
     _userProfileStream =
         context
-            .read<EnhancedUserProfileCubit>()
+            .read<UserProfileCubit>()
             .watchUserProfile(context.readCurrentUserId ?? "")
             .distinct();
   }
@@ -112,8 +112,8 @@ class _EditProfileState extends State<EditProfile> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocManager<EnhancedUserProfileCubit, BaseState<UserProfileEntity>>(
-      bloc: context.read<EnhancedUserProfileCubit>(),
+    return BlocManager<UserProfileCubit, BaseState<UserProfileEntity>>(
+      bloc: context.read<UserProfileCubit>(),
       showLoadingIndicator: true,
       onError: (context, state) {
         if (state is ErrorState) {
@@ -232,7 +232,7 @@ class _EditProfileState extends State<EditProfile> {
                       bio: bioController.text,
                       firstTimeLogin: false,
                     );
-                    context.read<EnhancedUserProfileCubit>().updateUserProfile(
+                    context.read<UserProfileCubit>().updateUserProfile(
                       updatedProfile,
                     );
                   },

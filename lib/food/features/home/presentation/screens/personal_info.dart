@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:dartz/dartz.dart' hide State;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -17,7 +18,6 @@ import 'package:food/food/features/home/presentation/widgets/personal_info_widge
 import 'package:food/generated/assets.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
-import 'package:dartz/dartz.dart' hide State;
 
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../domain/failures/failures.dart';
@@ -40,10 +40,11 @@ class _PersonalInfoState extends State<PersonalInfo> {
   }
 
   void _initializeStream() {
-    _userProfileStream = context
-        .read<EnhancedUserProfileCubit>()
-        .watchUserProfile(context.readCurrentUserId ?? "")
-        .distinct();
+    _userProfileStream =
+        context
+            .read<UserProfileCubit>()
+            .watchUserProfile(context.readCurrentUserId ?? "")
+            .distinct();
   }
 
   @override
@@ -67,7 +68,10 @@ class _PersonalInfoState extends State<PersonalInfo> {
     );
   }
 
-  Widget _buildPersonalInfoScaffold(NavigationService nav, Either<Failure, UserProfileEntity> profile) {
+  Widget _buildPersonalInfoScaffold(
+    NavigationService nav,
+    Either<Failure, UserProfileEntity> profile,
+  ) {
     return FScaffold(
       customScroll: true,
       appBarWidget: _buildAppBar(nav, profile),
@@ -75,7 +79,10 @@ class _PersonalInfoState extends State<PersonalInfo> {
     );
   }
 
-  Widget _buildAppBar(NavigationService nav, Either<Failure, UserProfileEntity> profile) {
+  Widget _buildAppBar(
+    NavigationService nav,
+    Either<Failure, UserProfileEntity> profile,
+  ) {
     return GestureDetector(
       onTap: () {
         nav.navigateTo(Routes.home);
@@ -160,10 +167,7 @@ class _PersonalInfoState extends State<PersonalInfo> {
         ),
         8.verticalSpace,
         FWrapText(
-          text: profile.fold(
-            (l) => 'Guest User',
-            (r) => '${r.bio}'.trim(),
-          ),
+          text: profile.fold((l) => 'Guest User', (r) => '${r.bio}'.trim()),
           fontSize: 13.sp,
           fontWeight: FontWeight.w400,
           color: kContainerColor,

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:dartz/dartz.dart' hide State;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -19,13 +20,12 @@ import 'package:food/food/features/home/presentation/widgets/menu_section_widget
 import 'package:food/generated/assets.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
-import 'package:dartz/dartz.dart' hide State;
 
+import '../../../../components/buttons.dart';
 import '../../../../core/bloc/managers/bloc_manager.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
 import '../../../../domain/failures/failures.dart';
 import '../../domain/entities/profile.dart';
-import '../../../../components/buttons.dart';
 
 class Menu extends StatefulWidget {
   const Menu({super.key});
@@ -34,8 +34,7 @@ class Menu extends StatefulWidget {
   State<Menu> createState() => _MenuState();
 }
 
-class _MenuState extends State<Menu>
-    with AutomaticKeepAliveClientMixin {
+class _MenuState extends State<Menu> with AutomaticKeepAliveClientMixin {
   late Stream<Either<Failure, UserProfileEntity>> _userProfileStream;
   bool _streamInitialized = false;
 
@@ -55,10 +54,11 @@ class _MenuState extends State<Menu>
     try {
       final userId = context.readCurrentUserId;
       if (userId != null && userId.isNotEmpty) {
-        _userProfileStream = context
-            .read<EnhancedUserProfileCubit>()
-            .watchUserProfile(userId)
-            .distinct();
+        _userProfileStream =
+            context
+                .read<UserProfileCubit>()
+                .watchUserProfile(userId)
+                .distinct();
       }
     } catch (e) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -81,7 +81,7 @@ class _MenuState extends State<Menu>
   void _resetUserData(BuildContext context) {
     try {
       // Clear only user profile data
-      context.read<EnhancedUserProfileCubit>().clearUserProfile();
+      context.read<UserProfileCubit>().clearUserProfile();
     } catch (e) {
       // Continue even if reset fails
       debugPrint("Error resetting user data: $e");
@@ -95,10 +95,7 @@ class _MenuState extends State<Menu>
           radius: 50,
           color: kPrimaryColor,
           child: FImage(
-            assetPath: profile.fold(
-              (l) => "",
-              (r) => r.profileImageUrl,
-            ) ?? "",
+            assetPath: profile.fold((l) => "", (r) => r.profileImageUrl) ?? "",
             assetType: FoodAssetType.network,
             borderRadius: 70,
             width: 140,
@@ -132,9 +129,10 @@ class _MenuState extends State<Menu>
                   child: FWrapText(
                     text: profile.fold(
                       (l) => 'No bio available',
-                      (r) => r.bio?.isNotEmpty == true
-                          ? r.bio!
-                          : 'No bio available',
+                      (r) =>
+                          r.bio?.isNotEmpty == true
+                              ? r.bio!
+                              : 'No bio available',
                     ),
                     fontSize: 13.sp,
                     fontWeight: FontWeight.w400,

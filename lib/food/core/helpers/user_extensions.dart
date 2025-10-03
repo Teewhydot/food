@@ -22,7 +22,7 @@ extension UserProfileExtension on BuildContext {
 
   /// Watch user profile changes (use in build method)
   UserProfileEntity? watchUser() {
-    final state = watch<EnhancedUserProfileCubit>().state;
+    final state = watch<UserProfileCubit>().state;
     if (state.hasData) {
       return state.data;
     }
@@ -31,7 +31,7 @@ extension UserProfileExtension on BuildContext {
 
   /// Read user profile once (use outside build method)
   UserProfileEntity? readUser() {
-    final state = read<EnhancedUserProfileCubit>().state;
+    final state = read<UserProfileCubit>().state;
     if (state.hasData) {
       print("Reading user: ${state.data}");
       return state.data;

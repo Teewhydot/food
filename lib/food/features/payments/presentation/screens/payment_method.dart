@@ -16,7 +16,6 @@ import 'package:food/food/features/payments/presentation/widgets/payment_type_wi
 import 'package:food/generated/assets.dart';
 import 'package:get/utils.dart';
 import 'package:get_it/get_it.dart';
-import 'paystack_webview_screen.dart';
 
 import '../../../../components/texts.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
@@ -26,6 +25,7 @@ import '../manager/cart/cart_cubit.dart';
 import '../manager/paystack_bloc/paystack_payment_bloc.dart';
 import '../manager/paystack_bloc/paystack_payment_event.dart';
 import '../manager/paystack_bloc/paystack_payment_state.dart';
+import 'paystack_webview_screen.dart';
 
 class PaymentMethod extends StatefulWidget {
   const PaymentMethod({super.key});
@@ -71,8 +71,6 @@ class _PaymentMethodState extends State<PaymentMethod> {
       body: Column(
         children: [
           30.verticalSpace,
-          _buildOrderSummary(),
-          30.verticalSpace,
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
@@ -114,7 +112,7 @@ class _PaymentMethodState extends State<PaymentMethod> {
       return;
     }
 
-    final user = context.read<EnhancedUserProfileCubit>().state.data;
+    final user = context.read<UserProfileCubit>().state.data;
     if (user == null) {
       DFoodUtils.showSnackBar(
         "Please log in to continue with payment.",
@@ -204,26 +202,34 @@ class _PaymentMethodState extends State<PaymentMethod> {
         email: user.email,
         metadata: {
           'userId': user.id,
-          'userName': '${user.firstName} ${user.lastName}'.trim().isEmpty
-              ? user.email.split('@')[0]
-              : '${user.firstName} ${user.lastName}'.trim(),
+          'userName':
+              '${user.firstName} ${user.lastName}'.trim().isEmpty
+                  ? user.email.split('@')[0]
+                  : '${user.firstName} ${user.lastName}'.trim(),
           'orderItemsCount': cartState.data?.items?.length ?? 0,
-          'items': cartState.data?.items?.map((item) => {
-            'id': item.id,
-            'name': item.name,
-            'description': item.description,
-            'price': item.price,
-            'quantity': item.quantity,
-            'imageUrl': item.imageUrl,
-            'restaurantId': item.restaurantId,
-            'restaurantName': item.restaurantName,
-            'category': item.category,
-            'preparationTime': item.preparationTime ?? '15-30 mins',
-            'ingredients': item.ingredients,
-            'totalPrice': item.price * item.quantity,
-          }).toList() ?? [],
+          'items':
+              cartState.data?.items
+                  ?.map(
+                    (item) => {
+                      'id': item.id,
+                      'name': item.name,
+                      'description': item.description,
+                      'price': item.price,
+                      'quantity': item.quantity,
+                      'imageUrl': item.imageUrl,
+                      'restaurantId': item.restaurantId,
+                      'restaurantName': item.restaurantName,
+                      'category': item.category,
+                      'preparationTime': item.preparationTime ?? '15-30 mins',
+                      'ingredients': item.ingredients,
+                      'totalPrice': item.price * item.quantity,
+                    },
+                  )
+                  .toList() ??
+              [],
           'subtotal': cartState.data?.totalPrice ?? 0.0,
-          'deliveryFee': 500.0, // Default delivery fee - can be calculated dynamically
+          'deliveryFee':
+              500.0, // Default delivery fee - can be calculated dynamically
           'tax': 0.0, // No tax for now
           'total': amount,
         },
@@ -239,22 +245,23 @@ class _PaymentMethodState extends State<PaymentMethod> {
     // Use the Paystack reference as the orderId
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => PaystackWebviewScreen(
-          authorizationUrl: authorizationUrl,
-          reference: reference,
-          orderId: reference, // Use reference as orderId
-          onPaymentCompleted: () {
-            // Payment completed - verify the payment
-            _verifyPayment(reference);
-          },
-          onPaymentCancelled: () {
-            // Payment cancelled - show message
-            DFoodUtils.showSnackBar(
-              "Payment was cancelled. Please try again if needed.",
-              kErrorColor,
-            );
-          },
-        ),
+        builder:
+            (context) => PaystackWebviewScreen(
+              authorizationUrl: authorizationUrl,
+              reference: reference,
+              orderId: reference, // Use reference as orderId
+              onPaymentCompleted: () {
+                // Payment completed - verify the payment
+                _verifyPayment(reference);
+              },
+              onPaymentCancelled: () {
+                // Payment cancelled - show message
+                DFoodUtils.showSnackBar(
+                  "Payment was cancelled. Please try again if needed.",
+                  kErrorColor,
+                );
+              },
+            ),
       ),
     );
   }
@@ -272,7 +279,6 @@ class _PaymentMethodState extends State<PaymentMethod> {
     );
   }
 
-
   void _verifyPayment(String reference) {
     // Show loading dialog
     DFoodUtils.showDialogContainer(
@@ -289,7 +295,10 @@ class _PaymentMethodState extends State<PaymentMethod> {
               );
             } else {
               // Payment failed
-              DFoodUtils.showSnackBar("Payment verification failed", kErrorColor);
+              DFoodUtils.showSnackBar(
+                "Payment verification failed",
+                kErrorColor,
+              );
             }
           } else if (state is PaystackPaymentError) {
             nav.goBack(); // Close loading dialog
@@ -301,10 +310,7 @@ class _PaymentMethodState extends State<PaymentMethod> {
           children: [
             CircularProgressIndicator(color: kWhiteColor),
             SizedBox(height: 16),
-            FText(
-              text: "Verifying payment...",
-              color: kWhiteColor,
-            ),
+            FText(text: "Verifying payment...", color: kWhiteColor),
           ],
         ),
       ),
@@ -318,8 +324,6 @@ class _PaymentMethodState extends State<PaymentMethod> {
       ),
     );
   }
-
-
 
   Widget _buildOrderSummary() {
     return BlocBuilder<CartCubit, dynamic>(

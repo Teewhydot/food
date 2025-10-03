@@ -14,7 +14,7 @@ import '../../domain/entities/profile.dart';
 import '../../domain/use_cases/user_profile_usecase.dart';
 
 /// Enhanced User Profile Cubit with modern state management
-class EnhancedUserProfileCubit extends BaseCubit<BaseState<UserProfileEntity>>
+class UserProfileCubit extends BaseCubit<BaseState<UserProfileEntity>>
     with
         CacheableBlocMixin<BaseState<UserProfileEntity>>,
         RefreshableBlocMixin<BaseState<UserProfileEntity>> {
@@ -22,7 +22,7 @@ class EnhancedUserProfileCubit extends BaseCubit<BaseState<UserProfileEntity>>
   final AuthUseCase _authUseCase;
   final UserProfileDatabaseService _databaseService;
 
-  EnhancedUserProfileCubit({
+  UserProfileCubit({
     UserProfileUseCase? userProfileUseCase,
     AuthUseCase? authUseCase,
     UserProfileDatabaseService? databaseService,

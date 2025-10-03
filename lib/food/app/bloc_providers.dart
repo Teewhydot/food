@@ -12,8 +12,8 @@ import 'package:food/food/features/home/manager/selected_address/selected_addres
 import 'package:food/food/features/home/manager/user_profile/enhanced_user_profile_cubit.dart';
 import 'package:food/food/features/payments/domain/use_cases/paystack_payment_usecase.dart';
 import 'package:food/food/features/payments/presentation/manager/cart/cart_cubit.dart';
-import 'package:food/food/features/payments/presentation/manager/paystack_bloc/paystack_payment_bloc.dart';
 import 'package:food/food/features/payments/presentation/manager/flutterwave_bloc/flutterwave_payment_bloc.dart';
+import 'package:food/food/features/payments/presentation/manager/paystack_bloc/paystack_payment_bloc.dart';
 import 'package:food/food/features/tracking/presentation/manager/chats_bloc/chats_cubit.dart';
 import 'package:food/food/features/tracking/presentation/manager/messaging_bloc/messaging_bloc.dart';
 import 'package:food/food/features/tracking/presentation/manager/notification_bloc/notification_cubit.dart';
@@ -42,8 +42,8 @@ final List<BlocProvider> blocs = [
   ),
 
   BlocProvider<CartCubit>(create: (context) => CartCubit()),
-  BlocProvider<EnhancedUserProfileCubit>(
-    create: (context) => EnhancedUserProfileCubit()..loadUserProfile(),
+  BlocProvider<UserProfileCubit>(
+    create: (context) => UserProfileCubit()..loadUserProfile(),
   ),
   BlocProvider<AddressCubit>(create: (context) => AddressCubit()),
   BlocProvider<SelectedAddressCubit>(
