@@ -1,17 +1,12 @@
-import 'dart:async';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_sliding_box/flutter_sliding_box.dart';
 import 'package:food/food/components/scaffold.dart';
 import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/features/home/presentation/widgets/circle_widget.dart';
 import 'package:food/food/features/payments/domain/entities/order_entity.dart';
-import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:ionicons/ionicons.dart';
 
@@ -46,14 +41,6 @@ class _TrackingOrderView extends StatefulWidget {
 class _TrackingOrderViewState extends State<_TrackingOrderView> {
   final nav = GetIt.instance<NavigationService>();
 
-  final Completer<GoogleMapController> _controller =
-      Completer<GoogleMapController>();
-
-  static const CameraPosition _kGooglePlex = CameraPosition(
-    target: LatLng(37.42796133580664, -122.085749655962),
-    zoom: 14.4746,
-  );
-
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<OrderTrackingCubit, OrderTrackingState>(
@@ -80,64 +67,22 @@ class _TrackingOrderViewState extends State<_TrackingOrderView> {
           ],
         ),
       ),
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: GoogleMap(
-              initialCameraPosition: _kGooglePlex,
-              mapType: MapType.normal,
-              markers: {
-                Marker(
-                  markerId: const MarkerId("marker_1"),
-                  position: const LatLng(37.42796133580664, -122.085749655962),
-                  infoWindow: const InfoWindow(
-                    title: "Marker 1",
-                    snippet: "This is marker 1",
-                  ),
-                ),
-                Marker(
-                  markerId: const MarkerId("marker_2"),
-                  position: const LatLng(
-                    37.43296265331129,
-                    -122.08832357078792,
-                  ),
-                  infoWindow: const InfoWindow(
-                    title: "Marker 2",
-                    snippet: "This is marker 2",
-                  ),
-                ),
-              },
-              onMapCreated: (GoogleMapController controller) {
-                _controller.complete(controller);
-              },
-            ),
-          ),
-
-          SlidingBox(
-            width: 1.sw,
-            minHeight: 1.sh * 0.2,
-            maxHeight: 1.sh * 0.8,
-            style: BoxStyle.none,
-            collapsed: true,
-            draggableIconBackColor: kWhiteColor,
-            body: _buildOrderContent(state),
-          ),
-        ],
+      body: Padding(
+        padding: EdgeInsets.all(AppConstants.defaultPadding).r,
+        child: _buildOrderContent(state),
       ),
     );
   }
 
   Widget _buildOrderContent(OrderTrackingState state) {
-    return Column(
-      children: [
-        switch (state) {
-          OrderTrackingLoading() => _buildLoadingState(),
-          OrderTrackingError() => _buildErrorState(state.message),
-          OrderNotFound() => _buildNotFoundState(),
-          OrderTrackingLoaded() => _buildLoadedState(state.order),
-          _ => _buildInitialState(),
-        },
-      ],
+    return SingleChildScrollView(
+      child: switch (state) {
+        OrderTrackingLoading() => _buildLoadingState(),
+        OrderTrackingError() => _buildErrorState(state.message),
+        OrderNotFound() => _buildNotFoundState(),
+        OrderTrackingLoaded() => _buildLoadedState(state.order),
+        _ => _buildInitialState(),
+      },
     );
   }
 
@@ -241,7 +186,7 @@ class _TrackingOrderViewState extends State<_TrackingOrderView> {
         36.verticalSpace,
         StepTrackingWidget(orderStatus: order.serviceStatus),
       ],
-    ).paddingOnly(left: AppConstants.defaultPadding);
+    );
   }
 }
 
@@ -370,12 +315,13 @@ class StepWidget extends StatelessWidget {
           ],
         ),
         10.horizontalSpace,
-        FText(
-          text: message,
-          alignment: MainAxisAlignment.start,
-          fontSize: 16,
-          color: status == StepStatus.completed ? kPrimaryColor : kInactive,
-          fontWeight: FontWeight.w600,
+        Text(
+          message,
+          style: TextStyle(
+            fontSize: 16.sp,
+            fontWeight: FontWeight.w600,
+            color: status == StepStatus.completed ? kPrimaryColor : kInactive,
+          ),
         ),
       ],
     );
