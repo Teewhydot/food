@@ -5,6 +5,7 @@ import 'package:food/food/features/auth/presentation/screens/enhanced_login_scre
 import 'package:food/food/features/auth/presentation/screens/forgot_password.dart';
 import 'package:food/food/features/auth/presentation/screens/location.dart';
 import 'package:food/food/features/auth/presentation/screens/sign_up.dart';
+import 'package:food/food/features/auth/presentation/screens/update_password.dart';
 import 'package:food/food/features/home/domain/entities/address.dart';
 import 'package:food/food/features/home/domain/entities/profile.dart';
 import 'package:food/food/features/home/presentation/screens/add_address.dart';
@@ -247,6 +248,13 @@ class GetXRouteModule {
       page: () => const Location(),
       transition: _transition,
       transitionDuration: _transitionDuration,
+    ),
+    GetPage(
+      name: Routes.updatePassword,
+      page: () => const UpdatePassword(),
+      transition: _transition,
+      transitionDuration: _transitionDuration,
+      middlewares: [AuthMiddleware()],
     ),
   ];
 }

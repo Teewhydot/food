@@ -53,4 +53,11 @@ class AuthUseCase {
   Future<Either<Failure, UserProfileEntity>> verifyEmail() {
     return authRepo.verifyEmail();
   }
+
+  Future<Either<Failure, void>> updatePassword(
+    String currentPassword,
+    String newPassword,
+  ) {
+    return authRepo.updatePassword(currentPassword, newPassword);
+  }
 }

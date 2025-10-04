@@ -13,6 +13,7 @@ import '../remote/data_sources/login_data_source.dart';
 import '../remote/data_sources/password_reset_data_source.dart';
 import '../remote/data_sources/register_data_source.dart';
 import '../remote/data_sources/sign_out_data_source.dart';
+import '../remote/data_sources/update_password_data_source.dart';
 import '../remote/data_sources/user_data_source.dart';
 
 class AuthRepoImpl implements AuthRepository {
@@ -26,6 +27,7 @@ class AuthRepoImpl implements AuthRepository {
   final passwordResetService = GetIt.instance<PasswordResetDataSource>();
   final signOutService = GetIt.instance<SignOutDataSource>();
   final deleteAccountService = GetIt.instance<DeleteUserAccountDataSource>();
+  final updatePasswordService = GetIt.instance<UpdatePasswordDataSource>();
   final userProfileService = GetIt.instance<UserDataSource>();
   final authStatusService = GetIt.instance<UserDataSource>();
   @override
@@ -141,5 +143,19 @@ class AuthRepoImpl implements AuthRepository {
       final userProfile = await userProfileService.getCurrentUser();
       return userProfile;
     });
+  }
+
+  @override
+  Future<Either<Failure, void>> updatePassword(
+    String currentPassword,
+    String newPassword,
+  ) {
+    return ErrorHandler.handle(
+      () async => await updatePasswordService.updatePassword(
+        currentPassword,
+        newPassword,
+      ),
+      operationName: 'Update Password',
+    );
   }
 }

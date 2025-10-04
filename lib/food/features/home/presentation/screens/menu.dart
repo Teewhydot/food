@@ -324,6 +324,19 @@ class _MenuState extends State<Menu> with AutomaticKeepAliveClientMixin {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     MenuSectionWidget(
+                      title: "Update Password",
+                      child: FImage(
+                        assetPath: Assets.svgsSettings,
+                        assetType: FoodAssetType.svg,
+                        width: 12,
+                        height: 14,
+                      ),
+                      onTap: () {
+                        nav.navigateTo(Routes.updatePassword);
+                      },
+                    ),
+                    16.verticalSpace,
+                    MenuSectionWidget(
                       title: "Log out",
                       child: FImage(
                         assetPath: Assets.svgsLogout,
