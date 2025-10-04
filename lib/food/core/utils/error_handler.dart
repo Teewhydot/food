@@ -51,11 +51,10 @@ class ErrorHandler {
       );
       return Left(UnknownFailure(failureMessage: message));
     } catch (e) {
-      final message = 'Something went wrong. Please try again';
       Logger.logError(
         'Unknown Error${operationName != null ? " in $operationName" : ""}: $e',
       );
-      return Left(UnknownFailure(failureMessage: message));
+      return Left(UnknownFailure(failureMessage: e.toString()));
     }
   }
 

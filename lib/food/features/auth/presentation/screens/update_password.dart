@@ -4,7 +4,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/core/bloc/base/base_state.dart';
 import 'package:food/food/features/auth/presentation/manager/auth_bloc/update_password/update_password_bloc.dart';
 import 'package:food/food/features/auth/presentation/widgets/auth_template.dart';
-import 'package:food/food/features/auth/presentation/widgets/custom_overlay.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 
@@ -82,11 +81,9 @@ class _UpdatePasswordState extends State<UpdatePassword> {
     return BlocManager<UpdatePasswordBloc, BaseState<void>>(
       bloc: context.read<UpdatePasswordBloc>(),
       showLoadingIndicator: true,
+      showResultErrorNotifications: true,
+      showResultSuccessNotifications: true,
       onSuccess: (context, state) {
-        DFoodUtils.showSnackBar(
-          "Password updated successfully",
-          kSuccessColor,
-        );
         // Clear the text fields
         _currentPasswordController.clear();
         _newPasswordController.clear();
@@ -95,102 +92,99 @@ class _UpdatePasswordState extends State<UpdatePassword> {
         nav.goBack();
       },
       builder: (context, state) {
-        return CustomOverlay(
-          isLoading: state is LoadingState,
-          child: AuthTemplate(
-            title: "Update Password",
-            subtitle: "Enter your current password and choose a new one",
-            hasBackButton: true,
-            hasSvg: false,
-            containerTopHeight: 200,
-            child: Column(
-              children: [
-                FTextField(
-                  height: 63,
-                  controller: _currentPasswordController,
-                  hintText: "Current Password",
-                  onChanged: (value) {},
-                  onTap: () {},
-                  keyboardType: TextInputType.visiblePassword,
-                  label: 'CURRENT PASSWORD',
-                  action: TextInputAction.next,
-                  obscureText: _obscureCurrentPassword,
-                  suffix: IconButton(
-                    icon: Icon(
-                      _obscureCurrentPassword
-                          ? Icons.visibility_off
-                          : Icons.visibility,
-                      color: kContainerColor,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _obscureCurrentPassword = !_obscureCurrentPassword;
-                      });
-                    },
+        return AuthTemplate(
+          title: "Update Password",
+          subtitle: "Enter your current password and choose a new one",
+          hasBackButton: true,
+          hasSvg: false,
+          containerTopHeight: 200,
+          child: Column(
+            children: [
+              FTextField(
+                height: 63,
+                controller: _currentPasswordController,
+                hintText: "Current Password",
+                onChanged: (value) {},
+                onTap: () {},
+                keyboardType: TextInputType.visiblePassword,
+                label: 'CURRENT PASSWORD',
+                action: TextInputAction.next,
+                obscureText: _obscureCurrentPassword,
+                suffix: IconButton(
+                  icon: Icon(
+                    _obscureCurrentPassword
+                        ? Icons.visibility_off
+                        : Icons.visibility,
+                    color: kContainerColor,
                   ),
+                  onPressed: () {
+                    setState(() {
+                      _obscureCurrentPassword = !_obscureCurrentPassword;
+                    });
+                  },
                 ),
-                16.verticalSpace,
-                FTextField(
-                  height: 63,
-                  controller: _newPasswordController,
-                  hintText: "New Password",
-                  onChanged: (value) {},
-                  onTap: () {},
-                  keyboardType: TextInputType.visiblePassword,
-                  label: 'NEW PASSWORD',
-                  action: TextInputAction.next,
-                  obscureText: _obscureNewPassword,
-                  suffix: IconButton(
-                    icon: Icon(
-                      _obscureNewPassword
-                          ? Icons.visibility_off
-                          : Icons.visibility,
-                      color: kContainerColor,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _obscureNewPassword = !_obscureNewPassword;
-                      });
-                    },
+              ),
+              16.verticalSpace,
+              FTextField(
+                height: 63,
+                controller: _newPasswordController,
+                hintText: "New Password",
+                onChanged: (value) {},
+                onTap: () {},
+                keyboardType: TextInputType.visiblePassword,
+                label: 'NEW PASSWORD',
+                action: TextInputAction.next,
+                obscureText: _obscureNewPassword,
+                suffix: IconButton(
+                  icon: Icon(
+                    _obscureNewPassword
+                        ? Icons.visibility_off
+                        : Icons.visibility,
+                    color: kContainerColor,
                   ),
+                  onPressed: () {
+                    setState(() {
+                      _obscureNewPassword = !_obscureNewPassword;
+                    });
+                  },
                 ),
-                16.verticalSpace,
-                FTextField(
-                  height: 63,
-                  controller: _confirmPasswordController,
-                  hintText: "Confirm New Password",
-                  onChanged: (value) {},
-                  onTap: () {},
-                  keyboardType: TextInputType.visiblePassword,
-                  label: 'CONFIRM NEW PASSWORD',
-                  action: TextInputAction.done,
-                  obscureText: _obscureConfirmPassword,
-                  suffix: IconButton(
-                    icon: Icon(
-                      _obscureConfirmPassword
-                          ? Icons.visibility_off
-                          : Icons.visibility,
-                      color: kContainerColor,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _obscureConfirmPassword = !_obscureConfirmPassword;
-                      });
-                    },
+              ),
+              16.verticalSpace,
+              FTextField(
+                height: 63,
+                controller: _confirmPasswordController,
+                hintText: "Confirm New Password",
+                onChanged: (value) {},
+                onTap: () {},
+                keyboardType: TextInputType.visiblePassword,
+                label: 'CONFIRM NEW PASSWORD',
+                action: TextInputAction.done,
+                obscureText: _obscureConfirmPassword,
+                suffix: IconButton(
+                  icon: Icon(
+                    _obscureConfirmPassword
+                        ? Icons.visibility_off
+                        : Icons.visibility,
+                    color: kContainerColor,
                   ),
+                  onPressed: () {
+                    setState(() {
+                      _obscureConfirmPassword = !_obscureConfirmPassword;
+                    });
+                  },
                 ),
-                24.verticalSpace,
-                FButton(
-                  buttonText: "Update Password",
-                  width: 1.sw,
-                  onPressed: _handleUpdatePassword,
-                ),
-              ],
-            ).paddingOnly(
-              left: AppConstants.defaultPadding,
-              top: AppConstants.defaultPadding,
-              right: AppConstants.defaultPadding,
-            ),
+              ),
+              24.verticalSpace,
+              FButton(
+                buttonText: "Update Password",
+                width: 1.sw,
+                onPressed: _handleUpdatePassword,
+              ),
+            ],
+          ).paddingOnly(
+            left: AppConstants.defaultPadding,
+            top: AppConstants.defaultPadding,
+            right: AppConstants.defaultPadding,
           ),
         );
       },
