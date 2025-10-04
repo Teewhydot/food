@@ -21,7 +21,6 @@ import '../../../../domain/failures/failures.dart';
 import '../../../auth/data/remote/data_sources/user_data_source.dart';
 import '../../../payments/domain/entities/order_entity.dart';
 import '../../../payments/presentation/manager/order_bloc/order_bloc.dart';
-import '../../../payments/presentation/manager/order_bloc/order_event.dart';
 
 class Orders extends StatefulWidget {
   const Orders({super.key});
@@ -42,9 +41,11 @@ class _OrdersState extends State<Orders> {
   }
 
   void _initializeStream() async {
-    _ordersStream = context.read<OrderBloc>().streamUserOrders(
-      context.readCurrentUserId ?? "",
-    ).distinct();
+    _ordersStream =
+        context
+            .read<OrderBloc>()
+            .streamUserOrders(context.readCurrentUserId ?? "")
+            .distinct();
   }
 
   Widget _buildOrdersList() {
@@ -93,27 +94,28 @@ class _OrdersState extends State<Orders> {
 
               return SingleChildScrollView(
                 child: Column(
-                  children: orders.map((order) {
-                    final firstItem =
-                        order.items.isNotEmpty ? order.items.first : null;
-                    return OrderDetailsWidget(
-                      order: order,
-                      category: firstItem?.foodName ?? "Food",
-                      foodName: firstItem?.foodName ?? "Unknown",
-                      price: order.total.toStringAsFixed(2),
-                      orderId: order.id,
-                      quantity: order.items.fold(
-                        0,
-                        (sum, item) => sum + item.quantity,
-                      ),
-                      onTrackTap: () {
-                        nav.navigateTo(Routes.tracking, arguments: order.id);
-                      },
-                      onCancelTap: () {
-                        context.read<OrderBloc>().add(CancelOrderEvent(order.id));
-                      },
-                    );
-                  }).toList(),
+                  children:
+                      orders.map((order) {
+                        final firstItem =
+                            order.items.isNotEmpty ? order.items.first : null;
+                        return OrderDetailsWidget(
+                          order: order,
+                          category: firstItem?.foodName ?? "Food",
+                          foodName: firstItem?.foodName ?? "Unknown",
+                          price: order.total.toStringAsFixed(2),
+                          orderId: order.id,
+                          quantity: order.items.fold(
+                            0,
+                            (sum, item) => sum + item.quantity,
+                          ),
+                          onTrackTap: () {
+                            nav.navigateTo(
+                              Routes.tracking,
+                              arguments: order.id,
+                            );
+                          },
+                        );
+                      }).toList(),
                 ).paddingOnly(top: 24),
               );
             },
@@ -158,7 +160,7 @@ class OrderDetailsWidget extends StatelessWidget {
   final String category, foodName, price, orderId;
   final int quantity;
   final OrderEntity order;
-  final Function()? onTrackTap, onCancelTap;
+  final Function()? onTrackTap;
 
   const OrderDetailsWidget({
     super.key,
@@ -169,7 +171,6 @@ class OrderDetailsWidget extends StatelessWidget {
     required this.quantity,
     required this.order,
     this.onTrackTap,
-    this.onCancelTap,
   });
 
   Color _getStatusColor() {
@@ -180,6 +181,8 @@ class OrderDetailsWidget extends StatelessWidget {
         return Colors.red;
       case OrderStatus.pending:
         return Colors.orange;
+      case OrderStatus.confirmed:
+        return Colors.blue;
       default:
         return kPrimaryColor;
     }
@@ -218,11 +221,6 @@ class OrderDetailsWidget extends StatelessWidget {
   bool _canTrack() {
     return order.status != OrderStatus.delivered &&
         order.status != OrderStatus.cancelled;
-  }
-
-  bool _canCancel() {
-    return order.status == OrderStatus.pending ||
-        order.status == OrderStatus.confirmed;
   }
 
   @override
@@ -269,10 +267,11 @@ class OrderDetailsWidget extends StatelessWidget {
                         ),
                         8.horizontalSpace,
                         Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ).r,
+                          padding:
+                              EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ).r,
                           decoration: BoxDecoration(
                             color: _getStatusColor().withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(12).r,
@@ -329,30 +328,13 @@ class OrderDetailsWidget extends StatelessWidget {
               ),
             ],
           ),
-          if (_canTrack() || _canCancel()) ...[
+          if (_canTrack()) ...[
             16.verticalSpace,
-            Row(
-              children: [
-                if (_canTrack())
-                  Expanded(
-                    child: FButton(
-                      buttonText: "Track Order",
-                      textColor: kWhiteColor,
-                      onPressed: onTrackTap,
-                      color: kPrimaryColor,
-                    ),
-                  ),
-                if (_canTrack() && _canCancel()) 12.horizontalSpace,
-                if (_canCancel())
-                  Expanded(
-                    child: FButton(
-                      buttonText: "Cancel",
-                      textColor: kPrimaryColor,
-                      color: kWhiteColor,
-                      onPressed: onCancelTap,
-                    ),
-                  ),
-              ],
+            FButton(
+              buttonText: "Track Order",
+              textColor: kWhiteColor,
+              onPressed: onTrackTap,
+              color: kPrimaryColor,
             ),
           ],
         ],

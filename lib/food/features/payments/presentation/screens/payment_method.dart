@@ -10,12 +10,10 @@ import 'package:food/food/features/auth/presentation/widgets/back_widget.dart';
 import 'package:food/food/features/home/domain/entities/profile.dart';
 import 'package:food/food/features/home/manager/user_profile/enhanced_user_profile_cubit.dart';
 import 'package:food/food/features/onboarding/presentation/widgets/food_container.dart';
-import 'package:food/food/features/payments/domain/entities/payment_method_entity.dart';
 import 'package:food/food/features/payments/presentation/screens/status.dart';
-import 'package:food/food/features/payments/presentation/widgets/payment_type_widget.dart';
-import 'package:food/generated/assets.dart';
 import 'package:get/utils.dart';
 import 'package:get_it/get_it.dart';
+import 'package:ionicons/ionicons.dart';
 
 import '../../../../components/texts.dart';
 import '../../../../core/services/navigation_service/nav_config.dart';
@@ -37,20 +35,6 @@ class PaymentMethod extends StatefulWidget {
 class _PaymentMethodState extends State<PaymentMethod> {
   final nav = GetIt.instance<NavigationService>();
 
-  List<PaymentMethodEntity> methods = [
-    PaymentMethodEntity(
-      id: 'paystack',
-      name: 'Paystack',
-      type: 'card',
-      iconUrl: Assets.svgsMastercard,
-    ),
-    PaymentMethodEntity(
-      id: 'flutterwave',
-      name: 'Flutterwave',
-      type: 'card',
-      iconUrl: Assets.svgsVisa,
-    ),
-  ];
   String selectedMethod = "Paystack";
 
   @override
@@ -69,33 +53,42 @@ class _PaymentMethodState extends State<PaymentMethod> {
       ),
       customScroll: true,
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           30.verticalSpace,
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              spacing: 10,
-              children: [
-                ...methods.map((method) {
-                  return GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        selectedMethod = method.name;
-                      });
-                    },
-                    child: PaymentTypeWidget(
-                      image: method.iconUrl,
-                      title: method.name,
-                      width: 24,
-                      height: 24,
-                      isSelected: selectedMethod == method.name,
-                    ),
-                  );
-                }),
-              ],
-            ),
+          FText(
+            text: "Select Payment Method",
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: kTextColorDark,
           ),
-          30.verticalSpace,
+          20.verticalSpace,
+          _buildPaymentMethodCard(
+            name: "Paystack",
+            description: "Pay securely with your card via Paystack",
+            icon: Ionicons.card_outline,
+            color: const Color(0xFF00C3F7),
+            isSelected: selectedMethod == "Paystack",
+            onTap: () {
+              setState(() {
+                selectedMethod = "Paystack";
+              });
+            },
+          ),
+          16.verticalSpace,
+          _buildPaymentMethodCard(
+            name: "Flutterwave",
+            description: "Pay securely with your card via Flutterwave",
+            icon: Ionicons.wallet_outline,
+            color: const Color(0xFFf5a623),
+            isSelected: selectedMethod == "Flutterwave",
+            onTap: () {
+              setState(() {
+                selectedMethod = "Flutterwave";
+              });
+            },
+          ),
+          40.verticalSpace,
           _buildPaymentDetails(),
         ],
       ).paddingSymmetric(horizontal: AppConstants.defaultPadding),
@@ -400,28 +393,82 @@ class _PaymentMethodState extends State<PaymentMethod> {
     );
   }
 
+  Widget _buildPaymentMethodCard({
+    required String name,
+    required String description,
+    required IconData icon,
+    required Color color,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.all(16).r,
+        decoration: BoxDecoration(
+          color: isSelected ? color.withValues(alpha: 0.1) : kWhiteColor,
+          borderRadius: BorderRadius.circular(12).r,
+          border: Border.all(
+            color: isSelected ? color : kContainerColor.withValues(alpha: 0.3),
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12).r,
+              ),
+              child: Icon(
+                icon,
+                color: color,
+                size: 28,
+              ),
+            ),
+            16.horizontalSpace,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  FText(
+                    text: name,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: kTextColorDark,
+                  ),
+                  4.verticalSpace,
+                  FText(
+                    text: description,
+                    fontSize: 13,
+                    color: kContainerColor,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ],
+              ),
+            ),
+            if (isSelected)
+              Icon(
+                Ionicons.checkmark_circle,
+                color: color,
+                size: 24,
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildPaymentDetails() {
     if (selectedMethod == "Paystack" || selectedMethod == "Flutterwave") {
-      return Column(
-        children: [
-          FText(
-            text:
-                selectedMethod == "Paystack"
-                    ? "Secure card payment with Paystack"
-                    : "Secure card payment with Flutterwave",
-            fontSize: 14,
-            color: kTextColorDark,
-            textAlign: TextAlign.center,
-          ),
-          40.verticalSpace,
-          SizedBox(
-            width: 1.sw,
-            child: FButton(
-              onPressed: _processPayment,
-              buttonText: "Proceed to Pay",
-            ),
-          ),
-        ],
+      return SizedBox(
+        width: 1.sw,
+        child: FButton(
+          onPressed: _processPayment,
+          buttonText: "Proceed to Pay",
+        ),
       );
     }
     return Container();

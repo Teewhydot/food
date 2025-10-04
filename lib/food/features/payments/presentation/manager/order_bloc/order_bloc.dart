@@ -14,26 +14,9 @@ class OrderBloc extends BaseBloC<OrderEvent, BaseState<dynamic>> {
   OrderBloc() : super(const InitialState<dynamic>());
   final orderUseCase = OrderUseCase();
 
-  // Cache for broadcast streams per userId
-  final Map<String, Stream<Either<Failure, List<OrderEntity>>>> _streamCache = {};
-
   Stream<Either<Failure, List<OrderEntity>>> streamUserOrders(
     String userId,
-  ) {
-    // Return cached broadcast stream if available
-    if (_streamCache.containsKey(userId)) {
-      return _streamCache[userId]!;
-    }
-
-    // Create and cache new broadcast stream
-    final broadcastStream = orderUseCase.streamUserOrders(userId).asBroadcastStream();
-    _streamCache[userId] = broadcastStream;
-    return broadcastStream;
-  }
-
-  @override
-  Future<void> close() {
-    _streamCache.clear();
-    return super.close();
+  ) async* {
+    yield* orderUseCase.streamUserOrders(userId);
   }
 }
