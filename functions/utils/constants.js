@@ -10,7 +10,9 @@ const ENVIRONMENT = {
   FLUTTERWAVE_CLIENT_ID: process.env.FLUTTERWAVE_CLIENT_ID,
   FLUTTERWAVE_CLIENT_SECRET: process.env.FLUTTERWAVE_CLIENT_SECRET,
   FLUTTERWAVE_SECRET_HASH: process.env.FLUTTERWAVE_SECRET_HASH,
-  PROJECT_ID: process.env.GOOGLE_CLOUD_PROJECT || process.env.GCLOUD_PROJECT || 'food-delivery-app'
+  PROJECT_ID: process.env.GOOGLE_CLOUD_PROJECT || process.env.GCLOUD_PROJECT || 'food-delivery-app',
+  // Backend Keep-Alive Configuration
+  BACKEND_KEEPALIVE_URL: process.env.BACKEND_KEEPALIVE_URL
 };
 
 // Contact information configuration (can be updated remotely)

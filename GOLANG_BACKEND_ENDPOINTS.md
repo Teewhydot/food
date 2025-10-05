@@ -286,7 +286,7 @@ This document outlines all endpoints needed to migrate from Firebase to a Golang
   "orderId": "string",
   "userId": "string",
   "amount": "number",
-  "currency": "string",
+  "currency": "string" ,
   "paymentMethod": "paystack|flutterwave",
   "status": "succeeded|failed|pending|cancelled",
   "authorizationUrl": "string",

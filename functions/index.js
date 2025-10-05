@@ -686,6 +686,42 @@ exports.cleanupOldPendingTransactions = onSchedule(
   }
 );
 
+// Keep Golang backend alive (prevents Render shutdown after 15 minutes of inactivity)
+exports.keepBackendAlive = onSchedule(
+  {
+    schedule: 'every 14 minutes',
+    region: FUNCTIONS_CONFIG.REGION,
+    timeoutSeconds: 60,
+    memory: '128MB'
+  },
+  async (context) => {
+    const executionId = `keepalive-${Date.now()}`;
+
+    try {
+      const backendUrl = ENVIRONMENT.BACKEND_KEEPALIVE_URL;
+
+      if (!backendUrl) {
+        logger.warning('Backend keep-alive URL not configured', executionId);
+        return;
+      }
+
+      logger.info(`Pinging backend: ${backendUrl}`, executionId);
+
+      // Make GET request to keep backend alive (fire-and-forget)
+      const response = await axios.get(backendUrl, {
+        timeout: 10000, // 10 second timeout
+        validateStatus: () => true // Accept any status code
+      });
+
+      logger.success(`Backend pinged successfully - Status: ${response.status}`, executionId);
+
+    } catch (error) {
+      // Log error but don't fail - the goal is just to make a request
+      logger.info(`Backend ping completed (with error) - ${error.message}`, executionId);
+    }
+  }
+);
+
 // ========================================================================
 // Flutterwave Payment Functions
 // ========================================================================
