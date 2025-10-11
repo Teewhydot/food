@@ -45,21 +45,21 @@ import '../features/home/domain/use_cases/food_usecase.dart';
 import '../features/home/domain/use_cases/restaurant_usecase.dart';
 import '../features/home/domain/use_cases/user_profile_usecase.dart';
 import '../features/payments/data/remote/data_sources/cart_remote_data_source.dart';
+import '../features/payments/data/remote/data_sources/flutterwave_payment_data_source.dart';
 import '../features/payments/data/remote/data_sources/order_remote_data_source.dart';
 import '../features/payments/data/remote/data_sources/paystack_payment_data_source.dart';
-import '../features/payments/data/remote/data_sources/flutterwave_payment_data_source.dart';
 import '../features/payments/data/repositories/cart_repository_impl.dart';
+import '../features/payments/data/repositories/flutterwave_payment_repository_impl.dart';
 import '../features/payments/data/repositories/orders_repository_impl.dart';
 import '../features/payments/data/repositories/paystack_payment_repository_impl.dart';
-import '../features/payments/data/repositories/flutterwave_payment_repository_impl.dart';
 import '../features/payments/domain/repositories/cart_repository.dart';
+import '../features/payments/domain/repositories/flutterwave_payment_repository.dart';
 import '../features/payments/domain/repositories/payment_repository.dart';
 import '../features/payments/domain/repositories/paystack_payment_repository.dart';
-import '../features/payments/domain/repositories/flutterwave_payment_repository.dart';
 import '../features/payments/domain/use_cases/cart_usecase.dart';
+import '../features/payments/domain/use_cases/flutterwave_payment_usecase.dart';
 import '../features/payments/domain/use_cases/order_usecase.dart';
 import '../features/payments/domain/use_cases/paystack_payment_usecase.dart';
-import '../features/payments/domain/use_cases/flutterwave_payment_usecase.dart';
 import '../features/tracking/data/remote/data_sources/chat_remote_data_source.dart';
 import '../features/tracking/data/remote/data_sources/notification_remote_data_source.dart';
 import '../features/tracking/data/repositories/chat_repository_impl.dart';
@@ -81,7 +81,7 @@ void setupDIService() {
   );
   // TODO: Deprecate GeocodingService after migration
   // getIt.registerLazySingleton<GeocodingService>(() => GeocodingService());
-  getIt.registerLazySingleton<LoginDataSource>(() => FirebaseLoginDSI());
+  getIt.registerLazySingleton<LoginDataSource>(() => GolangLoginDSI());
   getIt.registerLazySingleton<RegisterDataSource>(() => FirebaseRegisterDSI());
   getIt.registerLazySingleton<AddressLocalDataSource>(
     () => FloorDbLocalImplementation(),
@@ -153,12 +153,8 @@ void setupDIService() {
   getIt.registerLazySingleton<OrderRemoteDataSource>(
     () => FirebaseOrderRemoteDataSource(),
   );
-  getIt.registerLazySingleton<OrderRepository>(
-    () => OrderRepositoryImpl(),
-  );
-  getIt.registerLazySingleton<OrderUseCase>(
-    () => OrderUseCase(),
-  );
+  getIt.registerLazySingleton<OrderRepository>(() => OrderRepositoryImpl());
+  getIt.registerLazySingleton<OrderUseCase>(() => OrderUseCase());
 
   // Cart feature dependencies
   getIt.registerLazySingleton<CartRemoteDataSource>(

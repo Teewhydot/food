@@ -40,21 +40,18 @@ class AuthRepoImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, String>> forgotPassword(String email) {
-    return ErrorHandler.handle(
-      () async {
-        await passwordResetService.sendPasswordResetEmail(email);
-        return 'Password reset email sent to $email';
-      },
-      operationName: 'Forgot Password',
-    );
+    return ErrorHandler.handle(() async {
+      await passwordResetService.sendPasswordResetEmail(email);
+      return 'Password reset email sent to $email';
+    }, operationName: 'Forgot Password');
   }
 
   @override
   Future<Either<Failure, UserProfileEntity>> isAuthenticated() async {
-   return ErrorHandler.handle(() async {
-    final authStatus = await authStatusService.getCurrentUser();
-    return authStatus;
-   });
+    return ErrorHandler.handle(() async {
+      final authStatus = await authStatusService.getCurrentUser();
+      return authStatus;
+    });
   }
 
   @override
@@ -63,16 +60,8 @@ class AuthRepoImpl implements AuthRepository {
     String password,
   ) {
     return ErrorHandler.handle(() async {
-      final user = await loginService.logUserInFirebase(email, password);
-      return UserProfileEntity(
-        email: user.user?.email ?? '',
-        firstName: user.user?.displayName?.split(' ').first ?? '',
-        lastName: user.user?.displayName?.split(' ').last ?? '',
-        phoneNumber: user.user?.phoneNumber ?? '',
-        id: user.user?.uid ?? '',
-        firstTimeLogin: false,
-      );
-    });
+      return await loginService.logUserIn(email, password);
+    }, operationName: 'Login');
   }
 
   @override

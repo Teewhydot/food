@@ -71,108 +71,15 @@ class DioClient {
           handler.next(options);
         },
         onResponse: (response, handler) {
-          // Track successful request performance
-          final requestId =
-              response.requestOptions.extra['request_id'] as String?;
-          final startTime =
-              response.requestOptions.extra['start_time'] as DateTime?;
-
-          if (requestId != null && startTime != null) {
-            final duration = DateTime.now().difference(startTime);
-            final endpoint =
-                '${response.requestOptions.method} ${response.requestOptions.path}';
-          }
-
-          // Check for API version deprecation warnings
-          final apiVersion = response.requestOptions.headers['API-Version'];
-          if (apiVersion != null) {
-            _handleVersionDeprecation(apiVersion.toString(), response);
-          }
-
           handler.next(response);
         },
         onError: (error, handler) {
-          // Track failed request performance
-          final requestId = error.requestOptions.extra['request_id'] as String?;
-          final startTime =
-              error.requestOptions.extra['start_time'] as DateTime?;
-
-          if (requestId != null && startTime != null) {
-            final duration = DateTime.now().difference(startTime);
-            final endpoint =
-                '${error.requestOptions.method} ${error.requestOptions.path}';
-          }
+          handler.next(error);
         },
       ),
     );
   }
 
-  // AppException _handleHttpError(Response<dynamic> response) {
-  //   final statusCode = response.statusCode ?? 0;
-  //   final message = _extractErrorMessage(response.data);
-  //
-  //   switch (statusCode) {
-  //     case 400:
-  //       return ValidationException(message, statusCode);
-  //     case 401:
-  //       return AuthException(message, statusCode);
-  //     case 403:
-  //       return PermissionException(message, statusCode);
-  //     case 404:
-  //       return NotFoundException(message, statusCode);
-  //     case 409:
-  //       return ConflictException(message, statusCode);
-  //     case 422:
-  //       return ValidationException(message, statusCode);
-  //     case 429:
-  //       return ServerException(
-  //         'Too many requests. Please try again later.',
-  //         statusCode,
-  //       );
-  //     case 500:
-  //     case 502:
-  //     case 503:
-  //     case 504:
-  //       return ServerException(
-  //         'Server error. Please try again later.',
-  //         statusCode,
-  //       );
-  //     default:
-  //       return ServerException(message, statusCode);
-  //   }
-  // }
-
-  String _extractErrorMessage(data) {
-    if (data is Map<String, dynamic>) {
-      // Try common error message fields
-      if (data.containsKey('message')) {
-        return data['message'].toString();
-      }
-      if (data.containsKey('error')) {
-        final error = data['error'];
-        if (error is String) return error;
-        if (error is Map && error.containsKey('message')) {
-          return error['message'].toString();
-        }
-      }
-      if (data.containsKey('errors')) {
-        final errors = data['errors'];
-        if (errors is List && errors.isNotEmpty) {
-          return errors.first.toString();
-        }
-        if (errors is Map) {
-          final firstError = errors.values.first;
-          if (firstError is List && firstError.isNotEmpty) {
-            return firstError.first.toString();
-          }
-          return firstError.toString();
-        }
-      }
-    }
-    return 'An error occurred while processing your request.';
-  }
-
-  // HTTP Methods
   Future<Response<T>> get<T>(
     String path, {
     Map<String, dynamic>? queryParameters,
@@ -189,14 +96,14 @@ class DioClient {
 
   Future<Response<T>> post<T>(
     String path, {
-    Object? data,
+    Object? requestBody,
     Map<String, dynamic>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
   }) async {
     return await _dio.post<T>(
       path,
-      data: data,
+      data: requestBody,
       queryParameters: queryParameters,
       options: options,
       cancelToken: cancelToken,
@@ -294,7 +201,7 @@ class DioClient {
     final versionedOptions = _createVersionedOptions(options, apiVersion);
     return post<T>(
       path,
-      data: data,
+      requestBody: data,
       queryParameters: queryParameters,
       options: versionedOptions,
       cancelToken: cancelToken,
