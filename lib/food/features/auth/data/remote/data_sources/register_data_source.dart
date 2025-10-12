@@ -1,11 +1,9 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:food/food/core/network/dio_client.dart';
 import 'package:food/food/core/utils/logger.dart';
 import 'package:food/food/features/home/domain/entities/profile.dart';
 
 abstract class RegisterDataSource {
-  Future<UserCredential> registerUser(String email, String password);
-  Future<UserProfileEntity> registerUserGolang(
+  Future<UserProfileEntity> registerUser(
     String firstName,
     String lastName,
     String email,
@@ -15,38 +13,22 @@ abstract class RegisterDataSource {
 }
 
 // implement firebase login functionality
-class FirebaseRegisterDSI implements RegisterDataSource {
-  @override
-  Future<UserCredential> registerUser(String email, String password) async {
-    final auth = FirebaseAuth.instance;
-    return await auth.createUserWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
-  }
-
-  @override
-  Future<UserProfileEntity> registerUserGolang(
-    String firstName,
-    String lastName,
-    String email,
-    String phoneNumber,
-    String password,
-  ) async {
-    throw UnimplementedError('Use GolangRegisterDSI for Golang backend');
-  }
-}
+// class FirebaseRegisterDSI implements RegisterDataSource {
+//   @override
+//   Future<UserCredential> registerUsers(String email, String password) async {
+//     final auth = FirebaseAuth.instance;
+//     return await auth.createUserWithEmailAndPassword(
+//       email: email,
+//       password: password,
+//     );
+//   }
+// }
 
 class GolangRegisterDSI implements RegisterDataSource {
   final _dioClient = DioClient();
 
   @override
-  Future<UserCredential> registerUser(String email, String password) async {
-    throw UnimplementedError('Use registerUserGolang for Golang backend');
-  }
-
-  @override
-  Future<UserProfileEntity> registerUserGolang(
+  Future<UserProfileEntity> registerUser(
     String firstName,
     String lastName,
     String email,

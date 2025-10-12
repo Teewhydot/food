@@ -73,23 +73,27 @@ class AuthRepoImpl implements AuthRepository {
     required String password,
   }) {
     return ErrorHandler.handle(() async {
-      final user = await registerService.registerUser(email, password);
-      if (user.user != null) {
-        await firebase.collection('users').doc(user.user!.uid).set({
-          'firstName': firstName,
-          'lastName': lastName,
-          'email': email,
-          'phoneNumber': phoneNumber,
-          'profileImageUrl': "",
-          'createdAt': FieldValue.serverTimestamp(),
-        });
-      }
+      final user = await registerService.registerUser(
+        firstName,
+        lastName,
+        email,
+        phoneNumber,
+        password,
+      );
+      await firebase.collection('users').doc(user.id).set({
+        'firstName': firstName,
+        'lastName': lastName,
+        'email': email,
+        'phoneNumber': phoneNumber,
+        'profileImageUrl': "",
+        'createdAt': FieldValue.serverTimestamp(),
+      });
       return UserProfileEntity(
-        email: user.user?.email ?? '',
+        email: user.email,
         firstName: firstName,
         lastName: lastName,
         phoneNumber: phoneNumber,
-        id: user.user?.uid ?? '',
+        id: user.id,
         profileImageUrl: null,
         firstTimeLogin: true,
       );
