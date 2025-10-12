@@ -1,6 +1,8 @@
 import 'dart:math' show asin, cos, sqrt, sin, pi;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:food/food/core/network/dio_client.dart';
+import 'package:food/food/core/utils/logger.dart';
 
 import '../../../domain/entities/food.dart';
 import '../../../domain/entities/restaurant.dart';
@@ -296,5 +298,146 @@ class FirebaseRestaurantRemoteDataSource implements RestaurantRemoteDataSource {
 
   double _toRadians(double degree) {
     return degree * (pi / 180);
+  }
+}
+
+class GolangRestaurantRemoteDataSource implements RestaurantRemoteDataSource {
+  final _dioClient = DioClient();
+
+  Restaurant _parseRestaurant(Map<String, dynamic> data) {
+    return Restaurant(
+      id: data['id'] ?? '',
+      name: data['name'] ?? '',
+      description: data['description'] ?? '',
+      location: data['address'] ?? '',
+      distance: (data['distance'] ?? 0).toDouble(),
+      rating: (data['rating'] ?? 0).toDouble(),
+      deliveryTime: data['delivery_time'] ?? '',
+      deliveryFee: (data['delivery_fee'] ?? 0).toDouble(),
+      imageUrl: data['image_url'] ?? '',
+      category: data['category'] is String
+          ? [RestaurantFoodCategory(category: data['category'], imageUrl: '', foods: [])]
+          : [],
+      isOpen: data['is_open'] ?? true,
+      latitude: (data['latitude'] ?? 0).toDouble(),
+      longitude: (data['longitude'] ?? 0).toDouble(),
+      lastUpdated: DateTime.now().millisecondsSinceEpoch,
+    );
+  }
+
+  @override
+  Future<List<Restaurant>> getRestaurants() async {
+    Logger.logBasic('GolangRestaurantRemoteDataSource.getRestaurants() called');
+    Logger.logBasic('Making GET request to /api/v1/restaurants');
+    final res = await _dioClient.get(
+      "/api/v1/restaurants",
+      queryParameters: {"limit": 100, "offset": 0},
+    );
+    Logger.logBasic('GET request successful, parsing response');
+    final data = res.data['data'] as List;
+    final restaurants = data.map((item) => _parseRestaurant(item)).toList();
+    Logger.logSuccess('Parsed ${restaurants.length} restaurants');
+    return restaurants;
+  }
+
+  @override
+  Future<Restaurant> getRestaurantById(String id) async {
+    Logger.logBasic('GolangRestaurantRemoteDataSource.getRestaurantById() called');
+    Logger.logBasic('Making GET request to /api/v1/restaurants/$id');
+    final res = await _dioClient.get("/api/v1/restaurants/$id");
+    Logger.logBasic('GET request successful, parsing response');
+    final restaurant = _parseRestaurant(res.data);
+    Logger.logSuccess('Restaurant parsed successfully');
+    return restaurant;
+  }
+
+  @override
+  Future<List<Restaurant>> getPopularRestaurants() async {
+    Logger.logBasic('GolangRestaurantRemoteDataSource.getPopularRestaurants() called');
+    Logger.logBasic('Making GET request to /api/v1/restaurants/popular');
+    final res = await _dioClient.get(
+      "/api/v1/restaurants/popular",
+      queryParameters: {"limit": 10},
+    );
+    Logger.logBasic('GET request successful, parsing response');
+    final data = res.data as List;
+    final restaurants = data.map((item) => _parseRestaurant(item)).toList();
+    Logger.logSuccess('Parsed ${restaurants.length} popular restaurants');
+    return restaurants;
+  }
+
+  @override
+  Future<List<Restaurant>> getNearbyRestaurants(
+    double latitude,
+    double longitude,
+  ) async {
+    Logger.logBasic('GolangRestaurantRemoteDataSource.getNearbyRestaurants() called');
+    Logger.logBasic('Making GET request to /api/v1/restaurants/nearby');
+    final res = await _dioClient.get(
+      "/api/v1/restaurants/nearby",
+      queryParameters: {
+        "lat": latitude,
+        "lng": longitude,
+        "radius": 5,
+        "limit": 20,
+      },
+    );
+    Logger.logBasic('GET request successful, parsing response');
+    final data = res.data as List;
+    final restaurants = data.map((item) => _parseRestaurant(item)).toList();
+    Logger.logSuccess('Parsed ${restaurants.length} nearby restaurants');
+    return restaurants;
+  }
+
+  @override
+  Future<List<Restaurant>> searchRestaurants(String query) async {
+    Logger.logBasic('GolangRestaurantRemoteDataSource.searchRestaurants() called');
+    Logger.logBasic('Making GET request to /api/v1/restaurants/search');
+    final res = await _dioClient.get(
+      "/api/v1/restaurants/search",
+      queryParameters: {"query": query, "limit": 50},
+    );
+    Logger.logBasic('GET request successful, parsing response');
+    final data = res.data['data'] as List;
+    final restaurants = data.map((item) => _parseRestaurant(item)).toList();
+    Logger.logSuccess('Parsed ${restaurants.length} search results');
+    return restaurants;
+  }
+
+  @override
+  Future<List<Restaurant>> getRestaurantsByCategory(String category) async {
+    Logger.logBasic('GolangRestaurantRemoteDataSource.getRestaurantsByCategory() called');
+    Logger.logBasic('Making GET request to /api/v1/restaurants/category/$category');
+    final res = await _dioClient.get(
+      "/api/v1/restaurants/category/$category",
+      queryParameters: {"limit": 50},
+    );
+    Logger.logBasic('GET request successful, parsing response');
+    final data = res.data['data'] as List;
+    final restaurants = data.map((item) => _parseRestaurant(item)).toList();
+    Logger.logSuccess('Parsed ${restaurants.length} restaurants in category');
+    return restaurants;
+  }
+
+  @override
+  Future<List<RestaurantFoodCategory>> getRestaurantMenu(
+    String restaurantId,
+  ) async {
+    Logger.logBasic('GolangRestaurantRemoteDataSource.getRestaurantMenu() called');
+    Logger.logBasic('Making GET request to /api/v1/restaurants/$restaurantId/menu');
+    final res = await _dioClient.get("/api/v1/restaurants/$restaurantId/menu");
+    Logger.logBasic('GET request successful, parsing response');
+    final data = res.data as List;
+    final menu = data.map((item) {
+      return RestaurantFoodCategory(
+        category: item['category'] ?? '',
+        imageUrl: item['image_url'] ?? '',
+        foods: (item['foods'] as List? ?? [])
+            .map((food) => FoodEntity.fromMap(food))
+            .toList(),
+      );
+    }).toList();
+    Logger.logSuccess('Parsed ${menu.length} menu categories');
+    return menu;
   }
 }

@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:food/food/core/network/dio_client.dart';
+import 'package:food/food/core/utils/logger.dart';
 import 'package:food/food/features/home/domain/entities/profile.dart';
 import '../../custom_exceptions/custom_exceptions.dart';
 
@@ -14,13 +16,13 @@ class FirebaseUserDSI implements UserDataSource {
   @override
   Future<UserProfileEntity> getCurrentUser() async {
     final user = firebase.currentUser;
-    
+
     if (user == null) {
       throw UserNotAuthenticatedException('No authenticated user found');
     }
-    
+
     final userDetails = await database.collection('users').doc(user.uid).get();
-    
+
     return UserProfileEntity(
       id: user.uid,
       firstName: userDetails.data()?['firstName'] ?? '',
@@ -31,5 +33,21 @@ class FirebaseUserDSI implements UserDataSource {
       bio: userDetails.data()?['bio'] ?? '',
       firstTimeLogin: false,
     );
+  }
+}
+
+class GolangUserDSI implements UserDataSource {
+  final _dioClient = DioClient();
+
+  @override
+  Future<UserProfileEntity> getCurrentUser() async {
+    Logger.logBasic('GolangUserDSI.getCurrentUser() called');
+    Logger.logBasic('Making GET request to /api/v1/auth/me');
+    final res = await _dioClient.get("/api/v1/auth/me");
+    Logger.logBasic('GET request successful, parsing response');
+    final data = res.data;
+    final user = UserProfileEntity.fromJson(data);
+    Logger.logSuccess('User profile parsed successfully');
+    return user;
   }
 }

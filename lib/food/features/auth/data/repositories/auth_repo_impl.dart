@@ -31,9 +31,9 @@ class AuthRepoImpl implements AuthRepository {
   final userProfileService = GetIt.instance<UserDataSource>();
   final authStatusService = GetIt.instance<UserDataSource>();
   @override
-  Future<Either<Failure, void>> deleteUserAccount() {
+  Future<Either<Failure, void>> deleteUserAccount(String email, token) {
     return ErrorHandler.handle(
-      () async => await deleteAccountService.deleteUserAccount(),
+      () async => await deleteAccountService.deleteUserAccount(email, token),
       operationName: 'Delete User Account',
     );
   }
@@ -136,11 +136,13 @@ class AuthRepoImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, void>> updatePassword(
+    String email,
     String currentPassword,
     String newPassword,
   ) {
     return ErrorHandler.handle(
       () async => await updatePasswordService.updatePassword(
+        email,
         currentPassword,
         newPassword,
       ),

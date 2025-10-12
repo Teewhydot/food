@@ -82,7 +82,7 @@ void setupDIService() {
   // TODO: Deprecate GeocodingService after migration
   // getIt.registerLazySingleton<GeocodingService>(() => GeocodingService());
   getIt.registerLazySingleton<LoginDataSource>(() => GolangLoginDSI());
-  getIt.registerLazySingleton<RegisterDataSource>(() => FirebaseRegisterDSI());
+  getIt.registerLazySingleton<RegisterDataSource>(() => GolangRegisterDSI());
   getIt.registerLazySingleton<AddressLocalDataSource>(
     () => FloorDbLocalImplementation(),
   );
@@ -94,19 +94,19 @@ void setupDIService() {
     () => FirebaseEmailVerificationDSI(),
   );
   getIt.registerLazySingleton<DeleteUserAccountDataSource>(
-    () => FirebaseDeleteUserAccountDSI(),
+    () => GolangDeleteUserAccountDSI(),
   );
   getIt.registerLazySingleton<EmailVerificationStatusDataSource>(
     () => FirebaseEmailVerificationStatusDSI(),
   );
   getIt.registerLazySingleton<PasswordResetDataSource>(
-    () => FirebasePasswordResetDSI(),
+    () => GolangPasswordResetDSI(),
   );
   getIt.registerLazySingleton<UpdatePasswordDataSource>(
-    () => FirebaseUpdatePasswordDSI(),
+    () => GolangUpdatePasswordDSI(),
   );
-  getIt.registerLazySingleton<SignOutDataSource>(() => FirebaseSignOutDSI());
-  getIt.registerLazySingleton<UserDataSource>(() => FirebaseUserDSI());
+  getIt.registerLazySingleton<SignOutDataSource>(() => GolangSignOutDSI());
+  getIt.registerLazySingleton<UserDataSource>(() => GolangUserDSI());
 
   // HTTP client for API calls
   getIt.registerLazySingleton<http.Client>(() => http.Client());
@@ -128,10 +128,10 @@ void setupDIService() {
 
   // Home feature dependencies
   getIt.registerLazySingleton<RestaurantRemoteDataSource>(
-    () => FirebaseRestaurantRemoteDataSource(),
+    () => GolangRestaurantRemoteDataSource(),
   );
   getIt.registerLazySingleton<FoodRemoteDataSource>(
-    () => FirebaseFoodRemoteDataSource(),
+    () => GolangFoodRemoteDataSource(),
   );
   getIt.registerLazySingleton<RestaurantRepository>(
     () => RestaurantRepositoryImpl(
@@ -220,7 +220,7 @@ void setupDIService() {
 
   // User Profile dependencies
   getIt.registerLazySingleton<UserProfileRemoteDataSource>(
-    () => FirebaseUserProfileRemoteDataSource(),
+    () => GolangUserProfileRemoteDataSource(),
   );
   getIt.registerLazySingleton<UserProfileDatabaseService>(
     () => UserProfileDatabaseService(),

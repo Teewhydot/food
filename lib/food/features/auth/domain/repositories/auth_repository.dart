@@ -33,12 +33,13 @@ abstract class AuthRepository {
   Future<Either<Failure, String>> forgotPassword(String email);
 
   /// Delete user account
-  Future<Either<Failure, void>> deleteUserAccount();
+  Future<Either<Failure, void>> deleteUserAccount(String email, String token);
 
   Future<Either<Failure, UserProfileEntity>> getCurrentUser();
 
   /// Update user password
   Future<Either<Failure, void>> updatePassword(
+    String email,
     String currentPassword,
     String newPassword,
   );

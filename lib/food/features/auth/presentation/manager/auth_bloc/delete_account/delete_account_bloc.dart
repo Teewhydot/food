@@ -15,7 +15,10 @@ class DeleteAccountBloc extends BaseBloC<DeleteAccountEvent, BaseState<void>> {
     on<DeleteAccountRequestEvent>((event, emit) async {
       emit(const LoadingState<void>(message: 'Deleting your account...'));
 
-      final result = await _authUseCase.deleteUserAccount();
+      final result = await _authUseCase.deleteUserAccount(
+        event.email,
+        event.token,
+      );
 
       result.fold(
         (failure) => emit(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food/food/core/bloc/base/base_state.dart';
+import 'package:food/food/core/helpers/user_extensions.dart';
 import 'package:food/food/features/auth/presentation/manager/auth_bloc/update_password/update_password_bloc.dart';
 import 'package:food/food/features/auth/presentation/widgets/auth_template.dart';
 import 'package:get/get.dart';
@@ -70,6 +71,7 @@ class _UpdatePasswordState extends State<UpdatePassword> {
 
     context.read<UpdatePasswordBloc>().add(
       UpdatePasswordSubmitEvent(
+        email: context.currentUserEmail ?? "",
         currentPassword: _currentPasswordController.text,
         newPassword: _newPasswordController.text,
       ),

@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:food/food/core/network/dio_client.dart';
+import 'package:food/food/core/utils/logger.dart';
 
 import '../../../domain/entities/profile.dart';
 
@@ -162,5 +164,74 @@ class FirebaseUserProfileRemoteDataSource
       profileImageUrl: data['profileImageUrl'],
       firstTimeLogin: data['firstTimeLogin'] ?? false,
     );
+  }
+}
+
+class GolangUserProfileRemoteDataSource implements UserProfileRemoteDataSource {
+  final _dioClient = DioClient();
+
+  @override
+  Future<UserProfileEntity> getUserProfile(String userId) async {
+    Logger.logBasic('GolangUserProfileRemoteDataSource.getUserProfile() called');
+    Logger.logBasic('Making GET request to /api/v1/users/$userId');
+    final res = await _dioClient.get("/api/v1/users/$userId");
+    Logger.logBasic('GET request successful, parsing response');
+    final profile = UserProfileEntity.fromJson(res.data);
+    Logger.logSuccess('User profile parsed successfully');
+    return profile;
+  }
+
+  @override
+  Future<UserProfileEntity> updateUserProfile(UserProfileEntity profile) async {
+    Logger.logBasic('GolangUserProfileRemoteDataSource.updateUserProfile() called');
+    Logger.logBasic('Making PUT request to /api/v1/users/${profile.id}');
+    await _dioClient.put(
+      "/api/v1/users/${profile.id}",
+      data: {
+        "first_name": profile.firstName,
+        "last_name": profile.lastName,
+        "phone_number": profile.phoneNumber,
+        "bio": profile.bio,
+      },
+    );
+    Logger.logBasic('PUT request successful');
+    Logger.logSuccess('User profile updated successfully');
+    return profile;
+  }
+
+  @override
+  Future<UserProfileEntity> updateProfileField(
+    String userId,
+    String field,
+    dynamic value,
+  ) async {
+    Logger.logBasic('GolangUserProfileRemoteDataSource.updateProfileField() called');
+    Logger.logBasic('Making PATCH request to /api/v1/users/$userId/$field');
+    await _dioClient.patch(
+      "/api/v1/users/$userId/$field",
+      data: {"value": value},
+    );
+    Logger.logBasic('PATCH request successful');
+    Logger.logSuccess('Profile field updated successfully');
+    return await getUserProfile(userId);
+  }
+
+  @override
+  Future<void> deleteProfileImage(String userId) async {
+    Logger.logBasic('GolangUserProfileRemoteDataSource.deleteProfileImage() called');
+    Logger.logBasic('Making DELETE request to /api/v1/users/$userId/profile-image');
+    await _dioClient.delete("/api/v1/users/$userId/profile-image");
+    Logger.logBasic('DELETE request successful');
+    Logger.logSuccess('Profile image deleted successfully');
+  }
+
+  @override
+  Future<String> uploadProfileImage(String userId, File imageFile) async {
+    throw UnimplementedError('Upload profile image not implemented in Golang backend yet');
+  }
+
+  @override
+  Stream<UserProfileEntity> watchUserProfile(String userId) {
+    throw UnimplementedError('Real-time updates not supported in REST API');
   }
 }

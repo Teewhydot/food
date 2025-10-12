@@ -46,8 +46,8 @@ class AuthUseCase {
     return authRepo.signOut();
   }
 
-  Future<Either<Failure, void>> deleteUserAccount() {
-    return authRepo.deleteUserAccount();
+  Future<Either<Failure, void>> deleteUserAccount(String email, token) {
+    return authRepo.deleteUserAccount(email, token);
   }
 
   Future<Either<Failure, UserProfileEntity>> verifyEmail() {
@@ -55,9 +55,10 @@ class AuthUseCase {
   }
 
   Future<Either<Failure, void>> updatePassword(
+    String email,
     String currentPassword,
     String newPassword,
   ) {
-    return authRepo.updatePassword(currentPassword, newPassword);
+    return authRepo.updatePassword(email, currentPassword, newPassword);
   }
 }

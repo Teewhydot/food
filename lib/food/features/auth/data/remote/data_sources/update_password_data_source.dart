@@ -1,7 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:food/food/core/network/dio_client.dart';
+import 'package:food/food/core/utils/logger.dart';
 
 abstract class UpdatePasswordDataSource {
-  Future<void> updatePassword(String currentPassword, String newPassword);
+  Future<void> updatePassword(
+    String email,
+    String currentPassword,
+    String newPassword,
+  );
 }
 
 class FirebaseUpdatePasswordDSI implements UpdatePasswordDataSource {
@@ -9,6 +15,7 @@ class FirebaseUpdatePasswordDSI implements UpdatePasswordDataSource {
 
   @override
   Future<void> updatePassword(
+    String email,
     String currentPassword,
     String newPassword,
   ) async {
@@ -45,5 +52,29 @@ class FirebaseUpdatePasswordDSI implements UpdatePasswordDataSource {
         throw Exception(e.message ?? 'Failed to update password');
       }
     }
+  }
+}
+
+class GolangUpdatePasswordDSI implements UpdatePasswordDataSource {
+  final _dioClient = DioClient();
+
+  @override
+  Future<void> updatePassword(
+    String email,
+    String currentPassword,
+    String newPassword,
+  ) async {
+    Logger.logBasic('GolangUpdatePasswordDSI.updatePassword() called');
+    Logger.logBasic('Making PUT request to /api/v1/auth/password');
+    await _dioClient.put(
+      "/api/v1/auth/password",
+      data: {
+        "email": email,
+        "current_password": currentPassword,
+        "new_password": newPassword,
+      },
+    );
+    Logger.logBasic('PUT request successful');
+    Logger.logSuccess('Password updated successfully');
   }
 }

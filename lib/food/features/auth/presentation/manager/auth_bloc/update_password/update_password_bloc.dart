@@ -15,6 +15,7 @@ class UpdatePasswordBloc
       emit(const LoadingState<void>(message: 'Updating password...'));
 
       final result = await _authUseCase.updatePassword(
+        event.email,
         event.currentPassword,
         event.newPassword,
       );
