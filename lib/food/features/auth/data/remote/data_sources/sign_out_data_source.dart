@@ -23,6 +23,9 @@ class GolangSignOutDSI implements SignOutDataSource {
     Logger.logBasic('Making POST request to /api/v1/auth/logout');
     await _dioClient.post("/api/v1/auth/logout");
     Logger.logBasic('POST request successful');
+
+    // Clear stored tokens
+    await _dioClient.clearAuthToken();
     Logger.logSuccess('User signed out successfully');
   }
 }

@@ -85,6 +85,40 @@ class HiveCacheService {
     }
   }
 
+  /// Synchronous get method for performance-critical operations
+  /// Returns null if box is not initialized or key doesn't exist
+  T? getSync<T>(String key) {
+    try {
+      if (_cacheBox == null) {
+        return null;
+      }
+
+      final rawData = _cacheBox!.get(key);
+      if (rawData == null) {
+        return null;
+      }
+
+      final data = jsonDecode(rawData);
+      final timestamp = data['timestamp'] as int;
+      final expiryMs = data['expiry'] as int?;
+
+      if (expiryMs != null) {
+        final expiryTime = timestamp + expiryMs;
+        final now = DateTime.now().millisecondsSinceEpoch;
+
+        if (now > expiryTime) {
+          // Don't remove synchronously to avoid potential issues
+          return null;
+        }
+      }
+
+      return data['value'] as T;
+    } catch (e) {
+      Logger.logError('Failed to get data synchronously for key $key: $e');
+      return null;
+    }
+  }
+
   Future<bool> hasKey(String key) async {
     try {
       await _ensureInitialized();

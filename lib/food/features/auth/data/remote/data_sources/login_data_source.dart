@@ -32,24 +32,20 @@ class FirebaseLoginDSI implements LoginDataSource {
 
 class GolangLoginDSI implements LoginDataSource {
   final _dioClient = DioClient();
+
   @override
   Future<UserProfileEntity> logUserIn(String email, String password) async {
     Logger.logBasic('GolangLoginDSI.logUserIn() called');
-    try {
-      Logger.logBasic('Making POST request to /api/v1/auth/login');
-      final res = await _dioClient.post(
-        "/api/v1/auth/login",
-        requestBody: {"email": email, "password": password},
-      );
-      Logger.logBasic('POST request successful, parsing response');
-      final data = res.data;
-      final userData = data['user'];
-      final user = UserProfileEntity.fromJson(userData);
-      Logger.logSuccess('User profile parsed successfully');
-      return user;
-    } catch (e) {
-      Logger.logError('GolangLoginDSI caught error: Type=${e.runtimeType}, Error=$e');
-      rethrow; // Important: rethrow so ErrorHandler can catch it
-    }
+    Logger.logBasic('Making POST request to /api/v1/auth/login');
+    final res = await _dioClient.post(
+      "/api/v1/auth/login",
+      requestBody: {"email": email, "password": password},
+    );
+    Logger.logBasic('POST request successful, parsing response');
+    final data = res.data;
+    final userData = data['data'];
+    final user = UserProfileEntity.fromJson(userData);
+    Logger.logSuccess('User profile parsed successfully');
+    return user;
   }
 }

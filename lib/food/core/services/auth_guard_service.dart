@@ -1,15 +1,26 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:food/food/core/routes/routes.dart';
+import 'package:food/food/core/services/hive_cache_service.dart';
 import 'package:food/food/core/services/navigation_service/nav_config.dart';
 import 'package:food/food/core/utils/logger.dart';
 import 'package:get_it/get_it.dart';
 
 class AuthGuardService {
   static final _firebase = FirebaseAuth.instance;
+  static final _cacheService = HiveCacheService.instance;
   static final _nav = GetIt.instance<NavigationService>();
 
-  /// Check if user is authenticated
-  static bool get isAuthenticated => _firebase.currentUser != null;
+  /// Check if user is authenticated (JWT token or Firebase Auth)
+  static bool get isAuthenticated {
+    // Check for JWT token first (Golang backend)
+    final token = _cacheService.getSync('access_token');
+    if (token != null && token is String && token.isNotEmpty) {
+      return true;
+    }
+
+    // Fallback to Firebase Auth for backward compatibility
+    return _firebase.currentUser != null;
+  }
 
   /// Require authentication for protected routes
   static bool requireAuth({String? redirectTo}) {

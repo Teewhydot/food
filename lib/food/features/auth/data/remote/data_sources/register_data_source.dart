@@ -49,7 +49,7 @@ class GolangRegisterDSI implements RegisterDataSource {
     );
     Logger.logBasic('POST request successful, parsing response');
     final data = res.data;
-    final userData = data['user'];
+    final userData = data['data'];
     final user = UserProfileEntity.fromJson(userData);
     Logger.logSuccess('User profile parsed successfully');
     return user;

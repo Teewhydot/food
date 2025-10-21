@@ -3,12 +3,22 @@ import 'package:flutter/foundation.dart';
 import 'package:food/food/core/utils/logger.dart';
 
 import '../constants/env.dart';
+import 'jwt_auth_interceptor.dart';
 
 class DioClient {
+  late final JwtAuthInterceptor _jwtInterceptor;
+
   DioClient() {
     _dio = Dio();
+    _jwtInterceptor = JwtAuthInterceptor();
     _setupInterceptors();
     _setupSecurity();
+    _loadTokenOnInit();
+  }
+
+  /// Load token from cache on initialization
+  Future<void> _loadTokenOnInit() async {
+    await _jwtInterceptor.loadToken();
   }
   // API versioning constants
   static const String currentApiVersion = 'v1';
@@ -17,7 +27,9 @@ class DioClient {
 
   late final Dio _dio;
   void _setupSecurity() {
-    // Firebase Auth will handle authentication tokens automatically
+    // Add JWT authentication interceptor
+    _dio.interceptors.add(_jwtInterceptor);
+
     // Add basic security headers
     _dio.interceptors.add(
       InterceptorsWrapper(
@@ -158,14 +170,16 @@ class DioClient {
     );
   }
 
-  // Add authorization header
+  // Add authorization header (deprecated - handled by interceptor)
+  @Deprecated('Token management is now handled by JwtAuthInterceptor')
   void setAuthToken(String token) {
     _dio.options.headers['Authorization'] = 'Bearer $token';
   }
 
-  // Remove authorization header
-  void clearAuthToken() {
+  // Remove authorization header and clear stored tokens
+  Future<void> clearAuthToken() async {
     _dio.options.headers.remove('Authorization');
+    await _jwtInterceptor.clearTokens();
   }
 
   // Update base URL
