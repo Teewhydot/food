@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food/food/components/image.dart';
 import 'package:food/food/core/bloc/base/base_state.dart';
-import 'package:food/food/core/bloc/managers/bloc_manager.dart';
 import 'package:food/food/core/routes/routes.dart';
 import 'package:food/food/features/auth/presentation/manager/auth_bloc/login/enhanced_login_bloc.dart';
 import 'package:food/food/features/auth/presentation/manager/auth_bloc/login/login_event.dart';
@@ -27,10 +26,21 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
 
+    // Delay the auth check to ensure the widget tree is fully built
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      /// Start watching auth status
-      context.read<EnhancedLoginBloc>().add(const CheckAuthStatusEvent());
+      _checkAuthStatus();
     });
+  }
+
+  void _checkAuthStatus() {
+    try {
+      final bloc = context.read<EnhancedLoginBloc>();
+      bloc.add(const CheckAuthStatusEvent());
+    } catch (e) {
+      // If bloc is not found, navigate to login
+      debugPrint('Error accessing EnhancedLoginBloc: $e');
+      nav.navigateTo(Routes.login);
+    }
   }
 
   @override
@@ -40,11 +50,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocManager<EnhancedLoginBloc, BaseState<UserProfileEntity>>(
-      bloc: context.read<EnhancedLoginBloc>(),
-      showResultErrorNotifications: false,
-      showResultSuccessNotifications: false,
-      showLoadingIndicator: false,
+    return BlocConsumer<EnhancedLoginBloc, BaseState<UserProfileEntity>>(
       listener: (context, state) {
         if (state is LoadedState<UserProfileEntity>) {
           nav.navigateTo(Routes.home);
@@ -52,30 +58,32 @@ class _SplashScreenState extends State<SplashScreen> {
           nav.navigateTo(Routes.login);
         }
       },
-      child: const FScaffold(
-        body: Stack(
-          children: [
-            Center(
-              child: FImage(
-                assetType: FoodAssetType.svg,
-                assetPath: Assets.svgsLogo,
-                width: 121,
-                height: 60,
+      builder: (context, state) {
+        return const FScaffold(
+          body: Stack(
+            children: [
+              Center(
+                child: FImage(
+                  assetType: FoodAssetType.svg,
+                  assetPath: Assets.svgsLogo,
+                  width: 121,
+                  height: 60,
+                ),
               ),
-            ),
-            Positioned(
-              bottom: 0,
-              right: 0,
-              child: FImage(
-                assetType: FoodAssetType.svg,
-                assetPath: Assets.svgsSplashDesign,
-                width: 295,
-                height: 295,
+              Positioned(
+                bottom: 0,
+                right: 0,
+                child: FImage(
+                  assetType: FoodAssetType.svg,
+                  assetPath: Assets.svgsSplashDesign,
+                  width: 295,
+                  height: 295,
+                ),
               ),
-            ),
-          ],
-        ),
-      ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

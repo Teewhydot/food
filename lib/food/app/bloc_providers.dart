@@ -41,15 +41,11 @@ final List<BlocProvider> blocs = [
   BlocProvider<SelectedAddressCubit>(
     create: (context) => SelectedAddressCubit(),
   ),
-
   BlocProvider<CartCubit>(create: (context) => CartCubit()),
   BlocProvider<UserProfileCubit>(
     create: (context) => UserProfileCubit()..loadUserProfile(),
   ),
   BlocProvider<AddressCubit>(create: (context) => AddressCubit()),
-  BlocProvider<SelectedAddressCubit>(
-    create: (context) => SelectedAddressCubit(),
-  ),
   BlocProvider<NotificationCubit>(create: (context) => NotificationCubit()),
   BlocProvider<ChatsCubit>(
     create:

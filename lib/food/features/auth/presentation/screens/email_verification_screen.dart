@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -23,7 +22,8 @@ import 'package:timer_count_down/timer_count_down.dart';
 import '../../../../core/bloc/managers/bloc_manager.dart';
 
 class EmailVerificationScreen extends StatefulWidget {
-  const EmailVerificationScreen({super.key});
+  final String  email;
+  const EmailVerificationScreen({super.key, required this.email});
 
   @override
   State<EmailVerificationScreen> createState() =>
@@ -35,7 +35,6 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
   final CountdownController _countdownController = CountdownController(
     autoStart: true,
   );
-  String? userEmail;
   Timer? _checkEmailVerificationTimer;
 
   @override
@@ -43,7 +42,6 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
     super.initState();
     _countdownController.start();
     // Get current user email
-    userEmail = FirebaseAuth.instance.currentUser?.email;
   }
 
   void _checkEmailVerification() {
@@ -51,9 +49,9 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
   }
 
   void _resendVerificationEmail() {
-    if (userEmail != null) {
+    if (widget.email.isNotEmpty) {
       context.read<VerifyEmailBloc>().add(
-        ResendVerificationEmailEvent(email: userEmail!),
+        ResendVerificationEmailEvent(email: widget.email),
       );
       _countdownController.restart();
     } else {
@@ -113,7 +111,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                       ),
                       8.verticalSpace,
                       FText(
-                        text: userEmail ?? "your email address",
+                        text: widget.email,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                         color: kPrimaryColor,

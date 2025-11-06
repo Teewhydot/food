@@ -61,7 +61,9 @@ class GetXRouteModule {
     ),
     GetPage(
       name: Routes.emailVerification,
-      page: () => const EmailVerificationScreen(),
+      page: () =>  EmailVerificationScreen(
+          email: Get.arguments['email'],
+      ),
       transition: _transition,
       transitionDuration: _transitionDuration,
     ),

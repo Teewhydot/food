@@ -47,7 +47,7 @@ class DioClient {
 
   void _setupInterceptors() {
     _dio.options = BaseOptions(
-      baseUrl: Env.golangBaseUrl!,
+      baseUrl: Env.golangBaseUrl,
       connectTimeout: 30 * 1000, // 30 seconds
       receiveTimeout: 30 * 1000, // 30 seconds
       sendTimeout: 30 * 1000, // 30 seconds

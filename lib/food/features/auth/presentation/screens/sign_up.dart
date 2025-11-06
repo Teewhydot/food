@@ -58,7 +58,8 @@ class _LoginState extends State<SignUp> {
       showLoadingIndicator: true,
       onSuccess: (context, state) {
         // Handle any additional success logic if needed
-        nav.navigateTo(Routes.emailVerification);
+        nav.navigateTo(Routes.emailVerification,
+            arguments: {'email': emailController.text.trim()});
       },
       builder: (context, state) {
         return CustomOverlay(

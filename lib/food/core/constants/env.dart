@@ -3,10 +3,26 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class Env {
   //Golang Base Url
-  static String? get golangBaseUrl =>
-      kIsWeb
-          ? const String.fromEnvironment('GOLANG_BASE_URL')
-          : dotenv.env['GOLANG_BASE_URL'];
+  static String get golangBaseUrl {
+    if (kIsWeb) {
+      return const String.fromEnvironment(
+        'GOLANG_BASE_URL',
+        defaultValue: 'https://food-backend-rho.vercel.app',
+      );
+    }
+
+    try {
+      // Try to get from dotenv, but don't fail if not initialized
+      return dotenv.env['GOLANG_BASE_URL'] ??
+          'https://food-backend-rho.vercel.app';
+    } catch (e) {
+      // If dotenv is not initialized, return the default URL
+      if (kDebugMode) {
+        debugPrint('Warning: dotenv not initialized when accessing GOLANG_BASE_URL: $e');
+      }
+      return 'https://food-backend-rho.vercel.app';
+    }
+  }
   // Google Maps API Key
   static String? get mapsKey =>
       kIsWeb

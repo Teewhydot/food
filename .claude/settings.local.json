@@ -28,7 +28,11 @@
       "WebSearch",
       "WebFetch(domain:inappwebview.dev)",
       "WebFetch(domain:developer.flutterwave.com)",
-      "Bash(firebase functions:log:*)"
+      "Bash(firebase functions:log:*)",
+      "Bash(pod install)",
+      "Bash(cp:*)",
+      "Bash(openssl rand:*)",
+      "mcp__ide__getDiagnostics"
     ],
     "deny": []
   }

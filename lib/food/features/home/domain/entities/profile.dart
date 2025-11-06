@@ -11,7 +11,7 @@ class UserProfileEntity {
   final String email;
   final String phoneNumber;
   final String? bio;
-  final bool firstTimeLogin;
+  final bool firstTimeLogin,emailVerified;
   final String? profileImageUrl;
 
   UserProfileEntity({
@@ -23,6 +23,7 @@ class UserProfileEntity {
     this.profileImageUrl,
     this.bio,
     required this.firstTimeLogin,
+    this.emailVerified = false,
   });
 
   Map<String, dynamic> toJson() {
@@ -35,6 +36,7 @@ class UserProfileEntity {
       'profile_image_url': profileImageUrl,
       'bio': bio,
       'first_time_login': firstTimeLogin,
+      'email_verified': emailVerified,
     };
   }
 
@@ -48,6 +50,8 @@ class UserProfileEntity {
       profileImageUrl: json['profile_image_url'] as String?,
       bio: json['bio'] as String?,
       firstTimeLogin: json['first_time_login'] as bool,
+      emailVerified: json['email_verified'] as bool? ?? false,
+  
     );
   }
 }

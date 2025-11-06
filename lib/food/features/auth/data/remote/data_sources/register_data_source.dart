@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:food/food/core/network/dio_client.dart';
 import 'package:food/food/core/utils/logger.dart';
 import 'package:food/food/features/home/domain/entities/profile.dart';
@@ -13,16 +14,24 @@ abstract class RegisterDataSource {
 }
 
 // implement firebase login functionality
-// class FirebaseRegisterDSI implements RegisterDataSource {
-//   @override
-//   Future<UserCredential> registerUsers(String email, String password) async {
-//     final auth = FirebaseAuth.instance;
-//     return await auth.createUserWithEmailAndPassword(
-//       email: email,
-//       password: password,
-//     );
-//   }
-// }
+class FirebaseRegisterDSI implements RegisterDataSource {
+
+  @override
+  Future<UserProfileEntity> registerUser(String firstName, String lastName, String email, String phoneNumber, String password) async{
+    final auth = FirebaseAuth.instance;
+
+    await auth.createUserWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+    final user = UserProfileEntity(
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+      phoneNumber: phoneNumber, id: auth.currentUser!.uid, firstTimeLogin: true,);
+    return user;
+  }
+}
 
 class GolangRegisterDSI implements RegisterDataSource {
   final _dioClient = DioClient();

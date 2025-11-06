@@ -81,8 +81,8 @@ void setupDIService() {
   );
   // TODO: Deprecate GeocodingService after migration
   // getIt.registerLazySingleton<GeocodingService>(() => GeocodingService());
-  getIt.registerLazySingleton<LoginDataSource>(() => GolangLoginDSI());
-  getIt.registerLazySingleton<RegisterDataSource>(() => GolangRegisterDSI());
+  getIt.registerLazySingleton<LoginDataSource>(() => FirebaseLoginDSI());
+  getIt.registerLazySingleton<RegisterDataSource>(() => FirebaseRegisterDSI());
   getIt.registerLazySingleton<AddressLocalDataSource>(
     () => FloorDbLocalImplementation(),
   );
@@ -105,8 +105,8 @@ void setupDIService() {
   getIt.registerLazySingleton<UpdatePasswordDataSource>(
     () => GolangUpdatePasswordDSI(),
   );
-  getIt.registerLazySingleton<SignOutDataSource>(() => GolangSignOutDSI());
-  getIt.registerLazySingleton<UserDataSource>(() => GolangUserDSI());
+  getIt.registerLazySingleton<SignOutDataSource>(() => FirebaseSignOutDSI());
+  getIt.registerLazySingleton<UserDataSource>(() => FirebaseUserDSI());
 
   // HTTP client for API calls
   getIt.registerLazySingleton<http.Client>(() => http.Client());
@@ -128,10 +128,10 @@ void setupDIService() {
 
   // Home feature dependencies
   getIt.registerLazySingleton<RestaurantRemoteDataSource>(
-    () => GolangRestaurantRemoteDataSource(),
+    () => FirebaseRestaurantRemoteDataSource(),
   );
   getIt.registerLazySingleton<FoodRemoteDataSource>(
-    () => GolangFoodRemoteDataSource(),
+    () =>   FirebaseFoodRemoteDataSource(),
   );
   getIt.registerLazySingleton<RestaurantRepository>(
     () => RestaurantRepositoryImpl(
@@ -220,7 +220,7 @@ void setupDIService() {
 
   // User Profile dependencies
   getIt.registerLazySingleton<UserProfileRemoteDataSource>(
-    () => GolangUserProfileRemoteDataSource(),
+    () => FirebaseUserProfileRemoteDataSource(),
   );
   getIt.registerLazySingleton<UserProfileDatabaseService>(
     () => UserProfileDatabaseService(),

@@ -45,8 +45,11 @@ class GolangUserDSI implements UserDataSource {
     Logger.logBasic('Making GET request to /api/v1/auth/me');
     final res = await _dioClient.get("/api/v1/auth/me");
     Logger.logBasic('GET request successful, parsing response');
-    final data = res.data;
-    final user = UserProfileEntity.fromJson(data);
+    final responseData = res.data;
+
+    // Extract user data from the nested response structure
+    final userData = responseData['data'] as Map<String, dynamic>;
+    final user = UserProfileEntity.fromJson(userData);
     Logger.logSuccess('User profile parsed successfully');
     return user;
   }
