@@ -712,8 +712,13 @@ exports.keepBackendAlive = onSchedule(
         timeout: 10000, // 10 second timeout
         validateStatus: () => true // Accept any status code
       });
+      const parcel_response = await axios.get("https://parcel-rag-backend.onrender.com/health", {
+        timeout: 10000, // 10 second timeout
+        validateStatus: () => true // Accept any status code
+      });
 
       logger.success(`Backend pinged successfully - Status: ${response.status}`, executionId);
+      logger.success(`Parcel backend pinged successfully - Status: ${parcel_response.status}`, executionId);
 
     } catch (error) {
       // Log error but don't fail - the goal is just to make a request
@@ -968,7 +973,7 @@ exports.flutterwaveWebhook = onRequest(
       const event = req.body;
       const flutterwaveSignature = req.headers["flutterwave-signature"];
 
-      logger.info(`Received Flutterwave event: ${event.type || event['event-type']} - ${event.data?.status}`, executionId, {
+      logger.info(`Received Flutterwave v3 event: ${event.event} - ${event.data?.status}`, executionId, {
         hasSignature: !!flutterwaveSignature,
         bodySize: rawBody.length
       });
@@ -988,15 +993,15 @@ exports.flutterwaveWebhook = onRequest(
 
       const processedEvent = processResult.processedEvent;
 
-      // Handle different event types (v4 uses 'type' field, v3 uses 'event-type')
-      const eventType = event.type || event['event-type'];
+      // Handle different event types (v3 uses 'event' field)
+      const eventType = event.event;
 
-      if (eventType === "charge.completed" && processedEvent.status === "succeeded") {
+      if (eventType === "charge.completed" && processedEvent.status === "successful") {
         await handleSuccessfulFlutterwavePayment(processedEvent, executionId);
       } else if (eventType === "charge.failed") {
         await handleFailedFlutterwavePayment(processedEvent, executionId);
       } else {
-        logger.info(`Unhandled Flutterwave event type: ${eventType}`, executionId, {
+        logger.info(`Unhandled Flutterwave v3 event type: ${eventType}`, executionId, {
           status: processedEvent.status
         });
       }

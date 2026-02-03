@@ -44,8 +44,11 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-#env
+# Environment files (security: never commit credentials)
+.env
 *.env
+.env.local
+.env.*.local
 
 # Firebase config
 # FVM Version Cache

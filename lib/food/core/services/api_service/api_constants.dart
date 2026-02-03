@@ -5,12 +5,9 @@ class ApiConstants {
   static const String timeOut = "Service Timeout";
   static const String errorMessage = "An error occurred, please try again";
 
-  // Flutterwave API Endpoints (v4)
-  static const String flutterwaveOAuthToken = '/oauth/token';
-  static const String flutterwaveDirectCharges = '/orchestration/direct-orders';
-  static const String flutterwaveTransactions = '/transactions';
-  static const String flutterwaveTransactionVerify = '/verify';
-
-  // Cache Keys
-  static const String flutterwaveOAuthTokenCacheKey = 'flutterwave_oauth_token';
+  // Flutterwave API Endpoints (v3)
+  static const String flutterwaveCharges = '/v3/charges';
+  static const String flutterwaveValidateCharge = '/v3/validate-charge';
+  static const String flutterwaveTransactions = '/v3/transactions';
+  static const String flutterwaveTransactionVerify = '/v3/transactions/';
 }

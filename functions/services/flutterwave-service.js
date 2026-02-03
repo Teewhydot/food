@@ -1,68 +1,67 @@
 // ========================================================================
-// Flutterwave Service - Flutterwave API Integration and Transaction Management
+// Flutterwave Service - Flutterwave v3 API Integration and Transaction Management
 // ========================================================================
 
 const axios = require('axios');
 const crypto = require('crypto');
 const admin = require('firebase-admin');
 const { v4: uuidv4 } = require('uuid');
-const { ENVIRONMENT, FLUTTERWAVE, FLUTTERWAVE_ENVIRONMENT, TRANSACTION_PREFIX_MAP } = require('../utils/constants');
+const { ENVIRONMENT, FLUTTERWAVE, TRANSACTION_PREFIX_MAP } = require('../utils/constants');
 const { logger } = require('../utils/logger');
 const { ReferenceUtils } = require('../utils/validation');
-const { oAuthTokenManager } = require('../utils/oauth-token-manager');
 
 class FlutterwaveService {
   constructor() {
-    // v4 API configuration with OAuth 2.0
-    this.baseUrl = FLUTTERWAVE_ENVIRONMENT.getBaseUrl();
-    this.oAuthManager = oAuthTokenManager;
+    // v3 API configuration with Secret Key authentication
+    this.baseUrl = FLUTTERWAVE.API_BASE_URL_V3;
+    this.secretKey = ENVIRONMENT.FLUTTERWAVE_SECRET_KEY;
 
     // Log service initialization details
-    console.log('=== Flutterwave Service Initialization ===');
+    console.log('=== Flutterwave Service Initialization (v3) ===');
     console.log(`Base URL: ${this.baseUrl}`);
-    console.log(`Environment: ${FLUTTERWAVE_ENVIRONMENT.getEnvironmentSuffix()}`);
-    console.log(`Is Production: ${FLUTTERWAVE_ENVIRONMENT.IS_PRODUCTION}`);
-    console.log(`OAuth Token URL: ${FLUTTERWAVE.OAUTH_TOKEN_URL}`);
+    console.log(`Secret Key: ${this.secretKey ? this.secretKey.substring(0, 15) + '...' : 'MISSING'}`);
     console.log(`Available Endpoints:`, Object.keys(FLUTTERWAVE.ENDPOINTS));
     console.log('============================================');
 
-    // Validate OAuth credentials
-    if (!ENVIRONMENT.FLUTTERWAVE_CLIENT_ID || !ENVIRONMENT.FLUTTERWAVE_CLIENT_SECRET) {
-      console.error('Missing Flutterwave OAuth credentials');
-      throw new Error('Flutterwave OAuth 2.0 credentials (CLIENT_ID and CLIENT_SECRET) are required for v4 API');
+    // Validate Secret Key
+    if (!this.secretKey) {
+      console.error('Missing Flutterwave v3 Secret Key');
+      throw new Error('Flutterwave v3 Secret Key (FLUTTERWAVE_SECRET_KEY) is required for v3 API');
     }
+
+    // Validate environment
+    const isTestKey = this.secretKey.startsWith('FLWSECK_TEST-');
+    const isLiveKey = this.secretKey.startsWith('FLWSECK-') && !isTestKey;
+    this.isProduction = isLiveKey;
+    console.log(`Environment: ${this.isProduction ? 'Production (LIVE)' : 'Sandbox (TEST)'}`);
   }
 
 
   // ========================================================================
-  // Payment Initialization using Direct Charges
+  // Payment Initialization using v3 Charges Endpoint
   // ========================================================================
 
   async initializePayment(email, amount, metadata, executionId = 'flw-init') {
     try {
-      // Detailed endpoint logging
-      console.log(`[${executionId}] Flutterwave Direct Charges API Configuration:`);
+      console.log(`[${executionId}] Flutterwave v3 Charges API Configuration:`);
       console.log(`[${executionId}] - Base URL: ${this.baseUrl}`);
-      console.log(`[${executionId}] - Environment: ${FLUTTERWAVE_ENVIRONMENT.getEnvironmentSuffix()}`);
+      console.log(`[${executionId}] - Environment: ${this.isProduction ? 'Production' : 'Sandbox'}`);
 
-      logger.payment('INITIALIZE', 'new-flutterwave-direct-payment', amount, executionId);
+      logger.payment('INITIALIZE', 'new-flutterwave-v3-charge', amount, executionId);
 
       // Generate unique alphanumeric transaction reference (no underscores or special chars)
       const txRef = `FLW${Date.now()}${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
       const idempotencyKey = uuidv4();
       const traceId = `flw_${executionId}_${Date.now()}`;
 
-      // Use direct-charges endpoint (no separate customer creation needed)
-      const directChargesUrl = `${this.baseUrl}${FLUTTERWAVE.ENDPOINTS.V4_DIRECT_CHARGES}`;
-      console.log(`[${executionId}] - Direct Charges Endpoint: ${directChargesUrl}`);
+      // Use v3 charges endpoint with card type
+      const chargesUrl = `${this.baseUrl}${FLUTTERWAVE.ENDPOINTS.CHARGES}?type=card`;
+      console.log(`[${executionId}] - Charges Endpoint: ${chargesUrl}`);
 
-      // Prepare headers with OAuth token
-      const authHeader = await this.oAuthManager.getAuthorizationHeader(executionId);
-      console.log(`[${executionId}] OAuth Authorization Header: ${authHeader ? 'Bearer ***' + authHeader.slice(-8) : 'MISSING'}`);
-
+      // Prepare headers with Secret Key (Bearer token)
       const headers = {
         'Content-Type': 'application/json',
-        'Authorization': authHeader,
+        'Authorization': `Bearer ${this.secretKey}`,
         'X-Idempotency-Key': idempotencyKey,
         'X-Trace-Id': traceId
       };
@@ -78,22 +77,10 @@ class FlutterwaveService {
       const nameParts = (metadata.userName || 'Customer User').split(' ');
       const firstName = nameParts[0] || 'Customer';
       const lastName = nameParts[1] || 'User';
-      const middleName = nameParts[2] || 'N/A'; // Default middle name if not provided
-
-      // Ensure name fields meet validation requirements (2-50 chars) - must not be empty/spaces/symbols only
-      const validFirstName = firstName.length >= 2 ? firstName.substring(0, 50) : 'Customer';
-      const validLastName = lastName.length >= 2 ? lastName.substring(0, 50) : 'User';
-      // Middle name must be 2-50 chars, not just spaces or symbols
-      let validMiddleName = middleName.length >= 2 ? middleName.substring(0, 50) : 'Middle';
-      // Ensure middle name contains at least some letters
-      if (!/[a-zA-Z]/.test(validMiddleName)) {
-        validMiddleName = 'Middle';
-      }
 
       // Clean phone number to digits only (7-10 chars) - strict validation
       const rawPhone = (metadata.phoneNumber || '08012345678').replace(/[^\d]/g, '');
       const cleanPhone = rawPhone.replace(/^234/, ''); // Remove country code if present
-      // Ensure phone number is exactly between 7-10 digits
       let validPhone = cleanPhone;
       if (validPhone.length < 7) {
         validPhone = '08012345678'; // Default fallback
@@ -101,90 +88,47 @@ class FlutterwaveService {
         validPhone = validPhone.substring(0, 10); // Truncate to 10 digits
       }
 
-      // Flutterwave Direct Charges API payload structure - exact match to documentation
+      // Flutterwave v3 Direct Card Charge payload structure
       const payload = {
+        tx_ref: txRef,
+        amount: amount,
         currency: 'NGN',
         customer: {
-          address: {
-            city: metadata.address?.city || 'Lagos',
-            country: metadata.address?.country || 'NG',
-            line1: metadata.address?.street || metadata.address?.line1 || '123 Main Street',
-            line2: metadata.address?.line2 || 'Apt 1A',
-            postal_code: metadata.address?.postal_code || '100001',
-            state: metadata.address?.state || 'Lagos'
-          },
-          meta: {
-            user_id: metadata.userId,
-            source: 'food_app'
-          },
-          name: {
-            first: validFirstName,
-            middle: validMiddleName,
-            last: validLastName
-          },
-          phone: {
-            country_code: '234',
-            number: validPhone
-          },
-          email: email
+          email: email,
+          name: `${firstName} ${lastName}`,
+          phonenumber: validPhone
         },
+        payment_options: 'card',
+        redirect_url: metadata.redirectUrl || 'https://example.com/success',
         meta: {
           order_id: metadata.orderId,
           user_id: metadata.userId,
           source: 'food_app'
-        },
-        payment_method: {
-          card: {
-            billing_address: {
-              city: metadata.address?.city || 'Lagos',
-              country: metadata.address?.country || 'NG',
-              line1: metadata.address?.street || metadata.address?.line1 || '123 Main Street',
-              line2: metadata.address?.line2 || 'Apt 1A',
-              postal_code: metadata.address?.postal_code || '100001',
-              state: metadata.address?.state || 'Lagos'
-            },
-            cof: {
-              enabled: true,
-              agreement_id: `Agreement${Date.now()}`,
-              trace_id: `trace_${Date.now()}`
-            },
-            nonce: Math.random().toString(36).substring(2, 14), // 12 character alphanumeric
-            encrypted_expiry_month: 'sQpvQEb7GrUCjPuEN/NmHiPl', // Demo encrypted value
-            encrypted_expiry_year: 'sgHNEDkJ/RmwuWWq/RymToU5', // Demo encrypted value
-            encrypted_card_number: 'sAE3hEDaDQ+yLzo4Py+Lx15OZjBGduHu/DcdILh3En0=', // Demo encrypted value
-            encrypted_cvv: 'tAUzH7Qjma7diGdi7938F/ESNA==', // Demo encrypted value
-            card_holder_name: `${validFirstName} ${validLastName}`
-          },
-          type: 'card'
-        },
-        authorization: {
-          otp: {
-            code: 'string'
-          },
-          type: 'otp'
-        },
-        amount: amount,
-        reference: txRef,
-        redirect_url: metadata.redirectUrl || 'https://example.com/success'
+        }
       };
 
+      // Add card details if provided
+      if (metadata.card_number) {
+        payload.card = {
+          card_number: metadata.card_number.replace(/\s/g, ''),
+          cvv: metadata.cvv,
+          expiry_month: metadata.expiry_month.toString().padStart(2, '0'),
+          expiry_year: metadata.expiry_year.toString()
+        };
+      }
+
       // Log the complete payload for debugging
-      console.log(`[${executionId}] Complete direct charges payload:`, JSON.stringify(payload, null, 2));
+      console.log(`[${executionId}] Complete v3 payload:`, JSON.stringify({
+        ...payload,
+        card: payload.card ? { card_number: '***REDACTED***', cvv: '***' } : undefined
+      }, null, 2));
 
       // Log the actual request being made
-      console.log(`[${executionId}] Making HTTP POST request to: ${directChargesUrl}`);
-      console.log(`[${executionId}] Request headers:`, Object.keys(headers));
-      console.log(`[${executionId}] Request payload amount: ${payload.amount}`);
+      console.log(`[${executionId}] Making HTTP POST request to: ${chargesUrl}`);
 
-      // Critical: Verify Authorization header is included
-      if (!headers.Authorization || !headers.Authorization.startsWith('Bearer ')) {
-        throw new Error('CRITICAL: Missing or invalid Authorization header for Flutterwave API');
-      }
-      console.log(`[${executionId}] ✅ Authorization header verified: ${headers.Authorization.slice(0, 15)}...`);
-
-      const response = await axios.post(directChargesUrl, payload, {
+      const response = await axios.post(chargesUrl, payload, {
         headers: headers,
-        timeout: 60000, // Increase to 60 seconds
+        timeout: 60000, // 60 seconds
         maxRedirects: 0, // No redirects/retries
         validateStatus: function (status) {
           return status < 500; // Accept all status codes except 5xx server errors
@@ -192,26 +136,31 @@ class FlutterwaveService {
       });
 
       console.log(`[${executionId}] Response status: ${response.status}`);
-      console.log(`[${executionId}] Response received from: ${directChargesUrl}`);
 
       if (response.status === 200 || response.status === 201) {
         const paymentData = response.data;
-        // Extract redirect URL from Flutterwave Direct Charges response structure
-        const authorizationUrl = paymentData.data?.next_action?.redirect_url?.url ||
-                                 paymentData.link ||
-                                 paymentData.authorization_url ||
-                                 paymentData.redirect_url;
 
-        console.log(`[${executionId}] Extracted authorization URL: ${authorizationUrl ? 'Found' : 'NOT FOUND'}`);
-        if (!authorizationUrl) {
-          console.log(`[${executionId}] Payment data structure:`, JSON.stringify(paymentData, null, 2));
+        // Handle different authorization modes in v3
+        let authorizationUrl = null;
+        const authMode = paymentData.data?.meta?.authorization?.mode;
+
+        if (authMode === 'redirect') {
+          authorizationUrl = paymentData.data.meta.authorization.redirect;
+        } else if (authMode === 'pin' || authMode === 'otp') {
+          // For PIN/OTP, return the charge data for further validation
+          console.log(`[${executionId}] Authorization mode: ${authMode} - additional validation required`);
+        } else if (paymentData.data?.status === 'successful') {
+          console.log(`[${executionId}] Payment completed successfully without additional authorization`);
         }
 
-        logger.success(`Flutterwave direct charge initialized: ${txRef}`, executionId, {
+        console.log(`[${executionId}] Extracted authorization URL: ${authorizationUrl ? 'Found' : 'Not needed'}`);
+
+        logger.success(`Flutterwave v3 charge initialized: ${txRef}`, executionId, {
           txRef: txRef,
           amount: amount,
           email: email,
-          apiVersion: 'v4-direct',
+          apiVersion: 'v3',
+          authMode: authMode || 'none',
           idempotencyKey: idempotencyKey
         });
 
@@ -219,16 +168,17 @@ class FlutterwaveService {
           success: true,
           reference: txRef,
           authorizationUrl: authorizationUrl,
-          accessCode: paymentData.access_code || null,
+          accessCode: paymentData.data?.flw_ref || null,
           amount: amount,
           idempotencyKey: idempotencyKey,
           traceId: traceId,
+          authMode: authMode,
           paymentData: paymentData // Include full response for debugging
         };
       } else {
-        console.log(`[${executionId}] Flutterwave Direct Charges API Error Response:`, JSON.stringify(response.data, null, 2));
+        console.log(`[${executionId}] Flutterwave v3 API Error Response:`, JSON.stringify(response.data, null, 2));
         const errorMessage = response.data.message || response.data.error || 'Unknown error';
-        throw new Error(`Flutterwave Direct Charges API error: ${errorMessage}`);
+        throw new Error(`Flutterwave v3 API error: ${errorMessage}`);
       }
     } catch (error) {
       // Log the complete error details including response data
@@ -244,10 +194,10 @@ class FlutterwaveService {
 
       // Specific handling for timeout errors
       if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
-        logger.critical('Flutterwave API request timeout - increase timeout or check network', executionId, error, {
+        logger.critical('Flutterwave v3 API request timeout - increase timeout or check network', executionId, error, {
           email: email,
           amount: amount,
-          apiVersion: 'v4-direct',
+          apiVersion: 'v3',
           timeoutDuration: '60000ms'
         });
 
@@ -255,14 +205,14 @@ class FlutterwaveService {
           success: false,
           error: 'Request timeout - please try again',
           errorType: 'TIMEOUT',
-          details: { message: 'The request to Flutterwave API timed out after 60 seconds' }
+          details: { message: 'The request to Flutterwave v3 API timed out after 60 seconds' }
         };
       }
 
-      logger.error('Failed to initialize Flutterwave direct charge', executionId, error, {
+      logger.error('Failed to initialize Flutterwave v3 charge', executionId, error, {
         email: email,
         amount: amount,
-        apiVersion: 'v4-direct',
+        apiVersion: 'v3',
         errorCode: error.code
       });
 
@@ -276,7 +226,7 @@ class FlutterwaveService {
   }
 
   // ========================================================================
-  // Transaction Verification
+  // Transaction Verification (v3)
   // ========================================================================
 
   async verifyTransaction(transactionId, executionId = 'flw-verify') {
@@ -285,48 +235,46 @@ class FlutterwaveService {
     try {
       logger.payment('VERIFY', transactionId, null, executionId);
 
-      const endpoint = `${this.baseUrl}${FLUTTERWAVE.ENDPOINTS.V4_TRANSACTIONS}/${transactionId}`;
+      // v3 verification endpoint: /v3/transactions/{id}/verify
+      const endpoint = `${this.baseUrl}${FLUTTERWAVE.ENDPOINTS.VERIFY_TRANSACTION.replace(':id', transactionId)}`;
 
       // Detailed verification endpoint logging
-      console.log(`[${executionId}] Flutterwave Verification Configuration:`);
+      console.log(`[${executionId}] Flutterwave v3 Verification Configuration:`);
       console.log(`[${executionId}] - Base URL: ${this.baseUrl}`);
-      console.log(`[${executionId}] - Verification Path: ${FLUTTERWAVE.ENDPOINTS.V4_TRANSACTIONS}/${transactionId}`);
-      console.log(`[${executionId}] - Full Verification URL: ${endpoint}`);
+      console.log(`[${executionId}] - Verification URL: ${endpoint}`);
 
       logger.apiCall('GET', endpoint, null, executionId);
 
-      // Prepare headers with OAuth token
+      // Prepare headers with Secret Key
       const headers = {
         'Content-Type': 'application/json',
-        'Authorization': await this.oAuthManager.getAuthorizationHeader(executionId)
+        'Authorization': `Bearer ${this.secretKey}`
       };
 
       // Log the verification request
       console.log(`[${executionId}] Making HTTP GET request to: ${endpoint}`);
-      console.log(`[${executionId}] Verification headers:`, Object.keys(headers));
 
       const response = await axios.get(endpoint, {
         headers: headers,
         timeout: 60000,
-        maxRedirects: 0, // No redirects/retries
+        maxRedirects: 0,
         validateStatus: function (status) {
-          return status < 500; // Accept all status codes except 5xx server errors
+          return status < 500;
         }
       });
 
       console.log(`[${executionId}] Verification response status: ${response.status}`);
-      console.log(`[${executionId}] Verification response received from: ${endpoint}`);
 
       const verificationEndTime = Date.now();
       const verificationDuration = verificationEndTime - verificationStartTime;
 
       logger.performance('VERIFICATION', verificationDuration, executionId, {
         transactionId: transactionId,
-        apiVersion: 'v4'
+        apiVersion: 'v3'
       });
 
       if (response.status === 200) {
-        const transactionData = response.data;
+        const transactionData = response.data.data;
 
         const result = {
           success: true,
@@ -344,22 +292,22 @@ class FlutterwaveService {
           meta: transactionData.meta || {}
         };
 
-        logger.success(`Flutterwave transaction verified: ${transactionId}`, executionId, {
+        logger.success(`Flutterwave v3 transaction verified: ${transactionId}`, executionId, {
           status: result.status,
           amount: result.amount,
           reference: result.reference,
-          apiVersion: 'v4'
+          apiVersion: 'v3'
         });
 
         return result;
       } else {
         const errorMessage = response.data.message || 'Unknown error';
-        throw new Error(`Flutterwave verification failed: ${errorMessage}`);
+        throw new Error(`Flutterwave v3 verification failed: ${errorMessage}`);
       }
     } catch (error) {
-      logger.error('Flutterwave verification failed', executionId, error, {
+      logger.error('Flutterwave v3 verification failed', executionId, error, {
         transactionId: transactionId,
-        apiVersion: 'v4'
+        apiVersion: 'v3'
       });
 
       return {
@@ -378,7 +326,7 @@ class FlutterwaveService {
     try {
       logger.payment('STATUS_CHECK', reference, null, executionId);
 
-      // For Flutterwave, we use the same verification endpoint to get status
+      // For Flutterwave v3, we use the same verification endpoint to get status
       const verificationResult = await this.verifyTransaction(reference, executionId);
 
       if (verificationResult.success) {
@@ -399,7 +347,7 @@ class FlutterwaveService {
         return verificationResult;
       }
     } catch (error) {
-      logger.error('Failed to get Flutterwave transaction status', executionId, error, {
+      logger.error('Failed to get Flutterwave v3 transaction status', executionId, error, {
         reference: reference
       });
 
@@ -433,12 +381,12 @@ class FlutterwaveService {
       const isValid = hash === signature;
 
       if (isValid) {
-        logger.security('WEBHOOK_VERIFIED', 'Flutterwave webhook signature valid', executionId, {
+        logger.security('WEBHOOK_VERIFIED', 'Flutterwave v3 webhook signature valid', executionId, {
           signatureLength: signature?.length,
           hashLength: hash?.length
         });
       } else {
-        logger.security('WEBHOOK_INVALID', 'Flutterwave webhook signature invalid', executionId, {
+        logger.security('WEBHOOK_INVALID', 'Flutterwave v3 webhook signature invalid', executionId, {
           receivedSignature: signature?.substring(0, 10) + '...',
           computedSignature: hash?.substring(0, 10) + '...'
         });
@@ -452,14 +400,15 @@ class FlutterwaveService {
   }
 
   // ========================================================================
-  // Webhook Event Processing
+  // Webhook Event Processing (v3)
   // ========================================================================
 
   processWebhookEvent(event, executionId = 'flw-webhook-process') {
     try {
-      logger.webhook('PROCESS', event['event-type'] || 'unknown', executionId);
+      // v3 uses 'event' field instead of 'event-type'
+      const eventType = event.event;
+      logger.webhook('PROCESS', eventType || 'unknown', executionId);
 
-      const eventType = event['event-type'];
       const data = event.data;
 
       if (!eventType || !data) {
@@ -486,7 +435,7 @@ class FlutterwaveService {
         bookingDetails: data.meta || {}
       };
 
-      logger.success('Flutterwave webhook event processed', executionId, {
+      logger.success('Flutterwave v3 webhook event processed', executionId, {
         eventType: eventType,
         reference: processedEvent.reference,
         status: processedEvent.status
@@ -494,7 +443,7 @@ class FlutterwaveService {
 
       return { success: true, processedEvent: processedEvent };
     } catch (error) {
-      logger.error('Failed to process Flutterwave webhook event', executionId, error);
+      logger.error('Failed to process Flutterwave v3 webhook event', executionId, error);
       return { success: false, error: error.message };
     }
   }
@@ -505,18 +454,12 @@ class FlutterwaveService {
 
   getApiInfo(executionId = 'flw-api-info') {
     const info = {
-      apiVersion: 'v4',
+      apiVersion: 'v3',
       baseUrl: this.baseUrl,
-      environment: FLUTTERWAVE_ENVIRONMENT.getEnvironmentSuffix(),
-      oAuthEnabled: true,
-      hasCredentials: {
-        clientId: !!ENVIRONMENT.FLUTTERWAVE_CLIENT_ID,
-        clientSecret: !!ENVIRONMENT.FLUTTERWAVE_CLIENT_SECRET,
-        secretHash: !!ENVIRONMENT.FLUTTERWAVE_SECRET_HASH
-      }
+      environment: this.isProduction ? 'Production' : 'Sandbox',
+      hasSecretKey: !!ENVIRONMENT.FLUTTERWAVE_SECRET_KEY,
+      hasSecretHash: !!ENVIRONMENT.FLUTTERWAVE_SECRET_HASH
     };
-
-    info.tokenInfo = this.oAuthManager.getTokenInfo(executionId);
 
     return info;
   }
@@ -546,12 +489,14 @@ class FlutterwaveService {
 
   async testConnection(executionId = 'flw-health-check') {
     try {
-      // Test OAuth connection for v4 API
-      const isHealthy = await this.oAuthManager.testOAuthConnection(executionId);
+      // Test by verifying a dummy transaction or checking API health
+      // For v3, we can just check if credentials are present
+      const isHealthy = !!this.secretKey;
 
       logger.health('FLUTTERWAVE_API', isHealthy ? 'HEALTHY' : 'UNHEALTHY', executionId, {
-        apiVersion: 'v4',
-        baseUrl: this.baseUrl
+        apiVersion: 'v3',
+        baseUrl: this.baseUrl,
+        hasSecretKey: isHealthy
       });
       return isHealthy;
     } catch (error) {

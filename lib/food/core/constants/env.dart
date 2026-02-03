@@ -76,40 +76,42 @@ class Env {
     }
   }
 
-  // Flutterwave v4 Configuration
-  static String get flutterwaveEnvironment =>
-      kIsWeb
-          ? const String.fromEnvironment(
-            'FLUTTERWAVE_ENV',
-            defaultValue: 'sandbox',
-          )
-          : dotenv.env['FLUTTERWAVE_ENV'] ?? 'sandbox';
+  // Flutterwave v3 Configuration
+  // v3 uses Secret Key authentication instead of OAuth 2.0
+  // Environment is determined by the key prefix:
+  // - TEST keys: FLWSECK_TEST-xxx, FLWPUBK_TEST-xxx
+  // - LIVE keys: FLWSECK-xxx, FLWPUBK-xxx
 
-  static bool get isFlutterwaveProduction =>
-      flutterwaveEnvironment == 'production';
-
-  // Flutterwave v4 OAuth Configuration
-  static String? get flutterwaveClientId =>
+  static String? get flutterwaveSecretKey =>
       kIsWeb
-          ? const String.fromEnvironment('FLUTTERWAVE_CLIENT_ID')
-          : dotenv.env['FLUTTERWAVE_CLIENT_ID'];
+          ? const String.fromEnvironment('FLUTTERWAVE_SECRET_KEY')
+          : dotenv.env['FLUTTERWAVE_SECRET_KEY'];
 
-  static String? get flutterwaveClientSecret =>
+  static String? get flutterwavePublicKey =>
       kIsWeb
-          ? const String.fromEnvironment('FLUTTERWAVE_CLIENT_SECRET')
-          : dotenv.env['FLUTTERWAVE_CLIENT_SECRET'];
+          ? const String.fromEnvironment('FLUTTERWAVE_PUBLIC_KEY')
+          : dotenv.env['FLUTTERWAVE_PUBLIC_KEY'];
+
+  static String? get flutterwaveEncryptionKey =>
+      kIsWeb
+          ? const String.fromEnvironment('FLUTTERWAVE_ENCRYPTION_KEY')
+          : dotenv.env['FLUTTERWAVE_ENCRYPTION_KEY'];
 
   static String? get flutterwaveSecretHash =>
       kIsWeb
           ? const String.fromEnvironment('FLUTTERWAVE_SECRET_HASH')
           : dotenv.env['FLUTTERWAVE_SECRET_HASH'];
 
-  // Check if OAuth v4 credentials are configured
+  // Check if v3 credentials are configured
   static bool get hasFlutterwaveCredentials =>
-      flutterwaveClientId != null &&
-      flutterwaveClientId!.isNotEmpty &&
-      flutterwaveClientSecret != null &&
-      flutterwaveClientSecret!.isNotEmpty;
+      flutterwaveSecretKey != null &&
+      flutterwaveSecretKey!.isNotEmpty;
+
+  // Determine if using production keys (LIVE keys don't have _TEST- prefix)
+  static bool get isFlutterwaveProduction {
+    final key = flutterwaveSecretKey ?? '';
+    return key.startsWith('FLWSECK-') && !key.startsWith('FLWSECK_TEST-');
+  }
 
   // SECURITY: Card Encryption Key Configuration
   // NEVER hardcode encryption keys in source code!
@@ -135,18 +137,12 @@ class Env {
   static bool get hasCardEncryptionKey =>
       cardEncryptionKey != null && cardEncryptionKey!.isNotEmpty;
 
-  // Flutterwave API Configuration
+  // Flutterwave v3 API Configuration
+  // v3 uses a single base URL for both sandbox and production
+  // Environment is determined by the Secret Key prefix
   static String get flutterwaveBaseUrl {
-    final env = flutterwaveEnvironment;
-    if (env == 'production') {
-      return 'https://api.flutterwave.cloud/f4bexperience';
-    }
-    return 'https://api.flutterwave.cloud/developersandbox';
-  }
-
-  static String get flutterwaveOAuthUrl {
-    // OAuth v4 uses the same endpoint for both sandbox and production
-    return 'https://idp.flutterwave.com/realms/flutterwave/protocol/openid-connect/token';
+    // v3 uses the same URL for both environments
+    return 'https://api.flutterwave.com';
   }
 
   // Helper method to get environment variable with fallback

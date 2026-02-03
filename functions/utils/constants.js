@@ -6,9 +6,10 @@
 const ENVIRONMENT = {
   GMAIL_PASSWORD: process.env.PASSWORD,
   PAYSTACK_SECRET_KEY: process.env.PAYSTACK_SECRET_KEY,
-  // Flutterwave v4 OAuth 2.0 Configuration
-  FLUTTERWAVE_CLIENT_ID: process.env.FLUTTERWAVE_CLIENT_ID,
-  FLUTTERWAVE_CLIENT_SECRET: process.env.FLUTTERWAVE_CLIENT_SECRET,
+  // Flutterwave v3 Configuration (Secret Key authentication)
+  FLUTTERWAVE_SECRET_KEY: process.env.FLUTTERWAVE_SECRET_KEY,
+  FLUTTERWAVE_PUBLIC_KEY: process.env.FLUTTERWAVE_PUBLIC_KEY,
+  FLUTTERWAVE_ENCRYPTION_KEY: process.env.FLUTTERWAVE_ENCRYPTION_KEY,
   FLUTTERWAVE_SECRET_HASH: process.env.FLUTTERWAVE_SECRET_HASH,
   PROJECT_ID: process.env.GOOGLE_CLOUD_PROJECT || process.env.GCLOUD_PROJECT || 'food-delivery-app',
   // Backend Keep-Alive Configuration
@@ -89,24 +90,16 @@ const PAYSTACK = {
   }
 };
 
-// Flutterwave API configuration (v4 only)
+// Flutterwave API configuration (v3)
 const FLUTTERWAVE = {
-  // v4 API configuration with OAuth 2.0
-  API_BASE_URL_V4_SANDBOX: 'https://api.flutterwave.cloud/developersandbox',
-  API_BASE_URL_V4_PRODUCTION: 'https://api.flutterwave.cloud/f4bexperience',
-  OAUTH_TOKEN_URL: 'https://idp.flutterwave.com/realms/flutterwave/protocol/openid-connect/token',
+  // v3 API configuration with Secret Key authentication
+  API_BASE_URL_V3: 'https://api.flutterwave.com',
   ENDPOINTS: {
-    // v4 Endpoints
-    V4_CHARGES: '/charges',
-    V4_DIRECT_CHARGES: '/orchestration/direct-charges',
-    V4_CUSTOMERS: '/customers',
-    V4_TRANSACTIONS: '/transactions'
-  },
-  // OAuth 2.0 Configuration
-  OAUTH: {
-    GRANT_TYPE: 'client_credentials',
-    TOKEN_EXPIRY_BUFFER: 60000, // Refresh 1 minute before expiry
-    TOKEN_CACHE_KEY: 'flutterwave_oauth_token'
+    // v3 Endpoints
+    CHARGES: '/v3/charges',
+    VALIDATE_CHARGE: '/v3/validate-charge',
+    TRANSACTIONS: '/v3/transactions',
+    VERIFY_TRANSACTION: '/v3/transactions/:id/verify'
   }
 };
 
@@ -117,21 +110,25 @@ const FUNCTIONS_CONFIG = {
   MEMORY: '256MB'
 };
 
-// Flutterwave environment configuration
+// Flutterwave environment configuration (v3)
 const FLUTTERWAVE_ENVIRONMENT = {
-  // Determine which environment to use based on NODE_ENV or explicit configuration
-  IS_PRODUCTION: process.env.NODE_ENV === 'production' || process.env.FLUTTERWAVE_ENV === 'production',
+  // Determine if using production keys
+  // v3 uses key prefix to determine environment:
+  // - TEST keys: FLWSECK_TEST-xxx
+  // - LIVE keys: FLWSECK-xxx
+  IS_PRODUCTION: function() {
+    const secretKey = ENVIRONMENT.FLUTTERWAVE_SECRET_KEY || '';
+    return secretKey.startsWith('FLWSECK-') && !secretKey.startsWith('FLWSECK_TEST-');
+  },
 
-  // Get the appropriate base URL
+  // Get the base URL (v3 uses same URL for both environments)
   getBaseUrl() {
-    return this.IS_PRODUCTION
-      ? FLUTTERWAVE.API_BASE_URL_V4_PRODUCTION
-      : FLUTTERWAVE.API_BASE_URL_V4_SANDBOX;
+    return FLUTTERWAVE.API_BASE_URL_V3;
   },
 
   // Environment-specific configuration
   getEnvironmentSuffix() {
-    return this.IS_PRODUCTION ? 'production' : 'sandbox';
+    return this.IS_PRODUCTION() ? 'production' : 'sandbox';
   }
 };
 
