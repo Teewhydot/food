@@ -25,6 +25,17 @@ class CardEncryptionService {
     return _instance!;
   }
 
+  /// Initialize the encryption service
+  /// For v3, encryption is handled server-side, so this is a no-op
+  static Future<void> initialize() async {
+    // No-op for v3 - encryption is handled server-side by Firebase Functions
+    Logger.logBasic('CardEncryptionService initialized (v3 server-side encryption)');
+  }
+
+  static void dispose() {
+    _instance = null;
+  }
+
   /// Note: For Flutterwave v3, encryption is handled server-side by Firebase Functions.
   /// The Flutter app should send raw card details to the Firebase Function,
   /// which will encrypt using 3DES before calling Flutterwave API.

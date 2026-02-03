@@ -19,21 +19,21 @@ class FlutterwaveService {
     // Log service initialization details
     console.log('=== Flutterwave Service Initialization (v3) ===');
     console.log(`Base URL: ${this.baseUrl}`);
-    console.log(`Secret Key: ${this.secretKey ? this.secretKey.substring(0, 15) + '...' : 'MISSING'}`);
+    console.log(`Secret Key: ${this.secretKey ? this.secretKey.substring(0, 15) + '...' : 'NOT YET LOADED (will load at runtime)'}`);
     console.log(`Available Endpoints:`, Object.keys(FLUTTERWAVE.ENDPOINTS));
     console.log('============================================');
 
-    // Validate Secret Key
-    if (!this.secretKey) {
-      console.error('Missing Flutterwave v3 Secret Key');
-      throw new Error('Flutterwave v3 Secret Key (FLUTTERWAVE_SECRET_KEY) is required for v3 API');
+    // Validate environment (only if secret key is present)
+    if (this.secretKey) {
+      const isTestKey = this.secretKey.startsWith('FLWSECK_TEST-');
+      const isLiveKey = this.secretKey.startsWith('FLWSECK-') && !isTestKey;
+      this.isProduction = isLiveKey;
+      console.log(`Environment: ${this.isProduction ? 'Production (LIVE)' : 'Sandbox (TEST)'}`);
+    } else {
+      // Secret key will be loaded from environment at runtime
+      console.log('Warning: Secret Key not found during initialization. Will be loaded at runtime from .env.yaml');
+      this.isProduction = false; // Default to sandbox
     }
-
-    // Validate environment
-    const isTestKey = this.secretKey.startsWith('FLWSECK_TEST-');
-    const isLiveKey = this.secretKey.startsWith('FLWSECK-') && !isTestKey;
-    this.isProduction = isLiveKey;
-    console.log(`Environment: ${this.isProduction ? 'Production (LIVE)' : 'Sandbox (TEST)'}`);
   }
 
 
@@ -43,6 +43,11 @@ class FlutterwaveService {
 
   async initializePayment(email, amount, metadata, executionId = 'flw-init') {
     try {
+      // Validate secret key before making API call
+      if (!this.secretKey) {
+        throw new Error('Flutterwave v3 Secret Key (FLUTTERWAVE_SECRET_KEY) is not configured. Please add it to .env.yaml or Firebase Functions config.');
+      }
+
       console.log(`[${executionId}] Flutterwave v3 Charges API Configuration:`);
       console.log(`[${executionId}] - Base URL: ${this.baseUrl}`);
       console.log(`[${executionId}] - Environment: ${this.isProduction ? 'Production' : 'Sandbox'}`);
@@ -233,6 +238,11 @@ class FlutterwaveService {
     const verificationStartTime = Date.now();
 
     try {
+      // Validate secret key before making API call
+      if (!this.secretKey) {
+        throw new Error('Flutterwave v3 Secret Key (FLUTTERWAVE_SECRET_KEY) is not configured. Please add it to .env.yaml or Firebase Functions config.');
+      }
+
       logger.payment('VERIFY', transactionId, null, executionId);
 
       // v3 verification endpoint: /v3/transactions/{id}/verify
