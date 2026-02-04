@@ -6,6 +6,7 @@
 const ENVIRONMENT = {
   GMAIL_PASSWORD: process.env.PASSWORD,
   PAYSTACK_SECRET_KEY: process.env.PAYSTACK_SECRET_KEY,
+  PAYSTACK_PUBLIC_KEY: process.env.PAYSTACK_PUBLIC_KEY,
   // Flutterwave v3 Configuration (Secret Key authentication)
   // Note: .env must use UPPERCASE keys for Firebase Functions v2
   FLUTTERWAVE_SECRET_KEY: process.env.FLUTTERWAVE_SECRET_KEY,

@@ -1013,16 +1013,28 @@ exports.flutterwaveWebhook = onRequest(
 
       const processedEvent = processResult.processedEvent;
 
-      // Handle different event types (v3 uses 'event' field)
+      // Handle different event types
+      // Flutterwave v3 webhook events for Standard payments
       const eventType = event.event;
+      const eventStatus = processedEvent.status;
 
-      if (eventType === "charge.completed" && processedEvent.status === "successful") {
+      logger.info(`Processing Flutterwave event: ${eventType} with status: ${eventStatus}`, executionId);
+
+      if (eventType === "charge.completed" && eventStatus === "successful") {
         await handleSuccessfulFlutterwavePayment(processedEvent, executionId);
       } else if (eventType === "charge.failed") {
         await handleFailedFlutterwavePayment(processedEvent, executionId);
+      } else if (eventType === "transfer.success" && eventStatus === "successful") {
+        await handleSuccessfulFlutterwavePayment(processedEvent, executionId);
+      } else if (eventType === "transfer.failed") {
+        await handleFailedFlutterwavePayment(processedEvent, executionId);
+      } else if (eventType === "payment.completed" && eventStatus === "successful") {
+        await handleSuccessfulFlutterwavePayment(processedEvent, executionId);
+      } else if (eventType === "payment.failed") {
+        await handleFailedFlutterwavePayment(processedEvent, executionId);
       } else {
-        logger.info(`Unhandled Flutterwave v3 event type: ${eventType}`, executionId, {
-          status: processedEvent.status
+        logger.info(`Unhandled Flutterwave event type: ${eventType} with status: ${eventStatus}`, executionId, {
+          fullEvent: JSON.stringify(event)
         });
       }
 

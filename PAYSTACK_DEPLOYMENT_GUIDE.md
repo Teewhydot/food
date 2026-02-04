@@ -3,17 +3,17 @@
 ## ✅ Deployment Completed
 
 Your Firebase Functions have been successfully deployed to:
-- **Project ID**: dfood-5aaf3
+- **Project ID**: sirteefy-food
 - **Region**: us-central1
 
 ## 🔗 Function URLs
 
 | Function | URL |
 |----------|-----|
-| Create Transaction | https://us-central1-dfood-5aaf3.cloudfunctions.net/createPaystackTransaction |
-| Verify Payment | https://us-central1-dfood-5aaf3.cloudfunctions.net/verifyPaystackPayment |
-| Webhook Handler | https://us-central1-dfood-5aaf3.cloudfunctions.net/paystackWebhook |
-| Transaction Status | https://us-central1-dfood-5aaf3.cloudfunctions.net/getTransactionStatus |
+| Create Transaction | https://us-central1-sirteefy-food.cloudfunctions.net/createPaystackTransaction |
+| Verify Payment | https://us-central1-sirteefy-food.cloudfunctions.net/verifyPaystackPayment |
+| Webhook Handler | https://us-central1-sirteefy-food.cloudfunctions.net/paystackWebhook |
+| Transaction Status | https://us-central1-sirteefy-food.cloudfunctions.net/getTransactionStatus |
 
 ## 📋 Next Steps
 
@@ -40,7 +40,7 @@ firebase deploy --only functions
 2. Go to **Settings** → **API Keys & Webhooks**
 3. Add your webhook URL:
    ```
-   https://us-central1-dfood-5aaf3.cloudfunctions.net/paystackWebhook
+   https://us-central1-sirteefy-food.cloudfunctions.net/paystackWebhook
    ```
 4. Copy the webhook secret and set it in Firebase:
    ```bash
@@ -52,7 +52,7 @@ firebase deploy --only functions
 
 Add to your `.env` file (create if it doesn't exist):
 ```
-DFOOD_FIREBASE_FUNCTIONS_URL=https://us-central1-dfood-5aaf3.cloudfunctions.net
+DFOOD_FIREBASE_FUNCTIONS_URL=https://us-central1-sirteefy-food.cloudfunctions.net
 ```
 
 ### 4. Test Payment Flow
