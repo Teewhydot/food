@@ -62,17 +62,17 @@ class Env {
     if (kIsWeb) {
       return const String.fromEnvironment(
         'DFOOD_FIREBASE_FUNCTIONS_URL',
-        defaultValue: 'https://us-central1-dfood-5aaf3.cloudfunctions.net',
+        defaultValue: 'https://us-central1-sirteefy-food.cloudfunctions.net',
       );
     }
 
     try {
       // Try to get from dotenv, but don't fail if not initialized
       return dotenv.env['DFOOD_FIREBASE_FUNCTIONS_URL'] ??
-          'https://us-central1-dfood-5aaf3.cloudfunctions.net';
+          'https://us-central1-sirteefy-food.cloudfunctions.net';
     } catch (e) {
       // If dotenv is not initialized, return the hardcoded URL
-      return 'https://us-central1-dfood-5aaf3.cloudfunctions.net';
+      return 'https://us-central1-sirteefy-food.cloudfunctions.net';
     }
   }
 
