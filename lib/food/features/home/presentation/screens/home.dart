@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -30,6 +31,7 @@ import '../manager/restaurant_bloc/restaurant_bloc.dart'; // Now RestaurantCubit
 import '../widgets/cart_widget.dart';
 import '../widgets/category_widget.dart';
 import '../widgets/circle_widget.dart';
+import '../widgets/firebase_seed_button.dart';
 import '../widgets/food_widget.dart';
 import '../widgets/restaurant_widget.dart';
 import '../widgets/section_head.dart';
@@ -246,7 +248,15 @@ class _HomeState extends State<Home> {
                 ),
               ],
             ),
-            32.verticalSpace,
+            16.verticalSpace,
+            // Firebase seed button (only in debug mode)
+            // kDebugMode
+            //     ? FirebaseSeedButton().paddingOnly(
+            //         right: AppConstants.defaultPadding.w,
+            //         bottom: 16.h,
+            //       )
+            //     : const SizedBox.shrink(),
+            // 16.verticalSpace,
             SectionHead(
               actionText: "Search",
               action: () {

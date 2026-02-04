@@ -13,7 +13,6 @@ import 'package:food/food/core/theme/colors.dart';
 import 'package:food/food/core/utils/app_utils.dart';
 import 'package:food/food/features/auth/presentation/manager/auth_bloc/email_verification_status/email_verification_status_bloc.dart';
 import 'package:food/food/features/auth/presentation/widgets/auth_template.dart';
-import 'package:food/food/features/auth/presentation/widgets/custom_overlay.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:timer_count_down/timer_controller.dart';
@@ -80,9 +79,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
         }
       },
       builder: (context, state) {
-        return CustomOverlay(
-          isLoading: state is LoadingState,
-          child: AuthTemplate(
+        return AuthTemplate(
             title: "Email Verification",
             subtitle: "We've sent a verification link to your email",
             hasBackButton: true,
@@ -178,8 +175,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
               top: AppConstants.defaultPadding,
               right: AppConstants.defaultPadding,
             ),
-          ),
-        );
+          );
       },
       child: const SizedBox.shrink(),
     );

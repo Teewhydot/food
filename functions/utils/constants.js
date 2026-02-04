@@ -7,14 +7,12 @@ const ENVIRONMENT = {
   GMAIL_PASSWORD: process.env.PASSWORD,
   PAYSTACK_SECRET_KEY: process.env.PAYSTACK_SECRET_KEY,
   // Flutterwave v3 Configuration (Secret Key authentication)
-  // Note: .env.yaml uses lowercase, so we access with lowercase keys
-  FLUTTERWAVE_SECRET_KEY: process.env.flutterwave_secret_key,
-  FLUTTERWAVE_PUBLIC_KEY: process.env.flutterwave_public_key,
-  FLUTTERWAVE_ENCRYPTION_KEY: process.env.flutterwave_encryption_key,
-  FLUTTERWAVE_SECRET_HASH: process.env.flutterwave_secret_hash,
-  PROJECT_ID: process.env.GOOGLE_CLOUD_PROJECT || process.env.GCLOUD_PROJECT || 'food-delivery-app',
-  // Backend Keep-Alive Configuration
-  BACKEND_KEEPALIVE_URL: process.env.BACKEND_KEEPALIVE_URL
+  // Note: .env must use UPPERCASE keys for Firebase Functions v2
+  FLUTTERWAVE_SECRET_KEY: process.env.FLUTTERWAVE_SECRET_KEY,
+  FLUTTERWAVE_PUBLIC_KEY: process.env.FLUTTERWAVE_PUBLIC_KEY,
+  FLUTTERWAVE_ENCRYPTION_KEY: process.env.FLUTTERWAVE_ENCRYPTION_KEY,
+  FLUTTERWAVE_SECRET_HASH: process.env.FLUTTERWAVE_SECRET_HASH,
+  PROJECT_ID: process.env.GOOGLE_CLOUD_PROJECT || process.env.GCLOUD_PROJECT || 'food-delivery-app'
 };
 
 // Contact information configuration (can be updated remotely)
@@ -98,6 +96,7 @@ const FLUTTERWAVE = {
   ENDPOINTS: {
     // v3 Endpoints
     CHARGES: '/v3/charges',
+    PAYMENT_LINKS: '/v3/payment-links',
     VALIDATE_CHARGE: '/v3/validate-charge',
     TRANSACTIONS: '/v3/transactions',
     VERIFY_TRANSACTION: '/v3/transactions/:id/verify'

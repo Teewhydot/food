@@ -121,3 +121,4 @@ flutter:
     - assets/svgs/
     - assets/
     - .env
+    - firebase_seed_data/

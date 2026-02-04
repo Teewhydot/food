@@ -23,7 +23,7 @@ class VerifyEmailBloc extends BaseBloC<VerifyEmailEvent, BaseState<UserProfileEn
           ErrorState<UserProfileEntity>(
             errorMessage: failure.failureMessage,
             errorCode: 'verification_check_failed',
-            isRetryable: true,
+            isRetryable: false,
           ),
         ),
         (userProfile) {
@@ -52,7 +52,7 @@ class VerifyEmailBloc extends BaseBloC<VerifyEmailEvent, BaseState<UserProfileEn
           ErrorState<UserProfileEntity>(
             errorMessage: failure.failureMessage,
             errorCode: 'resend_verification_failed',
-            isRetryable: true,
+            isRetryable: false,
           ),
         ),
         (_) => emit(

@@ -14,7 +14,8 @@ class Routes {
   static const String cart = '/cart';
   static const String paymentMethod = '/paymentMethod';
   static const String addCard = '/addCard';
-  static const String flutterwaveCardForm = '/flutterwaveCardForm';
+  // DEPRECATED: Flutterwave now uses hosted checkout (like Paystack) - card form no longer needed
+  // static const String flutterwaveCardForm = '/flutterwaveCardForm';
   static const String statusScreen = '/statusScreen';
   static const String tracking = '/tracking';
   static const String callScreen = '/callScreen';

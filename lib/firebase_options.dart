@@ -47,29 +47,28 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyCNP_segNn75ATicBwXwJ3uU3xOd5OHZus',
-    appId: '1:522247830688:web:07c8e7212850c88a23ddc5',
-    messagingSenderId: '522247830688',
-    projectId: 'dfood-5aaf3',
-    authDomain: 'dfood-5aaf3.firebaseapp.com',
-    storageBucket: 'dfood-5aaf3.firebasestorage.app',
-    measurementId: 'G-2JYH55TW5F',
+    apiKey: 'AIzaSyDXvIvfpPaXo3xVdngHBs2QNX2VZoxm6uc',
+    appId: '1:298577262827:web:5180725cfb4a8d2f7266ae',
+    messagingSenderId: '298577262827',
+    projectId: 'sirteefy-food',
+    authDomain: 'sirteefy-food.firebaseapp.com',
+    storageBucket: 'sirteefy-food.firebasestorage.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBywoO46WQTbfFaUOLUWU5ErdmdvN6b05g',
-    appId: '1:522247830688:android:c2c72e2f94bc0f5323ddc5',
-    messagingSenderId: '522247830688',
-    projectId: 'dfood-5aaf3',
-    storageBucket: 'dfood-5aaf3.firebasestorage.app',
+    apiKey: 'AIzaSyCovd8iU4Qd4rIsx-0jl11zw3iW1uBbFDs',
+    appId: '1:298577262827:android:0ce626381f7ebbc97266ae',
+    messagingSenderId: '298577262827',
+    projectId: 'sirteefy-food',
+    storageBucket: 'sirteefy-food.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCMzVm-YAgVruhzppJAUXhZMc-bs3SbMdU',
-    appId: '1:522247830688:ios:d4c0cfaac240e1a323ddc5',
-    messagingSenderId: '522247830688',
-    projectId: 'dfood-5aaf3',
-    storageBucket: 'dfood-5aaf3.firebasestorage.app',
+    apiKey: 'AIzaSyB76Mx5Zbp8hkE3Qedxnj0BcWJ5zB5YKEA',
+    appId: '1:298577262827:ios:f775b26aadce2aba7266ae',
+    messagingSenderId: '298577262827',
+    projectId: 'sirteefy-food',
+    storageBucket: 'sirteefy-food.firebasestorage.app',
     iosBundleId: 'com.sirteefyapps.food',
   );
 }

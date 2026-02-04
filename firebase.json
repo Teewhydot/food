@@ -1,36 +1,35 @@
 {
+  "functions": {
+    "source": "functions",
+    "runtime": "nodejs20"
+  },
   "flutter": {
     "platforms": {
       "android": {
         "default": {
-          "projectId": "dfood-5aaf3",
-          "appId": "1:522247830688:android:c2c72e2f94bc0f5323ddc5",
+          "projectId": "sirteefy-food",
+          "appId": "1:298577262827:android:0ce626381f7ebbc97266ae",
           "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "sirteefy-food",
+          "appId": "1:298577262827:ios:f775b26aadce2aba7266ae",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
         }
       },
       "dart": {
         "lib/firebase_options.dart": {
-          "projectId": "dfood-5aaf3",
+          "projectId": "sirteefy-food",
           "configurations": {
-            "android": "1:522247830688:android:c2c72e2f94bc0f5323ddc5",
-            "ios": "1:522247830688:ios:d4c0cfaac240e1a323ddc5",
-            "web": "1:522247830688:web:07c8e7212850c88a23ddc5"
+            "android": "1:298577262827:android:0ce626381f7ebbc97266ae",
+            "ios": "1:298577262827:ios:f775b26aadce2aba7266ae",
+            "web": "1:298577262827:web:5180725cfb4a8d2f7266ae"
           }
         }
       }
     }
-  },
-  "functions": [
-    {
-      "source": "functions",
-      "codebase": "default",
-      "ignore": [
-        "node_modules",
-        ".git",
-        "firebase-debug.log",
-        "firebase-debug.*.log",
-        "*.local"
-      ]
-    }
-  ]
+  }
 }

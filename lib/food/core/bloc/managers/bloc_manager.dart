@@ -6,7 +6,6 @@ import 'package:loading_overlay/loading_overlay.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/colors.dart';
-import '../../../core/utils/app_utils.dart';
 import '../../../core/utils/logger.dart';
 import '../base/base_state.dart';
 
@@ -120,7 +119,15 @@ class BlocManager<T extends BlocBase<S>, S extends BaseState>
             final String errorMessage =
                 state.errorMessage ?? AppConstants.defaultErrorMessage;
             if (showResultErrorNotifications) {
-              DFoodUtils.showSnackBar(errorMessage, kErrorColor);
+              // Use Flutter's SnackBar instead of Get.snackbar
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(errorMessage),
+                  backgroundColor: kErrorColor,
+                  behavior: SnackBarBehavior.floating,
+                  duration: const Duration(seconds: 3),
+                ),
+              );
             }
             if (onError != null) {
               onError!(context, state);
@@ -134,9 +141,15 @@ class BlocManager<T extends BlocBase<S>, S extends BaseState>
               onSuccess!(context, state);
             }
             if (showResultSuccessNotifications) {
-              DFoodUtils.showSnackBar(
-                state.successMessage ?? AppConstants.defaultSuccessMessage,
-                kSuccessColor,
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    state.successMessage ?? AppConstants.defaultSuccessMessage,
+                  ),
+                  backgroundColor: kSuccessColor,
+                  behavior: SnackBarBehavior.floating,
+                  duration: const Duration(seconds: 2),
+                ),
               );
             }
           }
@@ -147,9 +160,15 @@ class BlocManager<T extends BlocBase<S>, S extends BaseState>
               onSuccess!(context, state);
             }
             if (showResultSuccessNotifications) {
-              DFoodUtils.showSnackBar(
-                state.successMessage ?? AppConstants.defaultSuccessMessage,
-                kSuccessColor,
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    state.successMessage ?? AppConstants.defaultSuccessMessage,
+                  ),
+                  backgroundColor: kSuccessColor,
+                  behavior: SnackBarBehavior.floating,
+                  duration: const Duration(seconds: 2),
+                ),
               );
             }
           }

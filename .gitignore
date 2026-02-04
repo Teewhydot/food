@@ -49,6 +49,8 @@ app.*.map.json
 *.env
 .env.local
 .env.*.local
+.env.yaml
+functions/.env.yaml
 
 # Firebase config
 # FVM Version Cache

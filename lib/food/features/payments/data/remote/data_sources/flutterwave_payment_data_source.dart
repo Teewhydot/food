@@ -47,41 +47,16 @@ class FirebaseFlutterwavePaymentDataSource
 
       Logger.logBasic('Initializing Flutterwave v3 payment for order: $orderId');
 
-      // Generate unique transaction reference
-      final txRef =
-          'FLW${DateTime.now().millisecondsSinceEpoch}${_uuid.v4().substring(0, 8).toUpperCase()}';
-
-      // Extract card details from metadata
-      final cardDetails = metadata?['cardDetails'] as Map<String, dynamic>?;
-      final cardNumber = cardDetails?['cardNumber']?.toString() ?? '';
-      final expiryMonth = cardDetails?['expiryMonth']?.toString() ?? '12';
-      final expiryYear = cardDetails?['expiryYear']?.toString() ?? '2025';
-      final cvv = cardDetails?['cvv']?.toString() ?? '123';
-
-      // Validate required card details
-      if (cardNumber.isEmpty || cardNumber.length < 13) {
-        throw Exception('Invalid card number provided');
-      }
-      if (cvv.isEmpty || cvv.length < 3) {
-        throw Exception('Invalid CVV provided');
-      }
-
-      // Prepare v3 payload for Firebase Functions
+      // Prepare v3 payload for Firebase Functions (using Standard API - no card details needed)
       final payload = {
-        'card_number': cardNumber,
-        'cvv': cvv,
-        'expiry_month': expiryMonth,
-        'expiry_year': expiryYear,
-        'currency': 'NGN',
+        'orderId': orderId,
         'amount': amount,
         'email': email,
-        'fullname': metadata?['userName'] ?? 'Customer User',
-        'phone_number': metadata?['phoneNumber'] ?? '08012345678',
-        'tx_ref': txRef,
-        'redirect_url': metadata?['redirectUrl'] ?? 'https://example.com/success',
-        'order_id': orderId,
-        'user_id': user.uid,
-        'meta': {
+        'userId': user.uid,
+        'userName': metadata?['userName'] ?? 'Customer User',
+        'metadata': {
+          'phoneNumber': metadata?['phoneNumber'] ?? '08012345678',
+          'redirectUrl': metadata?['redirectUrl'] ?? 'https://example.com/success',
           'order_id': orderId,
           'user_id': user.uid,
           'source': 'food_app',
@@ -89,9 +64,9 @@ class FirebaseFlutterwavePaymentDataSource
         },
       };
 
-      Logger.logBasic('Calling Firebase Function for Flutterwave v3 charge');
+      Logger.logBasic('Calling Firebase Function for Flutterwave v3 Standard payment');
 
-      // Call Firebase Function (which calls Flutterwave v3 API)
+      // Call Firebase Function (which calls Flutterwave v3 Standard API)
       final response = await http.post(
         Uri.parse('${Env.firebaseCloudFunctionsUrl}/initializeFlutterwavePayment'),
         headers: {'Content-Type': 'application/json'},
@@ -101,18 +76,23 @@ class FirebaseFlutterwavePaymentDataSource
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
 
-        Logger.logSuccess(
-          'Flutterwave v3 payment initialization successful: $txRef',
-        );
+        if (data['success'] == true && data['authorization_url'] != null) {
+          Logger.logSuccess(
+            'Flutterwave v3 payment initialization successful: ${data['reference'] ?? data['tx_ref']}',
+          );
 
-        return {
-          'success': true,
-          'reference': txRef,
-          'authorizationUrl': data['authorization_url'] ?? data['data']?['authorization_url'],
-          'accessCode': data['access_code'],
-          'amount': amount,
-          'paymentData': data,
-        };
+          return {
+            'success': true,
+            'reference': data['tx_ref'] ?? data['reference'],
+            'authorizationUrl': data['authorization_url'],
+            'amount': amount,
+            'paymentData': data['paymentData'],
+          };
+        } else {
+          final errorMessage = data['error'] ?? 'Failed to initialize payment';
+          Logger.logError('Flutterwave API Error: $errorMessage');
+          throw Exception('Flutterwave v3 API error: $errorMessage');
+        }
       } else {
         final errorData = json.decode(response.body);
         final errorMessage = errorData['message'] ?? errorData['error'] ?? 'Unknown error';

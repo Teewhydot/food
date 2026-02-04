@@ -685,55 +685,41 @@ exports.cleanupOldPendingTransactions = onSchedule(
     }
   }
 );
- // Keep Golang backend alive (prevents Render shutdown after 15 minutes of inactivity)                                                               
-  exports.keepBackendAlive = onSchedule(                                                                                                               
-    {                                                                                                                                                  
-      schedule: 'every 14 minutes',                                                                                                                    
-      region: FUNCTIONS_CONFIG.REGION,                                                                                                                 
-      timeoutSeconds: 60,                                                                                                                              
-      memory: '128MB'                                                                                                                                  
-    },                                                                                                                                                 
-    async (context) => {                                                                                                                               
-      const executionId = `keepalive-${Date.now()}`;                                                                                                   
-                                                                                                                                                       
-      try {                                                                                                                                            
-        const backendUrl = ENVIRONMENT.BACKEND_KEEPALIVE_URL;                                                                                          
-                                                                                                                                                       
-        if (!backendUrl) {                                                                                                                             
-          logger.warning('Backend keep-alive URL not configured', executionId);                                                                        
-          return;                                                                                                                                      
-        }                                                                                                                                              
-                                                                                                                                                       
-        logger.info(`Pinging backend: ${backendUrl}`, executionId);                                                                                    
-                                                                                                                                                       
-        // Make GET request to keep backend alive (fire-and-forget)                                                                                    
-        const response = await axios.get(backendUrl, {                                                                                                 
-          timeout: 10000, // 10 second timeout                                                                                                         
-          validateStatus: () => true // Accept any status code                                                                                         
-        });                                                                                                                                            
-                                                                                                                                                       
-        const parcel_response = await axios.post(                                                                                                      
-          "https://parcel-rag-backend.onrender.com/query",                                                                                             
-          {                                                                                                                                            
-            tenant_id: "keepalive",                                                                                                                    
-            question: "How does a snake swallow 36 million naira?",                                                                                                                           
-          },                                                                                                                                           
-          {                                                                                                                                            
-            timeout: 10000,                                                                                                                            
-            validateStatus: () => true,                                                                                                                
-            headers: {                                                                                                                                 
-              'Content-Type': 'application/json'                                                                                                       
-            }                                                                                                                                          
-          }                                                                                                                                            
-        );                                                                                                                                             
-                                                                                                                                                       
-        logger.success(`Backend pinged successfully - Status: ${response.status}`, executionId);                                                       
-        logger.success(`Parcel backend queried successfully - Status: ${parcel_response.status}`, executionId);                                        
-                                                                                                                                                       
-      } catch (error) {                                                                                                                                
-        logger.info(`Backend ping completed (with error) - ${error.message}`, executionId);                                                            
-      }                                                                                                                                                
-    }                                                                                                                                                  
+ // Keep Parcelam backend alive (prevents Render shutdown after 15 minutes of inactivity)                                                               
+  exports.keepBackendAlive = onSchedule(
+    {
+      schedule: 'every 14 minutes',
+      region: FUNCTIONS_CONFIG.REGION,
+      timeoutSeconds: 60,
+      memory: '128MB'
+    },
+    async (context) => {
+      const executionId = `keepalive-${Date.now()}`;
+
+      try {
+        logger.info('Pinging Parcelam backend...', executionId);
+
+        const parcel_response = await axios.post(
+          "https://parcel-rag-backend.onrender.com/query",
+          {
+            tenant_id: "keepalive",
+            question: "How does a snake swallow 36 million naira?",
+          },
+          {
+            timeout: 10000,
+            validateStatus: () => true,
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+
+        logger.success(`Parcelam backend pinged successfully - Status: ${parcel_response.status}`, executionId);
+
+      } catch (error) {
+        logger.info(`Parcelam ping completed (with error) - ${error.message}`, executionId);
+      }
+    }
   );  
 // ========================================================================
 // Flutterwave Payment Functions
@@ -744,7 +730,13 @@ exports.initializeFlutterwavePayment = onRequest(
   {
     region: FUNCTIONS_CONFIG.REGION,
     timeoutSeconds: FUNCTIONS_CONFIG.TIMEOUT_SECONDS,
-    memory: FUNCTIONS_CONFIG.MEMORY
+    memory: FUNCTIONS_CONFIG.MEMORY,
+    env: [
+      'FLUTTERWAVE_SECRET_KEY',
+      'FLUTTERWAVE_PUBLIC_KEY',
+      'FLUTTERWAVE_ENCRYPTION_KEY',
+      'FLUTTERWAVE_SECRET_HASH'
+    ]
   },
   async (req, res) => {
     cors(req, res, async () => {
@@ -826,7 +818,9 @@ exports.initializeFlutterwavePayment = onRequest(
           reference: reference,
           authorization_url: paymentResult.authorizationUrl,
           access_code: paymentResult.accessCode,
-          tx_ref: paymentResult.reference
+          tx_ref: paymentResult.reference,
+          paymentData: paymentResult.paymentData,
+          fullResponse: paymentResult.fullResponse || paymentResult.paymentData
         });
 
       } catch (error) {
@@ -845,7 +839,13 @@ exports.verifyFlutterwavePayment = onRequest(
   {
     region: FUNCTIONS_CONFIG.REGION,
     timeoutSeconds: FUNCTIONS_CONFIG.TIMEOUT_SECONDS,
-    memory: FUNCTIONS_CONFIG.MEMORY
+    memory: FUNCTIONS_CONFIG.MEMORY,
+    env: [
+      'FLUTTERWAVE_SECRET_KEY',
+      'FLUTTERWAVE_PUBLIC_KEY',
+      'FLUTTERWAVE_ENCRYPTION_KEY',
+      'FLUTTERWAVE_SECRET_HASH'
+    ]
   },
   async (req, res) => {
     cors(req, res, async () => {
@@ -908,7 +908,13 @@ exports.getFlutterwaveTransactionStatus = onRequest(
   {
     region: FUNCTIONS_CONFIG.REGION,
     timeoutSeconds: 60,
-    memory: FUNCTIONS_CONFIG.MEMORY
+    memory: FUNCTIONS_CONFIG.MEMORY,
+    env: [
+      'FLUTTERWAVE_SECRET_KEY',
+      'FLUTTERWAVE_PUBLIC_KEY',
+      'FLUTTERWAVE_ENCRYPTION_KEY',
+      'FLUTTERWAVE_SECRET_HASH'
+    ]
   },
   async (req, res) => {
     cors(req, res, async () => {
@@ -968,7 +974,13 @@ exports.flutterwaveWebhook = onRequest(
   {
     region: FUNCTIONS_CONFIG.REGION,
     timeoutSeconds: FUNCTIONS_CONFIG.TIMEOUT_SECONDS,
-    memory: FUNCTIONS_CONFIG.MEMORY
+    memory: FUNCTIONS_CONFIG.MEMORY,
+    env: [
+      'FLUTTERWAVE_SECRET_KEY',
+      'FLUTTERWAVE_PUBLIC_KEY',
+      'FLUTTERWAVE_ENCRYPTION_KEY',
+      'FLUTTERWAVE_SECRET_HASH'
+    ]
   },
   async (req, res) => {
     const executionId = `flw-webhook-${Date.now()}`;

@@ -48,63 +48,46 @@ class FlutterwaveService {
         throw new Error('Flutterwave v3 Secret Key (FLUTTERWAVE_SECRET_KEY) is not configured. Please add it to .env.yaml or Firebase Functions config.');
       }
 
-      console.log(`[${executionId}] Flutterwave v3 Charges API Configuration:`);
+      console.log(`[${executionId}] Flutterwave v3 Standard Payment Configuration:`);
       console.log(`[${executionId}] - Base URL: ${this.baseUrl}`);
       console.log(`[${executionId}] - Environment: ${this.isProduction ? 'Production' : 'Sandbox'}`);
 
-      logger.payment('INITIALIZE', 'new-flutterwave-v3-charge', amount, executionId);
+      logger.payment('INITIALIZE', 'flutterwave-v3-standard', amount, executionId);
 
-      // Generate unique alphanumeric transaction reference (no underscores or special chars)
+      // Generate unique transaction reference
       const txRef = `FLW${Date.now()}${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
-      const idempotencyKey = uuidv4();
-      const traceId = `flw_${executionId}_${Date.now()}`;
-
-      // Use v3 charges endpoint with card type
-      const chargesUrl = `${this.baseUrl}${FLUTTERWAVE.ENDPOINTS.CHARGES}?type=card`;
-      console.log(`[${executionId}] - Charges Endpoint: ${chargesUrl}`);
-
-      // Prepare headers with Secret Key (Bearer token)
-      const headers = {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.secretKey}`,
-        'X-Idempotency-Key': idempotencyKey,
-        'X-Trace-Id': traceId
-      };
-
-      console.log(`[${executionId}] Request headers prepared:`, {
-        'Content-Type': headers['Content-Type'],
-        'Authorization': headers.Authorization ? 'Bearer ***' + headers.Authorization.slice(-8) : 'MISSING',
-        'X-Idempotency-Key': headers['X-Idempotency-Key'],
-        'X-Trace-Id': headers['X-Trace-Id']
-      });
 
       // Validate and prepare customer name fields
       const nameParts = (metadata.userName || 'Customer User').split(' ');
       const firstName = nameParts[0] || 'Customer';
       const lastName = nameParts[1] || 'User';
 
-      // Clean phone number to digits only (7-10 chars) - strict validation
+      // Clean phone number to digits only (7-10 chars)
       const rawPhone = (metadata.phoneNumber || '08012345678').replace(/[^\d]/g, '');
-      const cleanPhone = rawPhone.replace(/^234/, ''); // Remove country code if present
+      const cleanPhone = rawPhone.replace(/^234/, '');
       let validPhone = cleanPhone;
       if (validPhone.length < 7) {
-        validPhone = '08012345678'; // Default fallback
+        validPhone = '08012345678';
       } else if (validPhone.length > 10) {
-        validPhone = validPhone.substring(0, 10); // Truncate to 10 digits
+        validPhone = validPhone.substring(0, 10);
       }
 
-      // Flutterwave v3 Direct Card Charge payload structure
+      // Flutterwave v3 Standard Payment payload
       const payload = {
         tx_ref: txRef,
         amount: amount,
         currency: 'NGN',
+        redirect_url: metadata.redirectUrl || 'https://example.com/success',
         customer: {
           email: email,
           name: `${firstName} ${lastName}`,
           phonenumber: validPhone
         },
-        payment_options: 'card',
-        redirect_url: metadata.redirectUrl || 'https://example.com/success',
+        customizations: {
+          title: 'Food Order Payment',
+          description: `Payment for order ${metadata.orderId}`,
+          logo: 'https://via.placeholder.com/150'
+        },
         meta: {
           order_id: metadata.orderId,
           user_id: metadata.userId,
@@ -112,78 +95,41 @@ class FlutterwaveService {
         }
       };
 
-      // Add card details if provided
-      if (metadata.card_number) {
-        payload.card = {
-          card_number: metadata.card_number.replace(/\s/g, ''),
-          cvv: metadata.cvv,
-          expiry_month: metadata.expiry_month.toString().padStart(2, '0'),
-          expiry_year: metadata.expiry_year.toString()
-        };
-      }
+      console.log(`[${executionId}] Flutterwave v3 Standard payload:`, JSON.stringify(payload, null, 2));
 
-      // Log the complete payload for debugging
-      console.log(`[${executionId}] Complete v3 payload:`, JSON.stringify({
-        ...payload,
-        card: payload.card ? { card_number: '***REDACTED***', cvv: '***' } : undefined
-      }, null, 2));
-
-      // Log the actual request being made
-      console.log(`[${executionId}] Making HTTP POST request to: ${chargesUrl}`);
-
-      const response = await axios.post(chargesUrl, payload, {
-        headers: headers,
-        timeout: 60000, // 60 seconds
-        maxRedirects: 0, // No redirects/retries
-        validateStatus: function (status) {
-          return status < 500; // Accept all status codes except 5xx server errors
-        }
+      // Call Flutterwave v3 Standard Payment endpoint
+      const response = await axios.post(`${this.baseUrl}/v3/payments`, payload, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.secretKey}`
+        },
+        timeout: 60000
       });
 
       console.log(`[${executionId}] Response status: ${response.status}`);
+      console.log(`[${executionId}] Response data:`, JSON.stringify(response.data, null, 2));
 
-      if (response.status === 200 || response.status === 201) {
-        const paymentData = response.data;
+      if (response.data.status === 'success' && response.data.data && response.data.data.link) {
+        const checkoutLink = response.data.data.link;
 
-        // Handle different authorization modes in v3
-        let authorizationUrl = null;
-        const authMode = paymentData.data?.meta?.authorization?.mode;
-
-        if (authMode === 'redirect') {
-          authorizationUrl = paymentData.data.meta.authorization.redirect;
-        } else if (authMode === 'pin' || authMode === 'otp') {
-          // For PIN/OTP, return the charge data for further validation
-          console.log(`[${executionId}] Authorization mode: ${authMode} - additional validation required`);
-        } else if (paymentData.data?.status === 'successful') {
-          console.log(`[${executionId}] Payment completed successfully without additional authorization`);
-        }
-
-        console.log(`[${executionId}] Extracted authorization URL: ${authorizationUrl ? 'Found' : 'Not needed'}`);
-
-        logger.success(`Flutterwave v3 charge initialized: ${txRef}`, executionId, {
+        logger.success(`Flutterwave v3 Standard payment created: ${txRef}`, executionId, {
           txRef: txRef,
           amount: amount,
           email: email,
-          apiVersion: 'v3',
-          authMode: authMode || 'none',
-          idempotencyKey: idempotencyKey
+          checkoutLink: checkoutLink
         });
 
         return {
           success: true,
           reference: txRef,
-          authorizationUrl: authorizationUrl,
-          accessCode: paymentData.data?.flw_ref || null,
+          authorizationUrl: checkoutLink,
+          accessCode: null,
           amount: amount,
-          idempotencyKey: idempotencyKey,
-          traceId: traceId,
-          authMode: authMode,
-          paymentData: paymentData // Include full response for debugging
+          authMode: 'standard',
+          paymentData: response.data
         };
       } else {
-        console.log(`[${executionId}] Flutterwave v3 API Error Response:`, JSON.stringify(response.data, null, 2));
-        const errorMessage = response.data.message || response.data.error || 'Unknown error';
-        throw new Error(`Flutterwave v3 API error: ${errorMessage}`);
+        throw new Error(`Flutterwave v3 API error: ${response.data.message || 'Unknown error'}`);
       }
     } catch (error) {
       // Log the complete error details including response data

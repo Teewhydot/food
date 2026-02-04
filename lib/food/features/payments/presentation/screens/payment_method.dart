@@ -23,7 +23,11 @@ import '../manager/cart/cart_cubit.dart';
 import '../manager/paystack_bloc/paystack_payment_bloc.dart';
 import '../manager/paystack_bloc/paystack_payment_event.dart';
 import '../manager/paystack_bloc/paystack_payment_state.dart';
+import '../manager/flutterwave_bloc/flutterwave_payment_bloc.dart';
+import '../manager/flutterwave_bloc/flutterwave_payment_event.dart';
+import '../manager/flutterwave_bloc/flutterwave_payment_state.dart';
 import 'paystack_webview_screen.dart';
+import 'flutterwave_webview_screen.dart';
 
 class PaymentMethod extends StatefulWidget {
   const PaymentMethod({super.key});
@@ -261,14 +265,156 @@ class _PaymentMethodState extends State<PaymentMethod> {
 
   void _processFlutterwavePayment(dynamic cartState, UserProfileEntity user) {
     final amount = cartState.data?.totalPrice ?? 0.0;
+    final orderId = "temp_order_${DateTime.now().millisecondsSinceEpoch}";
 
-    // Navigate to card form screen
-    nav.navigateTo(
-      Routes.flutterwaveCardForm,
-      arguments: {
-        'amount': amount,
-        'orderId': "temp_order_${DateTime.now().millisecondsSinceEpoch}",
-      },
+    // Show loading dialog
+    DFoodUtils.showDialogContainer(
+      context: context,
+      child: BlocListener<FlutterwavePaymentBloc, FlutterwavePaymentState>(
+        listener: (context, state) {
+          if (state is FlutterwavePaymentInitialized) {
+            nav.goBack(); // Close loading dialog
+
+            // Check if authorizationUrl is available
+            final authUrl = state.transaction.authorizationUrl;
+            if (authUrl != null && authUrl.isNotEmpty) {
+              _launchFlutterwavePayment(authUrl, state.transaction.reference, orderId);
+            } else {
+              // Handle error case where authorization URL is missing
+              DFoodUtils.showSnackBar(
+                "Failed to initiate payment. Please try again.",
+                kErrorColor,
+              );
+            }
+          } else if (state is FlutterwavePaymentVerified) {
+            nav.goBack(); // Close loading dialog
+            if (state.transaction.isSuccess) {
+              // Payment successful
+              nav.navigateAndReplace(
+                Routes.statusScreen,
+                arguments: PaymentStatusEnum.success,
+              );
+            } else {
+              DFoodUtils.showSnackBar(
+                "Payment failed. Please try again.",
+                kErrorColor,
+              );
+            }
+          } else if (state is FlutterwavePaymentError) {
+            nav.goBack(); // Close loading dialog
+            DFoodUtils.showSnackBar(state.message, kErrorColor);
+          }
+        },
+        child: const Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircularProgressIndicator(color: kWhiteColor),
+            SizedBox(height: 16),
+            FText(text: "Initializing payment...", color: kWhiteColor),
+          ],
+        ),
+      ),
+    );
+
+    // Initialize Flutterwave payment
+    context.read<FlutterwavePaymentBloc>().add(
+      InitializeFlutterwavePaymentEvent(
+        orderId: orderId,
+        amount: amount,
+        email: user.email,
+        metadata: {
+          'userId': user.id,
+          'userName': '${user.firstName} ${user.lastName}',
+          'phoneNumber': user.phoneNumber,
+          'redirectUrl': 'https://example.com/success',
+          // Add cart items
+          'items': cartState.data?.items?.map((item) => {
+                'name': item.name,
+                'quantity': item.quantity,
+                'price': item.price,
+                'imageUrl': item.imageUrl,
+              }).toList() ??
+              [],
+          'subtotal': cartState.data?.totalPrice ?? 0.0,
+          'deliveryFee': 500.0,
+          'tax': 0.0,
+          'total': amount,
+        },
+      ),
+    );
+  }
+
+  Future<void> _launchFlutterwavePayment(
+    String authorizationUrl,
+    String reference,
+    String orderId,
+  ) async {
+    // Navigate to in-app webview for payment
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => FlutterwaveWebviewScreen(
+          authorizationUrl: authorizationUrl,
+          reference: reference,
+          orderId: orderId,
+          onPaymentCompleted: () {
+            // Payment completed - verify the payment
+            _verifyFlutterwavePayment(reference);
+          },
+          onPaymentCancelled: () {
+            // Payment cancelled - show message
+            DFoodUtils.showSnackBar(
+              "Payment was cancelled. Please try again if needed.",
+              kErrorColor,
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  void _verifyFlutterwavePayment(String reference) {
+    // Show loading dialog
+    DFoodUtils.showDialogContainer(
+      context: context,
+      child: BlocListener<FlutterwavePaymentBloc, FlutterwavePaymentState>(
+        listener: (context, state) {
+          if (state is FlutterwavePaymentVerified) {
+            nav.goBack(); // Close loading dialog
+            if (state.transaction.isSuccess) {
+              // Payment successful
+              nav.navigateAndReplace(
+                Routes.statusScreen,
+                arguments: PaymentStatusEnum.success,
+              );
+            } else {
+              // Payment failed
+              DFoodUtils.showSnackBar(
+                "Payment verification failed",
+                kErrorColor,
+              );
+            }
+          } else if (state is FlutterwavePaymentError) {
+            nav.goBack(); // Close loading dialog
+            DFoodUtils.showSnackBar(state.message, kErrorColor);
+          }
+        },
+        child: const Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircularProgressIndicator(color: kWhiteColor),
+            SizedBox(height: 16),
+            FText(text: "Verifying payment...", color: kWhiteColor),
+          ],
+        ),
+      ),
+    );
+
+    // Verify payment
+    context.read<FlutterwavePaymentBloc>().add(
+      VerifyFlutterwavePaymentEvent(
+        reference: reference,
+        orderId: '', // Will be extracted from reference by the backend
+      ),
     );
   }
 
