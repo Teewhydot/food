@@ -698,25 +698,43 @@ exports.keepBackendAlive = onSchedule(
 
     try {
       const backendUrl = ENVIRONMENT.BACKEND_KEEPALIVE_URL;
+      const expertUrl = 'https://expertlisting-backend.onrender.com/api/v1/health'; // Update this to your actual Render URL!
 
-      if (!backendUrl) {
-        logger.warning('Backend keep-alive URL not configured', executionId);
+      if (!backendUrl && !expertUrl) {
+        logger.warning('No keep-alive URLs configured', executionId);
         return;
       }
 
-      logger.info(`Pinging backend: ${backendUrl}`, executionId);
+      // Ping food backend
+      if (backendUrl) {
+        try {
+          logger.info(`Pinging food backend: ${backendUrl}`, executionId);
+          const response = await axios.get(backendUrl, {
+            timeout: 10000,
+            validateStatus: () => true
+          });
+          logger.success(`Food backend pinged successfully - Status: ${response.status}`, executionId);
+        } catch (error) {
+          logger.info(`Food backend ping completed (with error) - ${error.message}`, executionId);
+        }
+      }
 
-      // Make GET request to keep backend alive (fire-and-forget)
-      const response = await axios.get(backendUrl, {
-        timeout: 10000, // 10 second timeout
-        validateStatus: () => true // Accept any status code
-      });
-
-      logger.success(`Backend pinged successfully - Status: ${response.status}`, executionId);
+      // Ping ExpertListing backend
+      if (expertUrl) {
+        try {
+          logger.info(`Pinging expertlisting backend: ${expertUrl}`, executionId);
+          const response = await axios.get(expertUrl, {
+            timeout: 10000,
+            validateStatus: () => true
+          });
+          logger.success(`ExpertListing backend pinged successfully - Status: ${response.status}`, executionId);
+        } catch (error) {
+          logger.info(`ExpertListing backend ping completed (with error) - ${error.message}`, executionId);
+        }
+      }
 
     } catch (error) {
-      // Log error but don't fail - the goal is just to make a request
-      logger.info(`Backend ping completed (with error) - ${error.message}`, executionId);
+      logger.error(`Critical error in keepBackendAlive: ${error.message}`, executionId);
     }
   }
 );  

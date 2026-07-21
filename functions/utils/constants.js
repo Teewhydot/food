@@ -13,7 +13,9 @@ const ENVIRONMENT = {
   FLUTTERWAVE_PUBLIC_KEY: process.env.FLUTTERWAVE_PUBLIC_KEY,
   FLUTTERWAVE_ENCRYPTION_KEY: process.env.FLUTTERWAVE_ENCRYPTION_KEY,
   FLUTTERWAVE_SECRET_HASH: process.env.FLUTTERWAVE_SECRET_HASH,
-  PROJECT_ID: process.env.GOOGLE_CLOUD_PROJECT || process.env.GCLOUD_PROJECT || 'food-delivery-app'
+  PROJECT_ID: process.env.GOOGLE_CLOUD_PROJECT || process.env.GCLOUD_PROJECT || 'food-delivery-app',
+  BACKEND_KEEPALIVE_URL: process.env.BACKEND_KEEPALIVE_URL,
+  EXPERTLISTING_KEEPALIVE_URL: process.env.EXPERTLISTING_KEEPALIVE_URL
 };
 
 // Contact information configuration (can be updated remotely)
